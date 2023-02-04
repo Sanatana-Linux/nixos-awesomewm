@@ -4,65 +4,26 @@ local gears = require 'gears'
 local wibox = require 'wibox'
 local awful = require 'awful'
 local beautiful = require 'beautiful'
-local naughty = require 'naughty'
-
-local color = require 'modules.color'
-local rubato = require 'modules.rubato'
-
 local dpi = beautiful.xresources.apply_dpi
 
 local helpers = {}
 
 -- colorize a text using pango markup
 function helpers.get_colorized_markup(content, fg)
-    fg = beautiful.grey
+    fg = fg or beautiful.blue
     content = content or ''
 
     return '<span foreground="' .. fg .. '">' .. content .. '</span>'
 end
 
-function helpers.apply_transition(opts)
-    opts = opts or {}
-
-    local bg = opts.bg or beautiful.bg_lighter
-    local hbg = opts.hbg or beautiful.black
-
-    local element, prop = opts.element, opts.prop
-
-    local background = color.color { hex = bg }
-    local hover_background = color.color { hex = hbg }
-
-    local transition = color.transition(background, hover_background, color.transition.RGB)
-
-    local fading = rubato.timed { duration = 0.30 }
-
-    fading:subscribe(function (pos)
-        element[prop] = transition(pos / 100).hex
-    end)
-
-    return {
-        on = function ()
-            fading.target = 100
-        end,
-        off = function ()
-            fading.target = 0
-        end
-    }
-end
-
 -- add hover support to wibox.container.background-based elements
 function helpers.add_hover(element, bg, hbg)
-    local transition = helpers.apply_transition {
-        element = element,
-        prop = 'bg',
-        bg = bg,
-        hbg = hbg,
-    }
-
-    element:connect_signal('mouse::enter', transition.on)
-    element:connect_signal('mouse::leave', transition.off)
-
-    return transition
+    element:connect_signal('mouse::enter', function (self)
+        self.bg = hbg
+    end)
+    element:connect_signal('mouse::leave', function (self)
+        self.bg = bg
+    end)
 end
 
 -- create a rounded rect using a custom radius
@@ -153,12 +114,12 @@ function helpers.make_popup_tooltip(text, placement)
     ret.popup = awful.popup {
         visible = false,
         shape = helpers.mkroundedrect(),
-        bg = beautiful.black .. '00',
+        bg = beautiful.bg_normal .. '00',
         fg = beautiful.fg_normal,
         ontop = true,
         placement = placement or awful.placement.centered,
         screen = awful.screen.focused(),
-        widget = helpers.mkroundedcontainer(ret.widget, beautiful.black),
+        widget = helpers.mkroundedcontainer(ret.widget, beautiful.bg_normal),
     }
 
     local self = ret.popup
@@ -238,131 +199,6 @@ function helpers.apply_margin(widget, margins, top, bottom, right, left)
         bottom = bottom,
         widget = wibox.container.margin,
     }
-end
-
-function helpers.contained (spacing, widget)
-  if not widget then
-    widget = wibox.widget.textbox()
-    widget.markup = 'Hello, World!'
-    widget.valign = 'center'
-    widget.align = 'center'
-  end
-
-  return wibox.widget {
-    {
-      widget,
-      margins = spacing,
-      widget = wibox.container.margin,
-    },
-    bg = beautiful.bg_lighter,
-    shape = helpers.mkroundedrect(),
-    widget = wibox.container.background,
-  }
-end
-
-function helpers.get_notification_widget(n)
-  return {
-    {
-      {
-        {
-          {
-            {
-              image = n.icon or beautiful.fallback_notif_icon,
-              forced_height = 32,
-              forced_width = 32,
-              valign = 'center',
-              align = 'center',
-              clip_shape = gears.shape.circle,
-              widget = wibox.widget.imagebox,
-            },
-            {
-              markup = helpers.complex_capitalizing(n.app_name == '' and 'Cannot detect app' or n.app_name),
-              align = 'left',
-              valign = 'center',
-              widget = wibox.widget.textbox,
-            },
-            spacing = dpi(10),
-            layout = wibox.layout.fixed.horizontal,
-          },
-          margins = dpi(10),
-          widget = wibox.container.margin,
-        },
-        {
-          {
-            {
-              markup = '',
-              widget = wibox.widget.textbox,
-            },
-            top = 1,
-            widget = wibox.container.margin,
-          },
-          bg = beautiful.light_black,
-          widget = wibox.container.background,
-        },
-        layout = wibox.layout.fixed.vertical,
-      },
-      {
-        {
-          n.title == '' and nil or {
-            markup = '<b>' .. helpers.complex_capitalizing(n.title) .. '</b>',
-            align = 'center',
-            valign = 'center',
-            widget = wibox.widget.textbox,
-          },
-          {
-            markup = n.title == '' and '<b>' .. n.message .. '</b>' or n.message,
-            align = 'center',
-            valign = 'center',
-            widget = wibox.widget.textbox,
-          },
-          spacing = dpi(5),
-          layout = wibox.layout.fixed.vertical,
-        },
-        top = dpi(25),
-        left = dpi(12),
-        right = dpi(12),
-        bottom = dpi(15),
-        widget = wibox.container.margin,
-      },
-      {
-        {
-          notification = n,
-          base_layout = wibox.widget {
-            spacing = dpi(12),
-            layout = wibox.layout.flex.horizontal,
-          },
-          widget_template = {
-            {
-              {
-                {
-                  id = 'text_role',
-                  widget = wibox.widget.textbox,
-                },
-                widget = wibox.container.place,
-              },
-              top = dpi(7),
-              bottom = dpi(7),
-              left = dpi(4),
-              right = dpi(4),
-              widget = wibox.container.margin,
-            },
-            shape = gears.shape.rounded_bar,
-            bg = beautiful.black,
-            widget = wibox.container.background,
-          },
-          widget = naughty.list.actions,
-        },
-        margins = dpi(12),
-        widget = wibox.container.margin,
-      },
-      spacing = dpi(7),
-      layout = wibox.layout.align.vertical,
-    },
-    bg = beautiful.black,
-    fg = beautiful.fg_normal,
-    shape = helpers.mkroundedrect(),
-    widget = wibox.container.background,
-  }
 end
 
 return helpers

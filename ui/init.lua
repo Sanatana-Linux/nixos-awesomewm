@@ -1,7 +1,6 @@
-require("ui.notifications")
-require("ui.wallpaper")
-require("ui.menu")
-require("ui.bar")
-require("ui.titlebars")
-require("ui.infosidebar")
-require("ui.dashboard")
+require "ui.wallpaper"
+require "ui.bar"
+require "ui.titlebar"
+require 'ui.tag_preview'
+require 'ui.task_preview'
+require 'ui.notifications'

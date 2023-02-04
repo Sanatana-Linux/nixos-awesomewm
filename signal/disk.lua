@@ -1,5 +1,5 @@
-local gears = require('gears')
-local awful = require('awful')
+local gears = require 'gears'
+local awful = require 'awful'
 
 local cmd = [[df --output=pcent / | tail -n 1 | sed 's/%//g' | xargs]]
 

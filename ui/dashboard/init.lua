@@ -1,72 +1,136 @@
-local wibox = require("wibox")
-local awful = require("awful")
-local beautiful = require("beautiful")
+---@diagnostic disable: undefined-global
+local awful = require 'awful'
+local beautiful = require 'beautiful'
+local gears = require 'gears'
+local wibox = require 'wibox'
+local helpers = require 'helpers'
+local dpi = beautiful.xresources.apply_dpi
 
-local rubato = require("modules.rubato")
-local dimensions = require("ui.dashboard.dimensions")
-local content = require("ui.dashboard.content")
-
-require("ui.dashboard.listener")
+-- enable visibility listener.
+require 'ui.dashboard.listener'
 
 awful.screen.connect_for_each_screen(function (s)
-  s.dashboard = {}
+    s.dashboard = {}
 
-  s.dashboard.popup = wibox {
-    x = s.geometry.x + (s.geometry.width - ((s.geometry.width / 2) + (dimensions.width / 2))),
-    y = s.geometry.y - dimensions.height - beautiful.useless_gap * 4,
-    width = dimensions.width,
-    height = dimensions.height,
-    border_width = 0.5,
-    border_color = beautiful.grey,
-    bg = beautiful.bg_normal,
-    ontop = true,
-    visible = false
-  }
 
-  local self = s.dashboard.popup
 
-  local void = {
-    markup = '',
-    widget = wibox.widget.textbox
-  }
+    -- making it as a function to make sure it's loaded when i want.
+    local function mkwidget ()
+        local date = require 'ui.dashboard.date'
+        local charts = require 'ui.dashboard.charts'
+        local music = require 'ui.dashboard.music-player'
+        local controls = require 'ui.dashboard.controls'
+        local actions = require 'ui.dashboard.actions'
 
-  self:setup(void)
-
-  self.animate = rubato.timed {
-    duration = 0.85,
-    pos = s.geometry.y - dimensions.height - beautiful.useless_gap * 4
-  }
-
-  self.status = 'undefined'
-
-  self.animate:subscribe(function (pos)
-    if self.status == 'closing' and pos == s.geometry.y + beautiful.useless_gap * 4 + beautiful.bar_height then
-      self:setup(void)
-    elseif self.status == 'opening' and pos == s.geometry.y + beautiful.useless_gap * 4 + beautiful.bar_height then
-      self:setup(content)
+        return wibox.widget {
+            {
+                
+                {
+                    {
+                        {
+                            date,
+                            {
+                                controls,
+                                music,
+                                spacing = dpi(12),
+                                layout = wibox.layout.flex.horizontal,
+                            },
+                            charts,
+                            {
+                                {
+                                    {
+                                        actions.network,
+                                        actions.airplane,
+                                        actions.volume,
+                                        actions.redshift,
+                                        actions.bluetooth,
+                                        spacing = dpi(10),
+                                        layout = wibox.layout.flex.horizontal,
+                                    },
+                                    margins = dpi(15),
+                                    widget = wibox.container.margin,
+                                },
+                                shape = utilities.mkroundedrect(dpi(15)),
+                                bg = beautiful.bg_lighter,
+                                widget = wibox.container.background,
+                            },
+                            spacing = dpi(15),
+                            layout = wibox.layout.fixed.vertical,
+                        },
+                        margins = dpi(15),
+                        widget = wibox.container.margin,
+                    },
+                    bg = beautiful.bg_normal,
+                    widget = wibox.container.background,
+                    shape = function (cr, w, h)
+                        return gears.shape.partially_rounded_rect(cr, w, h, true, true, false, false, dpi(12))
+                    end
+                },
+                nil,
+                spacing = dpi(15),
+                layout = wibox.layout.align.vertical,
+            },
+            bg = beautiful.bg_lighter,
+            fg = beautiful.fg_normal,
+            widget = wibox.container.background,
+            shape = utilities.mkroundedrect(),
+        }
     end
-    if self.status == 'closing' and pos == s.geometry.y - dimensions.height - beautiful.useless_gap * 4 then
-      self.visible = false
+
+    s.dashboard.popup = awful.popup {
+        placement = function (d)
+            return awful.placement.bottom(d, {
+                margins = {
+                    bottom = beautiful.bar_height + beautiful.useless_gap * 4,
+                },
+            })
+        end,
+        ontop = true,
+        visible = false,
+        shape = utilities.mkroundedrect(),
+        bg = '#00000000',
+        minimum_width = dpi(455),
+        fg = beautiful.fg_normal,
+        screen = s,
+        widget = wibox.widget {
+            bg = beautiful.bg_normal,
+            widget = wibox.container.background,
+        },
+    }
+
+    local self = s.dashboard.popup
+
+    -- the next functions are made like this to solve
+    -- performace issues with the lot of signals inside the dashboard.
+    function s.dashboard.toggle()
+        if self.visible then
+            s.dashboard.hide()
+        else
+            s.dashboard.show()
+        end
     end
-    self.y = pos
-  end)
 
-  function s.dashboard.toggle ()
-    if self.visible then
-      s.dashboard.hide()
-    else
-      s.dashboard.show()
+    function s.dashboard.show()
+        if not PlayerctlSignal then
+            PlayerctlSignal = require 'modules.bling'.signal.playerctl.lib()
+        end
+        if not PlayerctlCli then
+            PlayerctlCli = require 'modules.bling'.signal.playerctl.cli()
+        end
+        self.widget = mkwidget()
+        self.visible = true
     end
-  end
 
-  function s.dashboard.show ()
-    self.visible = true
-    self.status = 'opening'
-    self.animate.target = s.geometry.y + beautiful.useless_gap * 4 + beautiful.bar_height
-  end
-
-  function s.dashboard.hide ()
-    self.status = 'closing'
-    self.animate.target = s.geometry.y - dimensions.height - beautiful.useless_gap * 4
-  end
+    function s.dashboard.hide()
+        self.visible = false
+        if PlayerctlCli then
+            PlayerctlCli:disable()
+            PlayerctlCli = nil
+        end
+        self.widget = wibox.widget {
+            bg = beautiful.bg_normal,
+            widget = wibox.container.background
+        }
+        collectgarbage('collect')
+    end
 end)

@@ -2,16 +2,11 @@
 -- |   |   |__|.----.-----.
 -- |   |   |  ||  __|  -__|
 --  \_____/|__||____|_____|
--- ------------------------------------------------- --
--- The vice base16 theme for awesomewm, yes I made my own base16 theme
--- instead of using Nord or Gruvbox or Catppucin or whatever cool kids like
--- this week. I like what I like and its not any of those color schemes
--- ------------------------------------------------- --
---  TIP: tailwind shades website is great for finding shades of color, or colorspace for matching colors
+-- -------------------------------------------------------------------------- --
 return {
-  -- ------------------------------------------------- --
+  -- -------------------------------------------------------------------------- --
   -- Colors
-
+  -- 
   color1 = "#919191",
   color2 = "#ff5c72",
   color3 = "#44ffdd",
@@ -63,12 +58,19 @@ return {
   colorY = "#919191",
   colorZ = "#bbbbbb",
   -- ------------------------------------------------- --
-  lesswhite = "#d1d1d1",
+
+  lesswhite = "#c1c1c1",
   white = "#e9e9e9",
   black = "#111111",
   blacker = "#000000",
   icons = "#e9e9e9",
   alpha = function(color, alpha)
     return color .. alpha
-  end
+  end,
+
+  bg_normal = "#212121",
+  bg_contrast = "#333333",
+  bg_lighter = "#2c2c2c",
+  bg_focus = "#525252",
+  
 }

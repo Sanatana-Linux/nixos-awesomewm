@@ -1,5 +1,5 @@
-local ruled = require("ruled")
-local awful = require("awful")
+local ruled = require "ruled"
+local awful = require "awful"
 
 local function setup_rules ()
     ruled.client.connect_signal("request::rules", function()

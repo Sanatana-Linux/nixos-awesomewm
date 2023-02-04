@@ -20,10 +20,10 @@ local scheme = require("themes.scheme")
 local theme = {}
 -- -------------------------------------------------------------------------- --
 -- fonts
-theme.font_name = 'SF Pro Rounded Heavy '
-theme.nerd_font = 'SFMono Bold Nerd Font Complete Mono '
-theme.material_icons = 'Material Icons '
-
+theme.font_name = 'Rounded Mplus 1c Bold'
+theme.nerd_font = 'mplus Nerd Font Mono Bold'
+theme.title_font = 'Norwester Condensed Regular '
+theme.material_icons = 'Material Design Icons Desktop Regular'
 theme.font_size = '10'
 theme.font = theme.font_name .. ' ' .. theme.font_size
 -- --------------------------------- Colors --------------------------------- --
@@ -44,15 +44,15 @@ theme.cyan = scheme.color7
 theme.aqua = scheme.color21
 -- -------------------------------------------------------------------------- --
 -- backgrounds
-theme.bg_normal     = scheme.colorB
-theme.bg_contrast   = scheme.colorA
-theme.bg_lighter    = scheme.colorC
+theme.bg_normal     = scheme.bg_normal
+theme.bg_contrast   = scheme.bg_contrast
+theme.bg_lighter    = scheme.bg_lighter
 -- -------------------------------------------------------------------------- --
 -- elements bg
-theme.bg_focus      = theme.dimblack
-theme.bg_urgent     = theme.red
-theme.bg_minimize   = theme.light_black
-theme.bg_systray    = theme.dimblack
+theme.bg_focus      = scheme.bg_focus
+theme.bg_urgent     = scheme.alpha(theme.red, "88")
+theme.bg_minimize   = theme.bg_lighter
+theme.bg_systray    = theme.bg_focus
 -- -------------------------------------------------------------------------- --
 -- foregrounds
 theme.fg_normal     = scheme.lesswhite
@@ -70,7 +70,7 @@ theme.actions = {
 }
 -- ----------------------------- Theme Variables ---------------------------- --
 -- bar
-theme.bar_height = 35
+theme.bar_height = 40
 -- -------------------------------------------------------------------------- --
 -- gaps and borders
 theme.useless_gap         = dpi(4)
@@ -91,6 +91,18 @@ theme.taglist_bg = theme.bg_normal
 theme.taglist_bg_urgent = theme.taglist_bg
 theme.taglist_bg_focus = theme.bg_focus
 theme.taglist_font = theme.material_icons .. ' 13'
+
+
+-- taglist
+theme.taglist_bg = theme.bg_normal
+theme.taglist_bg_urgent = theme.taglist_bg
+theme.normal_tag_format = assets_path .. 'taglist/ghost.svg'
+theme.occupied_tag_format = theme.normal_tag_format
+theme.selected_tag_format = assets_path .. 'taglist/pacman.svg'
+theme.taglist_fg_focus = theme.yellow
+theme.taglist_fg = theme.dimblack
+theme.taglist_fg_occupied = theme.blue
+
 
 -- -------------------------------------------------------------------------- --
 -- menu
@@ -140,13 +152,18 @@ theme.layout_deck = gears.color.recolor_image(assets_path .. '/layouts/deck.png'
 -- other icons
 theme.launcher_icon = assets_path .. "launcher.png"
 theme.menu_icon = gears.color.recolor_image(icons_path .. "menu.svg", theme.fg_normal)
-theme.hints_icon = gears.color.recolor_image(icons_path .. "hints.svg", theme.blue)
-theme.powerbutton_icon = gears.color.recolor_image(icons_path .. "poweroff.svg", theme.red)
+theme.hints_icon = gears.color.recolor_image(icons_path .. "hints.svg", theme.fg_normal)
+theme.powerbutton_icon = gears.color.recolor_image(icons_path .. "poweroff.svg", theme.fg_normal)
 theme.poweroff_icon = icons_path .. 'poweroff.svg'
 -- -------------------------------------------------------------------------- --
 -- volume 
 theme.volume_on = gears.color.recolor_image(icons_path .. 'volume-on.svg', theme.fg_normal)
 theme.volume_muted = gears.color.recolor_image(icons_path .. 'volume-muted.svg', theme.fg_normal)
+
+theme.tray_chevron_down = icons_path .. 'arrow-down.svg'
+
+theme.tray_chevron_up = icons_path .. 'arrow-up.svg'
+
 -- -------------------------------------------------------------------------- --
 -- network
 theme.network_connected = ''
@@ -159,10 +176,10 @@ theme.pfp = assets_path .. 'pfp.png'
 theme.fallback_music = assets_path .. 'fallback-music.png'
 -- -------------------------------------------------------------------------- --
 -- fallback notification icon
-theme.fallback_notif_icon = gears.color.recolor_image(icons_path .. 'hints.svg', theme.blue)
+theme.fallback_notif_icon = gears.color.recolor_image(icons_path .. 'hints.svg', theme.fg_normal)
 -- -------------------------------------------------------------------------- --
 -- icon theme
-theme.icon_theme = "Papirus-Dark"
+theme.icon_theme = "Qogir"
 -- -------------------------------------------------------------------------- --
 -- task preview
 theme.task_preview_widget_border_radius = dpi(7)

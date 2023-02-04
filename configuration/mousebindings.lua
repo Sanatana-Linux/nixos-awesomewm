@@ -1,5 +1,5 @@
-local awful = require("awful")
-local menu = require("ui.menu")
+local awful = require "awful"
+local menu = require "ui.menu"
 
 local function set_mousebindings ()
     awful.mouse.append_global_mousebindings {

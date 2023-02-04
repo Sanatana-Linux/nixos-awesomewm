@@ -37,8 +37,8 @@ tag.connect_signal(
                 awful.layout.suit.spiral.dwindle,
                 awful.layout.suit.corner.ne,
                 awful.layout.suit.fair,
-                awful.layout.suit.tile
-                -- awful.layout.suit.floating
+                awful.layout.suit.tile,
+                awful.layout.suit.floating
                 --awful.layout.suit.magnifier,
                 --awful.layout.suit.fair.horizontal
                 --awful.layout.suit.tile.left,
