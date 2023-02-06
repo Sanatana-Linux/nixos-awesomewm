@@ -10,7 +10,7 @@ local function make_button(txt, fg, bg, hfg, hbg, onclick)
       {
         {
           markup = txt,
-          font = beautiful.font_name .. " Bold 11",
+          font = beautiful.nerd_font .. " 11",
           widget = wibox.widget.textbox
         },
         left = 4,

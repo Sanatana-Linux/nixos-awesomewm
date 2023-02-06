@@ -3,6 +3,7 @@
 -- |__     ||  __|   _|  -__|  -__|     |__ --||     |  _  ||   _|
 -- |_______||____|__| |_____|_____|__|__|_____||__|__|_____||____|
 -- -------------------------------------------------------------------------- --
+---@diagnostic disable: undefined-global
 -- provides a means of taking and automatically handling the naming and saving of a screenshot]
 -- Dependencies: maim, xclip
 --  
@@ -25,8 +26,7 @@ local function get_path()
   return os.getenv("HOME") .. "/Pictures/screenshot-" .. random_id() .. ".png"
 end
 -- -------------------------------------------------------------------------- --
--- creates a dynamic/useful notification that should be showed after the
--- screenshot taking process.
+-- creates a notification that includes useful buttons
 function M.do_notify(tmp_path)
   local copy = naughty.action {name = "Copy"}
   local delete = naughty.action {name = "Delete"}
@@ -39,8 +39,8 @@ function M.do_notify(tmp_path)
     -- don't wait for xclip :/
     naughty.notify {
       app_name = "Screenshot",
-      title = "Screenshot",
-      text = "Screenshot copied successfully."
+      title = "Screenshot Copy",
+      text = "Screenshot copied to clipboard successfully."
     }
   end)
   -- -------------------------------------------------------------------------- --
@@ -49,7 +49,7 @@ function M.do_notify(tmp_path)
     awful.spawn.easy_async_with_shell("rm " .. tmp_path, function()
       naughty.notify {
         app_name = "Screenshot",
-        title = "Screenshot",
+        title = "Screenshot Removal",
         text = "Screenshot removed successfully."
       }
     end)
@@ -65,18 +65,14 @@ function M.do_notify(tmp_path)
     actions = {copy, delete}
   }
 end
--- -------------------------------------------------------------------------- --
--- returns defaults properties
-local function with_defaults(given_opts)
-  return {notify = given_opts == nil and false or given_opts.notify}
-end
+
 -- -------------------------------------------------------------------------- --
 -- takes a full-screen screenshot and depending on notify parameter, notifies the user the screenshot was taken
 function M.full(opts)
   -- screenshot path.
   local tmp_path = get_path()
-  -- -------------------------------------------------------------------------- --
-  -- waiting a bit of time to wait the hidding of some visual elements
+
+  -- waiting a bit of time to wait for the hiding of some visual elements
   -- that could be already rendered.
   gears.timer {
     timeout = 0.55,
@@ -89,9 +85,7 @@ function M.full(opts)
                                         function()
         ---@diagnostic disable-next-line: undefined-global
         awesome.emit_signal("screenshot::done")
-        if with_defaults(opts).notify then
           M.do_notify(tmp_path)
-        end
       end)
     end
   }
@@ -105,11 +99,8 @@ function M.area(opts)
   -- calls maim, also checks if `do_notify` should be called using `opts.notify`.
   awful.spawn.easy_async_with_shell("maim --select \"" .. tmp_path .. "\"",
                                     function()
-    ---@diagnostic disable-next-line: undefined-global
     awesome.emit_signal("screenshot::done")
-    if with_defaults(opts).notify then
       M.do_notify(tmp_path)
-    end
   end)
 end
 -- -------------------------------------------------------------------------- --
@@ -125,6 +116,7 @@ function M.with_options(opts)
   }
   -- -------------------------------------------------------------------------- --
   -- the callback which verifies an appropiate type is being provided
+  -- 
   local function core()
     if opts.type == "full" then
       M.full({notify = opts.notify})
@@ -137,11 +129,13 @@ function M.with_options(opts)
   end
 -- -------------------------------------------------------------------------- --
 -- here we insure we have a timeout that represents either no timeout or a positive number
+-- 
   if opts.timeout <= 0 then
     return core()
   end
 -------------------------------------------------------------------------- --
 -- the timer that runs the whole kit and kaboodle ;]
+--
   gears.timer {
     timeout = opts.timeout,
     call_now = false,

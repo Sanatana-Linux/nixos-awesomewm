@@ -20,11 +20,9 @@ end
 -- -------------------------------------------------------------------------- --
 -- Add apps to autostart here via terminal commands in subshells (meaning ending with &)
 autostart_apps = {
-   'xautolock -time 5 -locker $HOME/.config/awesome/scripts/blur.sh & ',
+   'xscreensaver & ',
    'picom -b --experimental-backends &',
-   ' eval "$(gnome-keyring-daemon -s --components=pkcs11,secrets,ssh,gpg)" &',
-
-
+   ' eval "$(gnome-keyring-daemon -s --components=pkcs11,secrets,ssh,gpg)" &'
 }
 
 -- -------------------------------------------------------------------------- --

@@ -244,16 +244,10 @@ screen.connect_signal("request::desktop_decoration", function(s)
   -- layoutbox buttons
   helpers.add_buttons(layoutbox, {
     awful.button({}, 1, function()
-      awful.layout.inc(1)
+      awesome.emit_signal('layout::changed:next')
     end),
     awful.button({}, 3, function()
-      awful.layout.inc(-1)
-    end),
-    awful.button({}, 4, function()
-      awful.layout.inc(-1)
-    end),
-    awful.button({}, 5, function()
-      awful.layout.inc(1)
+      awesome.emit_signal('layout::changed:prev')
     end)
   })
 

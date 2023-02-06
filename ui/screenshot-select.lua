@@ -60,7 +60,7 @@ awful.screen.connect_for_each_screen(function (s)
                     end
                 }, function ()
                     s.screenshot_selecter.hide()
-                    awful.spawn('bash ' .. gfs.get_configuration_dir() .. 'scripts/screenshot.sh full')
+                   utilities.screenshot.full()
                 end),
                 genbutton({
                     text = '',
@@ -81,7 +81,7 @@ awful.screen.connect_for_each_screen(function (s)
                     end
                 }, function ()
                     s.screenshot_selecter.hide()
-                   utilities.screenshot()
+                   utilities.screenshot.area()
                 end),
                 spacing = dpi(12),
                 layout = wibox.layout.flex.horizontal,
