@@ -25,8 +25,7 @@ menu.mainmenu = awful.menu {
    }
 }
 
--- apply rounded corners to menus when picom isn't available, thanks to u/signalsourcesexy
--- also applies antialiasing! - By me.
+
 menu.mainmenu.wibox.shape = helpers.mkroundedrect()
 menu.mainmenu.wibox.bg = beautiful.bg_normal .. '00'
 menu.mainmenu.wibox:set_widget(wibox.widget({
@@ -36,8 +35,7 @@ menu.mainmenu.wibox:set_widget(wibox.widget({
     widget = wibox.container.background,
 }))
 
--- apply rounded corners to submenus, thanks to u/signalsourcesexy
--- also applies antialiasing! - By me.
+
 awful.menu.original_new = awful.menu.new
 
 function awful.menu.new(...)

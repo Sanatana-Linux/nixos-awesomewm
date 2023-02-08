@@ -1,8 +1,10 @@
 ---@diagnostic disable: undefined-global
-local awful = require "awful"
-local wibox = require "wibox"
-local beautiful = require "beautiful"
-local gears = require "gears"
+--  _______ __ __   __         __               
+-- |_     _|__|  |_|  |.-----.|  |--.---.-.----.
+--   |   | |  |   _|  ||  -__||  _  |  _  |   _|
+--   |___| |__|____|__||_____||_____|___._|__|  
+                                             
+-- -------------------------------------------------------------------------- --
 
 local function make_button(txt, fg, bg, hfg, hbg, onclick)
   return function(c)

@@ -148,6 +148,7 @@ theme.layout_thrizen = gears.color.recolor_image(assets_path .. '/layouts/thrize
 theme.layout_horizon = gears.color.recolor_image(assets_path .. '/layouts/horizon.png', theme.fg_normal)
 theme.layout_equalarea = gears.color.recolor_image(assets_path .. '/layouts/equalarea.png', theme.fg_normal)
 theme.layout_deck = gears.color.recolor_image(assets_path .. '/layouts/deck.png', theme.fg_normal)
+theme.layout_overflow = gears.color.recolor_image(assets_path .. '/layouts/deck.png', theme.fg_normal)
 -- -------------------------------------------------------------------------- --
 -- other icons
 theme.launcher_icon = assets_path .. "launcher.png"

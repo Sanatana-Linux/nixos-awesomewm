@@ -15,6 +15,7 @@ local thrizen = require('configuration.layout.layouts.thrizen')
 local horizon = require('configuration.layout.layouts.horizon')
 local equalarea = require('configuration.layout.layouts.equalarea')
 local deck = require('configuration.layout.layouts.deck')
+local overflow = require("configuration.layout.layouts.overflow")
 local beautiful = require('beautiful')
 local tag = tag
 local dpi = beautiful.xresources.apply_dpi
@@ -27,6 +28,7 @@ tag.connect_signal(
         awful.layout.append_default_layouts(
             {
                 stack,
+                overflow,
                 empathy,
                 centermaster,
                 thrizen,
