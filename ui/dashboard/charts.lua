@@ -21,9 +21,10 @@ local function mkcard (label, widget)
                 },
                 {
                     widget,
-                    top = dpi(5),
-                    left = dpi(51),
-                    right = dpi(51),
+                    top = dpi(15),
+                    bottom = dpi(15),
+                    left = dpi(71),
+                    right = dpi(71),
                     widget = wibox.container.margin,
                 },
                 nil,
@@ -34,6 +35,8 @@ local function mkcard (label, widget)
         },
         shape = utilities.mkroundedrect(),
         bg = beautiful.bg_contrast,
+        border_color = beautiful.grey,
+        border_width = 0.75,
         widget = wibox.container.background
     }
 end
@@ -61,8 +64,8 @@ local function base_chart (icon)
             value = 0,
             max_value = 1,
             min_value = 0,
-            forced_height = 124,
-            forced_width = 124,
+            forced_height = dpi(124),
+            forced_width = dpi(124),
             widget = wibox.container.radialprogressbar,
             border_color = beautiful.dimblack,
             color = beautiful.chart_arc,

@@ -73,5 +73,4 @@ menubar.utils.terminal = terminal
 
 -- internal modules 
 
-snap_edge = require('configuration..snap_edge')
 utilities = require('utilities')

@@ -18,14 +18,16 @@ awful.screen.connect_for_each_screen(function(s)
   local function genbutton(template, tooltip_opts, onclick)
     local button = wibox.widget {
       {template, margins = dpi(7), widget = wibox.container.margin},
-      bg = beautiful.bg_normal,
+      bg = beautiful.black,
       shape = utilities.mkroundedrect(),
-      widget = wibox.container.background
+      widget = wibox.container.background,
+      border_color = beautiful.grey,
+      border_width=0.75
     }
     -- -------------------------------------------------------------------------- --
     -- add hover effects, onclick listener and tooltips
     -- 
-    utilities.add_hover(button, beautiful.bg_normal, beautiful.black)
+    utilities.add_hover(button, beautiful.black, beautiful.bg_focus)
 
     local tooltip = utilities.make_popup_tooltip(tooltip_opts.txt,
                                                  tooltip_opts.placement)
@@ -61,9 +63,9 @@ awful.screen.connect_for_each_screen(function(s)
             return awful.placement.bottom_right(d, {
               margins = {
                 bottom = (beautiful.bar_height + beautiful.useless_gap * 2) +
-                    dpi(80) + (beautiful.useless_gap * 2),
-                right = dpi(100) + (dpi(100) / 2.75),
-                top = dpi(220)
+                    dpi(86) + (beautiful.useless_gap * 2),
+                right = dpi(60) + (dpi(60) / 2.75),
+                top = dpi(160)
               }
             })
           end
@@ -83,9 +85,9 @@ awful.screen.connect_for_each_screen(function(s)
             return awful.placement.bottom_right(d, {
               margins = {
                 bottom = (beautiful.bar_height + beautiful.useless_gap * 2) +
-                    dpi(80) + (beautiful.useless_gap * 2),
-                right = dpi(100) + (dpi(100) / 2.75),
-                top = dpi(220)
+                    dpi(60) + (beautiful.useless_gap * 2),
+                right = dpi(60) + (dpi(60) / 2.75),
+                top = dpi(160)
               }
             })
           end
@@ -100,6 +102,8 @@ awful.screen.connect_for_each_screen(function(s)
       widget = wibox.container.margin
     },
     bg = beautiful.bg_normal,
+    border_color = beautiful.grey,
+    border_width=0.75,
     shape = utilities.mkroundedrect(),
     widget = wibox.container.background
   }
@@ -124,8 +128,8 @@ awful.screen.connect_for_each_screen(function(s)
     shape = utilities.mkroundedrect(),
     visible = false,
     screen = s,
-    minimum_width = dpi(200),
-    minimum_height = dpi(80),
+    minimum_width = dpi(180),
+    minimum_height = dpi(60),
     widget = s.screenshot_selecter.widget
   }
 
@@ -166,6 +170,7 @@ awful.screen.connect_for_each_screen(function(s)
   function s.screenshot_selecter.toggle()
     if s.screenshot_selecter.popup.visible then
       s.screenshot_selecter.hide()
+      screenshot_kg:stop()
 
     else
       s.screenshot_selecter.show()

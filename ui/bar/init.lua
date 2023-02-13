@@ -1,32 +1,47 @@
 ---@diagnostic disable: undefined-global
-local awful = require "awful"
-local beautiful = require "beautiful"
-local gears = require "gears"
-local wibox = require "wibox"
-local helpers = require "helpers"
-local dpi = beautiful.xresources.apply_dpi
+--            __ __               
+-- .--.--.--.|__|  |--.---.-.----.
+-- |  |  |  ||  |  _  |  _  |   _|
+-- |________||__|_____|___._|__|  
+                               
+-- -------------------------------------------------------------------------- --
+--                            libraries and modules                           --
+-- -------------------------------------------------------------------------- --
+-- 
 local searchbar = require("ui.bar.searchbox")
-local network = require "ui.bar.actions-icons.network"
-local volume = require "ui.bar.actions-icons.volume"
-local get_screenshot_icon = require "ui.bar.actions-icons.screenshot"
+local network = require("ui.bar.actions-icons.network")
+local volume = require("ui.bar.actions-icons.volume")
+local get_screenshot_icon = require("ui.bar.actions-icons.screenshot")
 
-require "ui.bar.calendar"
-require "ui.bar.tray"
-require "ui.powermenu"
-
+require("ui.bar.calendar")
+require("ui.bar.tray")
+require("ui.powermenu")
+-- -------------------------------------------------------------------------- --
+-- assign to each screen 
 screen.connect_signal("request::desktop_decoration", function(s)
-  awful.tag({"1", "2", "3", "4", "5", "6"}, s, awful.layout.layouts[1])
 
-  local launcher = helpers.mkbtn({
+  -- -------------------------------------------------------------------------- --
+  --                                    tags                                    --
+  -- -------------------------------------------------------------------------- --
+-- 
+  awful.tag({"1", "2", "3", "4", "5", "6"}, s, awful.layout.layouts[1])
+  local get_tags = require("ui.bar.tags")
+  local taglist = get_tags(s)
+
+-- -------------------------------------------------------------------------- --
+--                                  launcher                                  --
+-- -------------------------------------------------------------------------- --
+-- 
+  local launcher = utilities.mkbtn({
     image = beautiful.launcher_icon,
-    forced_height = dpi(16),
-    forced_width = dpi(16),
+    forced_height = dpi(24),
+    forced_width = dpi(24),
     halign = "center",
     valign = "center",
     widget = wibox.widget.imagebox
-  }, beautiful.black, beautiful.dimblack)
+  }, beautiful.black, beautiful.bg_focus)
 
-  local launcher_tooltip = helpers.make_popup_tooltip("Search Applications",
+  local launcher_tooltip = utilities.make_popup_tooltip("Search Applications",
                                                       function(d)
     return awful.placement.bottom_left(d, {
       margins = {
@@ -42,19 +57,19 @@ screen.connect_signal("request::desktop_decoration", function(s)
     launcher_tooltip.hide()
     awful.spawn("rofi -show drun")
   end))
-
-  local get_tags = require "ui.bar.tags"
-  local taglist = get_tags(s)
-
-  local settings_button = helpers.mkbtn({
+-- -------------------------------------------------------------------------- --
+--                                  dashboard                                 --
+-- -------------------------------------------------------------------------- --
+-- 
+  local settings_button = utilities.mkbtn({
     widget = wibox.widget.imagebox,
     image = beautiful.menu_icon,
-    forced_height = dpi(16),
-    forced_width = dpi(16),
+    forced_height = dpi(24),
+    forced_width = dpi(24),
     halign = "center"
-  }, beautiful.black, beautiful.dimblack)
+  }, beautiful.black, beautiful.bg_focus)
 
-  local settings_tooltip = helpers.make_popup_tooltip("Toggle dashboard",
+  local settings_tooltip = utilities.make_popup_tooltip("Toggle dashboard",
                                                       function(d)
     return awful.placement.bottom_left(d, {
       margins = {
@@ -67,22 +82,23 @@ screen.connect_signal("request::desktop_decoration", function(s)
   settings_tooltip.attach_to_object(settings_button)
 
   settings_button:add_button(awful.button({}, 1, function()
-    require "ui.dashboard"
+    require("ui.dashboard")
     awesome.emit_signal("dashboard::toggle")
   end))
-
- 
-
+-- -------------------------------------------------------------------------- --
+--                                   systray                                  --
+-- -------------------------------------------------------------------------- --
+-- 
   local tray_dispatcher = wibox.widget {
     image = beautiful.tray_chevron_up,
-    forced_height = 14,
-    forced_width = 14,
+    forced_height = 10,
+    forced_width = 10,
     valign = "center",
     halign = "center",
     widget = wibox.widget.imagebox
   }
 
-  local tray_dispatcher_tooltip = helpers.make_popup_tooltip(
+  local tray_dispatcher_tooltip = utilities.make_popup_tooltip(
                                       "Press to toggle the systray panel",
                                       function(d)
         return awful.placement.bottom_right(d, {
@@ -105,11 +121,13 @@ screen.connect_signal("request::desktop_decoration", function(s)
   end))
 
   tray_dispatcher_tooltip.attach_to_object(tray_dispatcher)
-
+-- -------------------------------------------------------------------------- --
+--                               action buttons                               --
+-- -------------------------------------------------------------------------- --
   -- make screenshot action icon global to edit it in anothers contexts.
   s.myscreenshot_action_icon = get_screenshot_icon(s)
 
-  local actions_icons_container = helpers.mkbtn({
+  local actions_icons_container = utilities.mkbtn({
     {
       network,
       volume,
@@ -120,13 +138,16 @@ screen.connect_signal("request::desktop_decoration", function(s)
     left = dpi(5),
     right = dpi(6),
     widget = wibox.container.margin
-  }, beautiful.black, nil, dpi(50))
+  }, beautiful.black, beautiful.bg_focus)
 
+-- -------------------------------------------------------------------------- --
+--                                    clock                                   --
+-- -------------------------------------------------------------------------- --
   local clock_formats = {hour = "%H:%M", day = "%d/%m/%Y"}
 
   local clock = wibox.widget {
     format = clock_formats.hour,
-    font = beautiful.title_font ,
+    font = beautiful.title_font,
     widget = wibox.widget.textclock
   }
 
@@ -135,6 +156,8 @@ screen.connect_signal("request::desktop_decoration", function(s)
       {widget = wibox.container.margin, margins = dpi(5), clock},
       fg = beautiful.fg_normal,
       bg = beautiful.black,
+      border_width = 0.75,
+      border_color = beautiful.grey,
       widget = wibox.container.background,
       shape = utilities.mkroundedrect()
     },
@@ -155,23 +178,34 @@ screen.connect_signal("request::desktop_decoration", function(s)
     clock.format = clock.format == clock_formats.hour and clock_formats.day or
                        clock_formats.hour
   end))
-
-  local base_layoutbox = awful.widget.layoutbox {screen = s}
+-- -------------------------------------------------------------------------- --
+--                                 layout box                                 --
+-- -------------------------------------------------------------------------- --
+-- 
+  local base_layoutbox = awful.widget.layoutbox {
+    screen = s,
+    halign = "center",
+    valign = "center"
+  }
 
   -- remove built-in tooltip.
   base_layoutbox._layoutbox_tooltip:remove_from_object(base_layoutbox)
 
   -- create button container
-  local layoutbox = helpers.mkbtn(base_layoutbox, beautiful.black,
-                                  beautiful.dimblack)
+  local layoutbox = utilities.mkbtn({
+    widget = wibox.container.margin,
+    left = dpi(5),
+    right = dpi(5),
+    base_layoutbox
+  }, beautiful.black, beautiful.bg_focus)
 
-  -- function that returns the layout name but capitalized lol.
+  -- capitalize the layout name for consistency 
   local function layoutname()
-    return "Layout: " .. helpers.capitalize(awful.layout.get(s).name)
+    return "Layout: " .. utilities.capitalize(awful.layout.get(s).name)
   end
 
   -- make custom tooltip for the whole button
-  local layoutbox_tooltip = helpers.make_popup_tooltip(layoutname(), function(d)
+  local layoutbox_tooltip = utilities.make_popup_tooltip(layoutname(), function(d)
     return awful.placement.bottom_right(d, {
       margins = {
         bottom = beautiful.bar_height + beautiful.useless_gap * 2,
@@ -191,25 +225,30 @@ screen.connect_signal("request::desktop_decoration", function(s)
   tag.connect_signal("property::selected", update_content)
 
   -- layoutbox buttons
-  helpers.add_buttons(layoutbox, {
+  utilities.add_buttons(layoutbox, {
     awful.button({}, 1, function()
-      awesome.emit_signal('layout::changed:next')
+      awesome.emit_signal("layout::changed:next")
     end),
     awful.button({}, 3, function()
-      awesome.emit_signal('layout::changed:prev')
+      awesome.emit_signal("layout::changed:prev")
     end)
   })
 
-  local powerbutton = helpers.mkbtn({
+  
+-- -------------------------------------------------------------------------- --
+--                                power button                                --
+-- -------------------------------------------------------------------------- --
+-- 
+  local powerbutton = utilities.mkbtn({
     image = beautiful.powerbutton_icon,
-    forced_height = dpi(16),
-    forced_width = dpi(16),
+    forced_height = dpi(24),
+    forced_width = dpi(24),
     halign = "center",
     valign = "center",
     widget = wibox.widget.imagebox
-  }, beautiful.black, beautiful.dimblack)
+  }, beautiful.black, beautiful.bg_focus)
 
-  local powerbutton_tooltip = helpers.make_popup_tooltip("Open powermenu",
+  local powerbutton_tooltip = utilities.make_popup_tooltip("Open powermenu",
                                                          function(d)
     return awful.placement.bottom_right(d, {
       margins = {
@@ -225,7 +264,10 @@ screen.connect_signal("request::desktop_decoration", function(s)
     powerbutton_tooltip.hide()
     awesome.emit_signal("powermenu::toggle")
   end))
-
+-- -------------------------------------------------------------------------- --
+--                               widget templates                              --
+-- -------------------------------------------------------------------------- --
+-- 
   local function mkcontainer(template)
     return wibox.widget {
       template,
@@ -244,7 +286,10 @@ screen.connect_signal("request::desktop_decoration", function(s)
     height = beautiful.bar_height,
     shape = gears.shape.rectangle
   }
-
+-- -------------------------------------------------------------------------- --
+--                                    setup                                   --
+-- -------------------------------------------------------------------------- --
+-- 
   s.mywibox:setup{
     {
       layout = wibox.layout.align.horizontal,
@@ -264,7 +309,7 @@ screen.connect_signal("request::desktop_decoration", function(s)
       nil,
       {
         mkcontainer {
-          {tray_dispatcher, right = dpi(5), widget = wibox.container.margin},
+          {tray_dispatcher, right = dpi(8), widget = wibox.container.margin},
           actions_icons_container,
           date,
           layoutbox,
@@ -281,6 +326,6 @@ screen.connect_signal("request::desktop_decoration", function(s)
       widget = wibox.widget.margin,
       layout = wibox.container.place
     },
-    layout = wibox.layout.stack
+    layout = wibox.layout.stack,
   }
 end)

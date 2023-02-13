@@ -78,7 +78,7 @@ awful.screen.connect_for_each_screen(function(s)
         spacing = dpi(15),
         layout = wibox.layout.align.vertical
       },
-      bg = beautiful.bg_lighter,
+      bg = beautiful.black,
       fg = beautiful.fg_normal,
       widget = wibox.container.background,
       shape = utilities.mkroundedrect()
@@ -145,6 +145,7 @@ awful.screen.connect_for_each_screen(function(s)
   function s.dashboard.toggle()
     if self.visible then
       s.dashboard.hide()
+      dash_kg:stop()
     else
       s.dashboard.show()
       dash_kg:start()

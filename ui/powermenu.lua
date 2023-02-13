@@ -78,6 +78,8 @@ local function make_powerbutton(opts)
     },
     widget = wibox.container.background,
     bg = opts.bg,
+    border_color = beautiful.grey,
+    border_width = 0.75,
     shape = gears.shape.rounded_rect
   }
   -- -------------------------------------------------------------------------- --

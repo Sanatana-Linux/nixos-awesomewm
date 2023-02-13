@@ -61,16 +61,16 @@ return {
 
   lesswhite = "#c1c1c1",
   white = "#e9e9e9",
-  black = "#111111",
-  blacker = "#000000",
+  black = "#212121",
+  blacker = "#1c1c1c",
   icons = "#e9e9e9",
   alpha = function(color, alpha)
     return color .. alpha
   end,
 
-  bg_normal = "#212121",
-  bg_contrast = "#333333",
-  bg_lighter = "#2c2c2c",
+  bg_normal = "#121212",
+  bg_contrast = "#181818",
+  bg_lighter = "#1c1c1c",
   bg_focus = "#525252",
   
 }

@@ -1,3 +1,4 @@
+---@diagnostic disable: undefined-global
 local wibox = require("wibox")
 local beautiful = require("beautiful")
 local helpers = require("helpers")
@@ -51,7 +52,7 @@ local input = wibox.widget {
   widget = wibox.container.background
 }
 
-helpers.add_hover(input, beautiful.black, beautiful.bg_normal)
+helpers.add_hover(input, beautiful.black, beautiful.bg_focus)
 
 awesome.connect_signal("bar::searchbox::get_input", get_input)
 

@@ -1,6 +1,6 @@
 local wibox = require 'wibox'
 local beautiful = require 'beautiful'
-local mkroundedrect = require('utilities.mkroundedcontainer')
+local mkroundedrect = require('utilities.mkroundedrect')
 local add_hover =require('utilities.add_hover')
 local dpi = beautiful.xresources.apply_dpi
 
@@ -14,6 +14,8 @@ return function (template, bg, hbg, radius)
         bg = bg,
         widget = wibox.container.background,
         shape = mkroundedrect(radius),
+        border_width =0.75,
+        border_color = beautiful.grey,
     }
 
     if bg and hbg then

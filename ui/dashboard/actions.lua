@@ -36,7 +36,7 @@ local function make_button(options)
             right = dpi(1),
             widget = wibox.container.margin,
         },
-        shape = gears.shape.circle,
+        shape = utilities.mkroundedrect(),
         bg = beautiful.black,
         widget = wibox.container.background,
         set_icon = function (self, icon)
@@ -63,8 +63,8 @@ local network = make_button {
         name = 'network::connected',
         callback = function (self, is_connected)
             self.icon = is_connected and '' or '睊'
-            self.bg = is_connected and beautiful.lessgrey or beautiful.black
-            self.fg = is_connected and beautiful.bg_normal or beautiful.fg_focus
+            self.bg = is_connected and beautiful.bg_focus or beautiful.black
+            self.fg = is_connected and beautiful.fg_normal or beautiful.fg_focus
         end
     }
 }
@@ -77,8 +77,8 @@ local volume = make_button {
         name = 'volume::muted',
         callback = function (self, is_muted)
             self.icon = is_muted and '婢' or ''
-            self.bg = is_muted and beautiful.black or beautiful.lessgrey
-            self.fg = is_muted and beautiful.fg_normal or beautiful.bg_normal
+            self.bg = is_muted and beautiful.black or beautiful.bg_focus
+            self.fg = is_muted and beautiful.fg_normal or beautiful.fg_normal
         end
     }
 }
@@ -91,8 +91,8 @@ local redshift = make_button {
         name = 'redshift::active',
         callback = function (self, is_active)
             self.icon = is_active and '' or ''
-            self.bg = is_active and beautiful.lessgrey or beautiful.black
-            self.fg = is_active and beautiful.bg_normal or beautiful.fg_normal
+            self.bg = is_active and beautiful.bg_focus or beautiful.black
+            self.fg = is_active and beautiful.fg_normal or beautiful.fg_normal
         end
     }
 }
@@ -105,8 +105,8 @@ local airplane = make_button {
         name = 'airplane::enabled',
         callback = function (self, is_enabled)
             self.icon = is_enabled and '' or ''
-            self.bg = is_enabled and beautiful.lessgrey or beautiful.black
-            self.fg = is_enabled and beautiful.bg_normal or beautiful.fg_normal
+            self.bg = is_enabled and beautiful.bg_focus or beautiful.black
+            self.fg = is_enabled and beautiful.fg_normal or beautiful.fg_normal
         end
     }
 }
@@ -122,8 +122,8 @@ local bluetooth = make_button {
         name = 'bluetooth::enabled',
         callback = function (self, is_enabled)
             self.icon = is_enabled and '' or ''
-            self.bg = is_enabled and beautiful.lessgrey or beautiful.black
-            self.fg = is_enabled and beautiful.bg_normal or beautiful.fg_normal
+            self.bg = is_enabled and beautiful.bg_focus or beautiful.black
+            self.fg = is_enabled and beautiful.fg_normal or beautiful.fg_normal
         end
     },
 }

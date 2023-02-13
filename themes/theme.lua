@@ -28,8 +28,8 @@ theme.font_size = '10'
 theme.font = theme.font_name .. ' ' .. theme.font_size
 -- --------------------------------- Colors --------------------------------- --
 -- base colors
-theme.black = scheme.colorD
-theme.dimblack = scheme.colorE
+theme.black = scheme.black
+theme.dimblack = scheme.colorJ
 theme.light_black = scheme.colorF
 theme.dark_grey = scheme.colorH
 theme.grey = scheme.colorR
@@ -53,9 +53,14 @@ theme.bg_focus      = scheme.bg_focus
 theme.bg_urgent     = scheme.alpha(theme.red, "88")
 theme.bg_minimize   = theme.bg_lighter
 theme.bg_systray    = theme.bg_focus
+
+theme.widget_bg = 'radial:0,21:0,56:0,' ..
+scheme.alpha(scheme.colorL, 'bb') ..
+    ':1,' .. scheme.alpha(scheme.colorB, 'cc')
 -- -------------------------------------------------------------------------- --
 -- foregrounds
-theme.fg_normal     = scheme.lesswhite
+theme.fg_normal     = scheme.white
+theme.white = scheme.white
 theme.lesswhite     = scheme.lesswhite
 theme.fg_focus      = scheme.white
 theme.fg_urgent     = scheme.white
@@ -70,7 +75,7 @@ theme.actions = {
 }
 -- ----------------------------- Theme Variables ---------------------------- --
 -- bar
-theme.bar_height = 40
+theme.bar_height = dpi(40)
 -- -------------------------------------------------------------------------- --
 -- gaps and borders
 theme.useless_gap         = dpi(4)
@@ -151,7 +156,7 @@ theme.layout_deck = gears.color.recolor_image(assets_path .. '/layouts/deck.png'
 theme.layout_overflow = gears.color.recolor_image(assets_path .. '/layouts/deck.png', theme.fg_normal)
 -- -------------------------------------------------------------------------- --
 -- other icons
-theme.launcher_icon = assets_path .. "launcher.png"
+theme.launcher_icon = icons_path .. "distro.svg"
 theme.menu_icon = gears.color.recolor_image(icons_path .. "menu.svg", theme.fg_normal)
 theme.hints_icon = gears.color.recolor_image(icons_path .. "hints.svg", theme.fg_normal)
 theme.powerbutton_icon = gears.color.recolor_image(icons_path .. "poweroff.svg", theme.fg_normal)
@@ -162,8 +167,23 @@ theme.volume_on = gears.color.recolor_image(icons_path .. 'volume-on.svg', theme
 theme.volume_muted = gears.color.recolor_image(icons_path .. 'volume-muted.svg', theme.fg_normal)
 
 theme.tray_chevron_down = icons_path .. 'arrow-down.svg'
+theme.notification_none_icon = gears.color.recolor_image(icons_path .. "android-notifications-off.svg", theme.fg_normal)
+theme.notification_icon = gears.color.recolor_image(icons_path .. "android-notifications.svg", theme.fg_normal)
+theme.delete_icon = gears.color.recolor_image(icons_path .. 'close.svg', theme.fg_normal)
 
+theme.delete_grey_icon =gears.color.recolor_image(icons_path .. 'close.svg', theme.grey)
+
+theme.clear_grey_icon =gears.color.recolor_image(icons_path .. 'clear.svg', theme.grey)
+
+theme.clear_icon =gears.color.recolor_image(icons_path .. 'clear.svg', theme.fg_normal)
 theme.tray_chevron_up = icons_path .. 'arrow-up.svg'
+
+
+-- -------------------------------------------------------------------------- --
+-- battery
+theme.battery_full =gears.color.recolor_image(icons_path .. 'battery-full.svg', theme.fg_normal)
+theme.battery_charging =gears.color.recolor_image(icons_path .. 'battery-charging-full.svg', theme.fg_normal)
+theme.battery_low =gears.color.recolor_image(icons_path .. 'battery-alert.svg', theme.fg_normal)
 
 -- -------------------------------------------------------------------------- --
 -- network

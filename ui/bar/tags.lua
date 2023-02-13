@@ -83,7 +83,7 @@ local mktag = function (tag)
     element = container,
     prop = 'bg',
     bg = beautiful.black,
-    hbg = beautiful.bg_normal,
+    hbg = beautiful.bg_lighter
   }
 
   local update_tag_status = function ()

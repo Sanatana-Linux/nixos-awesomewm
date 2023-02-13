@@ -34,16 +34,23 @@ local function get_icon(s)
     tooltip.toggle()
 
     if s.screenshot_selecter.popup.visible then
-      awesome.connect_signal("screenshot::show", function()
-        icon:set_markup_silently(helpers.get_colorized_markup(CAMERA_ICON,
+      icon:set_markup_silently(helpers.get_colorized_markup(CAMERA_ICON,
                                                               beautiful.grey))
-      end)
+      awesome.emit_signal("screenshot::show")
     else
-        awesome.connect_signal("screenshot::hide", function()
       icon:set_markup_silently(CAMERA_ICON)
-        end)
+        awesome.emit_signal("screenshot::hide")
     end
   end))
+
+  awesome.connect_signal("screenshot::show", function()
+    icon:set_markup_silently(helpers.get_colorized_markup(CAMERA_ICON,
+    beautiful.grey))
+  end)
+
+  awesome.connect_signal("screenshot::hide", function()
+    icon:set_markup_silently(CAMERA_ICON)
+  end)
 
   return icon
 end

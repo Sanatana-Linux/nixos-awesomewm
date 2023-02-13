@@ -66,7 +66,7 @@ local function setup_rules()
         size_hints_honor = false,
         honor_padding = true,
         honor_workarea = true,
-        placement = awful.placement.center + awful.placement.no_offscreen
+        placement = awful.placement.under_mouse + awful.placement.center + awful.placement.no_offscreen
       }
     }
 

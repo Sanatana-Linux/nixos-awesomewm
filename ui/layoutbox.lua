@@ -19,10 +19,10 @@ local gears = require("gears")
 
 local ll =
     awful.widget.layoutlist {
-    spacing = dpi(64),
+    spacing = dpi(32),
     base_layout = wibox.widget {
-        spacing = dpi(64),
-        forced_num_cols = 4,
+        spacing = dpi(32),
+        forced_num_cols = 5,
         layout = wibox.layout.grid.vertical
     },
     -- ------------------------------------------------- --
@@ -32,8 +32,8 @@ local ll =
             {
                 {
                     id = 'icon_role',
-                    forced_height = dpi(84),
-                    forced_width = dpi(84),
+                    forced_height = dpi(48),
+                    forced_width = dpi(48),
                     widget = wibox.widget.imagebox,
                     shape = utilities.mkroundedrect(10)
                 },
@@ -43,8 +43,8 @@ local ll =
             },
   
         id = 'background_role',
-        forced_width = dpi(96),
-        forced_height = dpi(96),
+        forced_width = dpi(64),
+        forced_height = dpi(64),
         bg = beautiful.bg_normal,
      shape = utilities.mkroundedrect(10),
         widget = wibox.container.background
@@ -56,7 +56,7 @@ local layout_popup =
     widget = wibox.widget {
         {
             ll,
-            margins = dpi(24),
+            margins = dpi(32),
             screen = mouse.screen,
             widget = wibox.container.margin
         },

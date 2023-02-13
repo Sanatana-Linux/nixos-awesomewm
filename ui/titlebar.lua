@@ -65,11 +65,11 @@ local close_button = make_button("", "grey", "grey", "black", "red",
 end)
 
 local maximize_button = make_button("", "grey", "grey", "black",
-                                    "yellow", function(c)
+                                    "lessgrey", function(c)
   c.maximized = not c.maximized
 end)
 
-local minimize_button = make_button("", "grey", "grey", "black", "green",
+local minimize_button = make_button("", "grey", "grey", "black", "lessgrey",
                                     function(c)
   gears.timer.delayed_call(function()
     c.minimized = true
@@ -81,7 +81,7 @@ client.connect_signal("request::titlebars", function(c)
     return
   end
 
-  local titlebar = awful.titlebar(c, {position = "top", size = 29})
+  local titlebar = awful.titlebar(c, {position = "top", size = 25})
 
   local titlebars_buttons = {
     awful.button({}, 1, function()
@@ -103,7 +103,7 @@ client.connect_signal("request::titlebars", function(c)
     {
       {
         widget = awful.titlebar.widget.titlewidget(c),
-        font = beautiful.nerd_font .. "  11"
+        font = beautiful.nerd_font .. "  9"
       },
       widget = wibox.container.margin,
       left = 28,
