@@ -1,54 +1,60 @@
 ---@diagnostic disable: undefined-global
+-- Provides:
+-- signal::volume
+--      percentage (integer)
+--      muted (boolean)
+local awful = require("awful")
 
--- just works for pulseaudio
+local volume_old = -1
+local muted_old = -1
+local function emit_volume_info()
+    -- Get volume info of the currently active sink
+    awful.spawn.easy_async_with_shell(
+        'echo -n $(pamixer --get-mute); echo "_$(pamixer --get-volume)"',
+        function(stdout)
 
-local gears = require 'gears'
-local awful = require 'awful'
-local gfs = require 'gears.filesystem'
-local helpers = require 'helpers'
+            local bool = string.match(stdout, "(.-)_")
+            local volume = string.match(stdout, "%d+")
+            local muted_int = -1
+            if bool == "true" then muted_int = 1 else muted_int = 0 end
+            local volume_int = tonumber(volume)
 
-local volume = {}
-
-local sink_part = "SINK=$(pactl list short sinks | sed -e 's,^\\([0-9][0-9]*\\)[^0-9].*,\\1,' | head -n 1 | awk '{print $1}');"
-local script = sink_part .. "pactl list sinks | grep '^[[:space:]]Volume:' | head -n $(( $SINK + 1 )) | tail -n 1 | sed -e 's,.* \\([0-9][0-9]*\\)%.*,\\1,'"
-local how_to_know_if_muted = "pacmd list-sinks | awk '/muted/ { print $2 }'"
-
-function volume.re_emit_volume_value_signal()
-    awful.spawn.easy_async_with_shell(script, function(out)
-        awesome.emit_signal('volume::value', tonumber(out))
-    end)
+            -- Only send signal if there was a change
+            -- We need this since we use `pactl subscribe` to detect
+            -- volume events. These are not only triggered when the
+            -- user adjusts the volume through a keybind, but also
+            -- through `pavucontrol` or even without user intervention,
+            -- when a media file starts playing.
+            if volume_int ~= volume_old or muted_int ~= muted_old then
+                awesome.emit_signal("signal::volume", volume_int, muted_int)
+                volume_old = volume_int
+                muted_old = muted_int
+            end
+        end)
 end
 
-function volume.re_emit_muted_signal ()
-    awful.spawn.easy_async_with_shell(how_to_know_if_muted, function (out)
-        awesome.emit_signal('volume::muted', helpers.trim(out) == 'yes')
-    end)
+awesome.connect_signal("signal::volume", function(value, muted)
+if muted ~= 1 then 
+awful.spawn("pamixer --set-volume" .. value)
 end
+end)
 
-function volume.set(vol, reemit)
-    awful.spawn(gfs.get_configuration_dir () .. 'scripts/set-volume.sh ' .. tonumber(vol))
-    if reemit then
-        volume.re_emit_volume_value_signal()
-    end
-end
+-- Run once to initialize widgets
+emit_volume_info()
 
-function volume.toggle_muted ()
-    awful.spawn.with_shell(sink_part .. "pactl set-sink-mute $SINK toggle")
-    volume.re_emit_muted_signal()
-end
+-- Sleeps until pactl detects an event (volume up/down/toggle mute)
+local volume_script = [[
+    bash -c "
+    LANG=C pactl subscribe 2> /dev/null | grep --line-buffered \"Event 'change' on sink #\"
+    "]]
 
-gears.timer {
-    timeout = 3,
-    call_now = true,
-    autostart = true,
-    callback = volume.re_emit_volume_value_signal
-}
+-- Kill old pactl subscribe processes
+awful.spawn.easy_async({
+    "pkill", "--full", "--uid", os.getenv("USER"), "^pactl subscribe"
+}, function()
+    -- Run emit_volume_info() with each line printed
+    awful.spawn.with_line_callback(volume_script, {
+        stdout = function(line) emit_volume_info() end
+    })
+end)
 
-gears.timer {
-    timeout = 3,
-    call_now = true,
-    autostart = true,
-    callback = volume.re_emit_muted_signal,
-}
-
-return volume

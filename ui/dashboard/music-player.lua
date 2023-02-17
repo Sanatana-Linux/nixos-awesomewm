@@ -53,7 +53,7 @@ local function base_control_button (default_icon, font)
         },
         shape = helpers.mkroundedrect(dpi(4)),
         bg = beautiful.black,
-        widget = wibox.widget.background,
+        widget = wibox.container.background,
         set_txt = function (self, value)
             self:get_children_by_id('icon_role')[1].markup = value
         end
@@ -87,7 +87,7 @@ end))
 local progress_slider = wibox.widget {
     bar_shape = gears.shape.rounded_bar,
     bar_height = 3,
-    bar_active_color = beautiful.blue,
+    bar_active_color = beautiful.lessgrey,
     bar_color = beautiful.dimblack,
     handle_width = 0,
     forced_width = 3,
@@ -205,6 +205,8 @@ local music_player = wibox.widget {
     },
     shape = helpers.mkroundedrect(),
     bg = beautiful.bg_contrast,
+    border_color = beautiful.grey,
+    border_width = 0.75,
     widget = wibox.container.background,
 }
 

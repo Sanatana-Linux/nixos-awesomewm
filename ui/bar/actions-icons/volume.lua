@@ -26,13 +26,15 @@ end)
 tooltip.attach_to_object(volume)
 
 volume:add_button(awful.button({}, 1, function ()
-    VolumeSignal.toggle_muted()
+    awful.spawn("amixer set Master toggle")
 end))
 
-awesome.connect_signal('volume::muted', function (is_muted)
-    volume.image = is_muted
-        and beautiful.volume_muted
-        or beautiful.volume_on
+awesome.connect_signal('signal::volume', function (vol, is_muted)
+    if is_muted == 1 or vol == 0 then 
+    volume.image = beautiful.volume_muted
+    else
+        volume.image = beautiful.volume_on
+    end
 end)
 
 return volume

@@ -59,16 +59,20 @@ end
 local volume_slider = base_slider('')
 
 volume_slider.slider:connect_signal('property::value', function (_, value)
-    VolumeSignal.set(value, false)
-end)
+awful.spawn("pamixer --set-volume " .. value)
+awesome.emit_signal("signal::volume", value)
+ end)
 
-awesome.connect_signal('volume::value', function (sysvol)
+awesome.connect_signal('signal::volume', function (sysvol, is_muted)
     volume_slider.value = sysvol
+    if is_muted == 1 then 
+        volume_slider.icon = '婢'
+    else
+        volume_slider.icon = ''
+    end
 end)
 
-awesome.connect_signal('volume::muted', function (is_muted)
-    volume_slider.icon = is_muted and '婢' or ''
-end)
+
 
 -- brightness
 local brightness_slider = base_slider('')
@@ -80,7 +84,8 @@ end
 
 -- signals
 brightness_slider.slider:connect_signal('property::value', function (_, new_br)
-    BrightnessSignal.set(new_br)
+    awful.spawn("brightnessctl s " .. new_br .."%")
+    awesome.emit_signal("signal::brightness", math.floor(new_br))
 end)
 
 awesome.connect_signal('brightness::value', function (brightness)
@@ -95,14 +100,16 @@ local controls = wibox.widget {
                 {
                     {
                         {
-                            markup = 'Controls',
+                            markup = "<span color='"..beautiful.grey .. "'> Controls </span>",
                             widget = wibox.widget.textbox,
+                            font = beautiful.title_font,
+                        
                         },
                         bottom = dpi(8),
                         widget = wibox.container.margin,
                     },
-                    fg = beautiful.light_black,
                     widget = wibox.container.background,
+
                 },
                 layout = wibox.layout.fixed.horizontal,
             },
@@ -120,6 +127,8 @@ local controls = wibox.widget {
     },
     shape = helpers.mkroundedrect(),
     bg = beautiful.bg_contrast,
+    border_color = beautiful.grey,
+    border_width = 0.75,
     widget = wibox.container.background,
 }
 

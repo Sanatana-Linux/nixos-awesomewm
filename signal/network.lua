@@ -1,39 +1,210 @@
----@diagnostic disable:undefined-global
+--  _______         __                        __
+-- |    |  |.-----.|  |_.--.--.--.-----.----.|  |--.
+-- |       ||  -__||   _|  |  |  |  _  |   _||    <
+-- |__|____||_____||____|________|_____|__|  |__|__|
+-- ------------------------------------------------- --
+-- Dependencies: iproute2   iw
+-- ------------------------------------------------- --
+-- --------------------- config -------------------- --
+-- update interval
+local update_interval = 30
+-- ------------------------------------------------- --
+-- script to determine network mode
+local network_mode_script =
+    [=[
+wireless="wlan0"
+wired="enp2s0"
+net="/sys/class/net/"
+wired_state="down"
+wireless_state="down"
+network_mode=""
+# Check network state based on interface's operstate value
+function check_network_state() {
+  # Check what interface is up
+  if [[ "${wireless_state}" == "up" ]];
+  then
+    network_mode='wireless'
+  elif [[ "${wired_state}" == "up" ]];
+  then
+    network_mode='wired'
+  else
+    network_mode='No internet connection'
+  fi
+}
+# Check if network directory exist
+function check_network_directory() {
+  if [[ -n "${wireless}" && -d "${net}${wireless}" ]];
+  then
+    wireless_state="$(cat "${net}${wireless}/operstate")"
+  fi
+  if [[ -n "${wired}" && -d "${net}${wired}" ]]; then
+    wired_state="$(cat "${net}${wired}/operstate")"
+  fi
+  check_network_state
+}
+# Start script
+function print_network_mode() {
+  # Call to check network dir
+  check_network_directory
+  # Print network mode
+  printf "${network_mode}"
+}
+print_network_mode
+]=]
+-- ------------------------------------------------- --
+-- script to check whether can connect to internet
+local healthcheck_script =
+    [=[
+status_ping=0
+packets="$(ping -q -w2 -c2 example.com | grep -o "100% packet loss")"
+if [ ! -z "${packets}" ];
+then
+  status_ping=0
+else
+  status_ping=1
+fi
+if [ $status_ping -eq 0 ];
+then
+  echo 'Connected but no internet'
+fi
+]=]
+-- ------------------------------------------------- --
+-- script to check wireless status
+local wireless_data_script = 'iw dev wlan0 link'
+-- ------------------------------------------------- --
+-- script to check wireless strength
+local wireless_strength_script = [[awk 'NR==3 {printf "%3.0f" ,($3/70)*100}' /proc/net/wireless]]
+-- ------------------------------------------------- --
+-- --------------------- Logic --------------------- --
 
--- just works with NetworkManager
+local network_mode = nil
 
-local gears = require 'gears'
-local awful = require 'awful'
-local helpers = require 'helpers'
+-- Emit wireless connection status
+local emit_wireless_status = function()
+    awful.spawn.easy_async_with_shell(
+        wireless_data_script,
+        function(data_stdout)
+            awful.spawn.easy_async_with_shell(
+                wireless_strength_script,
+                function(strength_stdout)
+                    awful.spawn.easy_async_with_shell(
+                        healthcheck_script,
+                        function(health_stdout)
+                            local interface = 'wlan0'
 
-local network = {}
+                            local essid = data_stdout:match('SSID: (.-)\n') or 'N/A'
+                            local bitrate = data_stdout:match('tx bitrate: (.+/s)') or 'N/A'
 
-local get_ssid = "iwgetid -r"
+                            local strength = tonumber(strength_stdout) or 0
 
-function network.re_emit_connected_signal()
-    awful.spawn.easy_async_with_shell(get_ssid, function (out)
-        awesome.emit_signal('network::connected', utilities.trim(out))
-    end)
+                            local healthy = not health_stdout:match('Connected but no internet')
+
+                            awesome.emit_signal(
+                                'network::status::wireless',
+                                interface,
+                                healthy,
+                                essid,
+                                bitrate,
+                                strength
+                            )
+                        end
+                    )
+                end
+            )
+        end
+    )
 end
+-- ------------------------------------------------- --
+-- Emit wired connection status
+local emit_wired_status = function()
+    awful.spawn.easy_async_with_shell(
+        healthcheck_script,
+        function(stdout)
+            if stdout ~= nil then
+                local interface = 'eth0'
+                local healthy = not stdout:match('Connected but no internet')
 
-function network.re_emit_ssid_signal()
-    awful.spawn.easy_async_with_shell(get_ssid, function (out)
-        awesome.emit_signal('network::ssid', utilities.trim(out))
-    end)
+                awesome.emit_signal('network::status::wired', interface, healthy)
+            end
+        end
+    )
 end
+-- ------------------------------------------------- --
+-- Emit wireless connected
+local emit_wireless_connected = function()
+    awful.spawn.easy_async_with_shell(
+        wireless_data_script,
+        function(data_stdout)
+            if data_stdout ~= nil then
+                local interface = 'wlan0'
+                local essid = data_stdout:match('SSID: (.-)\n') or 'N/A'
+
+                awesome.emit_signal('network::connected::wireless', interface, essid)
+                emit_wireless_status()
+            end
+        end
+    )
+end
+-- ------------------------------------------------- --
+-- Emit wired connected
+local emit_wired_connected = function()
+    local interface = 'eth0l'
+
+    awesome.emit_signal('network::connected::wired', interface)
+end
+-- ------------------------------------------------- --
+-- Emit network disconnected
+local emit_disconnected = function()
+    if network_mode == nil then
+        return
+    end
+
+    local interface = ''
+
+    if network_mode == 'wired' then
+        interface = 'enp1s0'
+    else
+        interface = 'wlan0'
+    end
+
+    awesome.emit_signal('network::disconnected::' .. network_mode, interface)
+end
+-- ------------------------------------------------- --
+-- Main script
+local check_network = function()
+    awful.spawn.easy_async_with_shell(
+        network_mode_script,
+        function(stdout)
+            if stdout:match('No internet connection') then
+                if network_mode ~= nil then
+                    emit_disconnected()
+                end
+                network_mode = nil
+            elseif stdout:match('wireless') then
+                if network_mode ~= 'wireless' then
+                    emit_wireless_connected()
+                end
+                network_mode = 'wireless'
+                emit_wireless_status()
+            elseif stdout:match('wired') then
+                if network_mode ~= 'wired' then
+                    emit_wired_connected()
+                end
+                network_mode = 'wired'
+                emit_wired_status()
+            end
+        end
+    )
+end
+check_network()
+
+-- ------------------------------------------------- --
+-- ----------------- Initialization ---------------- --
 
 gears.timer {
-    timeout = 2,
-    call_now = true,
+    timeout = update_interval,
     autostart = true,
-    callback = network.re_emit_connected_signal
-}
-
-gears.timer {
-    timeout = 2,
     call_now = true,
-    autostart = true,
-    callback = network.re_emit_ssid_signal
+    callback = check_network(),
+    collectgarbage('collect')
 }
-
-return network

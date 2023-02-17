@@ -12,6 +12,7 @@ local searchbar = require("ui.bar.searchbox")
 local network = require("ui.bar.actions-icons.network")
 local volume = require("ui.bar.actions-icons.volume")
 local get_screenshot_icon = require("ui.bar.actions-icons.screenshot")
+--local get_notification_icon = require("ui.bar.actions-icons.notifications")
 
 require("ui.bar.calendar")
 require("ui.bar.tray")
@@ -34,8 +35,8 @@ screen.connect_signal("request::desktop_decoration", function(s)
 -- 
   local launcher = utilities.mkbtn({
     image = beautiful.launcher_icon,
-    forced_height = dpi(24),
-    forced_width = dpi(24),
+    forced_height = dpi(32),
+    forced_width = dpi(32),
     halign = "center",
     valign = "center",
     widget = wibox.widget.imagebox
@@ -126,12 +127,13 @@ screen.connect_signal("request::desktop_decoration", function(s)
 -- -------------------------------------------------------------------------- --
   -- make screenshot action icon global to edit it in anothers contexts.
   s.myscreenshot_action_icon = get_screenshot_icon(s)
-
+  -- s.notification_icon = get_notification_icon(s)
   local actions_icons_container = utilities.mkbtn({
     {
       network,
       volume,
       s.myscreenshot_action_icon,
+     -- s.notification_icon ,
       spacing = dpi(8),
       layout = wibox.layout.fixed.horizontal
     },
@@ -262,7 +264,7 @@ screen.connect_signal("request::desktop_decoration", function(s)
 
   powerbutton:add_button(awful.button({}, 1, function()
     powerbutton_tooltip.hide()
-    awesome.emit_signal("powermenu::toggle")
+    awesome.emit_signal("powermenu::show")
   end))
 -- -------------------------------------------------------------------------- --
 --                               widget templates                              --
@@ -284,7 +286,7 @@ screen.connect_signal("request::desktop_decoration", function(s)
     screen = s,
     width = s.geometry.width,
     height = beautiful.bar_height,
-    shape = gears.shape.rectangle
+    shape = gears.shape.rectangle,
   }
 -- -------------------------------------------------------------------------- --
 --                                    setup                                   --

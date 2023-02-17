@@ -132,7 +132,7 @@ bling.module.wallpaper.setup {
 
     -- parameters that only apply to bling.module.wallpaper.setter.awesome (as a setter or as a wallpaper function)
     colors = {                   -- see beautiful.theme_assets.wallpaper
-        bg = beautiful.bg_color,  -- the actual default is this color but darkened or lightned
+        bg = beautiful.bg_normal,  -- the actual default is this color but darkened or lightned
         fg = beautiful.fg_color,
         alt_fg = beautiful.fg_focus
     }

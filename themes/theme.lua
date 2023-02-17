@@ -11,9 +11,11 @@ local themes_path = gfs.get_themes_dir()
 local assets_path = gfs.get_configuration_dir() .. "themes/assets/"
 -- -------------------------------------------------------------------------- --
 -- assets
-local icons_path = assets_path .. "icons/"
+local icons_path = assets_path .. "icons/svg/"
 local shapes_path = assets_path .. "shapes/"
 local scheme = require("themes.scheme")
+
+local icon = require("themes.assets.icons")
 -- -------------------------------------------------------------------------- --
 -- ---------------------------------- Theme --------------------------------- --
 -- -------------------------------------------------------------------------- --
@@ -50,13 +52,17 @@ theme.bg_lighter    = scheme.bg_lighter
 -- -------------------------------------------------------------------------- --
 -- elements bg
 theme.bg_focus      = scheme.bg_focus
+theme.bg_focus_darker = scheme.colorR
 theme.bg_urgent     = scheme.alpha(theme.red, "88")
 theme.bg_minimize   = theme.bg_lighter
 theme.bg_systray    = theme.bg_focus
 
-theme.widget_bg = 'radial:0,21:0,56:0,' ..
-scheme.alpha(scheme.colorL, 'bb') ..
-    ':1,' .. scheme.alpha(scheme.colorB, 'cc')
+theme.widget_back = {
+    type = "radial",
+    from = { 50, 50, 10 },
+    to = { 55, 55, 30 },
+    stops = { { 0, theme.colorA }, { 0.5,  }, { 1, theme.dimblack } }
+  }
 -- -------------------------------------------------------------------------- --
 -- foregrounds
 theme.fg_normal     = scheme.white
@@ -159,19 +165,19 @@ theme.layout_overflow = gears.color.recolor_image(assets_path .. '/layouts/deck.
 theme.launcher_icon = icons_path .. "distro.svg"
 theme.menu_icon = gears.color.recolor_image(icons_path .. "menu.svg", theme.fg_normal)
 theme.hints_icon = gears.color.recolor_image(icons_path .. "hints.svg", theme.fg_normal)
-theme.powerbutton_icon = gears.color.recolor_image(icons_path .. "poweroff.svg", theme.fg_normal)
+theme.powerbutton_icon = gears.color.recolor_image(icons_path .. "power.svg", theme.fg_normal)
 theme.poweroff_icon = icons_path .. 'poweroff.svg'
 -- -------------------------------------------------------------------------- --
 -- volume 
-theme.volume_on = gears.color.recolor_image(icons_path .. 'volume-on.svg', theme.fg_normal)
-theme.volume_muted = gears.color.recolor_image(icons_path .. 'volume-muted.svg', theme.fg_normal)
+theme.volume_on = gears.color.recolor_image(icons_path .. 'volume-high.svg', theme.fg_normal)
+theme.volume_muted = gears.color.recolor_image(icons_path .. 'volume-mute.svg', theme.fg_normal)
 
 theme.tray_chevron_down = icons_path .. 'arrow-down.svg'
-theme.notification_none_icon = gears.color.recolor_image(icons_path .. "android-notifications-off.svg", theme.fg_normal)
-theme.notification_icon = gears.color.recolor_image(icons_path .. "android-notifications.svg", theme.fg_normal)
+theme.notification_none_icon = gears.color.recolor_image(icons_path .. "notifs.svg", theme.fg_normal)
+theme.notification_icon = gears.color.recolor_image(icons_path .. "notifs.svg", theme.fg_normal)
 theme.delete_icon = gears.color.recolor_image(icons_path .. 'close.svg', theme.fg_normal)
 
-theme.delete_grey_icon =gears.color.recolor_image(icons_path .. 'close.svg', theme.grey)
+theme.delete_grey_icon =gears.color.recolor_image(icons_path .. 'close.svg', theme.rey)
 
 theme.clear_grey_icon =gears.color.recolor_image(icons_path .. 'clear.svg', theme.grey)
 
@@ -181,8 +187,8 @@ theme.tray_chevron_up = icons_path .. 'arrow-up.svg'
 
 -- -------------------------------------------------------------------------- --
 -- battery
-theme.battery_full =gears.color.recolor_image(icons_path .. 'battery-full.svg', theme.fg_normal)
-theme.battery_charging =gears.color.recolor_image(icons_path .. 'battery-charging-full.svg', theme.fg_normal)
+theme.battery_full =gears.color.recolor_image(icons_path .. 'battery-discharging-100.svg', theme.fg_normal)
+theme.battery_charging =gears.color.recolor_image(icons_path .. 'battery-fully-charged.svg', theme.fg_normal)
 theme.battery_low =gears.color.recolor_image(icons_path .. 'battery-alert.svg', theme.fg_normal)
 
 -- -------------------------------------------------------------------------- --

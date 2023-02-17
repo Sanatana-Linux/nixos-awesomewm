@@ -13,8 +13,7 @@
 --   height - Height in absolute pixels, or height percentage
 --   sticky - Visible on all tags
 --   screen - Screen (optional)
--- based largely off of attachdrop, just stripped of some really irritating
--- features like skipping the taskbar or being sticky by default and commented
+-- based largely off of attachdrop, just streamlined to my use case
 -- https://github.com/tumurzakov/attachdrop
 -- ------------------------------------------------- --
 -- Grab environment

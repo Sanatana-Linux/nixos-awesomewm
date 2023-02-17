@@ -52,14 +52,17 @@ awful.screen.connect_for_each_screen(function(s)
                     actions.redshift,
                     actions.bluetooth,
                     spacing = dpi(10),
-                    layout = wibox.layout.flex.horizontal
+                    layout = wibox.layout.flex.horizontal,
+                    border_color = beautiful.grey
                   },
                   margins = dpi(15),
                   widget = wibox.container.margin
                 },
                 shape = utilities.mkroundedrect(dpi(15)),
                 bg = beautiful.bg_lighter,
-                widget = wibox.container.background
+                widget = wibox.container.background,
+                border_width = 0.75,
+                border_color = beautiful.grey,
               },
               spacing = dpi(15),
               layout = wibox.layout.fixed.vertical
@@ -76,7 +79,7 @@ awful.screen.connect_for_each_screen(function(s)
         },
         nil,
         spacing = dpi(15),
-        layout = wibox.layout.align.vertical
+        layout = wibox.layout.align.vertical,
       },
       bg = beautiful.black,
       fg = beautiful.fg_normal,
@@ -84,9 +87,9 @@ awful.screen.connect_for_each_screen(function(s)
       shape = utilities.mkroundedrect()
     }
   end
--- -------------------------------------------------------------------------- --
--- popup template 
--- 
+  -- -------------------------------------------------------------------------- --
+  -- popup template 
+  -- 
   s.dashboard.popup = awful.popup {
     placement = function(d)
       return awful.placement.bottom(d, {

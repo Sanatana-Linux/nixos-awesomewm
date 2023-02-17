@@ -46,7 +46,7 @@ local input = wibox.widget {
   },
   bg = beautiful.black,
   border_color = beautiful.grey,
-  border_width = 0.5,
+  border_width = 0.75,
   forced_width = dpi(160),
   shape = helpers.mkroundedrect(),
   widget = wibox.container.background
