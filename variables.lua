@@ -22,7 +22,7 @@ explorer = "thunar"
 browser = "firefox"
 launcher = "rofi -show drun"
 editor = os.getenv("EDITOR") or "nvim"
-visual_editor = "code" -- vscode
+visual_editor = "code" 
 editor_cmd = terminal .. " -e " .. editor
 modkey = "Mod4" -- the voldemort key 
 -- -------------------------------------------------------------------------- --
@@ -71,14 +71,18 @@ watch = require('awful.widget.watch')
 wibox = require('wibox')
 -- -------------------------------------------------------------------------- --
  -- --------------------------- Builtin Submodules --------------------------- --
-cairo = require('lgi').cairo
 dpi = beautiful.xresources.apply_dpi
-Gio = require('lgi').Gio
 gtk_variable = beautiful.gtk.get_theme_variables
 menubar.utils.terminal = terminal
+gtable = require 'gears.table'
+gtimer = require 'gears.timer'
+wbase = require 'wibox.widget.base'
 -- -------------------------------------------------------------------------- --
 -- --------------------------- Third Party Modules -------------------------- --
 rubato = require("modules.rubato")
+upower = require('lgi').require('UPowerGlib')
+Gio = require('lgi').Gio
+cairo = require('lgi').cairo
 -- -------------------------------------------------------------------------- --
 -- 
 -- ---------------------------- Internal Modules ---------------------------- --

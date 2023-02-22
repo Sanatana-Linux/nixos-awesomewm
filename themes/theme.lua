@@ -162,7 +162,7 @@ theme.layout_deck = gears.color.recolor_image(assets_path .. '/layouts/deck.png'
 theme.layout_overflow = gears.color.recolor_image(assets_path .. '/layouts/deck.png', theme.fg_normal)
 -- -------------------------------------------------------------------------- --
 -- other icons
-theme.launcher_icon = icons_path .. "distro.svg"
+theme.launcher_icon = icons_path .. "home.svg"
 theme.menu_icon = gears.color.recolor_image(icons_path .. "menu.svg", theme.fg_normal)
 theme.hints_icon = gears.color.recolor_image(icons_path .. "hints.svg", theme.fg_normal)
 theme.powerbutton_icon = gears.color.recolor_image(icons_path .. "power.svg", theme.fg_normal)

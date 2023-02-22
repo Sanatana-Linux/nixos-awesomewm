@@ -1,26 +1,33 @@
--- This uses UPowerGlib.Device (https://lazka.github.io/pgi-docs/UPowerGlib-1.0/classes/Device.html)
--- Provides:
+--  ______         __   __
+-- |   __ \.---.-.|  |_|  |_.-----.----.--.--.
+-- |   __ <|  _  ||   _|   _|  -__|   _|  |  |
+-- |______/|___._||____|____|_____|__| |___  |
+--                                     |_____|
+--  _______ __                     __
+-- |     __|__|.-----.-----.---.-.|  |
+-- |__     |  ||  _  |     |  _  ||  |
+-- |_______|__||___  |__|__|___._||__|
+--             |_____|
+-- ------------------------------------------------- --
 -- signal::battery
 --      percentage
 --      state
---
-local upower = require('lgi').require('UPowerGlib')
+local upower_widget = require('utilities.battery')
+local battery_listener =
+    upower_widget {
+    device_path = 'cd ,
+    instant_update = true
+}
 
-if upower.Client():get_devices() ~= nil then
-
-    local upower_widget = require("module.battery_widget")
-
-    upower_widget({
-        device_path = '/org/freedesktop/UPower/devices/battery_BAT0',
-        instant_update = true
-    }):connect_signal("upower::update", function(_, device)
-        local time_to_empty = device.time_to_empty / 60
-        local time_to_full = device.time_to_full / 60
-        awesome.emit_signal("signal::battery",
-                            tonumber(string.format("%.0f", device.percentage)),
-                            device.state,
-                            tonumber(string.format("%.0f", time_to_empty)),
-                            tonumber(string.format("%.0f", time_to_full)),
-                            device.battery_level)
-    end)
-end
+battery_listener:connect_signal(
+    'upower::update',
+    function(_, device)
+        if device ~= nil then
+            awesome.emit_signal('signal::battery', device.percentage, device.state)
+            collectgarbage('collect')
+        else
+            awesome.emit_signal('signal::battery:error')
+        end
+    end
+)
+-- ------------------------------------------------- --

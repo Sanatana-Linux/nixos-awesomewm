@@ -8,7 +8,7 @@ return function (template, bg, hbg, radius)
     local button = wibox.widget {
         {
             template,
-            margins = dpi(7),
+            margins = dpi(5),
             widget = wibox.container.margin,
         },
         bg = bg,

@@ -11,6 +11,7 @@ return {
   add_hover = require(... .. ".add_hover"),
   apply_margin = require(... .. ".apply_margin"),
   apply_transition = require(... .. ".apply_transition"),
+  battery = require(... .. '.battery'),
   capitalize = require(... .. ".capitalize"),
   complex_button = require(... .. '.complex_button'),
   complex_capitalizing = require(... .. ".complex_capitalizing"),
