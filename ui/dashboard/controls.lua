@@ -1,6 +1,5 @@
 ---@diagnostic disable: undefined-global
 local wibox = require 'wibox'
-local helpers = require 'helpers'
 local beautiful = require 'beautiful'
 local gears = require 'gears'
 local dpi = beautiful.xresources.apply_dpi
@@ -125,7 +124,7 @@ local controls = wibox.widget {
         margins = dpi(12),
         widget = wibox.container.margin,
     },
-    shape = helpers.mkroundedrect(),
+    shape = utilities.mkroundedrect(),
     bg = beautiful.bg_contrast,
     border_color = beautiful.grey,
     border_width = 0.75,

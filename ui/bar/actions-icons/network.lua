@@ -3,7 +3,6 @@ local wibox = require 'wibox'
 local beautiful = require 'beautiful'
 local gfs = require 'gears.filesystem'
 local awful = require 'awful'
-local helpers = require 'helpers'
 
 require "signal.network"
 

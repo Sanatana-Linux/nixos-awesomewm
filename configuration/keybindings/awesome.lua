@@ -68,7 +68,7 @@ awful.keyboard.append_global_keybindings({
   end, {description = "decrease volume", group = "Awesome"}),
   -- -------------------------------------------------------------------------- --
   awful.key({}, "XF86AudioMute", function()
-    awful.spawn("pamixer -t")
+    awful.spawn("pamixer -t ")
   end, {description = "mute volume", group = "Awesome"}),
   -- -------------------------------------------------------------------------- --
   -- 

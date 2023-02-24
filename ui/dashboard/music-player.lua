@@ -1,7 +1,6 @@
 ---@diagnostic disable: undefined-global
 local wibox = require 'wibox'
 local beautiful = require 'beautiful'
-local helpers = require 'helpers'
 local gears = require 'gears'
 local awful = require 'awful'
 
@@ -18,7 +17,7 @@ local picture = wibox.widget {
     horizontal_fit_policy = 'fit',
     vertical_fit_policy = 'fit',
     valign = 'center',
-    clip_shape = helpers.mkroundedrect(),
+    clip_shape = utilities.mkroundedrect(),
     widget = wibox.widget.imagebox,
 }
 
@@ -51,7 +50,7 @@ local function base_control_button (default_icon, font)
             right = dpi(11),
             widget = wibox.container.margin,
         },
-        shape = helpers.mkroundedrect(dpi(4)),
+        shape = utilities.mkroundedrect(dpi(4)),
         bg = beautiful.black,
         widget = wibox.container.background,
         set_txt = function (self, value)
@@ -59,7 +58,7 @@ local function base_control_button (default_icon, font)
         end
     }
 
-    helpers.add_hover(btn, beautiful.black, beautiful.dimblack)
+    utilities.add_hover(btn, beautiful.black, beautiful.dimblack)
 
     return btn
 end
@@ -100,8 +99,8 @@ local progress_slider = wibox.widget {
 
 -- make connection to playerctl
 playerctl:connect_signal('metadata', function (_, music_title, music_artist, music_album_path)
-    title:set_markup_silently('<b>' .. helpers.limit_by_length(music_title, 16, true) .. '</b>')
-    artist:set_markup_silently('By ' .. helpers.limit_by_length(music_artist, 19, true))
+    title:set_markup_silently('<b>' .. utilities.limit_by_length(music_title, 16, true) .. '</b>')
+    artist:set_markup_silently('By ' .. utilities.limit_by_length(music_artist, 19, true))
     picture:set_image(gears.surface.load_uncached(music_album_path))
 end)
 
@@ -203,7 +202,7 @@ local music_player = wibox.widget {
         },
         layout = wibox.layout.fixed.vertical,
     },
-    shape = helpers.mkroundedrect(),
+    shape = utilities.mkroundedrect(),
     bg = beautiful.bg_contrast,
     border_color = beautiful.grey,
     border_width = 0.75,

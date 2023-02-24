@@ -2,7 +2,6 @@
 local wibox = require 'wibox'
 local beautiful = require 'beautiful'
 local awful = require 'awful'
-local helpers = require 'helpers'
 local dpi = beautiful.xresources.apply_dpi
 
 local volume = wibox.widget {
@@ -14,7 +13,7 @@ local volume = wibox.widget {
     valign = 'bottom',
 }
 
-local tooltip = helpers.make_popup_tooltip('Press to mute/unmute', function (d)
+local tooltip = utilities.make_popup_tooltip('Press to mute/unmute', function (d)
     return awful.placement.bottom_right(d, {
         margins = {
             bottom = beautiful.bar_height + beautiful.useless_gap * 2,

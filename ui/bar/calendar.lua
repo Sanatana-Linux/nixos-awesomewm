@@ -4,7 +4,6 @@ local awful = require 'awful'
 local beautiful = require 'beautiful'
 local wibox = require 'wibox'
 local gears = require 'gears'
-local helpers = require 'helpers'
 local dpi = beautiful.xresources.apply_dpi
 
 -- listen for requests to change the visibility of the calendar in the focused screen ofc.
@@ -73,7 +72,7 @@ awful.screen.connect_for_each_screen(function (s)
                 right = beautiful.useless_gap * 2,
             }})
         end,
-        shape = helpers.mkroundedrect(),
+        shape = utilities.mkroundedrect(),
         screen = s,
         widget = s.calendar.calendar,
     }

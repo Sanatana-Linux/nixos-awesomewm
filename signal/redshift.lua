@@ -2,7 +2,6 @@
 
 local awful = require 'awful'
 local gears = require 'gears'
-local helpers = require 'helpers'
 local fs = gears.filesystem
 
 local redshift = {}
@@ -12,7 +11,7 @@ redshift.script_path = fs.get_configuration_dir() .. 'scripts/redshift.sh'
 function redshift._invoke_script(args, cb)
     awful.spawn.easy_async_with_shell(redshift.script_path .. ' ' .. args, function (out)
         if cb then
-            cb(helpers.trim(out))
+            cb(utilities.trim(out))
         end
     end)
 end

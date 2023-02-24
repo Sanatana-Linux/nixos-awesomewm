@@ -161,7 +161,15 @@ theme.layout_equalarea = gears.color.recolor_image(assets_path .. '/layouts/equa
 theme.layout_deck = gears.color.recolor_image(assets_path .. '/layouts/deck.png', theme.fg_normal)
 theme.layout_overflow = gears.color.recolor_image(assets_path .. '/layouts/deck.png', theme.fg_normal)
 -- -------------------------------------------------------------------------- --
+-- battery icons 
+theme.widget_ac     = gears.color.recolor_image(icons_path .. "battery-fully-charged.svg", theme.fg_normal)
+theme.widget_bat_full   = gears.color.recolor_image(icons_path .. "battery-4.svg", theme.fg_normal)
+theme.widget_bat_med    = gears.color.recolor_image(icons_path .. "battery-3.svg", theme.fg_normal)
+theme.widget_bat_low    = gears.color.recolor_image(icons_path .. "battery-2.svg", theme.fg_normal)
+theme.widget_bat_empty  = gears.color.recolor_image(icons_path .. "battery-alert.svg", theme.fg_normal)
+-- -------------------------------------------------------------------------- --
 -- other icons
+-- 
 theme.launcher_icon = icons_path .. "home.svg"
 theme.menu_icon = gears.color.recolor_image(icons_path .. "menu.svg", theme.fg_normal)
 theme.hints_icon = gears.color.recolor_image(icons_path .. "hints.svg", theme.fg_normal)

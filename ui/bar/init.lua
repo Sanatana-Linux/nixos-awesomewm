@@ -266,6 +266,7 @@ screen.connect_signal("request::desktop_decoration", function(s)
     powerbutton_tooltip.hide()
     awesome.emit_signal("powermenu::show")
   end))
+  
   -- -------------------------------------------------------------------------- --
   --                               widget templates                              --
   -- -------------------------------------------------------------------------- --

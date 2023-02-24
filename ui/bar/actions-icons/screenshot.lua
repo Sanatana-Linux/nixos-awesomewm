@@ -2,7 +2,6 @@
 local wibox = require "wibox"
 local beautiful = require "beautiful"
 local awful = require "awful"
-local helpers = require "helpers"
 
 require "ui.screenshot-select"
 
@@ -17,7 +16,7 @@ local function get_icon(s)
     widget = wibox.widget.textbox
   }
 
-  local tooltip = helpers.make_popup_tooltip("Press to take a screenshot",
+  local tooltip = utilities.make_popup_tooltip("Press to take a screenshot",
                                              function(d)
     return awful.placement.bottom_right(d, {
       margins = {
@@ -34,7 +33,7 @@ local function get_icon(s)
     tooltip.toggle()
 
     if s.screenshot_selecter.popup.visible then
-      icon:set_markup_silently(helpers.get_colorized_markup(CAMERA_ICON,
+      icon:set_markup_silently(utilities.get_colorized_markup(CAMERA_ICON,
                                                               beautiful.grey))
       awesome.emit_signal("screenshot::show")
     else
@@ -44,7 +43,7 @@ local function get_icon(s)
   end))
 
   awesome.connect_signal("screenshot::show", function()
-    icon:set_markup_silently(helpers.get_colorized_markup(CAMERA_ICON,
+    icon:set_markup_silently(utilities.get_colorized_markup(CAMERA_ICON,
     beautiful.grey))
   end)
 

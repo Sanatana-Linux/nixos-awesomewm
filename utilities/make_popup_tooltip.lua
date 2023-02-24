@@ -40,7 +40,6 @@ return function(text, placement)
 
   ret.popup = awful.popup {
       visible = false,
-    --   shape = mkroundedrect(),
       bg = beautiful.bg_normal .. '00',
       fg = beautiful.fg_normal,
       ontop = true,

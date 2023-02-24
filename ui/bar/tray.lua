@@ -2,7 +2,6 @@
 local wibox = require 'wibox'
 local awful = require 'awful'
 local beautiful = require 'beautiful'
-local helpers = require 'helpers'
 
 local dpi = beautiful.xresources.apply_dpi
 
@@ -43,7 +42,7 @@ awful.screen.connect_for_each_screen(function (s)
         bg = beautiful.bg_normal,
         fg = beautiful.fg_normal,
         widget = wibox.container.background,
-        shape = helpers.mkroundedrect(),
+        shape = utilities.mkroundedrect(),
     }
 
     s.tray.popup = awful.popup {
@@ -55,7 +54,7 @@ awful.screen.connect_for_each_screen(function (s)
         fg = beautiful.fg_normal,
         minimum_width = dpi(200),
         minimum_height = dpi(150),
-        shape = helpers.mkroundedrect(),
+        shape = utilities.mkroundedrect(),
         placement = function (d)
             return awful.placement.bottom_right(d, {
                 margins = {

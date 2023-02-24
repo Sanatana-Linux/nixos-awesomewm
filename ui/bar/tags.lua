@@ -2,8 +2,8 @@ local wibox = require("wibox")
 local beautiful = require("beautiful")
 local awful = require("awful")
 
-local icon_theme = require("modules.bling.helpers.icon_theme")
-local theme = icon_theme()
+
+local theme = utilities.icon_theme(beautiful.icon_theme)
 
 local extract_icon = function (c)
   -- exceptions (add support for simple terminal and many mores).
