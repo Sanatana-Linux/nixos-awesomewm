@@ -1,0 +1,15 @@
+rock_manifest = {
+   ["fzy-1.0-1.rockspec"] = "85a5447485241ab51108f62f50b17a82",
+   lib = {
+      ["fzy_native.so"] = "1bd6a68ec6d099e1e8d247b5ab38736b"
+   },
+   lua = {
+      ["fzy.lua"] = "25b7c1e63fc85735c4214a4900eb653b",
+      ["fzy_lua.lua"] = "81217aac4152c3597ee53090a76eb290"
+   },
+   test = {
+      ["benchmark.lua"] = "18e88745b9671ce2ecb6c79f406549bc",
+      ["files.txt"] = "661713050dd57c3c23c306a49a992f8d",
+      ["test.lua"] = "260a2059e46ebc02fa1c790df4248ea7"
+   }
+}

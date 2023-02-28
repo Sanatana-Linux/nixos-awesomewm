@@ -1,0 +1,1281 @@
+commands = {
+   ldoc = {
+      "ldoc/1.4.6-2"
+   },
+   luacheck = {
+      "luacheck/1.1.0-1"
+   }
+}
+dependencies = {
+   argparse = {
+      ["0.7.1-1"] = {
+         {
+            constraints = {
+               {
+                  op = ">=",
+                  version = {
+                     5, 1, string = "5.1"
+                  }
+               },
+               {
+                  op = "<",
+                  version = {
+                     5, 5, string = "5.5"
+                  }
+               }
+            },
+            name = "lua"
+         }
+      }
+   },
+   bit32 = {
+      ["5.3.5.1-1"] = {
+         {
+            constraints = {
+               {
+                  op = ">=",
+                  version = {
+                     5, 1, string = "5.1"
+                  }
+               },
+               {
+                  op = "<",
+                  version = {
+                     5, 5, string = "5.5"
+                  }
+               }
+            },
+            name = "lua"
+         }
+      }
+   },
+   fzy = {
+      ["1.0-1"] = {
+         {
+            constraints = {
+               {
+                  op = ">=",
+                  version = {
+                     5, 1, string = "5.1"
+                  }
+               }
+            },
+            name = "lua"
+         }
+      }
+   },
+   ldoc = {
+      ["1.4.6-2"] = {
+         {
+            constraints = {},
+            name = "penlight"
+         },
+         {
+            constraints = {},
+            name = "markdown"
+         }
+      }
+   },
+   lgi = {
+      ["0.9.2-1"] = {
+         {
+            constraints = {
+               {
+                  op = ">=",
+                  version = {
+                     5, 1, string = "5.1"
+                  }
+               }
+            },
+            name = "lua"
+         }
+      }
+   },
+   lpeg = {
+      ["1.0.2-1"] = {
+         {
+            constraints = {
+               {
+                  op = ">=",
+                  version = {
+                     5, 1, string = "5.1"
+                  }
+               }
+            },
+            name = "lua"
+         }
+      }
+   },
+   luacheck = {
+      ["1.1.0-1"] = {
+         {
+            constraints = {
+               {
+                  op = ">=",
+                  version = {
+                     5, 1, string = "5.1"
+                  }
+               }
+            },
+            name = "lua"
+         },
+         {
+            constraints = {
+               {
+                  op = ">=",
+                  version = {
+                     0, 6, 0, string = "0.6.0"
+                  }
+               }
+            },
+            name = "argparse"
+         },
+         {
+            constraints = {
+               {
+                  op = ">=",
+                  version = {
+                     1, 6, 3, string = "1.6.3"
+                  }
+               }
+            },
+            name = "luafilesystem"
+         }
+      }
+   },
+   luafilesystem = {
+      ["1.8.0-1"] = {
+         {
+            constraints = {
+               {
+                  op = ">=",
+                  version = {
+                     5, 1, string = "5.1"
+                  }
+               }
+            },
+            name = "lua"
+         }
+      }
+   },
+   luaposix = {
+      ["35.1-1"] = {
+         {
+            constraints = {
+               {
+                  op = ">=",
+                  version = {
+                     5, 1, string = "5.1"
+                  }
+               },
+               {
+                  op = "<",
+                  version = {
+                     5, 5, string = "5.5"
+                  }
+               }
+            },
+            name = "lua"
+         },
+         {
+            constraints = {},
+            name = "bit32"
+         }
+      }
+   },
+   luasec = {
+      ["1.1.0-1"] = {
+         {
+            constraints = {
+               {
+                  op = ">=",
+                  version = {
+                     5, 1, string = "5.1"
+                  }
+               }
+            },
+            name = "lua"
+         },
+         {
+            constraints = {},
+            name = "luasocket"
+         }
+      }
+   },
+   luasocket = {
+      ["3.1.0-1"] = {
+         {
+            constraints = {
+               {
+                  op = ">=",
+                  version = {
+                     5, 1, string = "5.1"
+                  }
+               }
+            },
+            name = "lua"
+         }
+      }
+   },
+   markdown = {
+      ["0.33-1"] = {
+         {
+            constraints = {
+               {
+                  op = ">=",
+                  version = {
+                     5, 1, string = "5.1"
+                  }
+               },
+               {
+                  op = "<",
+                  version = {
+                     5, 4, string = "5.4"
+                  }
+               }
+            },
+            name = "lua"
+         }
+      }
+   },
+   penlight = {
+      ["1.12.0-2"] = {
+         {
+            constraints = {},
+            name = "luafilesystem"
+         }
+      }
+   }
+}
+modules = {
+   argparse = {
+      "argparse/0.7.1-1"
+   },
+   bit32 = {
+      "bit32/5.3.5.1-1"
+   },
+   fzy = {
+      "fzy/1.0-1"
+   },
+   fzy_lua = {
+      "fzy/1.0-1"
+   },
+   fzy_native = {
+      "fzy/1.0-1"
+   },
+   ["ldoc.builtin.coroutine"] = {
+      "ldoc/1.4.6-2"
+   },
+   ["ldoc.builtin.debug"] = {
+      "ldoc/1.4.6-2"
+   },
+   ["ldoc.builtin.global"] = {
+      "ldoc/1.4.6-2"
+   },
+   ["ldoc.builtin.globals"] = {
+      "ldoc/1.4.6-2"
+   },
+   ["ldoc.builtin.io"] = {
+      "ldoc/1.4.6-2"
+   },
+   ["ldoc.builtin.lfs"] = {
+      "ldoc/1.4.6-2"
+   },
+   ["ldoc.builtin.lpeg"] = {
+      "ldoc/1.4.6-2"
+   },
+   ["ldoc.builtin.math"] = {
+      "ldoc/1.4.6-2"
+   },
+   ["ldoc.builtin.os"] = {
+      "ldoc/1.4.6-2"
+   },
+   ["ldoc.builtin.package"] = {
+      "ldoc/1.4.6-2"
+   },
+   ["ldoc.builtin.string"] = {
+      "ldoc/1.4.6-2"
+   },
+   ["ldoc.builtin.table"] = {
+      "ldoc/1.4.6-2"
+   },
+   ["ldoc.doc"] = {
+      "ldoc/1.4.6-2"
+   },
+   ["ldoc.html"] = {
+      "ldoc/1.4.6-2"
+   },
+   ["ldoc.html._code_css"] = {
+      "ldoc/1.4.6-2"
+   },
+   ["ldoc.html._reset_css"] = {
+      "ldoc/1.4.6-2"
+   },
+   ["ldoc.html.ldoc_css"] = {
+      "ldoc/1.4.6-2"
+   },
+   ["ldoc.html.ldoc_fixed_css"] = {
+      "ldoc/1.4.6-2"
+   },
+   ["ldoc.html.ldoc_ltp"] = {
+      "ldoc/1.4.6-2"
+   },
+   ["ldoc.html.ldoc_md_ltp"] = {
+      "ldoc/1.4.6-2"
+   },
+   ["ldoc.html.ldoc_one_css"] = {
+      "ldoc/1.4.6-2"
+   },
+   ["ldoc.html.ldoc_pale_css"] = {
+      "ldoc/1.4.6-2"
+   },
+   ["ldoc.lang"] = {
+      "ldoc/1.4.6-2"
+   },
+   ["ldoc.lexer"] = {
+      "ldoc/1.4.6-2"
+   },
+   ["ldoc.markdown"] = {
+      "ldoc/1.4.6-2"
+   },
+   ["ldoc.markup"] = {
+      "ldoc/1.4.6-2"
+   },
+   ["ldoc.parse"] = {
+      "ldoc/1.4.6-2"
+   },
+   ["ldoc.prettify"] = {
+      "ldoc/1.4.6-2"
+   },
+   ["ldoc.tools"] = {
+      "ldoc/1.4.6-2"
+   },
+   lfs = {
+      "luafilesystem/1.8.0-1"
+   },
+   lgi = {
+      "lgi/0.9.2-1"
+   },
+   ["lgi.class"] = {
+      "lgi/0.9.2-1"
+   },
+   ["lgi.component"] = {
+      "lgi/0.9.2-1"
+   },
+   ["lgi.core"] = {
+      "lgi/0.9.2-1"
+   },
+   ["lgi.corelgilua51"] = {
+      "lgi/0.9.2-1"
+   },
+   ["lgi.enum"] = {
+      "lgi/0.9.2-1"
+   },
+   ["lgi.ffi"] = {
+      "lgi/0.9.2-1"
+   },
+   ["lgi.init"] = {
+      "lgi/0.9.2-1"
+   },
+   ["lgi.log"] = {
+      "lgi/0.9.2-1"
+   },
+   ["lgi.namespace"] = {
+      "lgi/0.9.2-1"
+   },
+   ["lgi.override.Clutter"] = {
+      "lgi/0.9.2-1"
+   },
+   ["lgi.override.GLib"] = {
+      "lgi/0.9.2-1"
+   },
+   ["lgi.override.GLib-Bytes"] = {
+      "lgi/0.9.2-1"
+   },
+   ["lgi.override.GLib-Error"] = {
+      "lgi/0.9.2-1"
+   },
+   ["lgi.override.GLib-Markup"] = {
+      "lgi/0.9.2-1"
+   },
+   ["lgi.override.GLib-Source"] = {
+      "lgi/0.9.2-1"
+   },
+   ["lgi.override.GLib-Timer"] = {
+      "lgi/0.9.2-1"
+   },
+   ["lgi.override.GLib-Variant"] = {
+      "lgi/0.9.2-1"
+   },
+   ["lgi.override.GObject-Closure"] = {
+      "lgi/0.9.2-1"
+   },
+   ["lgi.override.GObject-Object"] = {
+      "lgi/0.9.2-1"
+   },
+   ["lgi.override.GObject-Type"] = {
+      "lgi/0.9.2-1"
+   },
+   ["lgi.override.GObject-Value"] = {
+      "lgi/0.9.2-1"
+   },
+   ["lgi.override.Gdk"] = {
+      "lgi/0.9.2-1"
+   },
+   ["lgi.override.Gio"] = {
+      "lgi/0.9.2-1"
+   },
+   ["lgi.override.Gio-DBus"] = {
+      "lgi/0.9.2-1"
+   },
+   ["lgi.override.GooCanvas"] = {
+      "lgi/0.9.2-1"
+   },
+   ["lgi.override.Gst"] = {
+      "lgi/0.9.2-1"
+   },
+   ["lgi.override.Gtk"] = {
+      "lgi/0.9.2-1"
+   },
+   ["lgi.override.Pango"] = {
+      "lgi/0.9.2-1"
+   },
+   ["lgi.override.PangoCairo"] = {
+      "lgi/0.9.2-1"
+   },
+   ["lgi.override.cairo"] = {
+      "lgi/0.9.2-1"
+   },
+   ["lgi.package"] = {
+      "lgi/0.9.2-1"
+   },
+   ["lgi.record"] = {
+      "lgi/0.9.2-1"
+   },
+   ["lgi.version"] = {
+      "lgi/0.9.2-1"
+   },
+   lpeg = {
+      "lpeg/1.0.2-1"
+   },
+   ltn12 = {
+      "luasocket/3.1.0-1"
+   },
+   ["luacheck.builtin_standards.init"] = {
+      "luacheck/1.1.0-1"
+   },
+   ["luacheck.builtin_standards.love"] = {
+      "luacheck/1.1.0-1"
+   },
+   ["luacheck.builtin_standards.ngx"] = {
+      "luacheck/1.1.0-1"
+   },
+   ["luacheck.builtin_standards.playdate"] = {
+      "luacheck/1.1.0-1"
+   },
+   ["luacheck.cache"] = {
+      "luacheck/1.1.0-1"
+   },
+   ["luacheck.check"] = {
+      "luacheck/1.1.0-1"
+   },
+   ["luacheck.check_state"] = {
+      "luacheck/1.1.0-1"
+   },
+   ["luacheck.config"] = {
+      "luacheck/1.1.0-1"
+   },
+   ["luacheck.core_utils"] = {
+      "luacheck/1.1.0-1"
+   },
+   ["luacheck.decoder"] = {
+      "luacheck/1.1.0-1"
+   },
+   ["luacheck.expand_rockspec"] = {
+      "luacheck/1.1.0-1"
+   },
+   ["luacheck.filter"] = {
+      "luacheck/1.1.0-1"
+   },
+   ["luacheck.format"] = {
+      "luacheck/1.1.0-1"
+   },
+   ["luacheck.fs"] = {
+      "luacheck/1.1.0-1"
+   },
+   ["luacheck.globbing"] = {
+      "luacheck/1.1.0-1"
+   },
+   ["luacheck.init"] = {
+      "luacheck/1.1.0-1"
+   },
+   ["luacheck.lexer"] = {
+      "luacheck/1.1.0-1"
+   },
+   ["luacheck.main"] = {
+      "luacheck/1.1.0-1"
+   },
+   ["luacheck.multithreading"] = {
+      "luacheck/1.1.0-1"
+   },
+   ["luacheck.options"] = {
+      "luacheck/1.1.0-1"
+   },
+   ["luacheck.parser"] = {
+      "luacheck/1.1.0-1"
+   },
+   ["luacheck.profiler"] = {
+      "luacheck/1.1.0-1"
+   },
+   ["luacheck.runner"] = {
+      "luacheck/1.1.0-1"
+   },
+   ["luacheck.serializer"] = {
+      "luacheck/1.1.0-1"
+   },
+   ["luacheck.stages.detect_bad_whitespace"] = {
+      "luacheck/1.1.0-1"
+   },
+   ["luacheck.stages.detect_compound_operators"] = {
+      "luacheck/1.1.0-1"
+   },
+   ["luacheck.stages.detect_cyclomatic_complexity"] = {
+      "luacheck/1.1.0-1"
+   },
+   ["luacheck.stages.detect_empty_blocks"] = {
+      "luacheck/1.1.0-1"
+   },
+   ["luacheck.stages.detect_empty_statements"] = {
+      "luacheck/1.1.0-1"
+   },
+   ["luacheck.stages.detect_globals"] = {
+      "luacheck/1.1.0-1"
+   },
+   ["luacheck.stages.detect_reversed_fornum_loops"] = {
+      "luacheck/1.1.0-1"
+   },
+   ["luacheck.stages.detect_unbalanced_assignments"] = {
+      "luacheck/1.1.0-1"
+   },
+   ["luacheck.stages.detect_uninit_accesses"] = {
+      "luacheck/1.1.0-1"
+   },
+   ["luacheck.stages.detect_unreachable_code"] = {
+      "luacheck/1.1.0-1"
+   },
+   ["luacheck.stages.detect_unused_fields"] = {
+      "luacheck/1.1.0-1"
+   },
+   ["luacheck.stages.detect_unused_locals"] = {
+      "luacheck/1.1.0-1"
+   },
+   ["luacheck.stages.init"] = {
+      "luacheck/1.1.0-1"
+   },
+   ["luacheck.stages.linearize"] = {
+      "luacheck/1.1.0-1"
+   },
+   ["luacheck.stages.name_functions"] = {
+      "luacheck/1.1.0-1"
+   },
+   ["luacheck.stages.parse"] = {
+      "luacheck/1.1.0-1"
+   },
+   ["luacheck.stages.parse_inline_options"] = {
+      "luacheck/1.1.0-1"
+   },
+   ["luacheck.stages.resolve_locals"] = {
+      "luacheck/1.1.0-1"
+   },
+   ["luacheck.stages.unwrap_parens"] = {
+      "luacheck/1.1.0-1"
+   },
+   ["luacheck.standards"] = {
+      "luacheck/1.1.0-1"
+   },
+   ["luacheck.unicode"] = {
+      "luacheck/1.1.0-1"
+   },
+   ["luacheck.unicode_printability_boundaries"] = {
+      "luacheck/1.1.0-1"
+   },
+   ["luacheck.utils"] = {
+      "luacheck/1.1.0-1"
+   },
+   ["luacheck.vendor.sha1.bit32_ops"] = {
+      "luacheck/1.1.0-1"
+   },
+   ["luacheck.vendor.sha1.bit_ops"] = {
+      "luacheck/1.1.0-1"
+   },
+   ["luacheck.vendor.sha1.common"] = {
+      "luacheck/1.1.0-1"
+   },
+   ["luacheck.vendor.sha1.init"] = {
+      "luacheck/1.1.0-1"
+   },
+   ["luacheck.vendor.sha1.lua53_ops"] = {
+      "luacheck/1.1.0-1"
+   },
+   ["luacheck.vendor.sha1.pure_lua_ops"] = {
+      "luacheck/1.1.0-1"
+   },
+   ["luacheck.version"] = {
+      "luacheck/1.1.0-1"
+   },
+   markdown = {
+      "markdown/0.33-1"
+   },
+   mime = {
+      "luasocket/3.1.0-1"
+   },
+   ["mime.core"] = {
+      "luasocket/3.1.0-1"
+   },
+   ["pl.Date"] = {
+      "penlight/1.12.0-2"
+   },
+   ["pl.List"] = {
+      "penlight/1.12.0-2"
+   },
+   ["pl.Map"] = {
+      "penlight/1.12.0-2"
+   },
+   ["pl.MultiMap"] = {
+      "penlight/1.12.0-2"
+   },
+   ["pl.OrderedMap"] = {
+      "penlight/1.12.0-2"
+   },
+   ["pl.Set"] = {
+      "penlight/1.12.0-2"
+   },
+   ["pl.app"] = {
+      "penlight/1.12.0-2"
+   },
+   ["pl.array2d"] = {
+      "penlight/1.12.0-2"
+   },
+   ["pl.class"] = {
+      "penlight/1.12.0-2"
+   },
+   ["pl.compat"] = {
+      "penlight/1.12.0-2"
+   },
+   ["pl.comprehension"] = {
+      "penlight/1.12.0-2"
+   },
+   ["pl.config"] = {
+      "penlight/1.12.0-2"
+   },
+   ["pl.data"] = {
+      "penlight/1.12.0-2"
+   },
+   ["pl.dir"] = {
+      "penlight/1.12.0-2"
+   },
+   ["pl.file"] = {
+      "penlight/1.12.0-2"
+   },
+   ["pl.func"] = {
+      "penlight/1.12.0-2"
+   },
+   ["pl.import_into"] = {
+      "penlight/1.12.0-2"
+   },
+   ["pl.init"] = {
+      "penlight/1.12.0-2"
+   },
+   ["pl.input"] = {
+      "penlight/1.12.0-2"
+   },
+   ["pl.lapp"] = {
+      "penlight/1.12.0-2"
+   },
+   ["pl.lexer"] = {
+      "penlight/1.12.0-2"
+   },
+   ["pl.luabalanced"] = {
+      "penlight/1.12.0-2"
+   },
+   ["pl.operator"] = {
+      "penlight/1.12.0-2"
+   },
+   ["pl.path"] = {
+      "penlight/1.12.0-2"
+   },
+   ["pl.permute"] = {
+      "penlight/1.12.0-2"
+   },
+   ["pl.pretty"] = {
+      "penlight/1.12.0-2"
+   },
+   ["pl.seq"] = {
+      "penlight/1.12.0-2"
+   },
+   ["pl.sip"] = {
+      "penlight/1.12.0-2"
+   },
+   ["pl.strict"] = {
+      "penlight/1.12.0-2"
+   },
+   ["pl.stringio"] = {
+      "penlight/1.12.0-2"
+   },
+   ["pl.stringx"] = {
+      "penlight/1.12.0-2"
+   },
+   ["pl.tablex"] = {
+      "penlight/1.12.0-2"
+   },
+   ["pl.template"] = {
+      "penlight/1.12.0-2"
+   },
+   ["pl.test"] = {
+      "penlight/1.12.0-2"
+   },
+   ["pl.text"] = {
+      "penlight/1.12.0-2"
+   },
+   ["pl.types"] = {
+      "penlight/1.12.0-2"
+   },
+   ["pl.url"] = {
+      "penlight/1.12.0-2"
+   },
+   ["pl.utils"] = {
+      "penlight/1.12.0-2"
+   },
+   ["pl.xml"] = {
+      "penlight/1.12.0-2"
+   },
+   ["posix._base"] = {
+      "luaposix/35.1-1"
+   },
+   ["posix._bitwise"] = {
+      "luaposix/35.1-1"
+   },
+   ["posix._strict"] = {
+      "luaposix/35.1-1"
+   },
+   ["posix.compat"] = {
+      "luaposix/35.1-1"
+   },
+   ["posix.ctype"] = {
+      "luaposix/35.1-1"
+   },
+   ["posix.deprecated"] = {
+      "luaposix/35.1-1"
+   },
+   ["posix.dirent"] = {
+      "luaposix/35.1-1"
+   },
+   ["posix.errno"] = {
+      "luaposix/35.1-1"
+   },
+   ["posix.fcntl"] = {
+      "luaposix/35.1-1"
+   },
+   ["posix.fnmatch"] = {
+      "luaposix/35.1-1"
+   },
+   ["posix.glob"] = {
+      "luaposix/35.1-1"
+   },
+   ["posix.grp"] = {
+      "luaposix/35.1-1"
+   },
+   ["posix.init"] = {
+      "luaposix/35.1-1"
+   },
+   ["posix.libgen"] = {
+      "luaposix/35.1-1"
+   },
+   ["posix.poll"] = {
+      "luaposix/35.1-1"
+   },
+   ["posix.pwd"] = {
+      "luaposix/35.1-1"
+   },
+   ["posix.sched"] = {
+      "luaposix/35.1-1"
+   },
+   ["posix.signal"] = {
+      "luaposix/35.1-1"
+   },
+   ["posix.stdio"] = {
+      "luaposix/35.1-1"
+   },
+   ["posix.stdlib"] = {
+      "luaposix/35.1-1"
+   },
+   ["posix.sys"] = {
+      "luaposix/35.1-1"
+   },
+   ["posix.sys.msg"] = {
+      "luaposix/35.1-1"
+   },
+   ["posix.sys.resource"] = {
+      "luaposix/35.1-1"
+   },
+   ["posix.sys.socket"] = {
+      "luaposix/35.1-1"
+   },
+   ["posix.sys.stat"] = {
+      "luaposix/35.1-1"
+   },
+   ["posix.sys.statvfs"] = {
+      "luaposix/35.1-1"
+   },
+   ["posix.sys.time"] = {
+      "luaposix/35.1-1"
+   },
+   ["posix.sys.times"] = {
+      "luaposix/35.1-1"
+   },
+   ["posix.sys.utsname"] = {
+      "luaposix/35.1-1"
+   },
+   ["posix.sys.wait"] = {
+      "luaposix/35.1-1"
+   },
+   ["posix.syslog"] = {
+      "luaposix/35.1-1"
+   },
+   ["posix.termio"] = {
+      "luaposix/35.1-1"
+   },
+   ["posix.time"] = {
+      "luaposix/35.1-1"
+   },
+   ["posix.unistd"] = {
+      "luaposix/35.1-1"
+   },
+   ["posix.util"] = {
+      "luaposix/35.1-1"
+   },
+   ["posix.utime"] = {
+      "luaposix/35.1-1"
+   },
+   ["posix.version"] = {
+      "luaposix/35.1-1"
+   },
+   re = {
+      "lpeg/1.0.2-1"
+   },
+   socket = {
+      "luasocket/3.1.0-1"
+   },
+   ["socket.core"] = {
+      "luasocket/3.1.0-1"
+   },
+   ["socket.ftp"] = {
+      "luasocket/3.1.0-1"
+   },
+   ["socket.headers"] = {
+      "luasocket/3.1.0-1"
+   },
+   ["socket.http"] = {
+      "luasocket/3.1.0-1"
+   },
+   ["socket.serial"] = {
+      "luasocket/3.1.0-1"
+   },
+   ["socket.smtp"] = {
+      "luasocket/3.1.0-1"
+   },
+   ["socket.tp"] = {
+      "luasocket/3.1.0-1"
+   },
+   ["socket.unix"] = {
+      "luasocket/3.1.0-1"
+   },
+   ["socket.url"] = {
+      "luasocket/3.1.0-1"
+   },
+   ssl = {
+      "luasec/1.1.0-1"
+   },
+   ["ssl.https"] = {
+      "luasec/1.1.0-1"
+   }
+}
+repository = {
+   argparse = {
+      ["0.7.1-1"] = {
+         {
+            arch = "installed",
+            commands = {},
+            dependencies = {},
+            modules = {
+               argparse = "argparse.lua"
+            }
+         }
+      }
+   },
+   bit32 = {
+      ["5.3.5.1-1"] = {
+         {
+            arch = "installed",
+            commands = {},
+            dependencies = {},
+            modules = {
+               bit32 = "bit32.so"
+            }
+         }
+      }
+   },
+   fzy = {
+      ["1.0-1"] = {
+         {
+            arch = "installed",
+            commands = {},
+            dependencies = {},
+            modules = {
+               fzy = "fzy.lua",
+               fzy_lua = "fzy_lua.lua",
+               fzy_native = "fzy_native.so"
+            }
+         }
+      }
+   },
+   ldoc = {
+      ["1.4.6-2"] = {
+         {
+            arch = "installed",
+            commands = {
+               ldoc = "ldoc"
+            },
+            dependencies = {
+               luafilesystem = "1.8.0-1",
+               markdown = "0.33-1",
+               penlight = "1.12.0-2"
+            },
+            modules = {
+               ["ldoc.builtin.coroutine"] = "ldoc/builtin/coroutine.lua",
+               ["ldoc.builtin.debug"] = "ldoc/builtin/debug.lua",
+               ["ldoc.builtin.global"] = "ldoc/builtin/global.lua",
+               ["ldoc.builtin.globals"] = "ldoc/builtin/globals.lua",
+               ["ldoc.builtin.io"] = "ldoc/builtin/io.lua",
+               ["ldoc.builtin.lfs"] = "ldoc/builtin/lfs.lua",
+               ["ldoc.builtin.lpeg"] = "ldoc/builtin/lpeg.lua",
+               ["ldoc.builtin.math"] = "ldoc/builtin/math.lua",
+               ["ldoc.builtin.os"] = "ldoc/builtin/os.lua",
+               ["ldoc.builtin.package"] = "ldoc/builtin/package.lua",
+               ["ldoc.builtin.string"] = "ldoc/builtin/string.lua",
+               ["ldoc.builtin.table"] = "ldoc/builtin/table.lua",
+               ["ldoc.doc"] = "ldoc/doc.lua",
+               ["ldoc.html"] = "ldoc/html.lua",
+               ["ldoc.html._code_css"] = "ldoc/html/_code_css.lua",
+               ["ldoc.html._reset_css"] = "ldoc/html/_reset_css.lua",
+               ["ldoc.html.ldoc_css"] = "ldoc/html/ldoc_css.lua",
+               ["ldoc.html.ldoc_fixed_css"] = "ldoc/html/ldoc_fixed_css.lua",
+               ["ldoc.html.ldoc_ltp"] = "ldoc/html/ldoc_ltp.lua",
+               ["ldoc.html.ldoc_md_ltp"] = "ldoc/html/ldoc_md_ltp.lua",
+               ["ldoc.html.ldoc_one_css"] = "ldoc/html/ldoc_one_css.lua",
+               ["ldoc.html.ldoc_pale_css"] = "ldoc/html/ldoc_pale_css.lua",
+               ["ldoc.lang"] = "ldoc/lang.lua",
+               ["ldoc.lexer"] = "ldoc/lexer.lua",
+               ["ldoc.markdown"] = "ldoc/markdown.lua",
+               ["ldoc.markup"] = "ldoc/markup.lua",
+               ["ldoc.parse"] = "ldoc/parse.lua",
+               ["ldoc.prettify"] = "ldoc/prettify.lua",
+               ["ldoc.tools"] = "ldoc/tools.lua"
+            }
+         }
+      }
+   },
+   lgi = {
+      ["0.9.2-1"] = {
+         {
+            arch = "installed",
+            commands = {},
+            dependencies = {},
+            modules = {
+               lgi = "lgi.lua",
+               ["lgi.class"] = "lgi/class.lua",
+               ["lgi.component"] = "lgi/component.lua",
+               ["lgi.core"] = "lgi/core.lua",
+               ["lgi.corelgilua51"] = "lgi/corelgilua51.so",
+               ["lgi.enum"] = "lgi/enum.lua",
+               ["lgi.ffi"] = "lgi/ffi.lua",
+               ["lgi.init"] = "lgi/init.lua",
+               ["lgi.log"] = "lgi/log.lua",
+               ["lgi.namespace"] = "lgi/namespace.lua",
+               ["lgi.override.Clutter"] = "lgi/override/Clutter.lua",
+               ["lgi.override.GLib"] = "lgi/override/GLib.lua",
+               ["lgi.override.GLib-Bytes"] = "lgi/override/GLib-Bytes.lua",
+               ["lgi.override.GLib-Error"] = "lgi/override/GLib-Error.lua",
+               ["lgi.override.GLib-Markup"] = "lgi/override/GLib-Markup.lua",
+               ["lgi.override.GLib-Source"] = "lgi/override/GLib-Source.lua",
+               ["lgi.override.GLib-Timer"] = "lgi/override/GLib-Timer.lua",
+               ["lgi.override.GLib-Variant"] = "lgi/override/GLib-Variant.lua",
+               ["lgi.override.GObject-Closure"] = "lgi/override/GObject-Closure.lua",
+               ["lgi.override.GObject-Object"] = "lgi/override/GObject-Object.lua",
+               ["lgi.override.GObject-Type"] = "lgi/override/GObject-Type.lua",
+               ["lgi.override.GObject-Value"] = "lgi/override/GObject-Value.lua",
+               ["lgi.override.Gdk"] = "lgi/override/Gdk.lua",
+               ["lgi.override.Gio"] = "lgi/override/Gio.lua",
+               ["lgi.override.Gio-DBus"] = "lgi/override/Gio-DBus.lua",
+               ["lgi.override.GooCanvas"] = "lgi/override/GooCanvas.lua",
+               ["lgi.override.Gst"] = "lgi/override/Gst.lua",
+               ["lgi.override.Gtk"] = "lgi/override/Gtk.lua",
+               ["lgi.override.Pango"] = "lgi/override/Pango.lua",
+               ["lgi.override.PangoCairo"] = "lgi/override/PangoCairo.lua",
+               ["lgi.override.cairo"] = "lgi/override/cairo.lua",
+               ["lgi.package"] = "lgi/package.lua",
+               ["lgi.record"] = "lgi/record.lua",
+               ["lgi.version"] = "lgi/version.lua"
+            }
+         }
+      }
+   },
+   lpeg = {
+      ["1.0.2-1"] = {
+         {
+            arch = "installed",
+            commands = {},
+            dependencies = {},
+            modules = {
+               lpeg = "lpeg.so",
+               re = "re.lua"
+            }
+         }
+      }
+   },
+   luacheck = {
+      ["1.1.0-1"] = {
+         {
+            arch = "installed",
+            commands = {
+               luacheck = "luacheck"
+            },
+            dependencies = {
+               argparse = "0.7.1-1",
+               luafilesystem = "1.8.0-1"
+            },
+            modules = {
+               ["luacheck.builtin_standards.init"] = "luacheck/builtin_standards/init.lua",
+               ["luacheck.builtin_standards.love"] = "luacheck/builtin_standards/love.lua",
+               ["luacheck.builtin_standards.ngx"] = "luacheck/builtin_standards/ngx.lua",
+               ["luacheck.builtin_standards.playdate"] = "luacheck/builtin_standards/playdate.lua",
+               ["luacheck.cache"] = "luacheck/cache.lua",
+               ["luacheck.check"] = "luacheck/check.lua",
+               ["luacheck.check_state"] = "luacheck/check_state.lua",
+               ["luacheck.config"] = "luacheck/config.lua",
+               ["luacheck.core_utils"] = "luacheck/core_utils.lua",
+               ["luacheck.decoder"] = "luacheck/decoder.lua",
+               ["luacheck.expand_rockspec"] = "luacheck/expand_rockspec.lua",
+               ["luacheck.filter"] = "luacheck/filter.lua",
+               ["luacheck.format"] = "luacheck/format.lua",
+               ["luacheck.fs"] = "luacheck/fs.lua",
+               ["luacheck.globbing"] = "luacheck/globbing.lua",
+               ["luacheck.init"] = "luacheck/init.lua",
+               ["luacheck.lexer"] = "luacheck/lexer.lua",
+               ["luacheck.main"] = "luacheck/main.lua",
+               ["luacheck.multithreading"] = "luacheck/multithreading.lua",
+               ["luacheck.options"] = "luacheck/options.lua",
+               ["luacheck.parser"] = "luacheck/parser.lua",
+               ["luacheck.profiler"] = "luacheck/profiler.lua",
+               ["luacheck.runner"] = "luacheck/runner.lua",
+               ["luacheck.serializer"] = "luacheck/serializer.lua",
+               ["luacheck.stages.detect_bad_whitespace"] = "luacheck/stages/detect_bad_whitespace.lua",
+               ["luacheck.stages.detect_compound_operators"] = "luacheck/stages/detect_compound_operators.lua",
+               ["luacheck.stages.detect_cyclomatic_complexity"] = "luacheck/stages/detect_cyclomatic_complexity.lua",
+               ["luacheck.stages.detect_empty_blocks"] = "luacheck/stages/detect_empty_blocks.lua",
+               ["luacheck.stages.detect_empty_statements"] = "luacheck/stages/detect_empty_statements.lua",
+               ["luacheck.stages.detect_globals"] = "luacheck/stages/detect_globals.lua",
+               ["luacheck.stages.detect_reversed_fornum_loops"] = "luacheck/stages/detect_reversed_fornum_loops.lua",
+               ["luacheck.stages.detect_unbalanced_assignments"] = "luacheck/stages/detect_unbalanced_assignments.lua",
+               ["luacheck.stages.detect_uninit_accesses"] = "luacheck/stages/detect_uninit_accesses.lua",
+               ["luacheck.stages.detect_unreachable_code"] = "luacheck/stages/detect_unreachable_code.lua",
+               ["luacheck.stages.detect_unused_fields"] = "luacheck/stages/detect_unused_fields.lua",
+               ["luacheck.stages.detect_unused_locals"] = "luacheck/stages/detect_unused_locals.lua",
+               ["luacheck.stages.init"] = "luacheck/stages/init.lua",
+               ["luacheck.stages.linearize"] = "luacheck/stages/linearize.lua",
+               ["luacheck.stages.name_functions"] = "luacheck/stages/name_functions.lua",
+               ["luacheck.stages.parse"] = "luacheck/stages/parse.lua",
+               ["luacheck.stages.parse_inline_options"] = "luacheck/stages/parse_inline_options.lua",
+               ["luacheck.stages.resolve_locals"] = "luacheck/stages/resolve_locals.lua",
+               ["luacheck.stages.unwrap_parens"] = "luacheck/stages/unwrap_parens.lua",
+               ["luacheck.standards"] = "luacheck/standards.lua",
+               ["luacheck.unicode"] = "luacheck/unicode.lua",
+               ["luacheck.unicode_printability_boundaries"] = "luacheck/unicode_printability_boundaries.lua",
+               ["luacheck.utils"] = "luacheck/utils.lua",
+               ["luacheck.vendor.sha1.bit32_ops"] = "luacheck/vendor/sha1/bit32_ops.lua",
+               ["luacheck.vendor.sha1.bit_ops"] = "luacheck/vendor/sha1/bit_ops.lua",
+               ["luacheck.vendor.sha1.common"] = "luacheck/vendor/sha1/common.lua",
+               ["luacheck.vendor.sha1.init"] = "luacheck/vendor/sha1/init.lua",
+               ["luacheck.vendor.sha1.lua53_ops"] = "luacheck/vendor/sha1/lua53_ops.lua",
+               ["luacheck.vendor.sha1.pure_lua_ops"] = "luacheck/vendor/sha1/pure_lua_ops.lua",
+               ["luacheck.version"] = "luacheck/version.lua"
+            }
+         }
+      }
+   },
+   luafilesystem = {
+      ["1.8.0-1"] = {
+         {
+            arch = "installed",
+            commands = {},
+            dependencies = {},
+            modules = {
+               lfs = "lfs.so"
+            }
+         }
+      }
+   },
+   luaposix = {
+      ["35.1-1"] = {
+         {
+            arch = "installed",
+            commands = {},
+            dependencies = {
+               bit32 = "5.3.5.1-1"
+            },
+            modules = {
+               ["posix._base"] = "posix/_base.lua",
+               ["posix._bitwise"] = "posix/_bitwise.lua",
+               ["posix._strict"] = "posix/_strict.lua",
+               ["posix.compat"] = "posix/compat.lua",
+               ["posix.ctype"] = "posix/ctype.so",
+               ["posix.deprecated"] = "posix/deprecated.lua",
+               ["posix.dirent"] = "posix/dirent.so",
+               ["posix.errno"] = "posix/errno.so",
+               ["posix.fcntl"] = "posix/fcntl.so",
+               ["posix.fnmatch"] = "posix/fnmatch.so",
+               ["posix.glob"] = "posix/glob.so",
+               ["posix.grp"] = "posix/grp.so",
+               ["posix.init"] = "posix/init.lua",
+               ["posix.libgen"] = "posix/libgen.so",
+               ["posix.poll"] = "posix/poll.so",
+               ["posix.pwd"] = "posix/pwd.so",
+               ["posix.sched"] = "posix/sched.so",
+               ["posix.signal"] = "posix/signal.so",
+               ["posix.stdio"] = "posix/stdio.so",
+               ["posix.stdlib"] = "posix/stdlib.so",
+               ["posix.sys"] = "posix/sys.lua",
+               ["posix.sys.msg"] = "posix/sys/msg.so",
+               ["posix.sys.resource"] = "posix/sys/resource.so",
+               ["posix.sys.socket"] = "posix/sys/socket.so",
+               ["posix.sys.stat"] = "posix/sys/stat.so",
+               ["posix.sys.statvfs"] = "posix/sys/statvfs.so",
+               ["posix.sys.time"] = "posix/sys/time.so",
+               ["posix.sys.times"] = "posix/sys/times.so",
+               ["posix.sys.utsname"] = "posix/sys/utsname.so",
+               ["posix.sys.wait"] = "posix/sys/wait.so",
+               ["posix.syslog"] = "posix/syslog.so",
+               ["posix.termio"] = "posix/termio.so",
+               ["posix.time"] = "posix/time.so",
+               ["posix.unistd"] = "posix/unistd.so",
+               ["posix.util"] = "posix/util.lua",
+               ["posix.utime"] = "posix/utime.so",
+               ["posix.version"] = "posix/version.lua"
+            }
+         }
+      }
+   },
+   luasec = {
+      ["1.1.0-1"] = {
+         {
+            arch = "installed",
+            commands = {},
+            dependencies = {
+               luasocket = "3.1.0-1"
+            },
+            modules = {
+               ssl = "ssl.lua",
+               ["ssl.https"] = "ssl/https.lua"
+            }
+         }
+      }
+   },
+   luasocket = {
+      ["3.1.0-1"] = {
+         {
+            arch = "installed",
+            commands = {},
+            dependencies = {},
+            modules = {
+               ltn12 = "ltn12.lua",
+               mime = "mime.lua",
+               ["mime.core"] = "mime/core.so",
+               socket = "socket.lua",
+               ["socket.core"] = "socket/core.so",
+               ["socket.ftp"] = "socket/ftp.lua",
+               ["socket.headers"] = "socket/headers.lua",
+               ["socket.http"] = "socket/http.lua",
+               ["socket.serial"] = "socket/serial.so",
+               ["socket.smtp"] = "socket/smtp.lua",
+               ["socket.tp"] = "socket/tp.lua",
+               ["socket.unix"] = "socket/unix.so",
+               ["socket.url"] = "socket/url.lua"
+            }
+         }
+      }
+   },
+   markdown = {
+      ["0.33-1"] = {
+         {
+            arch = "installed",
+            commands = {},
+            dependencies = {},
+            modules = {
+               markdown = "markdown.lua"
+            }
+         }
+      }
+   },
+   penlight = {
+      ["1.12.0-2"] = {
+         {
+            arch = "installed",
+            commands = {},
+            dependencies = {
+               luafilesystem = "1.8.0-1"
+            },
+            modules = {
+               ["pl.Date"] = "pl/Date.lua",
+               ["pl.List"] = "pl/List.lua",
+               ["pl.Map"] = "pl/Map.lua",
+               ["pl.MultiMap"] = "pl/MultiMap.lua",
+               ["pl.OrderedMap"] = "pl/OrderedMap.lua",
+               ["pl.Set"] = "pl/Set.lua",
+               ["pl.app"] = "pl/app.lua",
+               ["pl.array2d"] = "pl/array2d.lua",
+               ["pl.class"] = "pl/class.lua",
+               ["pl.compat"] = "pl/compat.lua",
+               ["pl.comprehension"] = "pl/comprehension.lua",
+               ["pl.config"] = "pl/config.lua",
+               ["pl.data"] = "pl/data.lua",
+               ["pl.dir"] = "pl/dir.lua",
+               ["pl.file"] = "pl/file.lua",
+               ["pl.func"] = "pl/func.lua",
+               ["pl.import_into"] = "pl/import_into.lua",
+               ["pl.init"] = "pl/init.lua",
+               ["pl.input"] = "pl/input.lua",
+               ["pl.lapp"] = "pl/lapp.lua",
+               ["pl.lexer"] = "pl/lexer.lua",
+               ["pl.luabalanced"] = "pl/luabalanced.lua",
+               ["pl.operator"] = "pl/operator.lua",
+               ["pl.path"] = "pl/path.lua",
+               ["pl.permute"] = "pl/permute.lua",
+               ["pl.pretty"] = "pl/pretty.lua",
+               ["pl.seq"] = "pl/seq.lua",
+               ["pl.sip"] = "pl/sip.lua",
+               ["pl.strict"] = "pl/strict.lua",
+               ["pl.stringio"] = "pl/stringio.lua",
+               ["pl.stringx"] = "pl/stringx.lua",
+               ["pl.tablex"] = "pl/tablex.lua",
+               ["pl.template"] = "pl/template.lua",
+               ["pl.test"] = "pl/test.lua",
+               ["pl.text"] = "pl/text.lua",
+               ["pl.types"] = "pl/types.lua",
+               ["pl.url"] = "pl/url.lua",
+               ["pl.utils"] = "pl/utils.lua",
+               ["pl.xml"] = "pl/xml.lua"
+            }
+         }
+      }
+   }
+}

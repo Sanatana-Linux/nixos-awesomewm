@@ -15,6 +15,7 @@ return {
   complex_button = require(... .. '.complex_button'),
   complex_capitalizing = require(... .. ".complex_capitalizing"),
   contained = require(... .. ".contained"),
+  crop_surface = require(... .. '.crop_surface'),
   dropdown = require(... .. '.dropdown'),
   find = require(... .. ".find"),
   get_colorized_markup = require(... .. ".get_colorized_markup"),
@@ -27,10 +28,12 @@ return {
   mkroundedcontainer = require(... .. ".mkroundedcontainer"),
   mkroundedrect = require(... .. ".mkroundedrect"),
   -- overflow = require(... .. ".overflow"),
+  pointer_on_focus = require(... .. ".pointer_on_focus"),
   screen_mask = require(... .. ".screen_mask"),
   screenshot = require(... .. ".screenshot"),
   scrollbox = require(... .. '.scrollbox'),
   snap_edge = require(... .. '.snap_edge'),
+  textcursor_on_focus = (... .. '.textcursor_on_focus'),
   trim = require(... .. ".trim"),
   vertical_pad = require(... .. '.vertical_pad')
 }

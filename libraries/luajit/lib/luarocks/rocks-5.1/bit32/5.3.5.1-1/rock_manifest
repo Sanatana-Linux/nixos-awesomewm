@@ -1,0 +1,10 @@
+rock_manifest = {
+   ["bit32-5.3.5.1-1.rockspec"] = "63172097de28df84f5de587c25d866d0",
+   doc = {
+      LICENSE = "47a1db9761ff46e15d0f65fbc87d4bd5",
+      ["README.md"] = "0f5f506e9b1697622bf4a2e0faeb1746"
+   },
+   lib = {
+      ["bit32.so"] = "90086c5e6530a6641b191b595f3539e4"
+   }
+}
