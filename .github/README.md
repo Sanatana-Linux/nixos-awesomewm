@@ -75,8 +75,4 @@ PRs accepted.
 
 Small note: If editing the Readme, please conform to the [standard-readme](https://github.com/RichardLitt/standard-readme) specification.
 
-### Any optional sections
 
-## License
-
-[MIT © Richard McRichface.](../LICENSE)
