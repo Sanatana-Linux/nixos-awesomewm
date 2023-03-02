@@ -65,7 +65,7 @@ local network = make_button {
         name = 'network::connected',
         callback = function (self, is_connected)
             self.icon = is_connected and '' or '睊'
-            self.bg = is_connected and beautiful.bg_focus_darker or beautiful.black
+            self.bg = is_connected and beautiful.dimblacker or beautiful.black
             self.fg = is_connected and beautiful.fg_normal or beautiful.fg_focus
             self.border_color = is_connected and beautiful.lessgrey or beautiful.grey
         end
@@ -82,7 +82,7 @@ local volume = make_button {
         name = 'signal::volume',
         callback = function (self, is_muted)
             self.icon = is_muted and '婢' or ''
-            self.bg = is_muted and beautiful.black or beautiful.bg_focus_darker
+            self.bg = is_muted and beautiful.black or beautiful.dimblacker
             self.fg = is_muted and beautiful.fg_normal or beautiful.fg_normal
             self.border_color = is_muted and beautiful.grey or beautiful.lessgrey
         end
@@ -97,7 +97,7 @@ local redshift = make_button {
         name = 'redshift::active',
         callback = function (self, is_active)
             self.icon = is_active and '' or ''
-            self.bg = is_active and beautiful.bg_focus_darker or beautiful.black
+            self.bg = is_active and beautiful.dimblacker or beautiful.black
             self.fg = is_active and beautiful.fg_normal or beautiful.fg_normal
             self.border_color = is_active and beautiful.lessgrey or beautiful.grey
         end
@@ -112,7 +112,7 @@ local airplane = make_button {
         name = 'airplane::enabled',
         callback = function (self, is_enabled)
             self.icon = is_enabled and '' or ''
-            self.bg = is_enabled and beautiful.bg_focus_darker or beautiful.black
+            self.bg = is_enabled and beautiful.dimblacker or beautiful.black
             self.fg = is_enabled and beautiful.fg_normal or beautiful.fg_normal
             self.border_color = is_enabled and beautiful.lessgrey or beautiful.grey
         end
@@ -130,7 +130,7 @@ local bluetooth = make_button {
         name = 'bluetooth::enabled',
         callback = function (self, is_enabled)
             self.icon = is_enabled and '' or ''
-            self.bg = is_enabled and beautiful.bg_focus_darker or beautiful.black
+            self.bg = is_enabled and beautiful.dimblacker or beautiful.black
             self.border_color = is_enabled and beautiful.lessgrey or beautiful.grey
         end
     },

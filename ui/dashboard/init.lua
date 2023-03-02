@@ -157,10 +157,10 @@ awful.screen.connect_for_each_screen(function(s)
 
   function s.dashboard.show()
     if not PlayerctlSignal then
-      PlayerctlSignal = require"modules.bling".signal.playerctl.lib()
+      PlayerctlSignal = require"plugins.bling".signal.playerctl.lib()
     end
     if not PlayerctlCli then
-      PlayerctlCli = require"modules.bling".signal.playerctl.cli()
+      PlayerctlCli = require"plugins.bling".signal.playerctl.cli()
     end
     self.widget = mkwidget()
     self.visible = true

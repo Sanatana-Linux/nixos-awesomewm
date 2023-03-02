@@ -62,6 +62,7 @@ gtable = require("gears.table")
 gtimer = require("gears.timer")
 gstring = require("gears.string")
 filesystem = require("gears.filesystem")
+lgi = require ("lgi")
 math = require("math")
 menubar = require("menubar")
 os = require("os")
@@ -71,6 +72,8 @@ spawn = require("awful.spawn")
 string = require("string")
 watch = require("awful.widget.watch")
 wibox = require("wibox")
+ruled = require('ruled')
+
 -- -------------------------------------------------------------------------- --
 -- --------------------------- Builtin Submodules --------------------------- --
 dpi = beautiful.xresources.apply_dpi
@@ -81,9 +84,8 @@ gtable = require("gears.table")
 gtimer = require("gears.timer")
 wbase = require("wibox.widget.base")
 -- -------------------------------------------------------------------------- --
--- --------------------------- Third Party Modules -------------------------- --
-lgi = require("lgi")
-rubato = require("modules.rubato")
+-- --------------------------- Sub-Modules -------------------------- --
+rubato = require("plugins.rubato")
 upower = require("lgi").require("UPowerGlib")
 Gio = require("lgi").Gio
 Gtk = lgi.require("Gtk", "3.0")
@@ -93,7 +95,7 @@ cairo = require("lgi").cairo
 -- ---------------------------- Internal Modules ---------------------------- --
 utilities = require("utilities")
 icons = require("themes.assets.icons")
-
+scheme = require("themes.scheme")
 
 
 

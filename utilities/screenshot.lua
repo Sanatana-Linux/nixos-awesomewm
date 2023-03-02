@@ -119,9 +119,9 @@ function M.with_options(opts)
   -- 
   local function core()
     if opts.type == "full" then
-      M.full({notify = opts.notify})
+      M.full()
     elseif opts.type == "area" then
-      M.area({notify = opts.notify})
+      M.area()
     else
       error("Invalid `opts.type` in `screenshot.with_options` (" .. opts.type ..
                 "), valid ones are: full and area")

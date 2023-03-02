@@ -1,6 +1,6 @@
 local naughty = require("naughty")
 
-local playerctl = require("modules.bling").signal.playerctl.lib()
+local playerctl = require("plugins.bling").signal.playerctl.lib()
 
 playerctl:connect_signal("metadata",
                          function(_, title, artist, album_path, album, new,

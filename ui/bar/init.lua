@@ -7,16 +7,15 @@
 --                            libraries and modules                           --
 -- -------------------------------------------------------------------------- --
 -- 
-local searchbar = require("ui.bar.searchbox")
+local searchbar = require("ui.bar.widgets.searchbox")
 local network = require("ui.bar.actions-icons.network")
 local volume = require("ui.bar.actions-icons.volume")
 local get_screenshot_icon = require("ui.bar.actions-icons.screenshot")
 -- local get_notification_icon = require("ui.bar.actions-icons.notifications")
-local battery_widget = require("ui.bar.battery")
+local battery_widget = require("ui.bar.widgets.battery")
 
-require("ui.bar.calendar")
-require("ui.bar.tray")
-require("ui.powermenu")
+require("ui.bar.widgets.calendar")
+require("ui.bar.widgets.tray")
 -- -------------------------------------------------------------------------- --
 -- assign to each screen 
 screen.connect_signal("request::desktop_decoration", function(s)
@@ -26,7 +25,7 @@ screen.connect_signal("request::desktop_decoration", function(s)
   -- -------------------------------------------------------------------------- --
   -- 
   awful.tag({"1", "2", "3", "4", "5", "6"}, s, awful.layout.layouts[1])
-  local get_tags = require("ui.bar.tags")
+  local get_tags = require("ui.bar.widgets.tags")
   local taglist = get_tags(s)
 
   -- -------------------------------------------------------------------------- --
@@ -35,6 +34,7 @@ screen.connect_signal("request::desktop_decoration", function(s)
   -- 
   local launcher = utilities.mkbtn({
     image = beautiful.launcher_icon,
+    screen = s,
     forced_height = dpi(24),
     forced_width = dpi(24),
     halign = "center",
@@ -53,10 +53,13 @@ screen.connect_signal("request::desktop_decoration", function(s)
   end)
 
   launcher_tooltip.attach_to_object(launcher)
+  launcher_popup = require("ui.bar.popups.launcher")
+  launcher_popup.init(s)
 
   launcher:add_button(awful.button({}, 1, function()
     launcher_tooltip.hide()
-    awful.spawn("rofi -show drun")
+    launcher_popup.run_applauncher(s)
+
   end))
   -- -------------------------------------------------------------------------- --
   --                                  dashboard                                 --
@@ -81,11 +84,18 @@ screen.connect_signal("request::desktop_decoration", function(s)
   end)
 
   settings_tooltip.attach_to_object(settings_button)
-
+  notif_center = require("ui.bar.popups.quicksettings")
+  notif_center.init(s)
   settings_button:add_button(awful.button({}, 1, function()
     require("ui.dashboard")
     awesome.emit_signal("dashboard::toggle")
   end))
+  settings_button:add_button(awful.button({}, 3, function()
+    awesome.emit_signal("quicksettings::toggle", s)
+end))
+
+
+
   -- -------------------------------------------------------------------------- --
   --                                   systray                                  --
   -- -------------------------------------------------------------------------- --
@@ -131,10 +141,8 @@ screen.connect_signal("request::desktop_decoration", function(s)
   local actions_icons_container = utilities.mkbtn({
     {
       network,
-      volume,
       s.myscreenshot_action_icon,
-      -- s.notification_icon ,
-      spacing = dpi(8),
+      spacing = dpi(4),
       layout = wibox.layout.fixed.horizontal
     },
     left = dpi(5),
@@ -238,36 +246,6 @@ screen.connect_signal("request::desktop_decoration", function(s)
   })
 
   -- -------------------------------------------------------------------------- --
-  --                                power button                                --
-  -- -------------------------------------------------------------------------- --
-  -- 
-  local powerbutton = utilities.mkbtn({
-    image = beautiful.powerbutton_icon,
-    forced_height = dpi(24),
-    forced_width = dpi(24),
-    halign = "center",
-    valign = "center",
-    widget = wibox.widget.imagebox
-  }, beautiful.black, beautiful.bg_focus)
-
-  local powerbutton_tooltip = utilities.make_popup_tooltip("Open powermenu",
-                                                           function(d)
-    return awful.placement.bottom_right(d, {
-      margins = {
-        bottom = beautiful.bar_height + beautiful.useless_gap * 2,
-        right = beautiful.useless_gap * 2
-      }
-    })
-  end)
-
-  powerbutton_tooltip.attach_to_object(powerbutton)
-
-  powerbutton:add_button(awful.button({}, 1, function()
-    powerbutton_tooltip.hide()
-    awesome.emit_signal("powermenu::show")
-  end))
-  
-  -- -------------------------------------------------------------------------- --
   --                               widget templates                              --
   -- -------------------------------------------------------------------------- --
   -- 
@@ -300,7 +278,6 @@ screen.connect_signal("request::desktop_decoration", function(s)
         {
           mkcontainer {
             launcher,
-            searchbar,
             settings_button,
             spacing = dpi(12),
             layout = wibox.layout.fixed.horizontal
@@ -317,7 +294,6 @@ screen.connect_signal("request::desktop_decoration", function(s)
           actions_icons_container,
           date,
           layoutbox,
-          powerbutton,
           spacing = dpi(8),
           layout = wibox.layout.fixed.horizontal
         },

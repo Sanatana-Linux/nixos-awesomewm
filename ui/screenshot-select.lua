@@ -47,7 +47,7 @@ awful.screen.connect_for_each_screen(function(s)
   -- -------------------------------------------------------------------------- --
   -- popup widget template 
   -- NOTE: this first portion lays out the wibox itself 
-
+-- 
   s.screenshot_selecter.widget = wibox.widget {
     {
       {
@@ -142,7 +142,7 @@ awful.screen.connect_for_each_screen(function(s)
         modifiers = {},
         key = "Escape",
         on_press = function()
-          s.screenshot_selecter.toggle()
+          s.screenshot_selecter.hide()
           screenshot_kg:stop()
         end
       },
@@ -150,7 +150,7 @@ awful.screen.connect_for_each_screen(function(s)
         modifiers = {},
         key = "q",
         on_press = function()
-          s.screenshot_selecter.toggle()
+          s.screenshot_selecter.hide()
           screenshot_kg:stop()
         end
       },
@@ -158,7 +158,7 @@ awful.screen.connect_for_each_screen(function(s)
         modifiers = {},
         key = "x",
         on_press = function()
-          s.screenshot_selecter.toggle()
+          s.screenshot_selecter.hide()
           screenshot_kg:stop()
         end
       }
@@ -183,6 +183,7 @@ awful.screen.connect_for_each_screen(function(s)
     -- for coloring icon when the menu is closed
     -- 
     awesome.emit_signal("screenshot::hide")
+    screenshot_kg:stop()
   end
 
   function s.screenshot_selecter.show()
@@ -190,6 +191,7 @@ awful.screen.connect_for_each_screen(function(s)
     -- color icon when menu opened
     -- 
     awesome.emit_signal("screenshot::show")
+    screenshot_kg:start()
   end
 end)
 -- -------------------------------------------------------------------------- --

@@ -22,10 +22,10 @@ local icon = require("themes.assets.icons")
 local theme = {}
 -- -------------------------------------------------------------------------- --
 -- fonts
-theme.font_name = 'Rounded Mplus 1c Bold'
-theme.nerd_font = 'mplus Nerd Font Mono Bold'
+theme.font_name = 'Rounded Mplus 1c Bold '
+theme.nerd_font = 'mplus Nerd Font Mono Bold '
 theme.title_font = 'Norwester Condensed Regular '
-theme.material_icons = 'Material Design Icons Desktop Regular'
+theme.material_icons = 'Material Design Icons Desktop Regular '
 theme.font_size = '10'
 theme.font = theme.font_name .. ' ' .. theme.font_size
 -- --------------------------------- Colors --------------------------------- --
@@ -44,6 +44,7 @@ theme.green = scheme.color17
 theme.blue = scheme.color19
 theme.cyan = scheme.color7
 theme.aqua = scheme.color21
+
 -- -------------------------------------------------------------------------- --
 -- backgrounds
 theme.bg_normal     = scheme.bg_normal
@@ -52,7 +53,7 @@ theme.bg_lighter    = scheme.bg_lighter
 -- -------------------------------------------------------------------------- --
 -- elements bg
 theme.bg_focus      = scheme.bg_focus
-theme.bg_focus_darker = scheme.colorR
+theme.dimblacker = scheme.colorR
 theme.bg_urgent     = scheme.alpha(theme.red, "88")
 theme.bg_minimize   = theme.bg_lighter
 theme.bg_systray    = theme.bg_focus
@@ -199,6 +200,8 @@ theme.battery_full =gears.color.recolor_image(icons_path .. 'battery-discharging
 theme.battery_charging =gears.color.recolor_image(icons_path .. 'battery-fully-charged.svg', theme.fg_normal)
 theme.battery_low =gears.color.recolor_image(icons_path .. 'battery-alert.svg', theme.fg_normal)
 
+
+
 -- -------------------------------------------------------------------------- --
 -- network
 theme.network_connected = ''
@@ -214,7 +217,7 @@ theme.fallback_music = assets_path .. 'fallback-music.png'
 theme.fallback_notif_icon = gears.color.recolor_image(icons_path .. 'hints.svg', theme.fg_normal)
 -- -------------------------------------------------------------------------- --
 -- icon theme
-theme.icon_theme = "Qogir"
+theme.icon_theme = "Fluent"
 -- -------------------------------------------------------------------------- --
 -- task preview
 theme.task_preview_widget_border_radius = dpi(7)

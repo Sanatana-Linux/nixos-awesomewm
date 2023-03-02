@@ -20,7 +20,6 @@ end
 -- -------------------------------------------------------------------------- --
 -- Add apps to autostart here via terminal commands in subshells (meaning ending with &)
 autostart_apps = {
-   'xscreensaver & ',
    'picom -b --experimental-backends &',
    ' eval "$(gnome-keyring-daemon -s --components=pkcs11,secrets,ssh,gpg)" &'
 }

@@ -1,7 +1,7 @@
 local beautiful = require "beautiful"
 
-local color = require "modules.color"
-local rubato = require "modules.rubato"
+local color = require "plugins.color"
+local rubato = require "plugins.rubato"
 
 return function(opts)
   opts = opts or {}

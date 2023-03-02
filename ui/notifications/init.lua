@@ -47,7 +47,7 @@ naughty.config.presets.low = {
 }
 
 naughty.config.presets.critical = {
-    font = beautiful.font_name .. "10",
+    font = beautiful.font,
     fg = beautiful.fg_focus,
     bg = beautiful.bg_normal,
     timeout = 0
@@ -76,7 +76,7 @@ naughty.connect_signal("request::display", function(n)
                 id = "text_role",
                 align = "center",
                 valign = "center",
-                font = beautiful.font_name .. "8",
+                font = beautiful.font_name .. " 8",
                 widget = wibox.widget.textbox
             },
             left = dpi(6),
@@ -84,6 +84,8 @@ naughty.connect_signal("request::display", function(n)
             widget = wibox.container.margin
         },
         bg = beautiful.bg_contrast,
+        border_width = dpi(0.5),
+        border_color = beautiful.grey,
         forced_height = dpi(25),
         forced_width = dpi(20),
         shape = utilities.mkroundedrect(),
@@ -127,7 +129,6 @@ naughty.connect_signal("request::display", function(n)
                                         margins = dpi(5),
                                         widget = wibox.container.margin
                                     },
-                                    bg = beautiful.bg_contrast,
                                     widget = wibox.container.background
                                 },
                                 {
@@ -169,18 +170,18 @@ naughty.connect_signal("request::display", function(n)
                             bottom = dpi(0),
                             widget = wibox.container.margin
                         },
-                        bg = beautiful.darker_bg,
+                        bg = beautiful.bg_normal,
                         widget = wibox.container.background
                     },
                     {
-                        bg = beautiful.black,
+                        bg = beautiful.black .. '88',
                         forced_height = dpi(0),
                         widget = wibox.container.background
                     },
                     {
                         {
                             {
-                                utilities.vertical_pad(10),
+                                utilities.vertical_pad(5),
                                 {
                                     {
                                         step_function = wibox.container.scroll
@@ -211,7 +212,7 @@ naughty.connect_signal("request::display", function(n)
                                     spacing = 0,
                                     layout = wibox.layout.flex.vertical
                                 },
-                                utilities.vertical_pad(10),
+                                utilities.vertical_pad(5),
                                 layout = wibox.layout.align.vertical
                             },
                             left = dpi(20),
@@ -254,9 +255,9 @@ naughty.connect_signal("request::display", function(n)
                 bottom = dpi(5),
                 widget = wibox.container.margin
             },
-            bg = beautiful.darker_bg,
-            border_width = dpi(0),
-            border_color = beautiful.grey,
+            bg = beautiful.bg_normal .. '88',
+            border_width = dpi(0.25),
+            border_color = beautiful.grey ,
             shape = utilities.mkroundedrect(),
             widget = wibox.container.background
         }
