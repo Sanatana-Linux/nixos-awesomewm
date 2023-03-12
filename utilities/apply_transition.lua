@@ -17,7 +17,7 @@ return function(opts)
   local transition = color.transition(background, hover_background,
                                       color.transition.RGB)
 
-  local fading = rubato.timed {duration = 0.30}
+  local fading = rubato.timed {duration =0.90}
 
   fading:subscribe(function(pos)
     element[prop] = transition(pos / 100).hex

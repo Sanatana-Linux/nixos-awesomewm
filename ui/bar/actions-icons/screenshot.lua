@@ -3,7 +3,7 @@ local wibox = require "wibox"
 local beautiful = require "beautiful"
 local awful = require "awful"
 
-require "ui.screenshot-select"
+require("ui.bar.actions-icons.widgets.screenshot-select")
 
 local function get_icon(s)
   local CAMERA_ICON = ""

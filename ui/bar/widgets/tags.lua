@@ -39,7 +39,7 @@ local mktag = function (tag)
     margin_widget.left = 0
 
     if #tag:clients() > 0 then
-      margin_widget.left = 6
+      margin_widget.left = dpi(9)
       for _, c in ipairs(tag:clients()) do
         clients_layout:add(wibox.widget {
           image = c.icon or extract_icon(c),
@@ -62,16 +62,16 @@ local mktag = function (tag)
   local container = wibox.widget {
     {
       content_layout,
-      top = 4,
-      bottom = 4,
-      left = 8,
-      right = 8,
+      top = 2,
+      bottom = 2,
+      left = 4,
+      right = 4,
       widget = wibox.container.margin,
     },
-    bg = beautiful.bg_contrast,
+    bg = beautiful.widget_back_tag,
     shape = utilities.mkroundedrect(),
     border_color = beautiful.grey,
-    border_width = 0.5,
+    border_width = dpi(0.5),
     widget = wibox.container.background
   }
 
@@ -79,18 +79,18 @@ local mktag = function (tag)
     tag:view_only()
   end))
 
-  local active_transition = utilities.apply_transition {
-    element = container,
-    prop = 'bg',
-    bg = beautiful.black,
-    hbg = beautiful.bg_lighter
-  }
+  -- local active_transition = utilities.apply_transition {
+  --   element = container,
+  --   prop = 'bg',
+  --   bg = scheme.colorE,
+  --   hbg = scheme.colorM
+  -- }
 
   local update_tag_status = function ()
     if tag.selected then
-      active_transition.on()
+  tag.bg = beautiful.widget_back_focus_tag
     else
-      active_transition.off()
+      tag.bg = beautiful.widget_back_tag
     end
   end
 
@@ -104,7 +104,7 @@ end
 return function (s)
   local layout = wibox.layout.fixed.horizontal()
 
-  layout.spacing = 6
+  layout.spacing = dpi(9)
 
   for _, tag in ipairs(s.tags) do
     layout:add(mktag(tag))

@@ -5,6 +5,7 @@ local xresources = require("beautiful.xresources")
 local gears = require("gears")
 local gfs = require("gears.filesystem")
 local dpi = xresources.apply_dpi
+
 -- -------------------------------------------------------------------------- --
 -- paths
 local themes_path = gfs.get_themes_dir()
@@ -58,12 +59,22 @@ theme.bg_urgent     = scheme.alpha(theme.red, "88")
 theme.bg_minimize   = theme.bg_lighter
 theme.bg_systray    = theme.bg_focus
 
-theme.widget_back = {
-    type = "radial",
-    from = { 50, 50, 10 },
-    to = { 55, 55, 30 },
-    stops = { { 0, theme.colorA }, { 0.5,  }, { 1, theme.dimblack } }
-  }
+theme.widget_back = 'linear:63,0:0,21:0,' ..
+scheme.colorT .. 
+    ':1,' .. scheme.colorK 
+
+    theme.widget_back_focus = 'linear:12,0:0,21:0,' ..
+scheme.colorK .. 
+    ':1,' .. scheme.colorT 
+
+    theme.widget_back_focus_tag = 'linear:63,12:0,21:0,' ..
+    scheme.alpha(scheme.colorQ, 'cc') .. 
+        ':1,' .. scheme.alpha(scheme.colorX, 'cc')
+    
+
+    theme.widget_back_tag = 'linear:63,20:80,21:0,' ..
+    scheme.alpha(scheme.colorH, 'bb') .. 
+        ':1,' .. scheme.alpha(scheme.colorB, '99')
 -- -------------------------------------------------------------------------- --
 -- foregrounds
 theme.fg_normal     = scheme.white
@@ -215,9 +226,7 @@ theme.fallback_music = assets_path .. 'fallback-music.png'
 -- -------------------------------------------------------------------------- --
 -- fallback notification icon
 theme.fallback_notif_icon = gears.color.recolor_image(icons_path .. 'hints.svg', theme.fg_normal)
--- -------------------------------------------------------------------------- --
--- icon theme
-theme.icon_theme = "Fluent"
+
 -- -------------------------------------------------------------------------- --
 -- task preview
 theme.task_preview_widget_border_radius = dpi(7)

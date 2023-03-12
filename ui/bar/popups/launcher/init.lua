@@ -5,7 +5,8 @@ local gears = require "gears"
 local awful = require "awful"
 
 local searchwidget = require "ui.bar.popups.launcher.search"
-
+local drawer = require "ui.bar.popups.launcher.drawer"
+require("ui.bar.popups.launcher.drawer")
 local function create_power_button(imagename, on_press, color)
   local widget = utilities.pointer_on_focus(wibox.widget {
     widget = wibox.container.background,
@@ -46,6 +47,8 @@ local function create_launcher_widgets(s)
       {
         widget = wibox.container.background,
         bg = beautiful.black,
+        border_color=beautiful.grey,
+        border_width=dpi(0.5),
         shape = utilities.mkroundedrect(),
         {
           widget = wibox.container.margin,
@@ -80,8 +83,10 @@ local function create_launcher_widgets(s)
     {
       widget = wibox.container.background,
       bg = beautiful.black,
+      border_color = beautiful.grey,
+      border_width = dpi(0.5),
       shape = utilities.mkroundedrect(),
-      {widget = wibox.container.margin, margins = dpi(5), searchwidget.init(s)}
+      {widget = wibox.container.margin, margins = dpi(5), drawer}
     }
   }
 end
@@ -90,8 +95,7 @@ local function init(s)
   local w, h = dpi(450), dpi(600)
 
   s.launcher = wibox {
-    -- x = s.geometry.x + 2 * beautiful.useless_gap,
-    -- y = s.geometry.y - beautiful.bar_height + 12 * beautiful.useless_gap,
+
     ontop = true,
     width = w,
     height = h,
@@ -115,10 +119,10 @@ local function init(s)
   end
   function s.launcher:hide()
     self.visible = false
-    local searchwidget_instance = s.popup_launcher_widget
-    if searchwidget_instance:is_active() then
-      searchwidget_instance:stop_search()
-    end
+    -- local searchwidget_instance = s.popup_launcher_widget
+    -- if searchwidget_instance:is_active() then
+    --   searchwidget_instance:stop_search()
+    -- end
   end
 end
 
@@ -128,7 +132,7 @@ end
 
 local function run_applauncher(s)
   s.launcher:show()
-  s.popup_launcher_widget:start_search(true)
+  -- s.popup_launcher_widget:start_search(true)
 end
 
 local function hide(s)

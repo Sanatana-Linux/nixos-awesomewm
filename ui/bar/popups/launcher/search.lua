@@ -65,7 +65,7 @@ local function replace_with_escapes(text)
 	end
 	return text
 end
-
+-- -------------------------------------------------------------------------- --
 --entries need to be cached for every widget instance or highlights will be messy
 ---Entries of the launcher
 ---@return table Entries every entry is a table with widget, appinfo and appname
@@ -110,8 +110,9 @@ local function get_entries()
 				}
 				widget:get_children_by_id("nameanddesc")[1]:add(desc_wid)
 			end
-
+-- -------------------------------------------------------------------------- --
 			-- connect signals
+			-- 
 			local bg = widget:get_children_by_id("bg")[1]
 			widget:connect_signal("mouse::enter", function ()
 				local s = awful.screen.focused()
@@ -135,7 +136,8 @@ local function get_entries()
 
 			widget.appinfo = app
 			widget.search_params = { string.lower(name) }
-			--if desc then table.insert(widget.search_params, string.lower(desc)) end
+			
+			
 			if cmd then table.insert(widget.search_params, string.lower(cmd)) end
 
 			LAUNCHER_CACHED_ENTRIES[#LAUNCHER_CACHED_ENTRIES+1] = widget
@@ -143,19 +145,21 @@ local function get_entries()
 	end
 	table.sort(LAUNCHER_CACHED_ENTRIES, function (a,b)
 		--search param 1 is always the name
+		-- 
 		return a.search_params[1] < b.search_params[1]
 	end)
 	return LAUNCHER_CACHED_ENTRIES
 end
 
 local widget_template = {
+	widget=wibox.container.scroll.vertical,
 	id = 'grid',
 	layout = wibox.layout.grid,
 	homogeneous = true,
-	forced_num_cols = 1,
-	forced_num_rows = 10,
+	num_cols = 1,
+	num_rows = 10,
 	expand = true,
-	vertical_spacing = dpi(5),
+	vertical_spacing = dpi(1),
 }
 
 local function init(s)
@@ -206,10 +210,9 @@ local function init(s)
 	entry_grid:add_widget_at(promptwidget, 10, 1, 1, 1)
 
 	local prompttext = promptwidget:get_children_by_id("prompttext")[1]
-	-- utilities.textcursor_on_focus(prompttext)
-	--local entry_grid = s.popup_launcher_widget:get_children_by_id("grid")[1]
+	local entry_grid = s.popup_launcher_widget:get_children_by_id("grid")[1]
 
-	s.popup_launcher_widget.selected_entry = 9
+	s.popup_launcher_widget.selected_entry = 10
 
 	function s.popup_launcher_widget:stop_search()
 		awful.keyboard.emulate_key_combination({}, "Escape")
@@ -253,7 +256,7 @@ local function init(s)
 	end
 
 	function s.popup_launcher_widget:__reset_search()
-		prompttext:set_markup_silently("<span >search apps</span>")
+		prompttext:set_markup_silently("<span >Search Applications</span>")
 		for i = 1, 9, 1 do
 			entry_grid:remove_widgets_at(10-i, 1, 1, 1)
 			entry_grid:add_widget_at(launcher_entries[i], 10-i, 1, 1, 1)

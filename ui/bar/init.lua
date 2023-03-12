@@ -265,7 +265,8 @@ end))
     screen = s,
     width = s.geometry.width,
     height = beautiful.bar_height,
-    shape = gears.shape.rectangle
+    shape = gears.shape.rectangle,
+    bg = scheme.alpha(beautiful.bg_normal, 'cc'),
   }
   -- -------------------------------------------------------------------------- --
   --                                    setup                                   --
@@ -274,6 +275,9 @@ end))
   s.mywibox:setup{
     {
       layout = wibox.layout.align.horizontal,
+      
+      border_color = beautiful.grey,
+      border_width = dpi(1),
       {
         {
           mkcontainer {

@@ -18,16 +18,16 @@ awful.screen.connect_for_each_screen(function(s)
   local function genbutton(template, tooltip_opts, onclick)
     local button = wibox.widget {
       {template, margins = dpi(7), widget = wibox.container.margin},
-      bg = beautiful.black,
+      bg = beautiful.widget_back,
       shape = utilities.mkroundedrect(),
       widget = wibox.container.background,
       border_color = beautiful.grey,
-      border_width=0.75
+      border_width=dpi(0.75)
     }
     -- -------------------------------------------------------------------------- --
     -- add hover effects, onclick listener and tooltips
     -- 
-    utilities.add_hover(button, beautiful.black, beautiful.bg_focus)
+    utilities.add_hover(button, beautiful.widget_back, beautiful.bg_focus .. 'bb')
 
     local tooltip = utilities.make_popup_tooltip(tooltip_opts.txt,
                                                  tooltip_opts.placement)
@@ -71,6 +71,7 @@ awful.screen.connect_for_each_screen(function(s)
           end
         }, function()
           s.screenshot_selecter.hide()
+          screenshot_kg:stop()
           utilities.screenshot.full()
         end),
         genbutton({
@@ -94,6 +95,8 @@ awful.screen.connect_for_each_screen(function(s)
         }, function()
           s.screenshot_selecter.hide()
           utilities.screenshot.area()
+          screenshot_kg:stop()
+
         end),
         spacing = dpi(12),
         layout = wibox.layout.flex.horizontal
@@ -101,11 +104,11 @@ awful.screen.connect_for_each_screen(function(s)
       margins = dpi(7),
       widget = wibox.container.margin
     },
-    bg = beautiful.bg_normal,
+    bg = beautiful.bg_lighter .. 'cc',
     border_color = beautiful.grey,
-    border_width=1.25,
-    shape = utilities.mkroundedrect(),
-    widget = wibox.container.background
+    border_width=dpi(0.75),
+    shape = utilities.mkroundedrect(dpi(1)),
+    widget = wibox.container.background 
   }
   -- -------------------------------------------------------------------------- --
   -- NOTE: this second portion situates the wibox into 
@@ -125,7 +128,7 @@ awful.screen.connect_for_each_screen(function(s)
     -- 
     bg = beautiful.bg_normal .. "00",
     fg = beautiful.fg_normal,
-    shape = utilities.mkroundedrect(),
+    shape = utilities.mkroundedrect(dpi(1)),
     visible = false,
     screen = s,
     minimum_width = dpi(180),

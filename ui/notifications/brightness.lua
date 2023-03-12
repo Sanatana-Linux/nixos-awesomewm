@@ -20,7 +20,7 @@ local bright_icon = wibox.widget {
     markup = "<span foreground='" .. beautiful.fg_normal .. "'><b></b></span>",
     align = 'center',
     valign = 'center',
-    font = beautiful.font_name .. '25',
+    font = beautiful.font_name .. '15',
     widget = wibox.widget.textbox
 }
 

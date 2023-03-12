@@ -34,6 +34,7 @@ awful.keyboard.append_global_keybindings({
   -- -------------------------------------------------------------------------- --
   --
   awful.key({modkey}, "p", function()
+    
     menubar.show()
   end, {description = "show the menubar", group = "Awesome"}),
   -- -------------------------------------------------------------------------- --
