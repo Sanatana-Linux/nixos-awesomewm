@@ -14,7 +14,7 @@ return function (template, bg, hbg, radius)
         bg = bg,
         widget = wibox.container.background,
         shape = mkroundedrect(radius),
-        border_width =0.75,
+        border_width =dpi(0.75),
         border_color = beautiful.grey,
     }
 

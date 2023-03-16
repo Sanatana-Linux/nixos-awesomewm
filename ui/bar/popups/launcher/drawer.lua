@@ -1,3 +1,4 @@
+local freedesktop = require("ui.bar.popups.launcher.freedesktop")
 local drawer = {}
 -- ------------------------------------------------- --
 -- create a table that contains the .desktop information for every program
@@ -21,8 +22,10 @@ local app_drawer =
         {
     shape = utilities.mkroundedrect(),
     border_width = 0,
-    visible = true,
+    visible = false,
     bg = beautiful.black,
+    width = dpi(150),
+    height = dpi(350),
     layout = utilities.overflow.vertical(),
     widget = wibox.container.scroll.vertical
         }
@@ -108,52 +111,15 @@ local function generate_drawer()
     app_drawer:setup(rows)
 end
 generate_drawer()
--- ------------------------------------------------- --
-local timer =
-    gears.timer {
-    timeout = 4,
-    autostart = false,
-    callback = function()
-        if app_drawer.visible then
-            app_drawer.visible = false
-        end
-    end
-}
-
-app_drawer:connect_signal(
-    'mouse::leave',
-    function()
-        timer:again()
-        app_drawer.visible = true
-    end
-)
--- ------------------------------------------------- --
-app_drawer:connect_signal(
-    'button::pressed',
-    function()
-        if app_drawer.visible then
-            app_drawer.visible = false
-        end
-    end
-)
--- ------------------------------------------------- --
-app_drawer:connect_signal(
-    'mouse::enter',
-    function()
-        app_drawer.visible = true
-        timer:again()
-    end
-)
 
 -- ------------------------------------------------- --
-drawer_toggle = function()
+app_drawer.drawer_toggle = function(s)
     if app_drawer.visible then
         app_drawer.visible = not app_drawer.visible
     else
         generate_drawer()
         app_drawer.visible = true
-        app_drawer:move_next_to(mouse.screen)
-        timer:start()
+        app_drawer.screen = s 
     end
 end
 

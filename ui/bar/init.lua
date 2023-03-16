@@ -84,14 +84,14 @@ screen.connect_signal("request::desktop_decoration", function(s)
   end)
 
   settings_tooltip.attach_to_object(settings_button)
-  notif_center = require("ui.bar.popups.quicksettings")
+  notif_center = require("ui.bar.popups.notification_center")
   notif_center.init(s)
   settings_button:add_button(awful.button({}, 1, function()
     require("ui.dashboard")
     awesome.emit_signal("dashboard::toggle")
   end))
   settings_button:add_button(awful.button({}, 3, function()
-    awesome.emit_signal("quicksettings::toggle", s)
+    awesome.emit_signal("notification_center::toggle", s)
 end))
 
 
@@ -137,7 +137,6 @@ end))
   -- -------------------------------------------------------------------------- --
   -- make screenshot action icon global to edit it in anothers contexts.
   s.myscreenshot_action_icon = get_screenshot_icon(s)
-  -- s.notification_icon = get_notification_icon(s)
   local actions_icons_container = utilities.mkbtn({
     {
       network,

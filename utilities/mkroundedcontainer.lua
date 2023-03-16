@@ -1,7 +1,7 @@
 local mkroundedrect = require("utilities.mkroundedrect")
 local wibox = require("wibox")
 
--- make a rounded container for make work the antialiasing.
+-- make a rounded container for antialiasing purposes
 return function(template, bg)
   return wibox.widget {
     template,
