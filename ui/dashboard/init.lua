@@ -43,27 +43,7 @@ awful.screen.connect_for_each_screen(function(s)
                 layout = wibox.layout.flex.horizontal
               },
               charts,
-              {
-                {
-                  {
-                    actions.network,
-                    actions.airplane,
-                    actions.volume,
-                    actions.redshift,
-                    actions.bluetooth,
-                    spacing = dpi(10),
-                    layout = wibox.layout.flex.horizontal,
-                    border_color = beautiful.grey
-                  },
-                  margins = dpi(15),
-                  widget = wibox.container.margin
-                },
-                shape = utilities.mkroundedrect(dpi(15)),
-                bg = beautiful.bg_lighter,
-                widget = wibox.container.background,
-                border_width = 0.75,
-                border_color = beautiful.grey,
-              },
+         
               spacing = dpi(15),
               layout = wibox.layout.fixed.vertical
             },
@@ -156,6 +136,7 @@ awful.screen.connect_for_each_screen(function(s)
   end
 
   function s.dashboard.show()
+    dash_kg:start()
     if not PlayerctlSignal then
       PlayerctlSignal = require"plugins.bling".signal.playerctl.lib()
     end
@@ -167,6 +148,7 @@ awful.screen.connect_for_each_screen(function(s)
   end
 
   function s.dashboard.hide()
+    dash_kg:stop()
     self.visible = false
     if PlayerctlCli then
       PlayerctlCli:disable()

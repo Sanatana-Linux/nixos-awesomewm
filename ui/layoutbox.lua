@@ -45,7 +45,7 @@ local ll =
         id = 'background_role',
         forced_width = dpi(64),
         forced_height = dpi(64),
-        bg = beautiful.bg_normal,
+        bg = beautiful.widget_back,
      shape = utilities.mkroundedrect(10),
         widget = wibox.container.background
     }

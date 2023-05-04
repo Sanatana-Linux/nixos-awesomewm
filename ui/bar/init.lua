@@ -40,7 +40,7 @@ screen.connect_signal("request::desktop_decoration", function(s)
     halign = "center",
     valign = "center",
     widget = wibox.widget.imagebox
-  }, beautiful.black, beautiful.bg_focus)
+  }, beautiful.widget_back, beautiful.widget_back_focus)
 
   local launcher_tooltip = utilities.make_popup_tooltip("Search Applications",
                                                         function(d)
@@ -53,12 +53,11 @@ screen.connect_signal("request::desktop_decoration", function(s)
   end)
 
   launcher_tooltip.attach_to_object(launcher)
-  launcher_popup = require("ui.bar.popups.launcher")
-  launcher_popup.init(s)
+
 
   launcher:add_button(awful.button({}, 1, function()
     launcher_tooltip.hide()
-    launcher_popup.run_applauncher(s)
+    awesome.emit_signal("signal::launcher")
 
   end))
   -- -------------------------------------------------------------------------- --
@@ -71,14 +70,14 @@ screen.connect_signal("request::desktop_decoration", function(s)
     forced_height = dpi(24),
     forced_width = dpi(24),
     halign = "center"
-  }, beautiful.black, beautiful.bg_focus)
+  }, beautiful.widget_back, beautiful.widget_back_focus)
 
-  local settings_tooltip = utilities.make_popup_tooltip("Toggle dashboard",
+  local settings_tooltip = utilities.make_popup_tooltip("Left Click: Toggle Dashboard | Right Click: Toggle Notifications",
                                                         function(d)
     return awful.placement.bottom_left(d, {
       margins = {
         bottom = beautiful.bar_height + beautiful.useless_gap * 2,
-        left = beautiful.useless_gap * 2 + 165
+        left = beautiful.useless_gap * 2 + dpi(45)
       }
     })
   end)
@@ -102,8 +101,8 @@ end))
   -- 
   local tray_dispatcher = wibox.widget {
     image = beautiful.tray_chevron_up,
-    forced_height = 10,
-    forced_width = 10,
+    forced_height = dpi(15),
+    forced_width = dpi(15),
     valign = "center",
     halign = "center",
     widget = wibox.widget.imagebox
@@ -140,6 +139,7 @@ end))
   local actions_icons_container = utilities.mkbtn({
     {
       network,
+      volume,
       s.myscreenshot_action_icon,
       spacing = dpi(4),
       layout = wibox.layout.fixed.horizontal
@@ -147,7 +147,7 @@ end))
     left = dpi(5),
     right = dpi(6),
     widget = wibox.container.margin
-  }, beautiful.black, beautiful.bg_focus)
+  }, beautiful.widget_back, beautiful.widget_back_focus)
 
   -- -------------------------------------------------------------------------- --
   --                                    clock                                   --
@@ -164,7 +164,7 @@ end))
     {
       {widget = wibox.container.margin, left = dpi(15), right = dpi(15), clock},
       fg = beautiful.fg_normal,
-      bg = beautiful.black,
+      bg = beautiful.widget_back,
       border_width = 0.75,
       border_color = beautiful.grey,
       widget = wibox.container.background,
@@ -206,7 +206,7 @@ end))
     left = dpi(5),
     right = dpi(5),
     base_layoutbox
-  }, beautiful.black, beautiful.bg_focus)
+  }, beautiful.widget_back, beautiful.widget_back_focus)
 
   -- capitalize the layout name for consistency 
   local function layoutname()

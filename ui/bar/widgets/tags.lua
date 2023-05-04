@@ -23,7 +23,10 @@ local mktag = function (tag)
   content_layout:add(wibox.widget {
     markup = tostring(tag.name),
     widget = wibox.widget.textbox,
+    font = beautiful.title_font
   })
+
+  
 
   local clients_layout = wibox.layout.fixed.horizontal()
   local margin_widget = wibox.container.margin()
@@ -44,8 +47,8 @@ local mktag = function (tag)
         clients_layout:add(wibox.widget {
           image = c.icon or extract_icon(c),
           valign = "center",
-          forced_height = 16,
-          forced_width = 16,
+          forced_height = dpi(16),
+          forced_width = dpi(16),
           widget = wibox.widget.imagebox,
         })
       end
@@ -62,22 +65,24 @@ local mktag = function (tag)
   local container = wibox.widget {
     {
       content_layout,
-      top = 2,
-      bottom = 2,
-      left = 4,
-      right = 4,
+      top = dpi(3),
+      bottom = dpi(3),
+      left = dpi(8),
+      right = dpi(8),
       widget = wibox.container.margin,
     },
-    bg = beautiful.widget_back_tag,
+    bg = beautiful.widget_back,
     shape = utilities.mkroundedrect(),
     border_color = beautiful.grey,
-    border_width = dpi(0.5),
+    border_width = dpi(1.25),
     widget = wibox.container.background
   }
 
   container:add_button(awful.button({}, 1, function ()
     tag:view_only()
   end))
+
+  utilities.add_hover(container, beautiful.widget_back_tag, beautiful.widget_back_focus_tag)
 
   -- local active_transition = utilities.apply_transition {
   --   element = container,
@@ -88,9 +93,9 @@ local mktag = function (tag)
 
   local update_tag_status = function ()
     if tag.selected then
-  tag.bg = beautiful.widget_back_focus_tag
+  container.bg = beautiful.widget_back_focus
     else
-      tag.bg = beautiful.widget_back_tag
+      container.bg = beautiful.widget_back_tag
     end
   end
 

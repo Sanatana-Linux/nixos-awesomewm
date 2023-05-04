@@ -12,11 +12,11 @@ local function make_button(txt, fg, bg, hfg, hbg, onclick)
       {
         {
           markup = txt,
-          font = beautiful.nerd_font .. " 11",
+          font = beautiful.nerd_font .. " 13",
           widget = wibox.widget.textbox
         },
-        left = 4,
-        right = 4,
+        left = dpi(4),
+        right = dpi(4),
         widget = wibox.container.margin
       },
       shape = utilities.mkroundedrect(4),
@@ -81,7 +81,7 @@ client.connect_signal("request::titlebars", function(c)
     return
   end
 
-  local titlebar = awful.titlebar(c, {position = "top", size = 25})
+  local titlebar = awful.titlebar(c, {position = "top", size = dpi(25)})
 
   local titlebars_buttons = {
     awful.button({}, 1, function()
@@ -103,11 +103,11 @@ client.connect_signal("request::titlebars", function(c)
     {
       {
         widget = awful.titlebar.widget.titlewidget(c),
-        font = beautiful.nerd_font .. "  9"
+        font = beautiful.nerd_font .. "  10"
       },
       widget = wibox.container.margin,
-      left = 28,
-      right = 2
+      left = dpi(28),
+      right = dpi(2)
     },
 
     {
@@ -116,24 +116,26 @@ client.connect_signal("request::titlebars", function(c)
         {
           minimize_button(c),
           widget = wibox.container.margin,
-          left = 2,
-          right = 2
+          left = dpi(2),
+          right = dpi(2)
         },
         {
           maximize_button(c),
           widget = wibox.container.margin,
-          left = 2,
-          right = 2
+          left = dpi(2),
+          right = dpi(2)
         },
-        {close_button(c), widget = wibox.container.margin, left = 2, right = 2},
+        {close_button(c), widget = wibox.container.margin, left = dpi(2), right = dpi(2)},
         layout = wibox.layout.fixed.horizontal
       },
-      right = 10,
-      top = 8,
-      bottom = 8,
+      right = dpi(10),
+      top = dpi(6),
+      bottom = dpi(6),
       widget = wibox.container.margin
     },
 
     layout = wibox.layout.align.horizontal
   }
+
+  
 end)

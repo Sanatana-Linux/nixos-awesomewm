@@ -25,14 +25,14 @@ local theme = {}
 -- fonts
 theme.font_name = 'Rounded Mplus 1c Bold '
 theme.nerd_font = 'mplus Nerd Font Mono Bold '
-theme.title_font = 'Norwester Condensed Regular '
+theme.title_font = 'Goldman Bold '
 theme.material_icons = 'Material Design Icons Desktop Regular '
 theme.font_size = '10'
 theme.font = theme.font_name .. ' ' .. theme.font_size
 -- --------------------------------- Colors --------------------------------- --
 -- base colors
 theme.black = scheme.black
-theme.dimblack = scheme.colorJ
+theme.dimblack = scheme.colorD
 theme.light_black = scheme.colorF
 theme.dark_grey = scheme.colorH
 theme.grey = scheme.colorR
@@ -49,10 +49,10 @@ theme.aqua = scheme.color21
 -- -------------------------------------------------------------------------- --
 -- backgrounds
 theme.bg_normal     = scheme.bg_normal
+theme.background = theme.bg_normal
 theme.bg_contrast   = scheme.bg_contrast
+theme.background_alt = theme.bg_contrast 
 theme.bg_lighter    = scheme.bg_lighter
--- -------------------------------------------------------------------------- --
--- elements bg
 theme.bg_focus      = scheme.bg_focus
 theme.dimblacker = scheme.colorR
 theme.bg_urgent     = scheme.alpha(theme.red, "88")
@@ -67,14 +67,15 @@ scheme.colorT ..
 scheme.colorK .. 
     ':1,' .. scheme.colorT 
 
-    theme.widget_back_focus_tag = 'linear:63,12:0,21:0,' ..
-    scheme.alpha(scheme.colorQ, 'cc') .. 
-        ':1,' .. scheme.alpha(scheme.colorX, 'cc')
-    
+    theme.widget_back_focus_tag = 'linear:63,0:0,21:0,' ..
+    scheme.colorT .. 
+        ':1,' .. scheme.colorN 
 
-    theme.widget_back_tag = 'linear:63,20:80,21:0,' ..
-    scheme.alpha(scheme.colorH, 'bb') .. 
-        ':1,' .. scheme.alpha(scheme.colorB, '99')
+    theme.widget_back_tag = 'linear:63,0:0,21:0,' ..
+    scheme.colorN .. 
+        ':1,' .. scheme.colorT 
+
+theme.appmenu_back = 'linear:180,0:0,121:0,' .. scheme.colorB .. ':1,' .. scheme.colorR
 -- -------------------------------------------------------------------------- --
 -- foregrounds
 theme.fg_normal     = scheme.white
@@ -113,7 +114,7 @@ theme.tasklist_bg_urgent = theme.red .. '4D' -- 30% of transparency
 theme.taglist_bg = theme.bg_normal
 theme.taglist_bg_urgent = theme.taglist_bg
 theme.taglist_bg_focus = theme.bg_focus
-theme.taglist_font = theme.material_icons .. ' 13'
+theme.taglist_font = 'awesomewm-font 10'
 
 
 -- taglist

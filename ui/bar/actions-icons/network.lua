@@ -8,7 +8,7 @@ require "signal.network"
 
 local network = wibox.widget {
     widget = wibox.widget.textbox,
-    font = beautiful.nerd_font .. ' 17',
+    font = beautiful.nerd_font .. ' 21',
     align = 'center',
     text = beautiful.network_connected
 }

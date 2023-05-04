@@ -112,16 +112,16 @@ local battery_button = utilities.mkbtn({ {
   spacing = dpi(2),
   layout = wibox.layout.fixed.horizontal,
   border_color = beautiful.grey,
-  border_width = dpi(0.75),
+  border_width = dpi(1.25),
   widget = wibox.container.background,
-  bg = beautiful.bg_lighter,
+  bg = beautiful.widget_back,
   shape = utilities.mkroundedrect()
 }, 
 left = dpi(13),
 right = dpi(2),
 widget = wibox.container.margin
 },
-beautiful.black, beautiful.bg_focus)
+beautiful.widget_back, beautiful.widget_back_focus)
 
 
 

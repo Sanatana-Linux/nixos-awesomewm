@@ -21,7 +21,8 @@ end
 -- Add apps to autostart here via terminal commands in subshells (meaning ending with &)
 autostart_apps = {
    'picom -b --experimental-backends &',
-   ' eval "$(gnome-keyring-daemon -s --components=pkcs11,secrets,ssh,gpg)" &'
+   ' eval "$(gnome-keyring-daemon -s --components=pkcs11,secrets,ssh,gpg)" &',
+   'bash -c $HOME/.config/openaikey.sh'
 }
 
 -- -------------------------------------------------------------------------- --

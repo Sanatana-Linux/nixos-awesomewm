@@ -6,8 +6,8 @@ local dpi = beautiful.xresources.apply_dpi
 
 local volume = wibox.widget {
     widget = wibox.widget.imagebox,
-    forced_height = dpi(12),
-    forced_width = dpi(12),
+    forced_height = dpi(16),
+    forced_width = dpi(16),
     image = beautiful.volume_on,
     halign = 'center',
     valign = 'bottom',

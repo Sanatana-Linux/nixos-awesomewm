@@ -276,7 +276,7 @@ notifbox =
       spacing = dpi(5),
       {
         widget = wibox.container.background,
-        bg = beautiful.bg_lighter .. "88",
+        bg = beautiful.widget_back_focus,
         border_color = beautiful.grey,
         border_width = dpi(1.25),
         shape = utilities.mkroundedrect(),
