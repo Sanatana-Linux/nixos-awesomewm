@@ -36,9 +36,13 @@ wibox.widget {
 			widget = wibox.container.margin
 		},
 		forced_height = dpi(40),
-		widget = clickable_container
+		widget = wibox.container.background,
+		bg = beautiful.widget_back,
+		border_width = dpi(0.75),
+		border_color = beautiful.bg_normal .. 'cc',
+		shape = utilities.mkroundedrect()
 	},
-	shape = beautiful.client_shape_rounded_small,
+	shape = utilities.mkroundedrect(),
 	bg = "transparent",
 	widget = wibox.container.background
 }

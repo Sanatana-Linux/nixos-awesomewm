@@ -28,7 +28,7 @@ local wifiIcon =
 			margins = dpi(7),
 			widget = wibox.container.margin
 		},
-		shape = beautiful.client_shape_rounded_small,
+		shape = utilities.mkroundedrect(),
 		bg = beautiful.bg_button,
 		widget = wibox.container.background
 	},
@@ -51,7 +51,7 @@ local content =
 		margins = dpi(10),
 		widget = wibox.container.margin
 	},
-	shape = beautiful.client_shape_rounded_small,
+	shape = utilities.mkroundedrect(),
 	bg = beautiful.bg_normal,
 	widget = wibox.container.background
 }
@@ -64,10 +64,10 @@ box =
 		-- buttons,
 		layout = wibox.layout.align.horizontal
 	},
-	shape = beautiful.client_shape_rounded_xl,
-	fg = colors.white,
+	shape = utilities.mkroundedrect(),
+	fg = beautiful.white,
 	border_width = dpi(2),
-	border_color = colors.alpha(colors.black, 'cc'),
+	border_color = beautiful.black .. 'cc',
 	widget = wibox.container.background
 }
 

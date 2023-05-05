@@ -7,14 +7,14 @@
 local left_content =
 	wibox.widget {
 	text = 'Network Connected:',
-	font = 'Operaror SSm Black 11',
+	font = beautiful.nerd_font .. ' 12',
 	widget = wibox.widget.textbox
 }
 
 local right_content =
 	wibox.widget {
 	text = 'None',
-	font = 'Operaror SSm Black 11',
+	font = beautiful.nerd_font .. ' 12',
 	widget = wibox.widget.textbox
 }
 
@@ -47,7 +47,7 @@ local spacer_bar =
 	{
 		orientation = 'vertical',
 		forced_height = dpi(1),
-		forced_width = dpi(2),
+		forced_width = dpi(150),
 		shape = gears.shape.rounded_bar,
 		widget = wibox.widget.separator
 	},
@@ -83,11 +83,11 @@ local widget =
 	wibox.widget {
 	{
 		widget_user,
-		spacer_bar,
+		spacing= dpi(4),
 		widget_host,
-		layout = wibox.layout.fixed.vertical
+		layout = wibox.layout.fixed.horizontal
 	},
-	fg = colors.white,
+	fg = beautiful.white,
 	widget = wibox.container.background
 }
 

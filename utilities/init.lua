@@ -34,6 +34,7 @@ screen_mask = require(... .. ".screen_mask"),
 screenshot = require(... .. ".screenshot"),
 scrollbox = require(... .. '.scrollbox'),
 snap_edge = require(... .. '.snap_edge'),
+readwrite = require(... .. '.readwrite'),
 textcursor_on_focus = (... .. '.textcursor_on_focus'),
 trim = require(... .. ".trim"),
 vertical_pad = require(... .. '.vertical_pad')

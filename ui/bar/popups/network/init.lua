@@ -18,11 +18,13 @@ awful.screen.connect_for_each_screen(
             wibox(
             {
                 type = 'dock',
-                shape = beautiful.client_shape_rounded_xl,
+                shape = utilities.mkroundedrect(),
                 screen = s,
                 width = dpi(380),
-                height = dpi(580),
-                bg = beautiful.bg_color,
+                height = dpi(560),
+                bg = beautiful.bg_normal .. 'cc',
+                border_color = beautiful.grey .. 'cc',
+                border_width = dpi(2),
                 margins = dpi(20),
                 ontop = true,
                 visible = false
@@ -48,8 +50,8 @@ awful.screen.connect_for_each_screen(
                             {
                                 nil,
                                 {
-                                    image = icons.wifi_3,
-                                    widget = wibox.ui.bar.popups.network.widgets.imagebox,
+                                    image = icons.wifi_problem,
+                                    widget = wibox.widget.imagebox,
                                     forced_height = dpi(15),
                                     id = 'icon',
                                     resize = true
@@ -63,19 +65,19 @@ awful.screen.connect_for_each_screen(
                             widget = wibox.container.margin,
                             margins = dpi(15)
                         },
-                        require('ui.bar.popups.network.widgets.network_center.title-text')
+                        require('ui.bar.popups.network.widgets.title-text')
                     }
                 },
                 margins = dpi(5),
                 widget = wibox.container.margin
             },
-            shape = beautiful.client_shape_rounded_xl,
-            bg = beautiful.bg_panel,
+            shape = utilities.mkroundedrect(),
+            bg = beautiful.black .. 'aa',
             forced_width = dpi(380),
             forced_height = dpi(70),
             ontop = true,
             border_width = dpi(2),
-            border_color = colors.alpha(colors.black, 'cc'),
+            border_color = beautiful.grey .. 'cc',
             widget = wibox.container.background
         }
         -- ------------------------------------------------- --
@@ -85,25 +87,25 @@ awful.screen.connect_for_each_screen(
                 {
                     spacing = dpi(0),
                     layout = wibox.layout.fixed.vertical,
-                    format_item(
+                 
                         {
                             layout = wibox.layout.fixed.horizontal,
                             spacing = dpi(16),
-                            require('ui.bar.popups.network.widgets.network_center.status-icon'),
-                            require('ui.bar.popups.network.widgets.network_center.status')
+                            require('ui.bar.popups.network.widgets.status-icon'),
+                            require('ui.bar.popups.network.widgets.status')
                         }
-                    )
+                    
                 },
                 margins = dpi(5),
                 widget = wibox.container.margin
             },
-            shape = beautiful.client_shape_rounded_xl,
-            bg = beautiful.bg_normal,
+            shape = utilities.mkroundedrect(),
+            bg = beautiful.black .. 'aa',
             forced_width = dpi(380),
-            forced_height = 70,
+            forced_height = dpi(50),
             ontop = true,
             border_width = dpi(2),
-            border_color = colors.alpha(colors.black, 'cc'),
+            border_color = beautiful.grey .. 'cc',
             widget = wibox.container.background
         }
         -- ------------------------------------------------- --
@@ -113,23 +115,22 @@ awful.screen.connect_for_each_screen(
                 {
                     spacing = dpi(0),
                     layout = wibox.layout.flex.vertical,
-                    format_item(
                         {
                             layout = wibox.layout.fixed.horizontal,
                             spacing = dpi(16),
-                            require('ui.bar.popups.network.widgets.network_center.networks-panel')
+                            require('ui.bar.popups.network.widgets.networks-panel')
                         }
-                    )
+
                 },
                 margins = dpi(5),
                 widget = wibox.container.margin
             },
-            shape = beautiful.client_shape_rounded_xl,
-            bg = beautiful.bg_menu,
+            shape = utilities.mkroundedrect(),
+            bg = beautiful.bg_normal .. '88',
             forced_width = dpi(380),
             ontop = true,
             border_width = dpi(2),
-            border_color = colors.alpha(colors.black, 'cc'),
+            border_color = beautiful.grey .. 'cc',
             widget = wibox.container.background
         }
 
@@ -142,7 +143,7 @@ awful.screen.connect_for_each_screen(
             intro = 0.14,
             duration = 0.33,
             subscribed = function(pos)
-                network.y = s.geometry.y + pos
+                network.y = ( s.geometry.y - beautiful.bar_height) + pos
             end
         }
 
@@ -168,20 +169,24 @@ awful.screen.connect_for_each_screen(
             end
 
             -- control center x position
-            network.x = screen.geometry.x + (dpi(405) + beautiful.useless_gap * 4)
+            network.x = screen.geometry.x + (dpi(905) + beautiful.useless_gap * 4)
+            
 
             -- toggle visibility
             if network.visible then
                 -- check if screen is different or the same
                 if screen_backup ~= screen.index then
                     network.visible = true
+                    net_kg:start()
                 else
+                    net_kg:stop()
                     slide_end:again()
                     slide_right.target = s.geometry.height
                 end
             elseif not network.visible then
                 slide_right.target = s.geometry.height - (network.height + beautiful.useless_gap * 2)
                 network.visible = true
+                net_kg:start()
             end
 
             -- set screen_backup to new screen
@@ -195,20 +200,38 @@ awful.screen.connect_for_each_screen(
                 slide_right.target = s.geometry.height
             end
         end
-        -- function to show/hide extra buttons
-        -- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        function show_extra_control_stuff(input)
-            if input then
-                awesome.emit_signal('network::center::extras', true)
-                network.height = dpi(715)
-                readwrite.write('cc_state', 'open')
-            else
-                awesome.emit_signal('network::center::extras', false)
-                network.height = dpi(580)
-                readwrite.write('cc_state', 'closed')
-            end
-            slide_right.target = s.geometry.height - (network.height + beautiful.useless_gap * 2)
+       -- -------------------------------------------------------------------------- --
+  -- creates a keygrabber so the user can close the 
+  -- thing without pressing the button again
+  -- 
+  net_kg = awful.keygrabber {
+    keybindings = {
+      awful.key {
+        modifiers = {},
+        key = "Escape",
+        on_press = function()
+          nc_toggle()
+          net_kg:stop()
         end
+      },
+      awful.key {
+        modifiers = {},
+        key = "q",
+        on_press = function()
+          nc_toggle()
+          net_kg:stop()
+        end
+      },
+      awful.key {
+        modifiers = {},
+        key = "x",
+        on_press = function()
+          nc_toggle()
+          net_kg:stop()
+        end
+      }
+    }
+  }
 
         -- Initial setup
         network:setup {
@@ -230,4 +253,6 @@ awful.screen.connect_for_each_screen(
             layout = wibox.layout.fixed.vertical
         }
     end
+
+    
 )

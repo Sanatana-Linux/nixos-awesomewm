@@ -4,10 +4,10 @@
 -- |___|   |___._|__|__|_____||__|
 -- ------------------------------------------------- --
 
-local searching = require('ui.bar.popups.network.widgets.network_center.searching')
+local searching = require('ui.bar.popups.network.widgets.searching')
 local width = dpi(450)
 
-local panelLayout = overflow.vertical()
+local panelLayout = utilities.overflow.vertical()
 
 panelLayout.spacing = dpi(7)
 panelLayout.forced_width = width
@@ -17,7 +17,7 @@ local resetDevicePanelLayout = function()
 end
 
 local networksAdd = function(n)
-    local box = require('ui.bar.popups.network.widgets.network_center.elements')
+    local box = require('ui.bar.popups.network.widgets.elements')
     panelLayout:insert(
         #panelLayout.children + 1,
         box.create(n.SSID, n.BSSID, n.connectStatus, n.signal, n.secure, n.speed)

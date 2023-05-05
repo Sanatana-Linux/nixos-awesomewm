@@ -15,7 +15,7 @@ elements.create = function(SSID, BSSID, connectStatus, signal, secure, speed)
     nil,
     {
       id = 'icon',
-      image = icons.wifi_off,
+      image = icons.wifi_problem,
       resize = true,
       widget = wibox.widget.imagebox
     },
@@ -30,13 +30,17 @@ elements.create = function(SSID, BSSID, connectStatus, signal, secure, speed)
         margins = dpi(7),
         widget = wibox.container.margin
       },
-      shape = gears.shape.rect,
-      bg = beautiful.bg_button,
+      shape = utilities.mkroundedrect(),
+      bg = beautiful.widget_back,
+      border_width=dpi(0.75),
+      border_color = beautiful.bg_normal .. 'cc',
       widget = wibox.container.background
     },
     forced_width = dpi(48),
     forced_height = dpi(48),
-    widget = clickable_container
+
+    widget = wibox.container.margin,
+    margins = dpi(4)
   }
   wifiIcon:buttons(
     gears.table.join(
@@ -102,8 +106,9 @@ elements.create = function(SSID, BSSID, connectStatus, signal, secure, speed)
       margins = dpi(10),
       widget = wibox.container.margin
     },
-    shape = beautiful.client_shape_rounded_small,
-    bg = beautiful.bg_normal,
+    shape = utilities.mkroundedrect(),
+    bg = beautiful.black,
+    
     widget = wibox.container.background
   }
 
@@ -130,10 +135,13 @@ elements.create = function(SSID, BSSID, connectStatus, signal, secure, speed)
       nil,
       layout = wibox.layout.align.horizontal
     },
-    shape = beautiful.client_shape_rounded_small,
-    fg = colors.white,
+
+    shape = utilities.mkroundedrect(),
+    fg = beautiful.white,
+    border_width= dpi(1),
+    border_color = beautiful.grey .. 'cc',
     widget = wibox.container.background,
-    bg = beautiful.bg_menu
+    bg = beautiful.black
   }
 
   return box

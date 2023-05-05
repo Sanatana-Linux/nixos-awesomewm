@@ -50,7 +50,6 @@ awful.screen.connect_for_each_screen(function(s)
             margins = dpi(15),
             widget = wibox.container.margin
           },
-          bg = beautiful.bg_normal,
           widget = wibox.container.background,
           shape = function(cr, w, h)
             return gears.shape.partially_rounded_rect(cr, w, h, true, true,
@@ -61,7 +60,6 @@ awful.screen.connect_for_each_screen(function(s)
         spacing = dpi(15),
         layout = wibox.layout.align.vertical,
       },
-      bg = beautiful.black,
       fg = beautiful.fg_normal,
       widget = wibox.container.background,
       shape = utilities.mkroundedrect()
@@ -79,14 +77,13 @@ awful.screen.connect_for_each_screen(function(s)
     ontop = true,
     visible = false,
     shape = utilities.mkroundedrect(),
-    bg = "#00000000",
     minimum_width = dpi(455),
     fg = beautiful.fg_normal,
     screen = s,
-    widget = wibox.widget {
-      bg = beautiful.bg_normal,
+      bg = beautiful.bg_normal .. 'cc',
+      border_color=beautiful.grey ..'cc',
+      border_width = dpi(2),
       widget = wibox.container.background
-    }
   }
 
   local self = s.dashboard.popup
@@ -129,9 +126,11 @@ awful.screen.connect_for_each_screen(function(s)
     if self.visible then
       s.dashboard.hide()
       dash_kg:stop()
+      collectgarbage("collect")
     else
       s.dashboard.show()
       dash_kg:start()
+      collectgarbage("collect")
     end
   end
 
@@ -145,6 +144,7 @@ awful.screen.connect_for_each_screen(function(s)
     end
     self.widget = mkwidget()
     self.visible = true
+    collectgarbage("collect")
   end
 
   function s.dashboard.hide()

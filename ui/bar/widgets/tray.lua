@@ -1,9 +1,4 @@
 ---@diagnostic disable: undefined-global
-local wibox = require 'wibox'
-local awful = require 'awful'
-local beautiful = require 'beautiful'
-
-local dpi = beautiful.xresources.apply_dpi
 
 -- listens for requests to open/hide the systray popup in the focused screen ofc.
 local function get_tray()
@@ -25,7 +20,7 @@ end)
 awful.screen.connect_for_each_screen(function (s)
     s.tray = {}
 
-    s.tray.widget = wibox.widget {
+    s.tray.widget = wibox.widget {{
         {
             {
                 {
@@ -38,12 +33,19 @@ awful.screen.connect_for_each_screen(function (s)
             },
             margins = dpi(12),
             widget = wibox.container.margin,
+            
         },
-        bg = beautiful.bg_normal,
+        bg = beautiful.bg_normal .. 'aa',
+        border_color = beautiful.grey .. 'cc',
+        border_width = dpi(1),
         fg = beautiful.fg_normal,
         widget = wibox.container.background,
         shape = utilities.mkroundedrect(),
-    }
+
+    },
+widget=wibox.container.margin,
+margins=dpi(3),
+}
 
     s.tray.popup = awful.popup {
         widget = s.tray.widget,
@@ -53,12 +55,12 @@ awful.screen.connect_for_each_screen(function (s)
         bg = beautiful.bg_normal .. '00',
         fg = beautiful.fg_normal,
         minimum_width = dpi(200),
-        minimum_height = dpi(150),
+        minimum_height = dpi(120),
         shape = utilities.mkroundedrect(),
         placement = function (d)
             return awful.placement.bottom_right(d, {
                 margins = {
-                    right = beautiful.useless_gap * 33,
+                    right = beautiful.useless_gap * 37,
                     bottom = beautiful.bar_height + beautiful.useless_gap * 2,
                 }
             })

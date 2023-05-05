@@ -16,6 +16,7 @@ local battery_widget = require("ui.bar.widgets.battery")
 
 require("ui.bar.widgets.calendar")
 require("ui.bar.widgets.tray")
+require("ui.bar.popups.network")
 -- -------------------------------------------------------------------------- --
 -- assign to each screen 
 screen.connect_signal("request::desktop_decoration", function(s)

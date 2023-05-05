@@ -12,7 +12,7 @@ local update_interval = 30
 -- script to determine network mode
 local network_mode_script =
     [=[
-wireless="wlan0"
+wireless="wlo1"
 wired="enp2s0"
 net="/sys/class/net/"
 wired_state="down"
@@ -70,7 +70,7 @@ fi
 ]=]
 -- ------------------------------------------------- --
 -- script to check wireless status
-local wireless_data_script = 'iw dev wlan0 link'
+local wireless_data_script = 'iw dev wlo1 link'
 -- ------------------------------------------------- --
 -- script to check wireless strength
 local wireless_strength_script = [[awk 'NR==3 {printf "%3.0f" ,($3/70)*100}' /proc/net/wireless]]
@@ -90,7 +90,7 @@ local emit_wireless_status = function()
                     awful.spawn.easy_async_with_shell(
                         healthcheck_script,
                         function(health_stdout)
-                            local interface = 'wlan0'
+                            local interface = 'wlo1'
 
                             local essid = data_stdout:match('SSID: (.-)\n') or 'N/A'
                             local bitrate = data_stdout:match('tx bitrate: (.+/s)') or 'N/A'
@@ -136,7 +136,7 @@ local emit_wireless_connected = function()
         wireless_data_script,
         function(data_stdout)
             if data_stdout ~= nil then
-                local interface = 'wlan0'
+                local interface = 'wlo1'
                 local essid = data_stdout:match('SSID: (.-)\n') or 'N/A'
 
                 awesome.emit_signal('network::connected::wireless', interface, essid)
@@ -164,7 +164,7 @@ local emit_disconnected = function()
     if network_mode == 'wired' then
         interface = 'enp1s0'
     else
-        interface = 'wlan0'
+        interface = 'wlo1'
     end
 
     awesome.emit_signal('network::disconnected::' .. network_mode, interface)

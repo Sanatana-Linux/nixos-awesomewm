@@ -25,7 +25,8 @@ end)
 tooltip.attach_to_object(network)
 
 network:add_button(awful.button({}, 1, function ()
-    awful.spawn('bash ' .. gfs.get_configuration_dir() .. 'scripts/toggle-network.sh')
+    nc_toggle()
+    awesome.emit_signal('network::networks:refreshPanel')
 end))
 
 awesome.connect_signal('network::connected', function (is_connected)

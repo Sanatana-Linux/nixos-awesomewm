@@ -1147,7 +1147,6 @@ local function new(args)
     -- panel for the above buttons
     ret._private.label = wibox.widget {
         widget = wibox.container.background,
-        bg = beautiful.bg_normal,
         {
             {{
                 {
@@ -1170,7 +1169,7 @@ local function new(args)
             margins=dpi(8),
             },
                 widget = wibox.container.background,
-                bg = beautiful.dimblack,
+                bg = beautiful.dimblack .. 'cc',
                 shape = utilities.mkroundedrect(),
                 border_width = dpi(0.75),
                 border_color = beautiful.lessgrey .. '77'
@@ -1239,7 +1238,7 @@ local function new(args)
                         border_width = dpi(0.75),
                         border_color = beautiful.lessgrey .. '77',
                         widget = wibox.container.background,
-                        bg = beautiful.dimblack
+                        bg = beautiful.dimblack .. 'cc'
                     },
                     widget = wibox.container.margin,
                     margins = dpi(8)

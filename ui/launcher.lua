@@ -27,7 +27,7 @@ local args = {
     awful.placement.bottom_left(d, {honor_workarea = true, margins = 12})
   end,
 
-  background = beautiful.bg_normal,
+  background = beautiful.bg_normal .. 'aa',
 	type = "dock",
   skip_empty_icons = false,
   expand_apps = false,
@@ -41,7 +41,7 @@ local args = {
   prompt_text = "Search: ",
   prompt_icon = "",
   prompt_icon_font = beautiful.nerd_font,
-  prompt_color = beautiful.bg_lighter,
+  prompt_color = beautiful.bg_lighter .. 'aa',
   prompt_cursor_color = beautiful.fg_normal,
   prompt_text_color = beautiful.fg_normal,
   prompt_icon_color = beautiful.fg_normal,
@@ -58,9 +58,9 @@ local args = {
   app_name_font = beautiful.nerd_font,
 
 app_border_color = beautiful.lessgrey .. '66',
-  app_selected_color = beautiful.bg_normal,
+  app_selected_color = beautiful.bg_normal ,
   app_selected_hover_color = beautiful.bg_normal,
-  app_normal_color = beautiful.bg_lighter,
+  app_normal_color = beautiful.bg_lighter .. 'aa',
 
   app_normal_hover_color = beautiful.bg_normal,
   app_name_selected_color = beautiful.lessgrey,
