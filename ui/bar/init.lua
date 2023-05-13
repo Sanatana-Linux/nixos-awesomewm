@@ -266,7 +266,6 @@ end))
     width = s.geometry.width,
     height = beautiful.bar_height,
     shape = gears.shape.rectangle,
-    bg = scheme.alpha(beautiful.bg_normal, 'cc'),
   }
   -- -------------------------------------------------------------------------- --
   --                                    setup                                   --
@@ -276,8 +275,6 @@ end))
     {
       layout = wibox.layout.align.horizontal,
       
-      border_color = beautiful.grey,
-      border_width = dpi(1),
       {
         {
           mkcontainer {
@@ -288,6 +285,7 @@ end))
           },
           widget = wibox.container.margin
         },
+    
         layout = wibox.layout.fixed.horizontal
       },
       nil,
@@ -310,6 +308,10 @@ end))
       widget = wibox.widget.margin,
       layout = wibox.container.place
     },
-    layout = wibox.layout.stack
+    layout = wibox.layout.stack,
+    widget = wibox.container.background,
+    bg= beautiful.bg_normal ..'33'
+
+
   }
 end)

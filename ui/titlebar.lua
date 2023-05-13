@@ -99,7 +99,7 @@ client.connect_signal("request::titlebars", function(c)
 
   titlebar:setup{
     buttons_loader,
-    -- buttons_loader,
+
     {
       {
         widget = awful.titlebar.widget.titlewidget(c),

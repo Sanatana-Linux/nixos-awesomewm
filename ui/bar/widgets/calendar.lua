@@ -53,16 +53,18 @@ awful.screen.connect_for_each_screen(function (s)
                     margins = dpi(7),
                     widget = wibox.container.margin,
                 },
-                bg = flag == 'focus' and beautiful.black or beautiful.bg_normal,
+                bg = flag == 'focus' and beautiful.black .. 'cc' or beautiful.bg_normal .. '00',
                 fg = color,
                 widget = wibox.container.background,
-                shape = flag == 'focus' and gears.shape.circle or nil,
+                shape = flag == 'focus' and gears.shape.circle or utilities.mkroundedrect(),
             }
         end
     }
 
     s.calendar.popup = awful.popup {
-        bg = '#00000000',
+        bg = beautiful.bg_normal .. 'cc',
+        border_color = beautiful.grey .. 'cc',
+        border_width = dpi(1),
         fg = beautiful.fg_normal,
         visible = false,
         ontop = true,

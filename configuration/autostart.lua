@@ -22,7 +22,8 @@ end
 autostart_apps = {
    'picom -b --experimental-backends &',
    ' eval "$(gnome-keyring-daemon -s --components=pkcs11,secrets,ssh,gpg)" &',
-   'bash -c $HOME/.config/openaikey.sh'
+   'bash -c $HOME/.config/openaikey.sh',
+   'xrdb -merge $HOME/.Xresources'
 }
 
 -- -------------------------------------------------------------------------- --

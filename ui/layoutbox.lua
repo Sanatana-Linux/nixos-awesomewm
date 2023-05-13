@@ -22,7 +22,7 @@ local ll =
     spacing = dpi(32),
     base_layout = wibox.widget {
         spacing = dpi(32),
-        forced_num_cols = 5,
+        forced_num_cols = 6,
         layout = wibox.layout.grid.vertical
     },
     -- ------------------------------------------------- --
@@ -35,18 +35,18 @@ local ll =
                     forced_height = dpi(48),
                     forced_width = dpi(48),
                     widget = wibox.widget.imagebox,
-                    shape = utilities.mkroundedrect(10)
+                    shape = utilities.mkroundedrect()
                 },
-                margins = dpi(15),
+                margins = dpi(16),
                 widget = wibox.container.margin,
-                shape = utilities.mkroundedrect(10)
+                shape = utilities.mkroundedrect()
             },
   
         id = 'background_role',
         forced_width = dpi(64),
         forced_height = dpi(64),
-        bg = beautiful.widget_back,
-     shape = utilities.mkroundedrect(10),
+        bg = beautiful.grey .. '44',
+     shape = utilities.mkroundedrect(),
         widget = wibox.container.background
     }
 }
@@ -54,17 +54,16 @@ local ll =
 local layout_popup =
     awful.popup {
     widget = wibox.widget {
-        {
+        
             ll,
             margins = dpi(32),
             screen = mouse.screen,
             widget = wibox.container.margin
         },
-        widget = wibox.container.background
-    },
-    border_width = dpi(3.25),
+    
+    border_width = dpi(2.25),
     border_color = beautiful.grey,
-    bg = beautiful.bg_normal,
+    bg = beautiful.bg_normal .. 'aa',
  shape = utilities.mkroundedrect(),
     screen = mouse.screen,
     placement = awful.placement.centered,

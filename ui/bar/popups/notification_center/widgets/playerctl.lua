@@ -9,7 +9,7 @@ local naughty = require "naughty"
 local pctl = require("lgi").require("Playerctl")
 local cairo = require("lgi").cairo
 
-local helpers = require "helpers"
+
 
 local maticons = gfs.get_configuration_dir() .. "/themes/assets/icons/svg/"
 --slighty janky statekeeping if widget is currently shown, so that

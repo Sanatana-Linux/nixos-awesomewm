@@ -1244,6 +1244,27 @@ local function new(args)
                     margins = dpi(8)
                 }
             },
+          {  {
+                require("ui.bar.popups.app_menu.widget.app_launcher.charts"),
+                widget = wibox.container.margin,
+                top = dpi(3),
+                bottom = dpi(2),
+                right = dpi(0),
+                left = dpi(0),
+            },
+            {
+                require("ui.bar.popups.app_menu.widget.app_launcher.controls"),
+                widget = wibox.container.margin,
+                top = dpi(3),
+                bottom = dpi(2),
+                right = dpi(0),
+                left = dpi(0),
+            },
+ 
+
+
+            layout=wibox.layout.fixed.vertical
+        },
             { -- sidepanel 
                 widget = wibox.container.margin,
                 top = dpi(3),
@@ -1251,7 +1272,8 @@ local function new(args)
                 right = dpi(10),
                 left = dpi(0),
                 ret._private.label
-            }
+            },
+         
         }
     }
     -- -------------------------------------------------------------------------- --
