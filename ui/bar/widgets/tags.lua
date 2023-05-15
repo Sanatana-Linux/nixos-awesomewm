@@ -26,7 +26,6 @@ local mktag = function (tag)
     font = beautiful.title_font
   })
 
-  
 
   local clients_layout = wibox.layout.fixed.horizontal()
   local margin_widget = wibox.container.margin()

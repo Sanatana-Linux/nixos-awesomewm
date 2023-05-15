@@ -1,558 +1,460 @@
---  _______               __ __              __   __
--- |   _   |.-----.-----.|  |__|.----.---.-.|  |_|__|.-----.-----.
--- |       ||  _  |  _  ||  |  ||  __|  _  ||   _|  ||  _  |     |
--- |___|___||   __|   __||__|__||____|___._||____|__||_____|__|__|
---          |__|  |__|
---  _______            __ __         __
--- |     __|.--.--.--.|__|  |_.----.|  |--.-----.----.
--- |__     ||  |  |  ||  |   _|  __||     |  -__|   _|
--- |_______||________||__|____|____||__|__|_____|__|
--- ------------------------------------------------- --
--- https://github.com/troglobit/awesome-switcher/blob/master/init.lua
--- https://github.com/berlam/awesome-switcher/blob/master/init.lua
--- https://github.com/jorenheit/awesome_alttab/blob/master/init.lua
--- ------------------------------------------------- --
+local cairo = require("lgi").cairo
+local awful = require("awful")
+local gears = require("gears")
+local wibox = require("wibox")
+local beautiful = require("beautiful")
+local dpi = beautiful.xresources.apply_dpi
 
-local surface = cairo.ImageSurface(cairo.Format.RGB24, 20, 20)
-local cr = cairo.Context(surface)
-local Get_icon = require('utilities.ui.icon_handler')
-local _M = {}
+local window_switcher_first_client -- The client that was focused when the window_switcher was activated
+local window_switcher_minimized_clients = {} -- The clients that were minimized when the window switcher was activated
+local window_switcher_grabber
 
--- -------------------- settings ------------------- --
-
-_M.settings = {
-    preview_box = true,
-    preview_box_bg = colors.alpha(colors.colorD, '66'),
-    preview_box_border = colors.alpha(colors.black, 'aa'),
-    preview_box_fps = 30,
-    preview_box_delay = 150,
-    preview_box_title_font = {'sans', 'italic', 'normal'},
-    preview_box_title_font_size_factor = 0.8,
-    preview_box_title_color = {255, 255, 255, 1},
-    client_opacity = false,
-    client_opacity_value_selected = 1,
-    client_opacity_value_in_focus = 0.5,
-    client_opacity_value = 0.5,
-    cycle_raise_client = true
-}
--- ------------------------------------------------- --
--- NOTE: Create a wibox to contain all the client-widgets
-_M.preview_wbox = wibox({width = screen[mouse.screen].geometry.width})
-_M.preview_wbox.border_width = 3
-_M.preview_wbox.ontop = true
-_M.preview_wbox.visible = false
-
-_M.preview_live_timer = timer({timeout = 1 / _M.settings.preview_box_fps})
-_M.preview_widgets = {}
-
-_M.altTabTable = {}
-_M.altTabIndex = 1
-
-_M.source = string.sub(debug.getinfo(1, 'S').source, 2)
-_M.path = string.sub(_M.source, 1, string.find(_M.source, '/[^/]*$'))
-_M.noicon = _M.path .. 'noicon.png'
--- ------------------------------------------------- --
--- NOTE: simple function for counting the size of a table
-function _M.tableLength(T)
-    local count = 0
-    for _ in pairs(T) do
-        count = count + 1
-    end
-    return count
-end
--- ------------------------------------------------- --
---  NOTE: this function returns the list of clients to be shown.
-function _M.getClients()
-    local clients = {}
-    -- ------------------------------------------------- --
-    --  NOTE: Get focus history for current tag
-    local s = mouse.screen
-    local idx = 0
-    local c = awful.client.focus.history.get(s, idx)
-
-    while c do
-        table.insert(clients, c)
-
-        idx = idx + 1
-        c = awful.client.focus.history.get(s, idx)
-    end
-    -- ------------------------------------------------- --
-    --  NOTE: Minimized clients will not appear in the focus history
-    --  NOTE: Find them by cycling through all clients, and adding them to the list
-    -- if not already there.
-    --  NOTE: This will preserve the history AND enable you to focus on minimized clients
-
-    local t = s.selected_tag
-    local all = client.get(s)
-
-    for i = 1, #all do
-        local c = all[i]
-        local ctags = c:tags()
-        -- ------------------------------------------------- --
-        --  NOTE: check if the client is on the current tag
-        local isCurrentTag = false
-        for j = 1, #ctags do
-            if t == ctags[j] then
-                isCurrentTag = true
-                break
-            end
-        end
-
-        if isCurrentTag then
-            -- ------------------------------------------------- --
-            --  NOTE: check if client is already in the history
-            -- if not, add it
-            local addToTable = true
-            for k = 1, #clients do
-                if clients[k] == c then
-                    addToTable = false
-                    break
-                end
-            end
-
-            if addToTable then
-                table.insert(clients, c)
-            end
-        end
-    end
-
-    return clients
-end
--- ------------------------------------------------- --
---  NOTE: here we populate altTabTable using the list of clients taken from
--- _M.getClients(). In case we have altTabTable with some value, the list of the
--- old known clients is restored.
-function _M.populateAltTabTable()
-    local clients = _M.getClients()
-
-    if _M.tableLength(_M.altTabTable) then
-        for ci = 1, #clients do
-            for ti = 1, #_M.altTabTable do
-                if _M.altTabTable[ti].client == clients[ci] then
-                    _M.altTabTable[ti].client.opacity = _M.altTabTable[ti].opacity
-                    _M.altTabTable[ti].client.minimized = _M.altTabTable[ti].minimized
-                    break
-                end
-            end
-        end
-    end
-
-    _M.altTabTable = {}
-
-    for i = 1, #clients do
-        table.insert(
-            _M.altTabTable,
+local get_num_clients = function()
+    local minimized_clients_in_tag = 0
+    local matcher = function(c)
+        return awful.rules.match(
+            c,
             {
-                client = clients[i],
-                minimized = clients[i].minimized,
-                opacity = clients[i].opacity
+                minimized = true,
+                skip_taskbar = false,
+                hidden = false,
+                first_tag = awful.screen.focused().selected_tag,
             }
         )
     end
-end
--- ------------------------------------------------- --
--- NOTE: if the length of list of clients is not equal to the length of altTabTable,
--- we need to repopulate the array and update the UI. This function does this
--- check.
-function _M.clientsHaveChanged()
-    local clients = _M.getClients()
-    return _M.tableLength(clients) ~= _M.tableLength(_M.altTabTable)
+    for c in awful.client.iterate(matcher) do
+        minimized_clients_in_tag = minimized_clients_in_tag + 1
+    end
+    return minimized_clients_in_tag + #awful.screen.focused().clients
 end
 
-function _M.createPreviewText(client)
-    if client.class then
-        return ' - ' .. client.class
-    else
-        return ' - ' .. client.name
-    end
-end
-
--- Preview is created here.
-function _M.clientOpacity()
-    if not _M.settings.client_opacity then
-        return
-    end
-
-    local opacity = _M.settings.client_opacity_value
-    if opacity > 1 then
-        opacity = 1
-    end
-    for i, data in pairs(_M.altTabTable) do
-        data.client.opacity = opacity
-    end
-
-    if client.focus == _M.altTabTable[_M.altTabIndex].client then
-        -- ------------------------------------------------- --
-        -- Let's normalize the value up to 1.
-        local opacityFocusSelected =
-            _M.settings.client_opacity_value_selected + _M.settings.client_opacity_value_in_focus
-        if opacityFocusSelected > 1 then
-            opacityFocusSelected = 1
-        end
-        client.focus.opacity = opacityFocusSelected
-    else
-        -- ------------------------------------------------- --
-        -- Let's normalize the value up to 1.
-        local opacityFocus = _M.settings.client_opacity_value_in_focus
-        if opacityFocus > 1 then
-            opacityFocus = 1
-        end
-        local opacitySelected = _M.settings.client_opacity_value_selected
-        if opacitySelected > 1 then
-            opacitySelected = 1
-        end
-
-        client.focus.opacity = opacityFocus
-        _M.altTabTable[_M.altTabIndex].client.opacity = opacitySelected
-    end
-end
--- ------------------------------------------------- --
---  NOTE: This is called any _M.settings.preview_box_fps milliseconds. In case the list
--- of clients is changed, we need to redraw the whole preview box. Otherwise, a
--- simple widget::updated signal is enough
-function _M.updatePreview()
-    if _M.clientsHaveChanged() then
-        _M.populateAltTabTable()
-        _M.preview()
-    end
-
-    for i = 1, #_M.preview_widgets do
-        _M.preview_widgets[i]:emit_signal('widget::updated')
-    end
-end
-
-function _M.cycle(dir)
-    -- Switch to next client
-    _M.altTabIndex = _M.altTabIndex + dir
-    if _M.altTabIndex > #_M.altTabTable then
-        _M.altTabIndex = 1 -- wrap around
-    elseif _M.altTabIndex < 1 then
-        _M.altTabIndex = #_M.altTabTable -- wrap around
-    end
-
-    _M.updatePreview()
-
-    _M.altTabTable[_M.altTabIndex].client.minimized = false
-
-    if not _M.settings.preview_box and not _M.settings.client_opacity then
-        client.focus = _M.altTabTable[_M.altTabIndex].client
-    end
-
-    if _M.settings.client_opacity and _M.preview_wbox.visible then
-        _M.clientOpacity()
-    end
-
-    if _M.settings.cycle_raise_client == true then
-        _M.altTabTable[_M.altTabIndex].client:raise()
-    end
-end
-
-function _M.preview()
-    if not _M.settings.preview_box then
-        return
-    end
-    -- ------------------------------------------------- --
-    --  NOTE: Apply settings
-    _M.preview_wbox:set_bg(_M.settings.preview_box_bg)
-    _M.preview_wbox.border_color = _M.settings.preview_box_border
-    -- ------------------------------------------------- --
-    --  NOTE: Make the wibox the right size, based on the number of clients
-    local n = math.max(7, #_M.altTabTable)
-    local W = screen[mouse.screen].geometry.width -- + 2 * _M.preview_wbox.border_width
-    local w = W / n -- widget width
-    local h = w * 0.75 -- widget height
-    local textboxHeight = w * 0.125
-
-    local x = screen[mouse.screen].geometry.x - _M.preview_wbox.border_width
-    local y = screen[mouse.screen].geometry.y + (screen[mouse.screen].geometry.height - h - textboxHeight) / 2
-    _M.preview_wbox:geometry({x = x, y = y, width = W, height = h + textboxHeight})
-    -- ------------------------------------------------- --
-    -- create a list that holds the clients to preview, from left to right
-    local leftRightTab = {}
-    local leftRightTabToAltTabIndex = {} -- save mapping from leftRightTab to altTabTable as well
-    local nLeft
-    local nRight
-    if #_M.altTabTable == 2 then
-        nLeft = 0
-        nRight = 2
-    else
-        nLeft = math.floor(#_M.altTabTable / 2)
-        nRight = math.ceil(#_M.altTabTable / 2)
-    end
-
-    for i = 1, nLeft do
-        table.insert(leftRightTab, _M.altTabTable[#_M.altTabTable - nLeft + i].client)
-        table.insert(leftRightTabToAltTabIndex, #_M.altTabTable - nLeft + i)
-    end
-    for i = 1, nRight do
-        table.insert(leftRightTab, _M.altTabTable[i].client)
-        table.insert(leftRightTabToAltTabIndex, i)
-    end
-    -- ------------------------------------------------- --
-    --  NOTE: determine fontsize -> find maximum classname-length
-    local text,
-        textWidth,
-        textHeight,
-        maxText
-    local maxTextWidth = 0
-    local maxTextHeight = 0
-    local bigFont = textboxHeight / 2
-    cr:set_font_size(fontSize)
-    for i = 1, #leftRightTab do
-        text = _M.createPreviewText(leftRightTab[i])
-        textWidth = cr:text_extents(text).width
-        textHeight = cr:text_extents(text).height
-        if textWidth > maxTextWidth or textHeight > maxTextHeight then
-            maxTextHeight = textHeight
-            maxTextWidth = textWidth
-            maxText = text
+local window_switcher_hide = function(window_switcher_box)
+    -- Add currently focused client to history
+    if client.focus then
+        local window_switcher_last_client = client.focus
+        awful.client.focus.history.add(window_switcher_last_client)
+        -- Raise client that was focused originally
+        -- Then raise last focused client
+        if
+            window_switcher_first_client and window_switcher_first_client.valid
+        then
+            window_switcher_first_client:raise()
+            window_switcher_last_client:raise()
         end
     end
 
-    while true do
-        cr:set_font_size(bigFont)
-        textWidth = cr:text_extents(maxText).width
-        textHeight = cr:text_extents(maxText).height
-
-        if textWidth < w - textboxHeight and textHeight < textboxHeight then
-            break
+    -- Minimize originally minimized clients
+    local s = awful.screen.focused()
+    for _, c in pairs(window_switcher_minimized_clients) do
+        if c and c.valid and not (client.focus and client.focus == c) then
+            c.minimized = true
         end
-
-        bigFont = bigFont - 1
     end
-    local smallFont = bigFont * _M.settings.preview_box_title_font_size_factor
+    -- Reset helper table
+    window_switcher_minimized_clients = {}
 
-    _M.preview_widgets = {}
-    -- ------------------------------------------------- --
-    --  NOTE: create all the widgets
-    for i = 1, #leftRightTab do
-        _M.preview_widgets[i] = wibox.widget.base.make_widget()
-        _M.preview_widgets[i].fit = function(preview_widget, width, height)
-            return w, h
+    -- Resume recording focus history
+    awful.client.focus.history.enable_tracking()
+    -- Stop and hide window_switcher
+    awful.keygrabber.stop(window_switcher_grabber)
+    window_switcher_box.visible = false
+    window_switcher_box.widget = nil
+    collectgarbage("collect")
+end
+
+local function draw_widget(
+    type,
+    background,
+    border_width,
+    border_radius,
+    border_color,
+    clients_spacing,
+    client_icon_horizontal_spacing,
+    client_width,
+    client_height,
+    client_margins,
+    thumbnail_margins,
+    thumbnail_scale,
+    name_margins,
+    name_valign,
+    name_forced_width,
+    name_font,
+    name_normal_color,
+    name_focus_color,
+    icon_valign,
+    icon_width,
+    mouse_keys,
+    filterClients
+)
+    filterClients = filterClients or awful.widget.tasklist.filter.currenttags
+    local tasklist_widget = type == "thumbnail"
+            and awful.widget.tasklist({
+                screen = awful.screen.focused(),
+                filter = filterClients,
+                buttons = mouse_keys,
+                style = {
+                    font = name_font,
+                    fg_normal = name_normal_color,
+                    fg_focus = name_focus_color,
+                },
+                layout = {
+                    layout = wibox.layout.flex.horizontal,
+                    spacing = clients_spacing,
+                },
+                widget_template = {
+                    widget = wibox.container.background,
+                    id = "bg_role",
+                    forced_width = client_width,
+                    forced_height = client_height,
+                    create_callback = function(self, c, _, __)
+                        local content = gears.surface(c.content)
+                        local cr = cairo.Context(content)
+                        local x, y, w, h = cr:clip_extents()
+                        local img = cairo.ImageSurface.create(
+                            cairo.Format.ARGB32,
+                            w - x,
+                            h - y
+                        )
+                        cr = cairo.Context(img)
+                        cr:set_source_surface(content, 0, 0)
+                        cr.operator = cairo.Operator.SOURCE
+                        cr:paint()
+                        self:get_children_by_id("thumbnail")[1].image =
+                            gears.surface.load(
+                                img
+                            )
+                    end,
+                    {
+                        {
+                            {
+                                horizontal_fit_policy = thumbnail_scale == true
+                                        and "fit"
+                                    or "auto",
+                                vertical_fit_policy = thumbnail_scale == true
+                                        and "fit"
+                                    or "auto",
+                                id = "thumbnail",
+                                widget = wibox.widget.imagebox,
+                            },
+                            margins = thumbnail_margins,
+                            widget = wibox.container.margin,
+                        },
+                        {
+                            {
+                                {
+                                    id = "icon_role",
+                                    widget = wibox.widget.imagebox,
+                                },
+                                forced_width = icon_width,
+                                valign = icon_valign,
+                                widget = wibox.container.place,
+                            },
+                            {
+                                {
+                                    forced_width = name_forced_width,
+                                    valign = name_valign,
+                                    id = "text_role",
+                                    widget = wibox.widget.textbox,
+                                },
+                                margins = name_margins,
+                                widget = wibox.container.margin,
+                            },
+                            spacing = client_icon_horizontal_spacing,
+                            layout = wibox.layout.fixed.horizontal,
+                        },
+                        layout = wibox.layout.flex.vertical,
+                    },
+                },
+            })
+        or awful.widget.tasklist({
+            screen = awful.screen.focused(),
+            filter = filterClients,
+            buttons = mouse_keys,
+            style = {
+                font = name_font,
+                fg_normal = name_normal_color,
+                fg_focus = name_focus_color,
+            },
+            layout = {
+                layout = wibox.layout.fixed.vertical,
+                spacing = clients_spacing,
+            },
+            widget_template = {
+                widget = wibox.container.background,
+                id = "bg_role",
+                forced_width = client_width,
+                forced_height = client_height,
+                {
+                    {
+                        {
+                            id = "icon_role",
+                            widget = wibox.widget.imagebox,
+                        },
+                        forced_width = icon_width,
+                        valign = icon_valign,
+                        widget = wibox.container.place,
+                    },
+                    {
+                        {
+                            forced_width = name_forced_width,
+                            valign = name_valign,
+                            id = "text_role",
+                            widget = wibox.widget.textbox,
+                        },
+                        margins = name_margins,
+                        widget = wibox.container.margin,
+                    },
+                    spacing = client_icon_horizontal_spacing,
+                    layout = wibox.layout.fixed.horizontal,
+                },
+            },
+        })
+
+    return wibox.widget({
+        {
+            tasklist_widget,
+            margins = client_margins,
+            widget = wibox.container.margin,
+        },
+        shape_border_width = border_width,
+        shape_border_color = border_color,
+        bg = background,
+        shape = utilities.mkroundedrect(border_radius),
+        widget = wibox.container.background,
+    })
+end
+
+local enable = function(opts)
+    local opts = opts or {}
+
+    local type = opts.type or "thumbnail"
+    local background = beautiful.window_switcher_widget_bg or "#000000"
+    local border_width = beautiful.window_switcher_widget_border_width or dpi(3)
+    local border_radius = beautiful.window_switcher_widget_border_radius
+        or dpi(0)
+    local border_color = beautiful.window_switcher_widget_border_color
+        or "#ffffff"
+    local clients_spacing = beautiful.window_switcher_clients_spacing or dpi(20)
+    local client_icon_horizontal_spacing = beautiful.window_switcher_client_icon_horizontal_spacing
+        or dpi(5)
+    local client_width = beautiful.window_switcher_client_width
+        or dpi(type == "thumbnail" and 150 or 500)
+    local client_height = beautiful.window_switcher_client_height
+        or dpi(type == "thumbnail" and 250 or 50)
+    local client_margins = beautiful.window_switcher_client_margins or dpi(10)
+    local thumbnail_margins = beautiful.window_switcher_thumbnail_margins
+        or dpi(5)
+    local thumbnail_scale = beautiful.thumbnail_scale or false
+    local name_margins = beautiful.window_switcher_name_margins or dpi(10)
+    local name_valign = beautiful.window_switcher_name_valign or "center"
+    local name_forced_width = beautiful.window_switcher_name_forced_width
+        or dpi(type == "thumbnail" and 200 or 550)
+    local name_font = beautiful.window_switcher_name_font or beautiful.font
+    local name_normal_color = beautiful.window_switcher_name_normal_color
+        or "#FFFFFF"
+    local name_focus_color = beautiful.window_switcher_name_focus_color
+        or "#FF0000"
+    local icon_valign = beautiful.window_switcher_icon_valign or "center"
+    local icon_width = beautiful.window_switcher_icon_width or dpi(40)
+
+    local hide_window_switcher_key = opts.hide_window_switcher_key or "Escape"
+
+    local select_client_key = opts.select_client_key or 1
+    local minimize_key = opts.minimize_key or "n"
+    local unminimize_key = opts.unminimize_key or "N"
+    local kill_client_key = opts.kill_client_key or "q"
+
+    local cycle_key = opts.cycle_key or "Tab"
+
+    local previous_key = opts.previous_key or "Left"
+    local next_key = opts.next_key or "Right"
+
+    local vim_previous_key = opts.vim_previous_key or "h"
+    local vim_next_key = opts.vim_next_key or "l"
+
+    local scroll_previous_key = opts.scroll_previous_key or 4
+    local scroll_next_key = opts.scroll_next_key or 5
+
+    local cycleClientsByIdx = opts.cycleClientsByIdx or awful.client.focus.byidx
+    local filterClients = opts.filterClients or awful.widget.tasklist.filter.currenttags
+
+    local window_switcher_box = awful.popup({
+        bg = "#00000000",
+        visible = false,
+        ontop = true,
+        placement = awful.placement.centered,
+        screen = awful.screen.focused(),
+        widget = wibox.container.background, -- A dummy widget to make awful.popup not scream
+        widget = {
+            {
+                draw_widget(),
+                margins = client_margins,
+                widget = wibox.container.margin,
+            },
+            shape_border_width = border_width,
+            shape_border_color = border_color,
+            bg = background,
+            shape = utilities.mkroundedrect(border_radius),
+            widget = wibox.container.background,
+        },
+    })
+
+    local mouse_keys = gears.table.join(
+        awful.button({
+            modifiers = { "Any" },
+            button = select_client_key,
+            on_press = function(c)
+                client.focus = c
+            end,
+        }),
+
+        awful.button({
+            modifiers = { "Any" },
+            button = scroll_previous_key,
+            on_press = function()
+                cycleClientsByIdx(-1)
+            end,
+        }),
+
+        awful.button({
+            modifiers = { "Any" },
+            button = scroll_next_key,
+            on_press = function()
+                cycleClientsByIdx(1)
+            end,
+        })
+    )
+
+    local keyboard_keys = {
+        [hide_window_switcher_key] = function()
+            window_switcher_hide(window_switcher_box)
+        end,
+
+        [minimize_key] = function()
+            if client.focus then
+                client.focus.minimized = true
+            end
+        end,
+        [unminimize_key] = function()
+            if awful.client.restore() then
+                client.focus = awful.client.restore()
+            end
+        end,
+        [kill_client_key] = function()
+            if client.focus then
+                client.focus:kill()
+            end
+        end,
+
+        [cycle_key] = function()
+            cycleClientsByIdx(1)
+        end,
+
+        [previous_key] = function()
+            cycleClientsByIdx(1)
+        end,
+        [next_key] = function()
+            cycleClientsByIdx(-1)
+        end,
+
+        [vim_previous_key] = function()
+            cycleClientsByIdx(1)
+        end,
+        [vim_next_key] = function()
+            cycleClientsByIdx(-1)
+        end,
+    }
+
+    window_switcher_box:connect_signal("property::width", function()
+        if window_switcher_box.visible and get_num_clients() == 0 then
+            window_switcher_hide(window_switcher_box)
         end
-        local c = leftRightTab[i]
-        _M.preview_widgets[i].draw = function(preview_widget, preview_wbox, cr, width, height)
-            if width ~= 0 and height ~= 0 then
-                local a = 0.8
-                local overlay = 0.6
-                local fontSize = smallFont
-                if c == _M.altTabTable[_M.altTabIndex].client then
-                    a = 0.9
-                    overlay = 0
-                    fontSize = bigFont
-                end
+    end)
 
-                local sx,
-                    sy,
-                    tx,
-                    ty
-                -- ------------------------------------------------- --
-                --  NOTE: Icons
-                local icon
-                if c.icon == nil then
-                    icon = gears.surface(gears.surface.load(_M.noicon))
-                else
-                    icon = gears.surface(Get_icon(beautiful.icon_theme, nil, c.name, c.class))
-                end
+    window_switcher_box:connect_signal("property::height", function()
+        if window_switcher_box.visible and get_num_clients() == 0 then
+            window_switcher_hide(window_switcher_box)
+        end
+    end)
 
-                local iconboxWidth = 0.9 * textboxHeight
-                local iconboxHeight = iconboxWidth
-                -- ------------------------------------------------- --
-                --  NOTE: Titles
-                cr:select_font_face(unpack(_M.settings.preview_box_title_font))
-                cr:set_font_face(cr:get_font_face())
-                cr:set_font_size(fontSize)
+    awesome.connect_signal("window_switcher::turn_on", function()
+        local number_of_clients = get_num_clients()
+        if number_of_clients == 0 then
+            return
+        end
 
-                text = _M.createPreviewText(c)
-                textWidth = cr:text_extents(text).width
-                textHeight = cr:text_extents(text).height
+        -- Store client that is focused in a variable
+        window_switcher_first_client = client.focus
 
-                local titleboxWidth = textWidth + iconboxWidth
-                local titleboxHeight = textboxHeight
+        -- Stop recording focus history
+        awful.client.focus.history.disable_tracking()
 
-                --  NOTE: Draw icons
-                tx = (w - titleboxWidth) / 2
-                ty = h
-                sx = iconboxWidth / icon.width
-                sy = iconboxHeight / icon.height
+        -- Go to previously focused client (in the tag)
+        awful.client.focus.history.previous()
 
-                cr:translate(tx, ty)
-                cr:scale(sx, sy)
-                cr:set_source_surface(icon, 0, 0)
-                cr:paint()
-                cr:scale(1 / sx, 1 / sy)
-                cr:translate(-tx, -ty)
-                -- ------------------------------------------------- --
-                --  NOTE: Draw titles
-                tx = tx + iconboxWidth
-                ty = h + (textboxHeight + textHeight) / 2
-
-                cr:set_source_rgba(unpack(_M.settings.preview_box_title_color))
-                cr:move_to(tx, ty)
-                cr:show_text(text)
-                cr:stroke()
-                -- ------------------------------------------------- --
-                --  NOTE: Draw previews
-                local cg = c:geometry()
-                if cg.width > cg.height then
-                    sx = a * w / cg.width
-                    sy = math.min(sx, a * h / cg.height)
-                else
-                    sy = a * h / cg.height
-                    sx = math.min(sy, a * h / cg.width)
-                end
-
-                tx = (w - sx * cg.width) / 2
-                ty = (h - sy * cg.height) / 2
-
-                local tmp = gears.surface(c.content)
-                cr:translate(tx, ty)
-                cr:scale(sx, sy)
-                cr:set_source_surface(tmp, 0, 0)
-                cr:paint()
-                tmp:finish()
-
-                --  NOTE: Overlays
-                cr:scale(1 / sx, 1 / sy)
-                cr:translate(-tx, -ty)
-                cr:set_source_rgba(0, 0, 0, overlay)
-                cr:rectangle(tx, ty, sx * cg.width, sy * cg.height)
-                cr:fill()
+        -- Track minimized clients
+        -- Unminimize them
+        -- Lower them so that they are always below other
+        -- originally unminimized windows
+        local clients = awful.screen.focused().selected_tag:clients()
+        for _, c in pairs(clients) do
+            if c.minimized then
+                table.insert(window_switcher_minimized_clients, c)
+                c.minimized = false
+                c:lower()
             end
         end
-        -- ------------------------------------------------- --
-        --  NOTE: Add mouse handler
-        _M.preview_widgets[i]:connect_signal(
-            'mouse::enter',
-            function()
-                _M.cycle(leftRightTabToAltTabIndex[i] - _M.altTabIndex)
+
+        -- Start the keygrabber
+        window_switcher_grabber = awful.keygrabber.run(function(_, key, event)
+            if event == "release" then
+                -- Hide if the modifier was released
+                -- We try to match Super or Alt or Control since we do not know which keybind is
+                -- used to activate the window switcher (the keybind is set by the user in keys.lua)
+                if
+                    key:match("Super")
+                    or key:match("Alt")
+                    or key:match("Control")
+                then
+                    window_switcher_hide(window_switcher_box)
+                end
+                -- Do nothing
+                return
             end
+
+            -- Run function attached to key, if it exists
+            if keyboard_keys[key] then
+                keyboard_keys[key]()
+            end
+        end)
+
+        window_switcher_box.widget = draw_widget(
+            type,
+            background,
+            border_width,
+            border_radius,
+            border_color,
+            clients_spacing,
+            client_icon_horizontal_spacing,
+            client_width,
+            client_height,
+            client_margins,
+            thumbnail_margins,
+            thumbnail_scale,
+            name_margins,
+            name_valign,
+            name_forced_width,
+            name_font,
+            name_normal_color,
+            name_focus_color,
+            icon_valign,
+            icon_width,
+            mouse_keys,
+            filterClients
         )
-    end
-    -- ------------------------------------------------- --
-    --  NOTE: Spacers left and right
-    local spacer = wibox.widget.base.make_widget()
-    spacer.fit = function(leftSpacer, width, height)
-        return (W - w * #_M.altTabTable) / 2, _M.preview_wbox.height
-    end
-    spacer.draw = function(preview_widget, preview_wbox, cr, width, height)
-    end
-
-    -- NOTE: layout
-    preview_layout = wibox.layout.fixed.horizontal()
-
-    preview_layout:add(spacer)
-    for i = 1, #leftRightTab do
-        preview_layout:add(_M.preview_widgets[i])
-    end
-    preview_layout:add(spacer)
-
-    _M.preview_wbox:set_widget(preview_layout)
-end
--- ------------------------------------------------- --
---  NOTE: This starts the timer for updating and it shows the preview UI.
-function _M.showPreview()
-    _M.preview_live_timer.timeout = 1 / _M.settings.preview_box_fps
-    _M.preview_live_timer:connect_signal('timeout', _M.updatePreview)
-    _M.preview_live_timer:start()
-
-    _M.preview()
-    _M.preview_wbox.visible = true
-
-    _M.clientOpacity()
+        window_switcher_box.screen = awful.screen.focused()
+        window_switcher_box.visible = true
+    end)
 end
 
-function _M.switch(dir, mod_key1, release_key, mod_key2, key_switch)
-    _M.populateAltTabTable()
-
-    if #_M.altTabTable == 0 then
-        return
-    elseif #_M.altTabTable == 1 then
-        _M.altTabTable[1].client.minimized = false
-        _M.altTabTable[1].client:raise()
-        return
-    end
-    -- ------------------------------------------------- --
-    -- NOTE: reset index
-    _M.altTabIndex = 1
-    -- ------------------------------------------------- --
-    -- preview delay timer
-    local previewDelay = _M.settings.preview_box_delay / 1000
-    _M.previewDelayTimer = gears.timer({timeout = previewDelay})
-    _M.previewDelayTimer:connect_signal(
-        'timeout',
-        function()
-            _M.previewDelayTimer:stop()
-            _M.showPreview()
-        end
-    )
-    _M.previewDelayTimer:start()
-    -- ------------------------------------------------- --
-    -- NOTE: Now that we have collected all windows, we should run a keygrabber
-    -- as long as the user is alt-tabbing:
-    keygrabber.run(
-        function(mod, key, event)
-            -- ------------------------------------------------- --
-            -- NOTE: Stop alt-tabbing when the alt-key is released
-            if gears.table.hasitem(mod, mod_key1) then
-                if (key == release_key or key == 'Escape') and event == 'release' then
-                    if _M.preview_wbox.visible == true then
-                        _M.preview_wbox.visible = false
-                        _M.preview_live_timer:stop()
-                    else
-                        _M.previewDelayTimer:stop()
-                    end
-
-                    if key == 'Escape' then
-                        for i = 1, #_M.altTabTable do
-                            _M.altTabTable[i].client.opacity = _M.altTabTable[i].opacity
-                            _M.altTabTable[i].client.minimized = _M.altTabTable[i].minimized
-                        end
-                    else
-                        -- ------------------------------------------------- --
-                        -- NOTE: Raise clients in order to restore history
-                        local c
-                        for i = 1, _M.altTabIndex - 1 do
-                            c = _M.altTabTable[_M.altTabIndex - i].client
-                            if not _M.altTabTable[i].minimized then
-                                c:raise()
-                                client.focus = c
-                            end
-                        end
-                        -- ------------------------------------------------- --
-                        -- NOTE: raise chosen client on top of all
-                        c = _M.altTabTable[_M.altTabIndex].client
-                        c:raise()
-                        client.focus = c
-                        -- ------------------------------------------------- --
-                        -- NOTE: restore minimized clients
-                        for i = 1, #_M.altTabTable do
-                            if i ~= _M.altTabIndex and _M.altTabTable[i].minimized then
-                                _M.altTabTable[i].client.minimized = true
-                            end
-                            _M.altTabTable[i].client.opacity = _M.altTabTable[i].opacity
-                        end
-                    end
-
-                    keygrabber.stop()
-                elseif key == key_switch and event == 'press' then
-                    if gears.table.hasitem(mod, mod_key2) then
-                        -- ------------------------------------------------- --
-                        -- NOTE: Move to previous client on Shift-Tab
-                        _M.cycle(-1)
-                    else
-                        -- ------------------------------------------------- --
-                        -- NOTE: Move to next client on each Tab-press
-                        _M.cycle(1)
-                    end
-                end
-            end
-        end
-    )
-    -- ------------------------------------------------- --
-    -- NOTE: switch to next client
-    _M.cycle(dir)
-end
-
--- ------------------------------------------------- --
-return {switch = _M.switch, settings = _M.settings}
+return { enable = enable }

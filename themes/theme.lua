@@ -23,10 +23,10 @@ local icon                     = require("themes.assets.icons")
 local theme                    = {}
 -- -------------------------------------------------------------------------- --
 -- fonts
-theme.font_name                = 'BigBlueTermPlus Nerd Font Propo Regular '
-theme.nerd_font                = 'BigBlueTermPlus Nerd Font Mono Regular '
-theme.title_font               = 'Goldman Bold '
-theme.material_icons           = 'Octicons Regular '
+theme.font_name                = 'Asap Condensed, Semi-Bold Condensed  '
+theme.nerd_font                = 'Agave Nerd Font Propo Bold '
+theme.title_font               = 'Asap Condensed, Semi-Bold Condensed  '
+theme.material_icons           = 'Font Awesome 5 Free s'
 theme.font_size                = '10'
 theme.font                     = theme.font_name .. ' ' .. theme.font_size
 -- --------------------------------- Colors --------------------------------- --
@@ -186,6 +186,7 @@ theme.widget_bat_empty       = gears.color.recolor_image(icons_path .. "battery-
 -- -------------------------------------------------------------------------- --
 -- other icons
 --
+theme.icon_theme             = "Papirus-Dark"
 theme.launcher_icon          = icons_path .. "home.svg"
 theme.menu_icon              = gears.color.recolor_image(icons_path .. "menu.svg", theme.fg_normal)
 theme.hints_icon             = gears.color.recolor_image(icons_path .. "hints.svg", theme.fg_normal)
@@ -214,7 +215,28 @@ theme.tray_chevron_up        = icons_path .. 'arrow-up.svg'
 theme.battery_full         = gears.color.recolor_image(icons_path .. 'battery-discharging-100.svg', theme.fg_normal)
 theme.battery_charging     = gears.color.recolor_image(icons_path .. 'battery-fully-charged.svg', theme.fg_normal)
 theme.battery_low          = gears.color.recolor_image(icons_path .. 'battery-alert.svg', theme.fg_normal)
+-- -------------------------------------------------------------------------- --
+-- window switcher
 
+theme.window_switcher_widget_bg                      = theme.dimblack .. '66'           --The bg color of the widget
+theme.window_switcher_widget_border_width            = dpi(3)                                --The border width of the widget
+theme.window_switcher_widget_border_radius           = dpi(6)                                --The border radius of the widget
+theme.window_switcher_widget_border_color            = theme.grey .. 'aa'               --The border color of the widget
+theme.window_switcher_clients_spacing                = dpi(20)                               --The space between each client item
+theme.window_switcher_client_icon_horizontal_spacing = dpi(5)                                --The space between client icon and text
+theme.window_switcher_client_width                   = dpi(275)                              --The width of one client widget
+theme.window_switcher_client_height                  = dpi(275)                              --The height of one client widget
+theme.window_switcher_client_margins                 = dpi(10)                               --The margin between the content and the border of the widget
+theme.window_switcher_thumbnail_margins              = dpi(10)                               --The margin between one client thumbnail and the rest of the widget
+theme.thumbnail_scale                                = true                           --If set to true, the thumbnails fit policy will be set to "fit" instead of "auto"
+theme.window_switcher_name_margins                   = dpi(10)                               --The margin of one clients title to the rest of the widget
+theme.window_switcher_name_valign                    = "center"                         --How to vertically align one clients title
+theme.window_switcher_name_forced_width              = dpi(200)                              --The width of one title
+theme.window_switcher_name_font                      = theme.nerd_font .. '7'                  --The font of all titles
+theme.window_switcher_name_normal_color              = theme.light_grey                  --The color of one title if the client is unfocused
+theme.window_switcher_name_focus_color               = theme.fg_focus                    --The color of one title if the client is focused
+theme.window_switcher_icon_valign                    = "center"                          --How to vertically align the one icon
+theme.window_switcher_icon_width                     = dpi(48)                                --The width of one icon
 
 
 -- -------------------------------------------------------------------------- --

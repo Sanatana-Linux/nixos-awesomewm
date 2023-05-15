@@ -25,23 +25,11 @@ awful.keyboard.append_global_keybindings(
         {'Mod1'},
         'Tab',
         function()
-            switcher.switch(1, 'Mod1', 'Alt_L', 'Shift', 'Tab')
+          awesome.emit_signal("window_switcher::turn_on")
         end,
-        {description = 'Tab Forward Between Applications', group = 'Launcher'}
+        {description = 'Tab Forward Between Applications', group = 'Awesome'}
     ),
-    -- ------------------------------------------------- --
-    awful.key(
-        {'Mod1', 'Shift'},
-        'Tab',
-        function()
-            switcher.switch(-1, 'Mod1', 'Alt_L', 'Shift', 'Tab')
-        end,
-        {
-            description = 'Tab Back Between Applications',
-            group = 'Launcher'
-        }
-    ),
-    -- -------------------------------------------------------------------------- --
+  -------------------------------------------------------------------- --
     --
     awful.key(
       {modkey},
