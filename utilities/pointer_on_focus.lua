@@ -1,5 +1,3 @@
-local gears	= require("gears")
-local cairo = require("lgi").cairo
 local last_wibox
 
 return function (widget, wibox)

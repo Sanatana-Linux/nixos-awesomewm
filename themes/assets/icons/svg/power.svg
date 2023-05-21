@@ -1,36 +1,5 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<svg
-   height="48"
-   width="48"
-   version="1.1"
-   id="svg1002"
-   sodipodi:docname="power.svg"
-   inkscape:version="1.1.2 (0a00cf5339, 2022-02-04)"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns="http://www.w3.org/2000/svg"
-   xmlns:svg="http://www.w3.org/2000/svg">
-  <defs
-     id="defs1006" />
-  <sodipodi:namedview
-     id="namedview1004"
-     pagecolor="#505050"
-     bordercolor="#eeeeee"
-     borderopacity="1"
-     inkscape:pageshadow="0"
-     inkscape:pageopacity="0"
-     inkscape:pagecheckerboard="0"
-     showgrid="false"
-     inkscape:zoom="9"
-     inkscape:cx="33.777778"
-     inkscape:cy="31.444444"
-     inkscape:window-width="883"
-     inkscape:window-height="1380"
-     inkscape:window-x="1668"
-     inkscape:window-y="50"
-     inkscape:window-maximized="0"
-     inkscape:current-layer="svg1002" />
-  <path
-     d="M19.1 42v-5.9L12 28.3V17.55q0-1.25.875-2.125T15 14.55h3.6l-1.5 1.5V6h3v8.55h7.8V6h3v10.05l-1.5-1.5H33q1.25 0 2.125.875T36 17.55V28.3l-7.1 7.8V42Z"
-     id="path1000" />
+<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-power" width="24" height="24" viewBox="0 0 24 24" stroke-width="3" stroke="#f4f4f4" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M7 6a7.75 7.75 0 1 0 10 0" />
+  <path d="M12 4l0 8" />
 </svg>

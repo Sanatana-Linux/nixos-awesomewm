@@ -122,9 +122,12 @@
     "web_browser",
     "wibox",
     "window",
-    "xresources"
+    "xresources",
+        "ngx"
   ],
   "workspace.library": [
-    "~/.local/share/awesome-emmylua/lua"
-  ]
+    "~/.local/share/awesome-emmylua/lua",
+        "${3rd}/OpenResty/library"
+  ],
+    "runtime.version": "LuaJIT"
 }

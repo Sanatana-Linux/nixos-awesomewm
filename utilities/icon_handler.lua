@@ -4,7 +4,7 @@
 -- created by Crylia
 -- modified by saimoomedits
 
--- this handler will be improved later
+
 
 local icon_cache = {}
 

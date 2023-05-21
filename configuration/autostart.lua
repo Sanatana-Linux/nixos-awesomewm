@@ -20,10 +20,11 @@ end
 -- -------------------------------------------------------------------------- --
 -- Add apps to autostart here via terminal commands in subshells (meaning ending with &)
 autostart_apps = {
-   'picom -b --experimental-backends &',
-   ' eval "$(gnome-keyring-daemon -s --components=pkcs11,secrets,ssh,gpg)" &',
-   'bash -c $HOME/.config/openaikey.sh',
-   'xrdb -merge $HOME/.Xresources'
+   'picom -b --experimental-backends &', -- picom for compositing 
+   ' eval "$(gnome-keyring-daemon -s --components=pkcs11,secrets,ssh,gpg)" &', -- gnome secrets daemon 
+   'export EDITOR=nvim &', -- just to be sure 
+   'export QT_QPA_PLATFORMTHEME=qt5ct &',
+   'xrdb -merge $HOME/.Xresources &'
 }
 
 -- -------------------------------------------------------------------------- --

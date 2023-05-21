@@ -6,14 +6,13 @@ local awful = require "awful"
 require("ui.bar.actions-icons.widgets.screenshot-select")
 
 local function get_icon(s)
-  local CAMERA_ICON = ""
+  local CAMERA_ICON = gears.color.recolor_image(icons.camera, beautiful.fg_normal)
 
   local icon = wibox.widget {
     id = "screenshot_action_icon",
-    markup = CAMERA_ICON,
+    image = CAMERA_ICON,
     align = "center",
-    font = beautiful.nerd_font .. " 24",
-    widget = wibox.widget.textbox
+    widget = wibox.widget.imagebox
   }
 
   local tooltip = utilities.make_popup_tooltip("Press to take a screenshot",
@@ -33,22 +32,21 @@ local function get_icon(s)
     tooltip.toggle()
 
     if s.screenshot_selecter.popup.visible then
-      icon:set_markup_silently(utilities.get_colorized_markup(CAMERA_ICON,
-                                                              beautiful.grey))
+      icon.image = gears.color.recolor_image(icons.camera, beautiful.grey)
       awesome.emit_signal("screenshot::show")
     else
-      icon:set_markup_silently(CAMERA_ICON)
+      icon.image = CAMERA_ICON
         awesome.emit_signal("screenshot::hide")
     end
   end))
 
   awesome.connect_signal("screenshot::show", function()
-    icon:set_markup_silently(utilities.get_colorized_markup(CAMERA_ICON,
-    beautiful.grey))
+    icon.image = gears.color.recolor_image(icons.camera, beautiful.grey)
+    awesome.emit_signal("screenshot::show")
   end)
 
   awesome.connect_signal("screenshot::hide", function()
-    icon:set_markup_silently(CAMERA_ICON)
+    icon.image = CAMERA_ICON
   end)
 
   return icon

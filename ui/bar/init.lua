@@ -4,9 +4,7 @@
 -- |  |  |  ||  |  _  |  _  |   _|
 -- |________||__|_____|___._|__|  
 -- -------------------------------------------------------------------------- --
---                            libraries and modules                           --
--- -------------------------------------------------------------------------- --
--- 
+
 local searchbar = require("ui.bar.widgets.searchbox")
 local network = require("ui.bar.actions-icons.network")
 local volume = require("ui.bar.actions-icons.volume")
@@ -262,7 +260,9 @@ end))
 
   s.mywibox = awful.wibar {
     position = "bottom",
+    type = "normal",
     screen = s,
+    bg= beautiful.bg_normal ..'22',
     width = s.geometry.width,
     height = beautiful.bar_height,
     shape = gears.shape.rectangle,
@@ -310,7 +310,6 @@ end))
     },
     layout = wibox.layout.stack,
     widget = wibox.container.background,
-    bg= beautiful.bg_normal ..'33'
 
 
   }

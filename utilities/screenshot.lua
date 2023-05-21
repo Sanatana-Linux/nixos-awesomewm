@@ -1,5 +1,5 @@
---  _______                                     __           __   
--- |     __|.----.----.-----.-----.-----.-----.|  |--.-----.|  |_ 
+--  _______                                     __           __
+-- |     __|.----.----.-----.-----.-----.-----.|  |--.-----.|  |_
 -- |__     ||  __|   _|  -__|  -__|     |__ --||     |  _  ||   _|
 -- |_______||____|__| |_____|_____|__|__|_____||__|__|_____||____|
 -- -------------------------------------------------------------------------- --
@@ -68,7 +68,7 @@ end
 
 -- -------------------------------------------------------------------------- --
 -- takes a full-screen screenshot and depending on notify parameter, notifies the user the screenshot was taken
-function M.full(opts)
+function M.full()
   -- screenshot path.
   local tmp_path = get_path()
 
@@ -92,7 +92,7 @@ function M.full(opts)
 end
 -- -------------------------------------------------------------------------- --
 -- area screenshot function
-function M.area(opts)
+function M.area()
   -- screenshot path.
   local tmp_path = get_path()
   -- -------------------------------------------------------------------------- --
@@ -109,14 +109,14 @@ function M.with_options(opts)
   opts = {
     -- if no type given, provide area as its type
     type = opts.type ~= nil and opts.type or "area",
-    -- if no timeout is given, set the timeout to none 
+    -- if no timeout is given, set the timeout to none
     timeout = opts.timeout ~= nil and opts.timeout or 0,
     -- notify the user of the screenshot being taken by default
     notify = opts.notify ~= nil and opts.notify or true
   }
   -- -------------------------------------------------------------------------- --
   -- the callback which verifies an appropiate type is being provided
-  -- 
+  --
   local function core()
     if opts.type == "full" then
       M.full()
@@ -129,7 +129,7 @@ function M.with_options(opts)
   end
 -- -------------------------------------------------------------------------- --
 -- here we insure we have a timeout that represents either no timeout or a positive number
--- 
+--
   if opts.timeout <= 0 then
     return core()
   end

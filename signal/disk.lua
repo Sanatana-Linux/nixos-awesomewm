@@ -1,7 +1,7 @@
 local gears = require 'gears'
 local awful = require 'awful'
 
-local cmd = [[df --output=pcent / | tail -n 1 | sed 's/%//g' | xargs]]
+local cmd = [[sh -c df -kh -B 1GB /dev/sda3 | tail -1 | awk '{printf "%d@%d", $4, $3}' | cut -c1-2]]
 
 gears.timer {
     timeout = 120,

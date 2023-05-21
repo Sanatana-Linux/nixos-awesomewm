@@ -1024,8 +1024,8 @@ local function new(args)
     -- logo button
     ret._private.action_button = wibox.widget {
         widget = wibox.container.background,
-        forced_width = dpi(64),
-        forced_height = dpi(64),
+        forced_width = dpi(72),
+        forced_height = dpi(72),
         {
             widget = wibox.widget.imagebox,
             image = icons.logo,
@@ -1058,13 +1058,15 @@ local function new(args)
         forced_width = dpi(48),
         forced_height = dpi(48),
 
-        {
-            widget = wibox.widget.textbox,
-            text = "",
-            font = beautiful.nerd_font .. " 28",
+    {    {
+            widget = wibox.widget.imagebox,
+            image = icons.logout,
             halign = "center",
             valign = "center"
-        }
+        },
+        widget = wibox.container.margin,
+        margins = dpi(8)
+            }
     }
     ret._private.exit_button:connect_signal("mouse::enter", function(c)
         c:set_bg(beautiful.widget_back_focus)
@@ -1076,7 +1078,7 @@ local function new(args)
     end)
     ret._private.exit_button:connect_signal("button::press",
                                             function(c, _, _, button)
-        if button == 1 then awful.spawn("doas systemctl restart lightdm") end
+        if button == 1 then awful.spawn.with_shell("doas systemctl restart lightdm") end
     end)
     -- -------------------------------------------------------------------------- --
     -- reboot button
@@ -1089,14 +1091,16 @@ local function new(args)
         border_width = dpi(1),
         forced_width = dpi(48),
         forced_height = dpi(48),
-
+{
         {
-            widget = wibox.widget.textbox,
-            text = "",
-            font = beautiful.nerd_font .. " 28",
+            widget = wibox.widget.imagebox,
+            image = icons.restart,
             halign = "center",
             valign = "center"
-        }
+        },
+        widget = wibox.container.margin,
+        margins = dpi(8)
+            }
     }
     ret._private.reboot_button:connect_signal("mouse::enter", function(c)
         c:set_bg(beautiful.widget_back_focus)
@@ -1108,7 +1112,7 @@ local function new(args)
     end)
     ret._private.reboot_button:connect_signal("button::press",
                                               function(c, _, _, button)
-        if button == 1 then awful.spawn("doas reboot -f") end
+        if button == 1 then awful.spawn.with_shell("doas reboot -f") end
     end)
     -- -------------------------------------------------------------------------- --
     -- power off 
@@ -1122,13 +1126,15 @@ local function new(args)
         forced_width = dpi(48),
         forced_height = dpi(48),
 
-        {
-            widget = wibox.widget.textbox,
-            text = "",
-            font = beautiful.nerd_font .. " 28",
+     {   {
+            widget = wibox.widget.imagebox,
+            image = icons.power,
             halign = "center",
             valign = "center"
-        }
+        },
+        widget = wibox.container.margin,
+margins = dpi(8)
+    }
     }
 
     ret._private.poweroff_button:connect_signal("mouse::enter", function(c)
@@ -1141,7 +1147,7 @@ local function new(args)
     end)
     ret._private.poweroff_button:connect_signal("button::press",
                                                 function(c, _, _, button)
-        if button == 1 then awful.spawn("doas poweroff -f") end
+        if button == 1 then awful.spawn.with_shell("doas poweroff -f") end
     end)
     -- -------------------------------------------------------------------------- --
     -- panel for the above buttons
@@ -1192,6 +1198,14 @@ local function new(args)
         bg = ret.background,
         widget = {
             layout = wibox.layout.fixed.horizontal,
+            { -- sidepanel 
+            widget = wibox.container.margin,
+            top = dpi(3),
+            bottom = dpi(2),
+            right = dpi(2),
+            left = dpi(10),
+            ret._private.label
+        },
             {
                 layout = wibox.layout.fixed.vertical,
                 {
@@ -1205,6 +1219,7 @@ local function new(args)
                         fg = ret.prompt_text_color,
                         border_width = ret.prompt_border_width,
                         border_color = ret.prompt_border_color,
+                        
                         {
                             widget = wibox.container.margin,
                             margins = ret.prompt_paddings,
@@ -1247,17 +1262,17 @@ local function new(args)
           {  {
                 require("ui.bar.popups.app_menu.widget.app_launcher.charts"),
                 widget = wibox.container.margin,
-                top = dpi(3),
+                top = dpi(8),
                 bottom = dpi(2),
-                right = dpi(0),
+                right = dpi(10),
                 left = dpi(0),
             },
-            {
+            { 
                 require("ui.bar.popups.app_menu.widget.app_launcher.controls"),
                 widget = wibox.container.margin,
                 top = dpi(3),
                 bottom = dpi(2),
-                right = dpi(0),
+                right = dpi(10),
                 left = dpi(0),
             },
  
@@ -1265,14 +1280,7 @@ local function new(args)
 
             layout=wibox.layout.fixed.vertical
         },
-            { -- sidepanel 
-                widget = wibox.container.margin,
-                top = dpi(3),
-                bottom = dpi(2),
-                right = dpi(10),
-                left = dpi(0),
-                ret._private.label
-            },
+     
          
         }
     }

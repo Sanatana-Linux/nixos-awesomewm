@@ -1,14 +1,12 @@
-# Utilities
+# Utilities 
 
-These files take the place of the `helpers.lua` functions used in other repositories and in many cases are derived from functions found in other repositories adapted to this one and its intended goals.
+Other configurations tend to call these helpers and include them in a single file. I prefer to call them using the `utilities.` namespace which is made available globally and write them as anonymous functions in their own files for organizational purpose. Those of minimal utility (pun intended) in the configuration I do tend to eliminate when/if they give me trouble or I remember to do so, others I intend to use more but haven't fully implemented and the rest are widely implemented across the configuration (especially `mkroundedrect`)
 
-## Contents
 
-The files within this directory are mostly anonymous functions that are attached to the `utilities.` namespace in the `init.lua` file that returns the file as the name it is saved as such that `utilities.scrollbox` will call the function in the `utilities/scrollbox.lua` file.
+> Many of these, like a lot of bits and pieces are originally something I have gathered from other configurations and contorted into a shape that is of my own making and documented for my own understanding but I am grateful to the original authors nonetheless and encourage others to help themselves of course. 
 
-**Note**: These files are called before the global variables are called, thus cannot have the library/module calls stripped from the beginning of the file like other files in this configuration (making them more portable and somewhat more onerous to write)
 
-| File                 | Functionality                                            |
+| Utility              | Functionality                                            |
 | -------------------- | -------------------------------------------------------- |
 | add_buttons          | adds button events to widget                             |
 | add_hover            | adds hover effects to widget                             |
@@ -16,10 +14,11 @@ The files within this directory are mostly anonymous functions that are attached
 | capitalize           | capitalizes string                                       |
 | color                | color helpers                                            |
 | color2               | alternative color helpers                                |
-| complex_capitalizing | capitalizing in more nuanced ways ;]                     |
+| complex_capitalizing | capitalizing in more nuanced ways                        |
 | crop_surface         | crop an image's outline within widget                    |
 | dropdown             | creates scratchpad for quake-like terminal functionality |
 | get_colorized_markup | colorizes string                                         |
+| icon_handler         | Handling for individual icons, rounds out icons nicely   |
 | icon_theme           | provide icon theme to use for taglist/tasklist combo     |
 | limit_by_length      | limit the length of a string to fit a widget             |
 | make_popup_tooltip   | creates hover popup tooltips for wibar buttons           |
@@ -27,8 +26,8 @@ The files within this directory are mostly anonymous functions that are attached
 | mkroundedcontainer   | create container with rounded edges                      |
 | mkroundedrect        | creates a consistent rounded rectangle shape             |
 | overflow             | container with scrolling overflow                        |
-| pointer_on_focus     |  ccchange lin                                                        |
-| screenshot           |                                                          |
-| snap_edge            |                                                          |
-| trim                 |                                                          |
-| vertical_pad         |     padding along vertical access                                                     |
+| pointer_on_focus     | changes cursor over various widgets                      |
+| screenshot           | screenshots + dialog with copy and delete function       |
+| snap_edge            | window snapping for floating clients                     |
+| trim                 | trims string length for display in limited spaces        |
+| vertical_pad         | padding along vertical access                            |
