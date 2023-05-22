@@ -1,46 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<svg
-   width="192"
-   height="192"
-   fill="#f4f4f4"
-   viewBox="0 0 256 256"
-   style="--darkreader-inline-fill: #f4f4f4;"
-   data-darkreader-inline-fill=""
-   version="1.1"
-   id="svg188"
-   sodipodi:docname="shuffle.svg"
-   inkscape:version="1.2.1 (9c6d41e410, 2022-07-14)"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns="http://www.w3.org/2000/svg"
-   xmlns:svg="http://www.w3.org/2000/svg">
-  <defs
-     id="defs192" />
-  <sodipodi:namedview
-     id="namedview190"
-     pagecolor="#505050"
-     bordercolor="#eeeeee"
-     borderopacity="1"
-     inkscape:showpageshadow="0"
-     inkscape:pageopacity="0"
-     inkscape:pagecheckerboard="0"
-     inkscape:deskcolor="#505050"
-     showgrid="false"
-     inkscape:zoom="5.3489583"
-     inkscape:cx="96.186952"
-     inkscape:cy="96.093476"
-     inkscape:window-width="1265"
-     inkscape:window-height="1380"
-     inkscape:window-x="10"
-     inkscape:window-y="50"
-     inkscape:window-maximized="0"
-     inkscape:current-layer="svg188" />
-  <rect
-     width="256"
-     height="256"
-     fill="none"
-     id="rect184" />
-  <path
-     d="m 237.7,180.96667 a 8.1,8.1 0 0 1 0,11.4 l -24,24 a 8.3,8.3 0 0 1 -5.7,2.3 8.5,8.5 0 0 1 -3.1,-0.6 8,8 0 0 1 -4.9,-7.4 v -16 a 72.2,72.2 0 0 1 -57.7,-30.2 l -41.7,-58.3 A 56.1,56.1 0 0 0 55.1,82.666667 H 32 a 8,8 0 0 1 0,-16 h 23.1 a 72.2,72.2 0 0 1 58.6,30.2 l 41.7,58.300003 a 55.9,55.9 0 0 0 44.6,23.5 v -16 a 8,8 0 0 1 4.9,-7.4 8.4,8.4 0 0 1 8.8,1.7 z m -94.7,-71.3 a 8,8 0 0 0 11.2,-1.9 l 1.2,-1.6 A 55.9,55.9 0 0 1 200,82.666667 v 16 a 8,8 0 0 0 4.9,7.400003 8.5,8.5 0 0 0 3.1,0.6 8.3,8.3 0 0 0 5.7,-2.3 l 24,-24.000003 a 8.1,8.1 0 0 0 0,-11.4 l -24,-24 a 8.4,8.4 0 0 0 -8.8,-1.7 8,8 0 0 0 -4.9,7.4 v 16 a 72.2,72.2 0 0 0 -57.7,30.2 l -1.1,1.6 a 8,8 0 0 0 1.8,11.200003 z m -30,42 a 8,8 0 0 0 -11.2,1.9 l -1.2,1.6 a 56.1,56.1 0 0 1 -45.5,23.5 H 32 a 8,8 0 0 0 0,16 h 23.1 a 72.2,72.2 0 0 0 58.6,-30.2 l 1.1,-1.6 a 8,8 0 0 0 -1.8,-11.2 z"
-     id="path186" />
+<svg xmlns="http://www.w3.org/2000/svg" width="192" height="192" fill="#f4f4f4" style="--darkreader-inline-fill:#f4f4f4" viewBox="0 0 256 256">
+    <path fill="none" d="M0 0h256v256H0z"/>
+    <path d="M237.7 180.967a8.1 8.1 0 0 1 0 11.4l-24 24a8.3 8.3 0 0 1-5.7 2.3 8.5 8.5 0 0 1-3.1-.6 8 8 0 0 1-4.9-7.4v-16a72.2 72.2 0 0 1-57.7-30.2l-41.7-58.3a56.1 56.1 0 0 0-45.5-23.5H32a8 8 0 0 1 0-16h23.1a72.2 72.2 0 0 1 58.6 30.2l41.7 58.3a55.9 55.9 0 0 0 44.6 23.5v-16a8 8 0 0 1 4.9-7.4 8.4 8.4 0 0 1 8.8 1.7zm-94.7-71.3a8 8 0 0 0 11.2-1.9l1.2-1.6a55.9 55.9 0 0 1 44.6-23.5v16a8 8 0 0 0 4.9 7.4 8.5 8.5 0 0 0 3.1.6 8.3 8.3 0 0 0 5.7-2.3l24-24a8.1 8.1 0 0 0 0-11.4l-24-24a8.4 8.4 0 0 0-8.8-1.7 8 8 0 0 0-4.9 7.4v16a72.2 72.2 0 0 0-57.7 30.2l-1.1 1.6a8 8 0 0 0 1.8 11.2zm-30 42a8 8 0 0 0-11.2 1.9l-1.2 1.6a56.1 56.1 0 0 1-45.5 23.5H32a8 8 0 0 0 0 16h23.1a72.2 72.2 0 0 0 58.6-30.2l1.1-1.6a8 8 0 0 0-1.8-11.2z"/>
 </svg>
