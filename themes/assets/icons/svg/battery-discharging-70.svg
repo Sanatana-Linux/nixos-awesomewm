@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="40"
+   height="20.01"
+   version="1.1"
+   id="svg6"
+   sodipodi:docname="battery-discharging-70.svg"
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs10" />
+  <sodipodi:namedview
+     id="namedview8"
+     pagecolor="#000"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     showgrid="false"
+     inkscape:zoom="14.541667"
+     inkscape:cx="20.114613"
+     inkscape:cy="9.9713465"
+     inkscape:window-width="1600"
+     inkscape:window-height="860"
+     inkscape:window-x="0"
+     inkscape:window-y="-12"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg6" />
+  <g
+     id="g844"
+     transform="rotate(-90,15.005,19.005)">
+    <path
+       fill-opacity=".3"
+       d="M 34,11.764978 C 34,10.042014 32.81,8.6566583 31.33,8.6566583 H 28 V 4 h -8 v 4.6566583 h -3.33 c -1.48,0 -2.67,1.3853557 -2.67,3.1083197 v 8.533326 h 20 z"
+       style="fill:#ffffff;fill-opacity:0.4;stroke-width:1.07896"
+       id="path2" />
+    <path
+       d="M 14,20.110147 V 41.546696 A 2.67,2.4533041 0 0 0 16.67,44 h 14.67 a 2.67,2.4533041 0 0 0 2.67,-2.453304 V 20.110147 Z"
+       style="fill:#ffffff;fill-opacity:1;stroke-width:0.958562"
+       id="path4" />
+  </g>
+</svg>

@@ -41,9 +41,9 @@ awful.screen.connect_for_each_screen(function (s)
             local torender = flag == 'focus' and focus_widget or widget
 
             local colors = {
-                header = beautiful.lessgrey,
+                header = beautiful.fg_focus,
                 focus = beautiful.fg_normal,
-                weekday = beautiful.grey            }
+                weekday = beautiful.lessgrey            }
 
             local color = colors[flag] or beautiful.fg_normal
 
@@ -53,7 +53,7 @@ awful.screen.connect_for_each_screen(function (s)
                     margins = dpi(7),
                     widget = wibox.container.margin,
                 },
-                bg = flag == 'focus' and beautiful.black .. 'cc' or beautiful.bg_normal .. '00',
+                bg = flag == 'focus' and beautiful.dimblack .. 'ff' or beautiful.bg_normal .. '00',
                 fg = color,
                 widget = wibox.container.background,
                 shape = flag == 'focus' and gears.shape.circle or utilities.mkroundedrect(),

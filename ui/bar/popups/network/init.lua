@@ -45,7 +45,7 @@ awful.screen.connect_for_each_screen(
                         halign = 'center',
                         valign = 'center',
                         layout = wibox.layout.align.horizontal,
-                        spacing = dpi(16),
+                        spacing = dpi(26),
                         {
                             {
                                 nil,
@@ -72,7 +72,7 @@ awful.screen.connect_for_each_screen(
                 widget = wibox.container.margin
             },
             shape = utilities.mkroundedrect(),
-            bg = beautiful.black .. 'aa',
+            bg = beautiful.black .. '77',
             forced_width = dpi(380),
             forced_height = dpi(70),
             ontop = true,
@@ -100,7 +100,7 @@ awful.screen.connect_for_each_screen(
                 widget = wibox.container.margin
             },
             shape = utilities.mkroundedrect(),
-            bg = beautiful.black .. 'aa',
+            bg = beautiful.black .. '77',
             forced_width = dpi(380),
             forced_height = dpi(50),
             ontop = true,
@@ -126,7 +126,7 @@ awful.screen.connect_for_each_screen(
                 widget = wibox.container.margin
             },
             shape = utilities.mkroundedrect(),
-            bg = beautiful.bg_normal .. '88',
+            bg = beautiful.bg_normal .. '33',
             forced_width = dpi(380),
             ontop = true,
             border_width = dpi(2),

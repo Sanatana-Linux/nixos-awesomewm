@@ -7,10 +7,9 @@ local awful = require 'awful'
 require "signal.network"
 
 local network = wibox.widget {
-    widget = wibox.widget.textbox,
-    font = beautiful.nerd_font .. ' 21',
+    widget = wibox.widget.imagebox,
+   image = icons.wifi_3,
     align = 'center',
-    text = beautiful.network_connected
 }
 
 local tooltip = utilities.make_popup_tooltip('Press to toggle network', function (d)
@@ -29,10 +28,12 @@ network:add_button(awful.button({}, 1, function ()
     awesome.emit_signal('network::networks:refreshPanel')
 end))
 
-awesome.connect_signal('network::connected', function (is_connected)
-    network.text = is_connected
-        and beautiful.network_connected
-        or beautiful.network_disconnected
+awesome.connect_signal('network::connected', function ()
+    network.image = icons.wifi_3
+end)
+
+awesome.connect_signal('network::disconnected', function()
+network.image=icons.wifi_off
 end)
 
 return network

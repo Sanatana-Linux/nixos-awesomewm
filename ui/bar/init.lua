@@ -144,7 +144,7 @@ end))
       layout = wibox.layout.fixed.horizontal
     },
     left = dpi(5),
-    right = dpi(6),
+    right = dpi(5),
     widget = wibox.container.margin
   }, beautiful.widget_back, beautiful.widget_back_focus)
 

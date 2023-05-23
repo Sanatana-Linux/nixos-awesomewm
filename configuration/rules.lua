@@ -27,7 +27,7 @@ ruled.client.connect_signal("request::rules", function()
         callback = awful.client.setslave
     }
 
-    -- Float em
+    -- Floating
     ruled.client.append_rule {
         id = "floating",
         rule_any = {
@@ -65,7 +65,7 @@ ruled.client.connect_signal("request::rules", function()
             instance = {"markdown_input", "scratchpad"},
             role = {"GtkFileChooserDialog", "conversation"}
         },
-        properties = {placement = awful.placement.center}
+        properties = {placement = awful.placement.centered}
     }
 
     -- Titlebar rules

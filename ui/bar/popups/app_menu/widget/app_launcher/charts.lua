@@ -9,7 +9,6 @@ require "signal.ram"
 require "signal.disk"
 require "signal.temperature"
 
-
 -- helpers
 local function mkcard(label, widget)
   return wibox.widget {
@@ -31,38 +30,7 @@ local function mkcard(label, widget)
     shape = utilities.mkroundedrect(),
     bg = beautiful.bg_contrast,
     border_color = beautiful.grey,
-    border_width = 0.75,
-    widget = wibox.container.background
-  }
-end
-local wibox = require "wibox"
-local beautiful = require "beautiful"
-
-local dpi = beautiful.xresources.apply_dpi
-
-
--- helpers
-local function mkcard(label, widget)
-  return wibox.widget {
-    {
-      {
- 
-        
-          widget,
-          top = dpi(14),
-          bottom = dpi(14),
-          left = dpi(14),
-          right = dpi(14),
-          widget = wibox.container.margin
-        
-      },
-      margins = dpi(5),
-      widget = wibox.container.margin
-    },
-    shape = utilities.mkroundedrect(),
-    bg = beautiful.bg_contrast,
-    border_color = beautiful.grey,
-    border_width = 0.75,
+    border_width = dpi(0.75),
     widget = wibox.container.background
   }
 end
@@ -81,8 +49,7 @@ local function base_chart(icon)
           direction = "south",
           widget = wibox.container.rotate
         },
-        top = dpi(0),
-        bottom = dpi(0),
+margins=dpi(8),
         widget = wibox.container.margin
       },
       id = "chart",

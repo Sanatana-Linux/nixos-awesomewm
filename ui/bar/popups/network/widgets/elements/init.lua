@@ -96,18 +96,14 @@ elements.create = function(SSID, BSSID, connectStatus, signal, secure, speed)
           font = beautiful.font .. ' Bold 14',
           widget = wibox.widget.textbox
         },
-        -- {
-        --   text = BSSID,
-        --   font = beautiful.font .. " Bold 10",
-        --   widget = wibox.widget.textbox
-        -- },
+      
         layout = wibox.layout.align.vertical
       },
       margins = dpi(10),
       widget = wibox.container.margin
     },
     shape = utilities.mkroundedrect(),
-    bg = beautiful.black,
+    bg = beautiful.bg_normal .. '00',
     
     widget = wibox.container.background
   }
@@ -141,7 +137,7 @@ elements.create = function(SSID, BSSID, connectStatus, signal, secure, speed)
     border_width= dpi(1),
     border_color = beautiful.grey .. 'cc',
     widget = wibox.container.background,
-    bg = beautiful.black
+    bg = beautiful.bg_contrast.. '22'
   }
 
   return box

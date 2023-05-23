@@ -123,11 +123,13 @@
     "wibox",
     "window",
     "xresources",
-        "ngx"
+        "ngx",
+        "lfs"
   ],
   "workspace.library": [
     "~/.local/share/awesome-emmylua/lua",
-        "${3rd}/OpenResty/library"
+        "${3rd}/OpenResty/library",
+        "${3rd}/lfs/library"
   ],
     "runtime.version": "LuaJIT"
 }

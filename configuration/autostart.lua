@@ -22,6 +22,7 @@ end
 autostart_apps = {
    'picom -b --experimental-backends &', -- picom for compositing 
    ' eval "$(gnome-keyring-daemon -s --components=pkcs11,secrets,ssh,gpg)" &', -- gnome secrets daemon 
+   'bash $HOME/.config/openaikey.sh &',
    'export EDITOR=nvim &', -- just to be sure 
    'export QT_QPA_PLATFORMTHEME=qt5ct &',
    'xrdb -merge $HOME/.Xresources &'
