@@ -24,7 +24,7 @@ local volume_icon = wibox.widget {
 }
 
 local volume_adjust = awful.popup({
-    type = "notification",
+    type = "normal",
     maximum_width = width,
     maximum_height = height,
     visible = false,
@@ -64,9 +64,9 @@ volume_ratio:adjust_ratio(2, 0.72, 0.28, 0)
 volume_adjust.widget = wibox.widget {
     volume_ratio,
     shape = utilities.mkroundedrect(),
-    border_width = 0.75,
-    border_color = beautiful.grey,
-    bg = beautiful.bg_normal,
+    border_width = dpi(0.75),
+    border_color = beautiful.grey .. 'cc',
+    bg = beautiful.bg_normal .. '33',
     widget = wibox.container.background
 }
 
@@ -86,10 +86,10 @@ awesome.connect_signal("signal::volume", function(vol, muted)
 
     if muted == 1 or vol == 0 then
         volume_icon.markup = "<span foreground='" .. beautiful.fg_normal ..
-                                 "'><b>ﳌ</b></span>"
+                                 "'></span>"
     else
         volume_icon.markup = "<span foreground='" .. beautiful.fg_normal ..
-                                 "'><b></b></span>"
+                                 "'></span>"
     end
 
     if volume_adjust.visible then

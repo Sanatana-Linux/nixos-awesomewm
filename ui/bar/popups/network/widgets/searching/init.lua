@@ -13,7 +13,7 @@ local signalIcon =
 	nil,
 	{
 		id = 'icon',
-		image = icons.wifi_2,
+		image = icons.wifi_3,
 		resize = true,
 		widget = wibox.widget.imagebox
 	},
@@ -29,12 +29,14 @@ local wifiIcon =
 			widget = wibox.container.margin
 		},
 		shape = utilities.mkroundedrect(),
-		bg = beautiful.bg_button,
-		widget = wibox.container.background
+		bg = beautiful.widget_back,
+		widget = wibox.container.background,
 	},
 	forced_width = dpi(48),
 	forced_height = dpi(48),
-	widget = clickable_container
+            shape = utilities.mkroundedrect(),
+						border_width = dpi(2),
+						border_color = beautiful.grey .. 'cc',
 }
 
 local content =
@@ -67,7 +69,7 @@ box =
 	shape = utilities.mkroundedrect(),
 	fg = beautiful.white,
 	border_width = dpi(2),
-	border_color = beautiful.black .. 'cc',
+	border_color = beautiful.grey .. 'cc',
 	widget = wibox.container.background
 }
 

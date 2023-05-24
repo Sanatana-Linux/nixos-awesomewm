@@ -1,3 +1,9 @@
+--  ______         __              
+-- |   __ \.--.--.|  |.-----.-----.
+-- |      <|  |  ||  ||  -__|__ --|
+-- |___|__||_____||__||_____|_____|
+-- ----------------------------------------------------------- --
+
 local awful = require("awful")
 local beautiful = require("beautiful")
 local ruled = require("ruled")
@@ -41,20 +47,6 @@ ruled.client.connect_signal("request::rules", function()
         properties = {floating = true, placement = awful.placement.centered}
     }
 
-    -- Borders
-    ruled.client.append_rule {
-        id = "borders",
-        rule_any = {type = {"normal", "dialog"}},
-        except_any = {
-            role = {"Popup"},
-            type = {"splash"},
-            name = {"^discord.com is sharing your screen.$"}
-        },
-        properties = {
-            border_width = beautiful.border_width,
-            border_color = beautiful.border_normal,
-        }
-    }
 
     -- Center Placement
     ruled.client.append_rule {
@@ -93,13 +85,15 @@ ruled.client.append_rules {
         rule = {
             instance = 'sun-awt-X11-XWindowPeer',
             class = 'jetbrains-studio',
-            type = 'dialog'
+            type = 'dialog',
+            role = "Popup",
         },
         properties = {
             titlebars_enabled = false,
             -- border_width = 0,
             floating = true,
-            focus = true
+            focus = true,
+            ontop=true
         }
     }, {
         rule = {
@@ -123,6 +117,7 @@ ruled.client.append_rules {
             titlebars_enabled = false,
             floating = true,
             focus = true,
+            ontop=true,
             placement = awful.placement.centered
         }
     }, {

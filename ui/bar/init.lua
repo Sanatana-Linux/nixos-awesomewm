@@ -41,7 +41,7 @@ screen.connect_signal("request::desktop_decoration", function(s)
     widget = wibox.widget.imagebox
   }, beautiful.widget_back, beautiful.widget_back_focus)
 
-  local launcher_tooltip = utilities.make_popup_tooltip("Search Applications",
+  local launcher_tooltip = utilities.make_popup_tooltip("Left Click to Search Applications; Right Click for Notifications",
                                                         function(d)
     return awful.placement.bottom_left(d, {
       margins = {
@@ -57,41 +57,12 @@ screen.connect_signal("request::desktop_decoration", function(s)
   launcher:add_button(awful.button({}, 1, function()
     launcher_tooltip.hide()
     awesome.emit_signal("signal::launcher")
-
   end))
-  -- -------------------------------------------------------------------------- --
-  --                                  dashboard                                 --
-  -- -------------------------------------------------------------------------- --
-  -- 
-  local settings_button = utilities.mkbtn({
-    widget = wibox.widget.imagebox,
-    image = beautiful.menu_icon,
-    forced_height = dpi(24),
-    forced_width = dpi(24),
-    halign = "center"
-  }, beautiful.widget_back, beautiful.widget_back_focus)
-
-  local settings_tooltip = utilities.make_popup_tooltip("Left Click: Toggle Dashboard | Right Click: Toggle Notifications",
-                                                        function(d)
-    return awful.placement.bottom_left(d, {
-      margins = {
-        bottom = beautiful.bar_height + beautiful.useless_gap * 2,
-        left = beautiful.useless_gap * 2 + dpi(45)
-      }
-    })
-  end)
-
-  settings_tooltip.attach_to_object(settings_button)
-  notif_center = require("ui.bar.popups.notification_center")
-  notif_center.init(s)
-  settings_button:add_button(awful.button({}, 1, function()
-    require("ui.dashboard")
-    awesome.emit_signal("dashboard::toggle")
-  end))
-  settings_button:add_button(awful.button({}, 3, function()
+  launcher:add_button(awful.button({}, 3, function()
+    launcher_tooltip.hide()
     awesome.emit_signal("notification_center::toggle", s)
-end))
-
+  end))
+ 
 
 
   -- -------------------------------------------------------------------------- --
@@ -258,11 +229,15 @@ end))
     }
   end
 
-  s.mywibox = awful.wibar {
+  s.mywibox = awful.wibox {
     position = "bottom",
-    type = "normal",
+    type = "toolbar",
+    ontop = true,
+    visible=true,
+    opacity = 0.9,
+
     screen = s,
-    bg= beautiful.bg_normal ..'22',
+    bg = "transparent",
     width = s.geometry.width,
     height = beautiful.bar_height,
     shape = gears.shape.rectangle,
@@ -279,7 +254,7 @@ end))
         {
           mkcontainer {
             launcher,
-            settings_button,
+            
             spacing = dpi(12),
             layout = wibox.layout.fixed.horizontal
           },
@@ -309,7 +284,6 @@ end))
       layout = wibox.container.place
     },
     layout = wibox.layout.stack,
-    widget = wibox.container.background,
 
 
   }

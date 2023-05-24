@@ -10,17 +10,17 @@ local function base_slider (icon)
             {
                 id = 'slider',
                 bar_shape = utilities.mkroundedrect(),
-                bar_height = 25,
+                bar_height = dpi(20),
                 bar_active_color = beautiful.grey,
                 bar_color = beautiful.black,
                 handle_color = beautiful.white,
                 handle_shape = utilities.mkroundedrect(),
-                handle_width = 25,
+                handle_width = dpi(20),
                 handle_border_width = 1,
                 handle_border_color = beautiful.bg_normal,
                 value = 0,
-                forced_width = 190,
-                forced_height = 1,
+                forced_width = dpi(175),
+                forced_height = dpi(15),
                 widget = wibox.widget.slider,
             },
             {
@@ -58,14 +58,14 @@ end
 local volume_slider = base_slider('')
 
 volume_slider.slider:connect_signal('property::value', function (_, value)
-awful.spawn("pamixer --set-volume " .. value)
+-- awful.spawn("pamixer --set-volume " .. value)
 awesome.emit_signal("signal::volume", value)
  end)
 
 awesome.connect_signal('signal::volume', function (sysvol, is_muted)
     volume_slider.value = sysvol
     if is_muted == 1 then 
-        volume_slider.icon = '婢'
+        volume_slider.icon = ''
     else
         volume_slider.icon = ''
     end
@@ -74,7 +74,7 @@ end)
 
 
 -- brightness
-local brightness_slider = base_slider('')
+local brightness_slider = base_slider('')
 
 -- 100 by-default.
 if brightness_slider.slider.value == 0 then
@@ -89,7 +89,7 @@ end)
 
 awesome.connect_signal('brightness::value', function (brightness)
     brightness_slider.value = brightness
-    brightness_slider.icon = brightness == 0 and '' or ''
+    brightness_slider.icon = brightness == 0 and '' or ''
 end)
 
 local controls = wibox.widget {
@@ -98,12 +98,6 @@ local controls = wibox.widget {
             {
                 {
                     {
-                        {
-                            markup = "<span color='"..beautiful.grey .. "'> Controls </span>",
-                            widget = wibox.widget.textbox,
-                            font = beautiful.title_font,
-                        
-                        },
                         bottom = dpi(8),
                         widget = wibox.container.margin,
                     },

@@ -31,7 +31,7 @@ awful.screen.connect_for_each_screen(
                 shape = utilities.mkroundedrect(),
                 widget = wibox.container.background,
                 border_color = beautiful.grey,
-                border_width = dpi(0.75)
+                border_width = dpi(1)
             }
             -- -------------------------------------------------------------------------- --
             -- add hover effects, onclick listener and tooltips
@@ -167,10 +167,10 @@ awful.screen.connect_for_each_screen(
                 )
             end,
 
-            bg = beautiful.bg_normal .. '88',
+            bg = beautiful.bg_normal .. '11',
             border_color = beautiful.grey .. '88',
             border_width = dpi(1),
-            type = "window",
+            type = "combo",
             shape = utilities.mkroundedrect(),
             visible = false,
             screen = s,

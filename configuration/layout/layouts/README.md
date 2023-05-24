@@ -16,4 +16,4 @@ ownership of the code so that I could
 | deck         | stacks clients over one another like a hand of playing cards                                                     |
 | empathy      | Three windows in a row and then the second row is populated, same for the next row                               |
 | stack        | Two clients, with the master to the left and new windows stacking on the right (can be switched, check the code) |
-| Thrizen      | Similar to empathy but the next row shrinks only the row above it                                                |
+| thrizen      | Similar to empathy but the next row shrinks only the row above it                                                |

@@ -639,8 +639,7 @@ local function generate_apps(self)
         end)
     end
 
-    local icon_theme = require(tostring(path):match(".*app_menu") ..
-                                   ".helpers.icon_theme")(self.icon_theme,
+    local icon_theme = utilities.icon_theme(beautiful.icon_theme,
                                                           self.icon_size)
 
     for _, app in ipairs(apps) do

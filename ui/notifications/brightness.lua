@@ -17,10 +17,10 @@ local active_color_1 = {
 }
 
 local bright_icon = wibox.widget {
-    markup = "<span foreground='" .. beautiful.fg_normal .. "'><b></b></span>",
+    markup = "<span foreground='" .. beautiful.fg_normal .. "'></span>",
     align = 'center',
     valign = 'center',
-    font = beautiful.font_name .. '15',
+    font = beautiful.nerd_font .. '15',
     widget = wibox.widget.textbox
 }
 

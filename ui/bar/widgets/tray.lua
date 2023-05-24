@@ -35,7 +35,7 @@ awful.screen.connect_for_each_screen(function (s)
             widget = wibox.container.margin,
             
         },
-        bg = beautiful.bg_normal .. 'aa',
+        bg = beautiful.bg_normal .. '55',
         border_color = beautiful.grey .. 'cc',
         border_width = dpi(1),
         fg = beautiful.fg_normal,

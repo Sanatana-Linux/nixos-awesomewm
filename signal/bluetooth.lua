@@ -1,33 +1,51 @@
----@diagnostic disable: undefined-global
-local awful = require 'awful'
-local gears = require 'gears'
-local fs = gears.filesystem
+--  ______ __               __                __   __
+-- |   __ \  |.--.--.-----.|  |_.-----.-----.|  |_|  |--.
+-- |   __ <  ||  |  |  -__||   _|  _  |  _  ||   _|     |
+-- |______/__||_____|_____||____|_____|_____||____|__|__|
+-- ------------------------------------------------- --
+-- emits bluetooth status
 
-local bluetooth = {}
+-- ("signal::bluetooth"), function(status(bool), service_status(bool))
+-- ------------------------------------------------- --
+-- requirements
+local awful = require('awful')
 
-bluetooth.script_path = fs.get_configuration_dir() .. 'scripts/bluetooth'
+-- update interval
+local update_interval = 10
 
-function bluetooth._invoke_script(args, cb)
-    awful.spawn.easy_async_with_shell(bluetooth.script_path .. ' ' .. args, function (out)
-        if cb then
-            cb(utilities.trim(out))
+--  import bluetooth info
+local cmd = [[
+  bash -c "
+  bluetoothctl show | grep "Powered:" | awk '{ print $2 }'
+  "
+]]
+
+awful.widget.watch(
+    cmd,
+    update_interval,
+    function(_, stdout)
+        local output = string.gsub(stdout, '^%s*(.-)%s*$', '%1')
+        local bluetooth_active = true
+        local bluetooth_runnding_service
+
+        -- lets see if bluetooth.service is enabled
+        awful.spawn.easy_async_with_shell(
+            "bash -c 'pgrep bluetooth'",
+            function(lets_see)
+                if lets_see == '' then
+                    bluetooth_runnding_service = false
+                else
+                    bluetooth_runnding_service = true
+                end
+            end
+        )
+
+        -- set output as above info
+        if output == 'no' then
+            bluetooth_active = bluetooth_runnding_service
         end
-    end)
-end
 
-function bluetooth.toggle()
-    bluetooth._invoke_script('toggle')
-end
-
-gears.timer {
-    timeout = 5,
-    call_now = true,
-    autostart = true,
-    callback = function ()
-        bluetooth._invoke_script('state', function (state)
-            awesome.emit_signal('bluetooth::enabled', state == 'on')
-        end)
+        -- emit (powered on?) , (is the proceess running?)
+        awesome.emit_signal('signal::bluetooth', bluetooth_active, bluetooth_runnding_service)
     end
-}
-
-return bluetooth
+)

@@ -5,6 +5,8 @@
 --                |_____|      
 -- -------------------------------------------------------------------------- --
 -- 
+local tagswitch = Effects.request_effect("tagswitch")
+
   awful.keyboard.append_global_keybindings({
     awful.key({
       modifiers = {modkey},
@@ -16,6 +18,10 @@
         local tag = screen.tags[index]
         if tag then
           tag:view_only()
+        end
+        if tagswitch then
+          local t = awful.screen.focused().selected_tag
+          tagswitch.animate(tostring(t.index))
         end
       end
     }),

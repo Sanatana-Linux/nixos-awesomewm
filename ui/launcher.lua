@@ -8,6 +8,7 @@ local app_menu = require("ui.bar.popups.app_menu")
 -- NOTE: Provides implementation arguments for custom app_launcher implementation (forked from Bling's app_launcher originally)
 -- NOTE: This is initialized by ui/init.lua, which is why this file is located here (for now)
 -- 
+
 local args = {
   sort_alphabetically = true,
   save_history = true,
@@ -26,7 +27,7 @@ local args = {
   placement = function(d)
     awful.placement.bottom_left(d, {honor_workarea = true, margins = 12})
   end,
-
+  
   background = beautiful.bg_normal .. 'aa',
 	type = "dock",
   skip_empty_icons = false,

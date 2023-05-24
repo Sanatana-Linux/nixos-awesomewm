@@ -33,7 +33,8 @@ elements.create = function(SSID, BSSID, connectStatus, signal, secure, speed)
       shape = utilities.mkroundedrect(),
       bg = beautiful.widget_back,
       border_width=dpi(0.75),
-      border_color = beautiful.bg_normal .. 'cc',
+      
+      border_color = beautiful.grey .. 'cc',
       widget = wibox.container.background
     },
     forced_width = dpi(48),

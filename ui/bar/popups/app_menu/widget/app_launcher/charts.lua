@@ -17,10 +17,10 @@ local function mkcard(label, widget)
  
         
           widget,
-          top = dpi(14),
-          bottom = dpi(14),
-          left = dpi(14),
-          right = dpi(14),
+          top = dpi(8),
+          bottom = dpi(8),
+          left = dpi(8),
+          right = dpi(8),
           widget = wibox.container.margin
         
       },

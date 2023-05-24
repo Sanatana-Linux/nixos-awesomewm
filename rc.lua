@@ -4,10 +4,7 @@
 -- -------------------------------------------------------------------------- --
 -- if luarocks exists load it, if not don't trip
 --
-pcall(require, 'libraries.luajit.bin.activate')
-pcall(require, 'libraries.luajit.bin.lua')
-pcall(require, "libraries.luajit.bin.luarocks.loader")
-pcall(require, 'libraries.luajit.bin.luarocks')
+pcall(require, "luarocks.loader")
 -- -------------------------------------------------------------------------- --
 --
 require("awful.autofocus")

@@ -73,6 +73,9 @@ string = require("string")
 watch = require("awful.widget.watch")
 wibox = require("wibox")
 ruled = require('ruled')
+animations = require("utilities.animations")
+fade      = require("utilities.animations.fade")
+Effects = require("utilities.animations.effects")
 
 -- -------------------------------------------------------------------------- --
 -- --------------------------- Builtin Submodules --------------------------- --

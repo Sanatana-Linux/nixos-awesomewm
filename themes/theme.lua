@@ -143,7 +143,7 @@ theme.titlebar_fg            = theme.fg_normal
 
 -- -------------------------------------------------------------------------- --
 -- wallpaper
-theme.wallpaper              = assets_path .. "wallpaper3.png"
+theme.wallpaper              = assets_path .. "wallpaper2.png"
 -- -------------------------------------------------------------------------- --
 -- ---------------------------------- Icons --------------------------------- --
 -- layouts
@@ -233,7 +233,7 @@ theme.window_switcher_name_margins                   = dpi(10)                  
 theme.window_switcher_name_valign                    = "center"                         --How to vertically align one clients title
 theme.window_switcher_name_forced_width              = dpi(200)                              --The width of one title
 theme.window_switcher_name_font                      = theme.nerd_font .. '7'                  --The font of all titles
-theme.window_switcher_name_normal_color              = theme.light_grey                  --The color of one title if the client is unfocused
+theme.window_switcher_name_normal_color              = theme.lessgrey                --The color of one title if the client is unfocused
 theme.window_switcher_name_focus_color               = theme.fg_focus                    --The color of one title if the client is focused
 theme.window_switcher_icon_valign                    = "center"                          --How to vertically align the one icon
 theme.window_switcher_icon_width                     = dpi(48)                                --The width of one icon
@@ -278,6 +278,7 @@ theme.tooltip_bg = theme.bg_normal
 theme.tooltip_fg = theme.fg_normal
 
 theme.chart_arc = "radial:0,0,0:360,360,360:0," .. scheme.colorW .. ":0.5," .. scheme.colorZ .. ":1," .. scheme.color1
+
 
 
 return theme

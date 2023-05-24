@@ -41,11 +41,7 @@ local function emit_volume_info()
       end)
 end
 
-awesome.connect_signal("signal::volume", function(value, muted)
-  if muted ~= 1 then
-    awful.spawn("pamixer --set-volume  " .. value)
-  end
-end)
+
 -- -------------------------------------------------------------------------- --
 -- Run once to initialize widgets
 -- 

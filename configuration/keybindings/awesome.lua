@@ -6,6 +6,7 @@
 local hotkeys_popup = require("awful.hotkeys_popup")
 local menubar = require("menubar")
 local switcher = require("ui.window-switcher")
+local tagswitch = Effects.request_effect("tagswitch")
 -- -------------------------------------------------------------------------- --
 --                                  Essential                                 --
 -- -------------------------------------------------------------------------- --
@@ -101,7 +102,7 @@ awful.keyboard.append_global_keybindings(
       {},
       "XF86AudioRaiseVolume",
       function()
-        awful.spawn("pamixer -i 3")
+        awful.spawn("pamixer -i 5")
       end,
       {description = "increase volume", group = "Awesome"}
     ),
