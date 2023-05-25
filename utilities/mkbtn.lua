@@ -1,26 +1,24 @@
-local wibox = require 'wibox'
-local beautiful = require 'beautiful'
+local wibox = require('wibox')
+local beautiful = require('beautiful')
 local mkroundedrect = require('utilities.mkroundedrect')
-local add_hover =require('utilities.add_hover')
+local add_hover = require('utilities.add_hover')
 local dpi = beautiful.xresources.apply_dpi
 
-return function (template, bg, hbg, radius)
-    local button = wibox.widget {
-        {
-            template,
-            margins = dpi(5),
-            widget = wibox.container.margin,
-        },
-        bg = bg,
-        widget = wibox.container.background,
-        shape = mkroundedrect(radius),
-        border_width =dpi(0.75),
-        border_color = beautiful.grey,
-    }
+return function(template, bg, hbg, radius)
+	local button = wibox.widget({
+		{
+			template,
+			margins = dpi(5),
+			widget = wibox.container.margin,
+		},
+		bg = bg,
+		widget = wibox.container.background,
+		shape = mkroundedrect(radius),
+		border_width = dpi(0.75),
+		border_color = beautiful.grey,
+	})
 
-    if bg and hbg then
-        add_hover(button, bg, hbg)
-    end
+	if bg and hbg then add_hover(button, bg, hbg) end
 
-    return button
+	return button
 end

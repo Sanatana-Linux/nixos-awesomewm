@@ -79,43 +79,39 @@ gears.timer({
 })
 
 -- return widget
-local battery_button = utilities.mkbtn(
+local battery_button = utilities.mkbtn({
 	{
-		{
-			wibox.widget({
-				baticon,
-				widget = wibox.container.margin,
-  margins=dpi(4)
-			}),
-			wibox.widget({
-				batperc,
-				fg = beautiful.fg_normal,
-				widget = wibox.container.background,
-			}),
-			wibox.widget({
-				charging,
-				fg = beautiful.fg_normal,
-				widget = wibox.container.background,
-			}),
-			wibox.widget({
-				warning,
-				fg = beautiful.red,
-				widget = wibox.container.background,
-			}),
-			spacing = dpi(2),
-			layout = wibox.layout.fixed.horizontal,
-			border_color = beautiful.grey,
-			border_width = dpi(1.25),
+		wibox.widget({
+			baticon,
+			widget = wibox.container.margin,
+			margins = dpi(4),
+		}),
+		wibox.widget({
+			batperc,
+			fg = beautiful.fg_normal,
 			widget = wibox.container.background,
-			bg = beautiful.widget_back,
-			shape = utilities.mkroundedrect(),
-		},
-		left = dpi(3),
-		right = dpi(2),
-		widget = wibox.container.margin,
+		}),
+		wibox.widget({
+			charging,
+			fg = beautiful.fg_normal,
+			widget = wibox.container.background,
+		}),
+		wibox.widget({
+			warning,
+			fg = beautiful.red,
+			widget = wibox.container.background,
+		}),
+		spacing = dpi(2),
+		layout = wibox.layout.fixed.horizontal,
+		border_color = beautiful.grey,
+		border_width = dpi(1.25),
+		widget = wibox.container.background,
+		bg = beautiful.widget_back,
+		shape = utilities.mkroundedrect(),
 	},
-	beautiful.widget_back,
-	beautiful.widget_back_focus
-)
+	left = dpi(3),
+	right = dpi(2),
+	widget = wibox.container.margin,
+}, beautiful.widget_back, beautiful.widget_back_focus)
 
 return battery_button

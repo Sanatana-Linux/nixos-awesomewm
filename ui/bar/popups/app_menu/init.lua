@@ -1,4 +1,4 @@
 return {
-    helpers = require(... .. ".helpers"),
-    widget = require(... .. ".widget"),
+	helpers = require(... .. '.helpers'),
+	widget = require(... .. '.widget'),
 }

@@ -1,18 +1,15 @@
---  _______               __ __                   
--- |   |   |.-----.-----.|__|  |_.-----.----.     
--- |       ||  _  |     ||  |   _|  _  |   _|     
--- |__|_|__||_____|__|__||__|____|_____|__|       
---  _______                 __ __ __              
+--  _______               __ __
+-- |   |   |.-----.-----.|__|  |_.-----.----.
+-- |       ||  _  |     ||  |   _|  _  |   _|
+-- |__|_|__||_____|__|__||__|____|_____|__|
+--  _______                 __ __ __
 -- |   |   |.---.-.-----.--|  |  |__|.-----.-----.
 -- |       ||  _  |     |  _  |  |  ||     |  _  |
 -- |___|___||___._|__|__|_____|__|__||__|__|___  |
 --                                         |_____|
 -- ----------------------------------------------------------- --
-local awful = require 'awful'
+local awful = require('awful')
 
-awful.screen.connect_for_each_screen(function (s)
-    s:connect_signal('property::geometry', function ()
-        awesome.restart()
-    end)
+awful.screen.connect_for_each_screen(function(s)
+	s:connect_signal('property::geometry', function() awesome.restart() end)
 end)
-

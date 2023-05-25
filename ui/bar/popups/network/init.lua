@@ -34,118 +34,123 @@ awful.screen.connect_for_each_screen(
         -- widgets
 
         local title =
-            wibox.widget {
+            wibox.widget(
             {
                 {
-                    spacing = dpi(0),
-                    layout = wibox.layout.align.vertical,
-                    expand = 'max',
-                    widget = wibox.container.margin,
                     {
-                        halign = 'center',
-                        valign = 'center',
-                        layout = wibox.layout.align.horizontal,
-                        spacing = dpi(26),
+                        spacing = dpi(0),
+                        layout = wibox.layout.align.vertical,
+                        expand = 'max',
+                        widget = wibox.container.margin,
                         {
+                            halign = 'center',
+                            valign = 'center',
+                            layout = wibox.layout.align.horizontal,
+                            spacing = dpi(26),
                             {
-                                nil,
                                 {
-                                    image = icons.wifi_problem,
-                                    widget = wibox.widget.imagebox,
-                                    forced_height = dpi(15),
-                                    id = 'icon',
-                                    resize = true
+                                    nil,
+                                    {
+                                        image = icons.wifi_problem,
+                                        widget = wibox.widget.imagebox,
+                                        forced_height = dpi(15),
+                                        id = 'icon',
+                                        resize = true
+                                    },
+                                    nil,
+                                    halign = 'center',
+                                    valign = 'center',
+                                    forced_height = dpi(30),
+                                    layout = wibox.layout.align.vertical
                                 },
-                                nil,
-                                halign = 'center',
-                                valign = 'center',
-                                forced_height = dpi(30),
-                                layout = wibox.layout.align.vertical
+                                widget = wibox.container.margin,
+                                margins = dpi(15)
                             },
-                            widget = wibox.container.margin,
-                            margins = dpi(15)
-                        },
-                        require('ui.bar.popups.network.widgets.title-text')
-                    }
+                            require('ui.bar.popups.network.widgets.title-text')
+                        }
+                    },
+                    margins = dpi(5),
+                    widget = wibox.container.margin
                 },
-                margins = dpi(5),
-                widget = wibox.container.margin
-            },
-            shape = utilities.mkroundedrect(),
-            bg = beautiful.black .. '77',
-            forced_width = dpi(380),
-            forced_height = dpi(70),
-            ontop = true,
-            border_width = dpi(2),
-            border_color = beautiful.grey .. 'cc',
-            widget = wibox.container.background
-        }
+                shape = utilities.mkroundedrect(),
+                bg = beautiful.black .. '77',
+                forced_width = dpi(380),
+                forced_height = dpi(70),
+                ontop = true,
+                border_width = dpi(2),
+                border_color = beautiful.grey .. 'cc',
+                widget = wibox.container.background
+            }
+        )
         -- ------------------------------------------------- --
         local status =
-            wibox.widget {
+            wibox.widget(
             {
                 {
-                    spacing = dpi(0),
-                    layout = wibox.layout.fixed.vertical,
-                 
+                    {
+                        spacing = dpi(0),
+                        layout = wibox.layout.fixed.vertical,
                         {
                             layout = wibox.layout.fixed.horizontal,
                             spacing = dpi(16),
                             require('ui.bar.popups.network.widgets.status-icon'),
                             require('ui.bar.popups.network.widgets.status')
                         }
-                    
+                    },
+                    margins = dpi(5),
+                    widget = wibox.container.margin
                 },
-                margins = dpi(5),
-                widget = wibox.container.margin
-            },
-            shape = utilities.mkroundedrect(),
-            bg = beautiful.black .. '77',
-            forced_width = dpi(380),
-            forced_height = dpi(50),
-            ontop = true,
-            border_width = dpi(2),
-            border_color = beautiful.grey .. 'cc',
-            widget = wibox.container.background
-        }
+                shape = utilities.mkroundedrect(),
+                bg = beautiful.black .. '77',
+                forced_width = dpi(380),
+                forced_height = dpi(50),
+                ontop = true,
+                border_width = dpi(2),
+                border_color = beautiful.grey .. 'cc',
+                widget = wibox.container.background
+            }
+        )
         -- ------------------------------------------------- --
         local networks_panel =
-            wibox.widget {
+            wibox.widget(
             {
                 {
-                    spacing = dpi(0),
-                    layout = wibox.layout.flex.vertical,
+                    {
+                        spacing = dpi(0),
+                        layout = wibox.layout.flex.vertical,
                         {
                             layout = wibox.layout.fixed.horizontal,
                             spacing = dpi(16),
                             require('ui.bar.popups.network.widgets.networks-panel')
                         }
-
+                    },
+                    margins = dpi(5),
+                    widget = wibox.container.margin
                 },
-                margins = dpi(5),
-                widget = wibox.container.margin
-            },
-            shape = utilities.mkroundedrect(),
-            bg = beautiful.bg_normal .. '33',
-            forced_width = dpi(380),
-            ontop = true,
-            border_width = dpi(2),
-            border_color = beautiful.grey .. 'cc',
-            widget = wibox.container.background
-        }
+                shape = utilities.mkroundedrect(),
+                bg = beautiful.bg_normal .. '33',
+                forced_width = dpi(380),
+                ontop = true,
+                border_width = dpi(2),
+                border_color = beautiful.grey .. 'cc',
+                widget = wibox.container.background
+            }
+        )
 
         -- animations
         --------------
         local slide_right =
-            rubato.timed {
-            pos = s.geometry.height,
-            rate = 60,
-            intro = 0.14,
-            duration = 0.33,
-            subscribed = function(pos)
-                network.y = ( s.geometry.y - beautiful.bar_height) + pos
-            end
-        }
+            rubato.timed(
+            {
+                pos = s.geometry.height,
+                rate = 60,
+                intro = 0.14,
+                duration = 0.33,
+                subscribed = function(pos)
+                    network.y = (s.geometry.y - beautiful.bar_height) + pos
+                end
+            }
+        )
 
         local slide_end =
             gears.timer(
@@ -170,7 +175,6 @@ awful.screen.connect_for_each_screen(
 
             -- control center x position
             network.x = screen.geometry.x + (dpi(905) + beautiful.useless_gap * 4)
-            
 
             -- toggle visibility
             if network.visible then
@@ -200,59 +204,68 @@ awful.screen.connect_for_each_screen(
                 slide_right.target = s.geometry.height
             end
         end
-       -- -------------------------------------------------------------------------- --
-  -- creates a keygrabber so the user can close the 
-  -- thing without pressing the button again
-  -- 
-  net_kg = awful.keygrabber {
-    keybindings = {
-      awful.key {
-        modifiers = {},
-        key = "Escape",
-        on_press = function()
-          nc_toggle()
-          net_kg:stop()
-        end
-      },
-      awful.key {
-        modifiers = {},
-        key = "q",
-        on_press = function()
-          nc_toggle()
-          net_kg:stop()
-        end
-      },
-      awful.key {
-        modifiers = {},
-        key = "x",
-        on_press = function()
-          nc_toggle()
-          net_kg:stop()
-        end
-      }
-    }
-  }
+        -- -------------------------------------------------------------------------- --
+        -- creates a keygrabber so the user can close the
+        -- thing without pressing the button again
+        --
+        net_kg =
+            awful.keygrabber(
+            {
+                keybindings = {
+                    awful.key(
+                        {
+                            modifiers = {},
+                            key = 'Escape',
+                            on_press = function()
+                                nc_toggle()
+                                net_kg:stop()
+                            end
+                        }
+                    ),
+                    awful.key(
+                        {
+                            modifiers = {},
+                            key = 'q',
+                            on_press = function()
+                                nc_toggle()
+                                net_kg:stop()
+                            end
+                        }
+                    ),
+                    awful.key(
+                        {
+                            modifiers = {},
+                            key = 'x',
+                            on_press = function()
+                                nc_toggle()
+                                net_kg:stop()
+                            end
+                        }
+                    )
+                }
+            }
+        )
 
         -- Initial setup
-        network:setup {
+        network:setup(
             {
                 {
                     {
-                        nil,
-                        title,
-                        layout = wibox.layout.align.horizontal
+                        {
+                            nil,
+                            title,
+                            layout = wibox.layout.align.horizontal
+                        },
+                        status,
+                        networks_panel,
+                        layout = wibox.layout.fixed.vertical,
+                        spacing = dpi(24)
                     },
-                    status,
-                    networks_panel,
-                    layout = wibox.layout.fixed.vertical,
-                    spacing = dpi(24)
+                    widget = wibox.container.margin,
+                    margins = dpi(20)
                 },
-                widget = wibox.container.margin,
-                margins = dpi(20)
-            },
-            layout = wibox.layout.fixed.vertical
-        }
+                layout = wibox.layout.fixed.vertical
+            }
+        )
     end
-
-    
 )

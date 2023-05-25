@@ -1,16 +1,16 @@
-local utils = require(COLOR_DIR.."utils")
+local utils = require(COLOR_DIR .. 'utils')
 
 --constants for clarity
-local ANY = {"r", "g", "b", "h", "s", "l", "hex", "a"}
-local ANYSUBHEX = {"r", "g", "b", "h", "s", "l", "a"}
-local RGB = {"r", "g", "b"}
-local HSL = {"h", "s", "l"}
-local HEX = {"hex"}
+local ANY = { 'r', 'g', 'b', 'h', 's', 'l', 'hex', 'a' }
+local ANYSUBHEX = { 'r', 'g', 'b', 'h', 's', 'l', 'a' }
+local RGB = { 'r', 'g', 'b' }
+local HSL = { 'h', 's', 'l' }
+local HEX = { 'hex' }
 
 --create a color object
 local function color(args)
 	-- The object that will be returned
-	local obj = {_props = {}}
+	local obj = { _props = {} }
 
 	-- Default properties here
 	obj._props.r = args.r or 0
@@ -20,7 +20,7 @@ local function color(args)
 	obj._props.s = args.s or 0
 	obj._props.l = args.l or 0
 	obj._props.a = args.a or 1
-	obj._props.hex = args.hex and args.hex:gsub("#", "") or "000000"
+	obj._props.hex = args.hex and args.hex:gsub('#', '') or '000000'
 
 	obj._props.small_rgb = args.small_rgb or false
 
@@ -46,9 +46,7 @@ local function color(args)
 			obj._props.b = math.floor(obj._props.b / 255)
 		end
 	end
-	function obj:_rgba_to_hex()
-		obj._props.hex = utils.rgba_to_hex(obj._props)
-	end
+	function obj:_rgba_to_hex() obj._props.hex = utils.rgba_to_hex(obj._props) end
 	function obj:_rgb_to_hsl()
 		obj._props.h, obj._props.s, obj._props.l = utils.rgb_to_hsl(obj._props)
 	end
@@ -57,26 +55,21 @@ local function color(args)
 	end
 	function obj:_alphaize_hex()
 		hex_no_alpha = #obj._props.hex == 6 and obj._props.hex or obj._props.hex:sub(1, 6)
-		obj._props.hex = hex_no_alpha..(obj._props.a ~= 1
-			and string.format("%02x", math.floor(obj._props.a*255)) or "")
+		obj._props.hex = hex_no_alpha
+			.. (obj._props.a ~= 1 and string.format('%02x', math.floor(obj._props.a * 255)) or '')
 	end
-	function obj:set_no_update(key, value)
-		obj._props[key] = value
-	end
+	function obj:set_no_update(key, value) obj._props[key] = value end
 
 	-- Initially set other values
 	if obj._props.r ~= 0 or obj._props.g ~= 0 or obj._props.b ~= 0 then
 		obj:_rgba_to_hex()
 		if not obj.disable_hsl then obj:_rgb_to_hsl() end
-
-	elseif obj._props.hex ~= "000000" then
+	elseif obj._props.hex ~= '000000' then
 		obj:_hex_to_rgba()
 		if not obj.disable_hsl then obj:_rgb_to_hsl() end
-
 	elseif obj._props.h ~= 0 or obj._props.s ~= 0 or obj._props.l ~= 0 then
 		obj:_hsl_to_rgb()
 		obj:_rgba_to_hex()
-
 	end --otherwise it's just black and everything is correct already
 
 	-- Set up the metatable
@@ -91,19 +84,15 @@ local function color(args)
 
 			-- Check if something in ANY isn't currently accessible
 			if not utils.contains(obj._access, key) and utils.contains(ANY, key) then
-
 				if obj._access == RGB then
 					self:_rgba_to_hex()
 					if not obj.disable_hsl then obj:_rgb_to_hsl() end
-
 				elseif obj._access == HEX then
 					self:_rgba_to_hex()
 					if not obj.disable_hsl then obj:_rgb_to_hsl() end
-
 				elseif obj._access == HSL then
 					self:_hsl_to_rgb()
 					self:_rgba_to_hex()
-
 				elseif obj._access == ANYSUBHEX then
 					self:_alphaize_hex()
 				end
@@ -113,24 +102,28 @@ local function color(args)
 			end
 
 			-- Check for hashtaginess
-			if obj.hashtag and key == "hex" then return "#"..self._props.hex end
+			if obj.hashtag and key == 'hex' then return '#' .. self._props.hex end
 
 			return self._props[key]
-
-		else return rawget(self, key) end
+		else
+			return rawget(self, key)
+		end
 	end
 
 	mt.__newindex = function(self, key, value)
 		if self._props[key] ~= nil then
-
 			-- Set what values are currently accessible
-			if utils.contains(RGB, key) then obj._access = RGB
-			elseif utils.contains(HSL, key) and not obj.disable_hsl then obj._access = HSL
-			elseif key == "hex" then obj._access = HEX
-			elseif key == "a" then obj._access = ANYSUBHEX
+			if utils.contains(RGB, key) then
+				obj._access = RGB
+			elseif utils.contains(HSL, key) and not obj.disable_hsl then
+				obj._access = HSL
+			elseif key == 'hex' then
+				obj._access = HEX
+			elseif key == 'a' then
+				obj._access = ANYSUBHEX
 
 			-- If it's not any of those and is small_rgb then update the rgb values
-			elseif key == "small_rgb" and value ~= obj._props.small_rgb then
+			elseif key == 'small_rgb' and value ~= obj._props.small_rgb then
 				if obj._props.small_rgb then
 					obj._props.r = obj._props.r / 255
 					obj._props.g = obj._props.g / 255
@@ -146,20 +139,25 @@ local function color(args)
 			self._props[key] = value
 
 		-- If it's not part of _props just normally set it
-		else rawset(self, key, value) end
+		else
+			rawset(self, key, value)
+		end
 	end
 
 	-- performs an operation on the color and returns the new color
 	local function operate(new, operator)
-		local newcolor = color {r=obj.r, g=obj.g, b=obj.b}
-		local key = new:match("%a+")
-		if operator == "+" then newcolor[key] = newcolor[key] + new:match("-?[%d\\.]+")
-		elseif operator == "-" then newcolor[key] = newcolor[key] - new:match("-?[%d\\.]+") end
+		local newcolor = color({ r = obj.r, g = obj.g, b = obj.b })
+		local key = new:match('%a+')
+		if operator == '+' then
+			newcolor[key] = newcolor[key] + new:match('-?[%d\\.]+')
+		elseif operator == '-' then
+			newcolor[key] = newcolor[key] - new:match('-?[%d\\.]+')
+		end
 		return newcolor
 	end
 
-	mt.__add = function(_, new) return operate(new, "+") end
-	mt.__sub = function(_, new) return operate(new, "-") end
+	mt.__add = function(_, new) return operate(new, '+') end
+	mt.__sub = function(_, new) return operate(new, '-') end
 
 	setmetatable(obj, mt)
 	return obj

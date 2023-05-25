@@ -1,9 +1,9 @@
-local awful = require("awful")
+local awful = require('awful')
 local math = math
 
 local mylayout = {}
 
-mylayout.name = "centered"
+mylayout.name = 'centered'
 
 function mylayout.arrange(p)
     local area = p.workarea
@@ -16,9 +16,8 @@ function mylayout.arrange(p)
     local slave_width = 0.5 * (area.width - master_area_width)
     local master_area_x = area.x + slave_width
 
-
     -- Special case: few slaves -> make masters take more space - unless requested otherwise!
-    if nslaves < 2 and t.master_fill_policy ~= "master_width_factor" then
+    if nslaves < 2 and t.master_fill_policy ~= 'master_width_factor' then
         master_area_x = area.x
 
         if nslaves == 1 then
@@ -27,7 +26,6 @@ function mylayout.arrange(p)
             master_area_width = area.width
         end
     end
-
 
     -- iterate through masters
     for idx = 1, nmaster do
@@ -41,7 +39,6 @@ function mylayout.arrange(p)
         }
         p.geometries[c] = g
     end
-
 
     -- iterate through slaves
     local number_of_left_sided_slaves = math.floor(nslaves / 2)

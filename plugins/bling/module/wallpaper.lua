@@ -23,10 +23,10 @@
 --
 ---------------------------------------------------------------------------
 
-local awful = require("awful")
-local beautiful = require("beautiful")
-local gears = require("gears")
-local helpers = require(tostring(...):match(".*bling") .. ".helpers")
+local awful = require('awful')
+local beautiful = require('beautiful')
+local gears = require('gears')
+local helpers = require(tostring(...):match('.*bling') .. '.helpers')
 
 local setters = {}
 
@@ -48,12 +48,12 @@ local setters = {}
 -- @tparam[opt={x=0,y=0}] table args.offset See `gears.wallpaper`.
 -- @int[opt=1] args.scale See `gears.wallpaper`.
 function apply(wallpaper_object, args)
-    args.background = args.background or beautiful.bg_normal or "black"
+    args.background = args.background or beautiful.bg_normal or 'black'
     args.ignore_aspect = args.ignore_aspect or false -- false = keep aspect ratio
     args.offset = args.offset or { x = 0, y = 0 }
     args.scale = args.scale or 1
     local positions = {
-        ["centered"] = function(s)
+        ['centered'] = function(s)
             gears.wallpaper.centered(
                 wallpaper_object,
                 s,
@@ -61,10 +61,10 @@ function apply(wallpaper_object, args)
                 args.scale
             )
         end,
-        ["tiled"] = function(s)
+        ['tiled'] = function(s)
             gears.wallpaper.tiled(wallpaper_object, s, args.offset)
         end,
-        ["maximized"] = function(s)
+        ['maximized'] = function(s)
             gears.wallpaper.maximized(
                 wallpaper_object,
                 s,
@@ -72,19 +72,19 @@ function apply(wallpaper_object, args)
                 args.offset
             )
         end,
-        ["fit"] = function(s)
+        ['fit'] = function(s)
             gears.wallpaper.fit(wallpaper_object, s, args.background)
         end,
     }
     local call_func = nil
     if
-        type(wallpaper_object) == "string"
+        type(wallpaper_object) == 'string'
         and gears.filesystem.file_readable(wallpaper_object)
     then
         -- path of an image file, we use a position function
-        local p = args.position or "centered"
+        local p = args.position or 'centered'
         call_func = positions[p]
-    elseif type(wallpaper_object) == "function" then
+    elseif type(wallpaper_object) == 'function' then
         -- function
         wallpaper_object(args)
     elseif
@@ -96,9 +96,7 @@ function apply(wallpaper_object, args)
     else
         gears.wallpaper.set(wallpaper_object)
     end
-    if call_func then
-        call_func(args.screen)
-    end
+    if call_func then call_func(args.screen) end
 end
 
 --- Converts `args.wallpaper` to a list of `wallpaper_objects` readable by `apply` function).
@@ -119,28 +117,26 @@ end
 -- @treturn table A list of `wallpaper_objects` (what `apply` can read).
 -- @see apply
 function prepare_list(args)
-    args.image_formats = args.image_formats or { "jpg", "jpeg", "png", "bmp" }
+    args.image_formats = args.image_formats or { 'jpg', 'jpeg', 'png', 'bmp' }
     args.recursive = args.recursive or true
 
-    local wallpapers = (args.wallpaper or beautiful.wallpaper_path or "black")
+    local wallpapers = (args.wallpaper or beautiful.wallpaper_path or 'black')
     local res = {}
-    if type(wallpapers) ~= "table" then
-        wallpapers = { wallpapers }
-    end
+    if type(wallpapers) ~= 'table' then wallpapers = { wallpapers } end
     for _, w in ipairs(wallpapers) do
         -- w is either:
         --  - a directory path (string)
         --  - an image path or a color (string)
         --  - a cairo surface or a cairo pattern
         --  - a function for setting the wallpaper
-        if type(w) == "string" and gears.filesystem.dir_readable(w) then
+        if type(w) == 'string' and gears.filesystem.dir_readable(w) then
             local file_list = helpers.filesystem.list_directory_files(
                 w,
                 args.image_formats,
                 args.recursive
             )
             for _, f in ipairs(file_list) do
-                res[#res + 1] = w .. "/" .. f
+                res[#res + 1] = w .. '/' .. f
             end
         else
             res[#res + 1] = w
@@ -159,7 +155,7 @@ function setters.simple(args)
     local wallpapers = prepare_list(args)
     simple_index = (simple_index % #wallpapers) + 1
     if type(args.screen) == 'table' then
-        for _,v in ipairs(args.screen) do
+        for _, v in ipairs(args.screen) do
             args.screen = v
             apply(wallpapers[simple_index], args)
             args.screen = nil
@@ -177,7 +173,7 @@ end
 function setters.random(args)
     local wallpapers = prepare_list(args)
     if type(args.screen) == 'table' then
-        for _,v in ipairs(args.screen) do
+        for _, v in ipairs(args.screen) do
             args.screen = v
             apply(wallpapers[math.random(#wallpapers)], args)
             args.screen = nil
@@ -220,7 +216,7 @@ function setters.simple_schedule(args)
         table.sort(simple_schedule_object.times)
         -- now we get the closest time which is below current time (the current applicable period)
         local function update_timer()
-            local current_time = os.date("%H:%M:%S")
+            local current_time = os.date('%H:%M:%S')
             local next_time = simple_schedule_object.times[1]
             simple_schedule_object.closest_lower_time =
                 simple_schedule_object.times[#simple_schedule_object.times]
@@ -231,10 +227,8 @@ function setters.simple_schedule(args)
                 end
                 simple_schedule_object.closest_lower_time = k
             end
-            simple_schedule_object.timer.timeout = helpers.time.time_diff(
-                next_time,
-                current_time
-            )
+            simple_schedule_object.timer.timeout =
+                helpers.time.time_diff(next_time, current_time)
             if simple_schedule_object.timer.timeout < 0 then
                 -- the next_time is the day after, so we add 24 hours to the timer
                 simple_schedule_object.timer.timeout = simple_schedule_object.timer.timeout
@@ -272,7 +266,7 @@ function setters.awesome_wallpaper(args)
     colors.bg = helpers.color.is_dark(beautiful.bg_normal)
             and helpers.color.lighten(colors.bg)
         or helpers.color.darken(colors.bg)
-    if type(args.colors) == "table" then
+    if type(args.colors) == 'table' then
         colors.bg = args.colors.bg or colors.bg
         colors.fg = args.colors.fg or colors.fg
         colors.alt_fg = args.colors.alt_fg or colors.alt_fg
@@ -342,15 +336,13 @@ function setup(args)
             timeout = config.change_timer,
             call_now = false,
             autostart = true,
-            callback = function()
-                set_wallpaper()
-            end,
+            callback = function() set_wallpaper() end,
         })
     end
-    if awesome.version == "v4.3" or awesome.version == "4.3" then
+    if awesome.version == 'v4.3' or awesome.version == '4.3' then
         awful.screen.connect_for_each_screen(set_wallpaper)
     else
-        screen.connect_signal("request::wallpaper", set_wallpaper)
+        screen.connect_signal('request::wallpaper', set_wallpaper)
     end
 end
 

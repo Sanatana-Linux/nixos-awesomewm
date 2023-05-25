@@ -16,16 +16,14 @@ local _color = {}
 function _color.is_dark(color)
     -- Try to determine if the color is dark or light
     local numeric_value = 0
-    for s in color:gmatch("[a-fA-F0-9][a-fA-F0-9]") do
-        numeric_value = numeric_value + tonumber("0x" .. s)
+    for s in color:gmatch('[a-fA-F0-9][a-fA-F0-9]') do
+        numeric_value = numeric_value + tonumber('0x' .. s)
     end
     return (numeric_value < 383)
 end
 
 function _color.is_opaque(color)
-    if type(color) == "string" then
-        color = _color.hex_to_rgba(color)
-    end
+    if type(color) == 'string' then color = _color.hex_to_rgba(color) end
 
     return color.a < 0.01
 end
@@ -38,9 +36,9 @@ end
 function _color.lighten(color, amount)
     amount = amount or 26
     local c = {
-        r = tonumber("0x" .. color:sub(2, 3)),
-        g = tonumber("0x" .. color:sub(4, 5)),
-        b = tonumber("0x" .. color:sub(6, 7)),
+        r = tonumber('0x' .. color:sub(2, 3)),
+        g = tonumber('0x' .. color:sub(4, 5)),
+        b = tonumber('0x' .. color:sub(6, 7)),
     }
 
     c.r = c.r + amount
@@ -53,7 +51,7 @@ function _color.lighten(color, amount)
     c.b = c.b < 0 and 0 or c.b
     c.b = c.b > 255 and 255 or c.b
 
-    return string.format("#%02x%02x%02x", c.r, c.g, c.b)
+    return string.format('#%02x%02x%02x', c.r, c.g, c.b)
 end
 
 --- Darken a color.
@@ -73,24 +71,23 @@ end
 
 -- Converts the given hex color to rgba
 function _color.hex_to_rgba(color)
-    color = color:gsub("#", "")
-    return { r = tonumber("0x" .. color:sub(1, 2)),
-             g = tonumber("0x" .. color:sub(3, 4)),
-             b = tonumber("0x" .. color:sub(5, 6)),
-             a = #color == 8 and tonumber("0x" .. color:sub(7, 8)) or 255 }
+    color = color:gsub('#', '')
+    return {
+        r = tonumber('0x' .. color:sub(1, 2)),
+        g = tonumber('0x' .. color:sub(3, 4)),
+        b = tonumber('0x' .. color:sub(5, 6)),
+        a = #color == 8 and tonumber('0x' .. color:sub(7, 8)) or 255,
+    }
 end
 
 -- Converts the given rgba color to hex
 function _color.rgba_to_hex(color)
-	local r = _color.clip(color.r or color[1], 0, 255)
-	local g = _color.clip(color.g or color[2], 0, 255)
-	local b = _color.clip(color.b or color[3], 0, 255)
-	local a = _color.clip(color.a or color[4] or 255, 0, 255)
-	return "#" .. format("%02x%02x%02x%02x",
-			floor(r),
-			floor(g),
-			floor(b),
-            floor(a))
+    local r = _color.clip(color.r or color[1], 0, 255)
+    local g = _color.clip(color.g or color[2], 0, 255)
+    local b = _color.clip(color.b or color[3], 0, 255)
+    local a = _color.clip(color.a or color[4] or 255, 0, 255)
+    return '#'
+        .. format('%02x%02x%02x%02x', floor(r), floor(g), floor(b), floor(a))
 end
 
 -- Converts the given hex color to hsv
@@ -116,9 +113,7 @@ function _color.hex_to_hsv(color)
     end
     V = C_max
 
-    return { h = H,
-             s = S * 100,
-             v = V * 100 }
+    return { h = H, s = S * 100, v = V * 100 }
 end
 
 -- Converts the given hsv color to hex
@@ -145,14 +140,16 @@ function _color.hsv_to_hex(H, S, V)
         r_, g_, b_ = C, 0, X
     end
     local r, g, b = (r_ + m) * 255, (g_ + m) * 255, (b_ + m) * 255
-    return ("#%02x%02x%02x"):format(floor(r), floor(g), floor(b))
+    return ('#%02x%02x%02x'):format(floor(r), floor(g), floor(b))
 end
 
 function _color.multiply(color, amount)
-    return { _color.clip(color.r * amount, 0, 255),
-             _color.clip(color.g * amount, 0, 255),
-             _color.clip(color.b * amount, 0, 255),
-             255 }
+    return {
+        _color.clip(color.r * amount, 0, 255),
+        _color.clip(color.g * amount, 0, 255),
+        _color.clip(color.b * amount, 0, 255),
+        255,
+    }
 end
 
 return _color

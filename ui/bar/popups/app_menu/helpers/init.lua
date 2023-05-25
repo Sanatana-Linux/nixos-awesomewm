@@ -1,4 +1,4 @@
-return {    
-    color = require(... .. ".color"),
-    filesystem = require(... .. ".icon_theme"),
+return {
+	color = require(... .. '.color'),
+	filesystem = require(... .. '.icon_theme'),
 }

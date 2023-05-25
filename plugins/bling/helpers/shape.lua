@@ -1,4 +1,4 @@
-local gears = require("gears")
+local gears = require('gears')
 
 shape = {}
 

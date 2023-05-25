@@ -1,9 +1,9 @@
--- 
+--
 -- This is copied from https://awesomewm.org/recipes/mpc.lua
 -- I do not know how this shit works its just magic to me
 --
 
-local lgi = require "lgi"
+local lgi = require('lgi')
 local GLib = lgi.GLib
 local Gio = lgi.Gio
 
@@ -11,16 +11,14 @@ local mpc = {}
 
 local function parse_password(host)
 	-- This function is based on mpd_parse_host_password() from libmpdclient
-	local position = string.find(host, "@")
-	if not position then
-		return host
-	end
+	local position = string.find(host, '@')
+	if not position then return host end
 	return string.sub(host, position + 1), string.sub(host, 1, position - 1)
 end
 
 function mpc.new(host, port, password, error_handler, ...)
-	host = host or os.getenv("MPD_HOST") or "localhost"
-	port = port or os.getenv("MPD_PORT") or 6600
+	host = host or os.getenv('MPD_HOST') or 'localhost'
+	port = port or os.getenv('MPD_PORT') or 6600
 	if not password then
 		host, password = parse_password(host)
 	end
@@ -31,7 +29,7 @@ function mpc.new(host, port, password, error_handler, ...)
 		_error_handler = error_handler or function() end,
 		_connected = false,
 		_try_reconnect = false,
-		_idle_commands = { ... }
+		_idle_commands = { ... },
 	}, { __index = mpc })
 	self:_connect()
 	return self
@@ -41,9 +39,7 @@ function mpc:_error(err)
 	self._connected = false
 	self._error_handler(err)
 	self._try_reconnect = not self._try_reconnect
-	if self._try_reconnect then
-		self:_connect()
-	end
+	if self._try_reconnect then self:_connect() end
 end
 
 function mpc:_connect()
@@ -57,7 +53,7 @@ function mpc:_connect()
 
 	-- Set up a new connection
 	local address
-	if string.sub(self._host, 1, 1) == "/" then
+	if string.sub(self._host, 1, 1) == '/' then
 		-- It's a unix socket
 		address = Gio.UnixSocketAddress.new(self._host)
 	else
@@ -78,9 +74,7 @@ function mpc:_connect()
 	-- Read the welcome message
 	self._input:read_line()
 
-	if self._password and self._password ~= "" then
-		self:_send("password " .. self._password)
-	end
+	if self._password and self._password ~= '' then self:_send('password ' .. self._password) end
 
 	-- Set up the reading loop. This will asynchronously read lines by
 	-- calling itself.
@@ -91,17 +85,15 @@ function mpc:_connect()
 			-- Ugly API. On success we get string, length-of-string
 			-- and on error we get nil, error. Other versions of lgi
 			-- behave differently.
-			if line == nil or tostring(line) == "" then
-				err = "Connection closed"
-			end
-			if type(err) ~= "number" then
+			if line == nil or tostring(line) == '' then err = 'Connection closed' end
+			if type(err) ~= 'number' then
 				self._output, self._input = nil, nil
 				self:_error(err)
 			else
 				do_read()
 				line = tostring(line)
-				if line == "OK" or line:match("^ACK ") then
-					local success = line == "OK"
+				if line == 'OK' or line:match('^ACK ') then
+					local success = line == 'OK'
 					local arg
 					if success then
 						arg = self._pending_reply
@@ -113,10 +105,8 @@ function mpc:_connect()
 					self._pending_reply = {}
 					handler(success, arg)
 				else
-					local _, _, key, value = string.find(line, "([^:]+):%s(.+)")
-					if key then
-					    self._pending_reply[string.lower(key)] = value
-					end
+					local _, _, key, value = string.find(line, '([^:]+):%s(.+)')
+					if key then self._pending_reply[string.lower(key)] = value end
 				end
 			end
 		end)
@@ -134,28 +124,20 @@ function mpc:_send_idle_commands(skip_stop_idle)
 	-- We use a ping to unset this to make sure we never get into a busy
 	-- loop sending idle / unidle commands. Next call to
 	-- _send_idle_commands() might be ignored!
-	if self._idle_commands_pending then
-		return
-	end
-	if not skip_stop_idle then
-		self:_stop_idle()
-	end
+	if self._idle_commands_pending then return end
+	if not skip_stop_idle then self:_stop_idle() end
 
 	self._idle_commands_pending = true
 	for i = 1, #self._idle_commands, 2 do
-		self:_send(self._idle_commands[i], self._idle_commands[i+1])
+		self:_send(self._idle_commands[i], self._idle_commands[i + 1])
 	end
-	self:_send("ping", function()
-		self._idle_commands_pending = false
-	end)
+	self:_send('ping', function() self._idle_commands_pending = false end)
 	self:_start_idle()
 end
 
 function mpc:_start_idle()
-	if self._idle then
-		error("Still idle?!")
-	end
-	self:_send("idle", function(success, reply)
+	if self._idle then error('Still idle?!') end
+	self:_send('idle', function(success, reply)
 		if reply.changed then
 			-- idle mode was disabled by mpd
 			self:_send_idle_commands()
@@ -165,43 +147,35 @@ function mpc:_start_idle()
 end
 
 function mpc:_stop_idle()
-	if not self._idle then
-		error("Not idle?!")
-	end
-	self._output:write("noidle\n")
+	if not self._idle then error('Not idle?!') end
+	self._output:write('noidle\n')
 	self._idle = false
 end
 
 function mpc:_send(command, callback)
-	if self._idle then
-		error("Still idle in send()?!")
-	end
-	self._output:write(command .. "\n")
+	if self._idle then error('Still idle in send()?!') end
+	self._output:write(command .. '\n')
 	table.insert(self._reply_handlers, callback or function() end)
 end
 
 function mpc:send(...)
 	self:_connect()
-	if not self._connected then
-		return
-	end
+	if not self._connected then return end
 	local args = { ... }
-	if not self._idle then
-		error("Something is messed up, we should be idle here...")
-	end
+	if not self._idle then error('Something is messed up, we should be idle here...') end
 	self:_stop_idle()
 	for i = 1, #args, 2 do
-		self:_send(args[i], args[i+1])
+		self:_send(args[i], args[i + 1])
 	end
 	self:_start_idle()
 end
 
 function mpc:toggle_play()
-	self:send("status", function(success, status)
-		if status.state == "stop" then
-			self:send("play")
+	self:send('status', function(success, status)
+		if status.state == 'stop' then
+			self:send('play')
 		else
-			self:send("pause")
+			self:send('pause')
 		end
 	end)
 end

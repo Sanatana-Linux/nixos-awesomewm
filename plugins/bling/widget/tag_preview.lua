@@ -6,13 +6,13 @@
 --      s   (screen)
 --      v   (boolean)
 --
-local awful = require("awful")
-local wibox = require("wibox")
-local helpers = require(tostring(...):match(".*bling") .. ".helpers")
-local gears = require("gears")
-local beautiful = require("beautiful")
+local awful = require('awful')
+local wibox = require('wibox')
+local helpers = require(tostring(...):match('.*bling') .. '.helpers')
+local gears = require('gears')
+local beautiful = require('beautiful')
 local dpi = beautiful.xresources.apply_dpi
-local cairo = require("lgi").cairo
+local cairo = require('lgi').cairo
 
 local function draw_widget(
     t,
@@ -37,19 +37,25 @@ local function draw_widget(
     local tag_screen = t.screen
     for i, c in ipairs(t:clients()) do
         if not c.hidden and not c.minimized then
-
-
-            local img_box = wibox.widget ({
+            local img_box = wibox.widget({
                 resize = true,
                 forced_height = 100 * scale,
                 forced_width = 100 * scale,
                 widget = wibox.widget.imagebox,
             })
 
-			-- If fails to set image, fallback to a awesome icon
-			if not pcall(function() img_box.image = gears.surface.load(c.icon) end) then
-				img_box.image = beautiful.theme_assets.awesome_icon (24, "#222222", "#fafafa")
-			end
+            -- If fails to set image, fallback to a awesome icon
+            if
+                not pcall(
+                    function() img_box.image = gears.surface.load(c.icon) end
+                )
+            then
+                img_box.image = beautiful.theme_assets.awesome_icon(
+                    24,
+                    '#222222',
+                    '#fafafa'
+                )
+            end
 
             if tag_preview_image then
                 if c.prev_content or t.selected then
@@ -89,11 +95,11 @@ local function draw_widget(
                         nil,
                         img_box,
                         nil,
-                        expand = "outside",
+                        expand = 'outside',
                         layout = wibox.layout.align.horizontal,
                     },
                     nil,
-                    expand = "outside",
+                    expand = 'outside',
                     widget = wibox.layout.align.vertical,
                 },
                 forced_height = math.floor(c.height * scale),
@@ -114,7 +120,7 @@ local function draw_widget(
         end
     end
 
-    return wibox.widget {
+    return wibox.widget({
         {
             background_image,
             {
@@ -133,14 +139,14 @@ local function draw_widget(
                 margins = margin,
                 widget = wibox.container.margin,
             },
-            layout = wibox.layout.stack
+            layout = wibox.layout.stack,
         },
         bg = widget_bg,
         shape_border_width = widget_border_width,
         shape_border_color = widget_border_color,
         shape = helpers.shape.rrect(screen_radius),
         widget = wibox.container.background,
-    }
+    })
 end
 
 local enable = function(opts)
@@ -159,47 +165,47 @@ local enable = function(opts)
     local screen_radius = beautiful.tag_preview_widget_border_radius or dpi(0)
     local client_radius = beautiful.tag_preview_client_border_radius or dpi(0)
     local client_opacity = beautiful.tag_preview_client_opacity or 0.5
-    local client_bg = beautiful.tag_preview_client_bg or "#000000"
+    local client_bg = beautiful.tag_preview_client_bg or '#000000'
     local client_border_color = beautiful.tag_preview_client_border_color
-        or "#ffffff"
+        or '#ffffff'
     local client_border_width = beautiful.tag_preview_client_border_width
         or dpi(3)
-    local widget_bg = beautiful.tag_preview_widget_bg or "#000000"
+    local widget_bg = beautiful.tag_preview_widget_bg or '#000000'
     local widget_border_color = beautiful.tag_preview_widget_border_color
-        or "#ffffff"
+        or '#ffffff'
     local widget_border_width = beautiful.tag_preview_widget_border_width
         or dpi(3)
 
     local tag_preview_box = awful.popup({
-        type = "dropdown_menu",
+        type = 'dropdown_menu',
         visible = false,
         ontop = true,
         placement = placement_fn,
         widget = wibox.container.background,
         input_passthrough = true,
-        bg = "#00000000",
+        bg = '#00000000',
     })
 
-    tag.connect_signal("property::selected", function(t)
+    tag.connect_signal('property::selected', function(t)
         -- Awesome switches up tags on startup really fast it seems, probably depends on what rules you have set
         -- which can cause the c.content to not show the correct image
-        gears.timer
-        {
+        gears.timer({
             timeout = 0.1,
-            call_now  = false,
+            call_now = false,
             autostart = true,
             single_shot = true,
             callback = function()
                 if t.selected == true then
                     for _, c in ipairs(t:clients()) do
-                        c.prev_content = gears.surface.duplicate_surface(c.content)
+                        c.prev_content =
+                            gears.surface.duplicate_surface(c.content)
                     end
                 end
-            end
-        }
+            end,
+        })
     end)
 
-    awesome.connect_signal("bling::tag_preview::update", function(t)
+    awesome.connect_signal('bling::tag_preview::update', function(t)
         local geo = t.screen:get_bounding_geometry({
             honor_padding = padding,
             honor_workarea = work_area,
@@ -207,7 +213,6 @@ local enable = function(opts)
 
         tag_preview_box.maximum_width = scale * geo.width + margin * 2
         tag_preview_box.maximum_height = scale * geo.height + margin * 2
-
 
         tag_preview_box.widget = draw_widget(
             t,
@@ -228,7 +233,7 @@ local enable = function(opts)
         )
     end)
 
-    awesome.connect_signal("bling::tag_preview::visibility", function(s, v)
+    awesome.connect_signal('bling::tag_preview::visibility', function(s, v)
         if not placement_fn then
             tag_preview_box.x = s.geometry.x + widget_x
             tag_preview_box.y = s.geometry.y + widget_y
@@ -236,11 +241,11 @@ local enable = function(opts)
 
         if v == false then
             tag_preview_box.widget = nil
-            collectgarbage("collect")
+            collectgarbage('collect')
         end
 
         tag_preview_box.visible = v
     end)
 end
 
-return {enable = enable, draw_widget = draw_widget}
+return { enable = enable, draw_widget = draw_widget }
