@@ -233,14 +233,14 @@ screen.connect_signal('request::desktop_decoration', function(s)
 	s.mywibox = awful.wibar({
 		honor_workarea = false,
 		honor_padding = false,
-		type = 'popup',
+		type = 'dock',
 		position = "bottom",
 		stretch = false,
 		visible = false,
 		ontop = true,
 		opacity = 0.9,
 		screen = s,
-		bg = beautiful.bg_normal .. '11',
+		bg = beautiful.bg_darkest .. '88',
 		width = s.geometry.width,
 		height = beautiful.bar_height,
 		shape = gears.shape.rectangle,
@@ -313,9 +313,9 @@ screen.connect_signal('request::desktop_decoration', function(s)
 
 	-- NOTE defining the anotation
 	local animation = rubato.timed({
-		intro = 0.1,
-		outro = 0.1,
-		duration = 0.2,
+		intro = 0.2,
+		outro = 0.2,
+		duration = 0.6,
 		pos = hidden_y,
 		rate = 80,
 		easing = rubato.quadratic,

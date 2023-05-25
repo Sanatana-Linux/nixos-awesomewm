@@ -68,8 +68,8 @@ local mktag = function(tag)
 		},
 		bg = beautiful.widget_back,
 		shape = utilities.mkroundedrect(),
-		border_color = beautiful.grey,
-		border_width = dpi(1.25),
+		border_color = beautiful.grey .. 'cc',
+		border_width = dpi(2),
 		widget = wibox.container.background,
 	})
 

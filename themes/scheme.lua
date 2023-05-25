@@ -66,6 +66,7 @@ return {
 	icons = '#e9e9e9',
 	alpha = function(color, alpha) return color .. alpha end,
 
+	bg_darkest ="#0c0c0c",
 	bg_normal = '#121212',
 	bg_contrast = '#181818',
 	bg_lighter = '#1c1c1c',

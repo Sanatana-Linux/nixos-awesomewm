@@ -53,6 +53,7 @@ theme.background = theme.bg_normal
 theme.bg_contrast = scheme.bg_contrast
 theme.background_alt = theme.bg_contrast
 theme.bg_lighter = scheme.bg_lighter
+theme.bg_darkest = scheme.bg_darkest
 theme.bg_focus = scheme.bg_focus
 theme.dimblacker = scheme.colorR
 theme.bg_urgent = scheme.alpha(theme.red, '88')
@@ -86,7 +87,7 @@ theme.actions = {
 }
 -- ----------------------------- Theme Variables ---------------------------- --
 -- bar
-theme.bar_height = dpi(40)
+theme.bar_height = dpi(42)
 -- -------------------------------------------------------------------------- --
 -- gaps and borders
 theme.useless_gap = dpi(4)
@@ -101,6 +102,7 @@ theme.tasklist_plain_task_name = true
 theme.tasklist_bg = theme.bg_normal
 theme.tasklist_bg_focus = theme.bg_focus
 theme.tasklist_bg_urgent = theme.red .. '4D' -- 30% of transparency
+
 -- -------------------------------------------------------------------------- --
 -- taglist
 theme.taglist_bg = theme.bg_normal

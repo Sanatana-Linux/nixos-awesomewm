@@ -89,7 +89,7 @@ main_widget = wibox.widget({
 local app_revealer_template = {
 	widget = wibox.container.background,
 	shape = utilities.mkroundedrect(),
-	border_color = beautiful.grey,
+	border_color = beautiful.grey .. 'cc',
 	border_width = dpi(1.25),
 	{
 		layout = wibox.layout.fixed.vertical,
@@ -97,7 +97,7 @@ local app_revealer_template = {
 			id = 'revealer_top_bg',
 			widget = wibox.container.background,
 			forced_height = beautiful.get_font_height(beautiful.nerd_font .. ' 11') + dpi(10),
-			bg = beautiful.bg_lighter .. '88',
+			bg = beautiful.bg_contrast .. '88',
 			{
 				widget = wibox.container.margin,
 				margins = dpi(5),
@@ -131,7 +131,7 @@ local app_revealer_template = {
 			widget = wibox.container.background,
 			border_color = beautiful.grey,
 			border_width = dpi(1.25),
-			bg = beautiful.bg_lighter .. '88',
+			bg = beautiful.bg_contrast .. '88',
 			{
 				id = 'notifs_margin',
 				widget = wibox.container.margin,

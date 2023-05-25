@@ -6,8 +6,8 @@ local dpi = beautiful.xresources.apply_dpi
 
 local volume = wibox.widget({
 	widget = wibox.widget.imagebox,
-	forced_height = dpi(16),
-	forced_width = dpi(16),
+	forced_height = dpi(20),
+	forced_width = dpi(20),
 	image = beautiful.volume_on,
 	halign = 'center',
 	valign = 'bottom',
@@ -31,9 +31,9 @@ volume:add_button(awful.button({}, 1, function() awful.spawn('amixer set Master 
 
 awesome.connect_signal('signal::volume', function(vol, is_muted)
 	if is_muted == 1 or vol == 0 then
-		volume.image = beautiful.volume_muted
+		volume.image = icons.muted
 	else
-		volume.image = beautiful.volume_on
+		volume.image = icons.volume_high
 	end
 end)
 
