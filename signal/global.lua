@@ -1,3 +1,4 @@
 VolumeSignal = require('signal.volume')
 BrightnessSignal = require('signal.brightness')
-require('signal.picom')
+PlayerctlSignal = require("signal.playerctl")
+PlayerctlCli =require("signal.playerctl.playerctl_cli")

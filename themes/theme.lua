@@ -135,7 +135,7 @@ theme.titlebar_fg = theme.fg_normal
 
 -- -------------------------------------------------------------------------- --
 -- wallpaper
-theme.wallpaper = assets_path .. 'wallpaper2.png'
+theme.wallpaper = assets_path .. 'wallpaper.png'
 -- -------------------------------------------------------------------------- --
 -- ---------------------------------- Icons --------------------------------- --
 -- layouts

@@ -1162,6 +1162,14 @@ local function new(args)
 					right = dpi(10),
 					left = dpi(0),
 				},
+				-- {
+				-- 	require('ui.bar.popups.app_menu.widget.app_launcher.music-player'),
+				-- 	widget = wibox.container.margin,
+				-- 	top = dpi(3),
+				-- 	bottom = dpi(2),
+				-- 	right = dpi(10),
+				-- 	left = dpi(0),
+				-- },
 
 				layout = wibox.layout.fixed.vertical,
 			},

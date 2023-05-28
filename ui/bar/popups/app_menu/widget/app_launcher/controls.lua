@@ -52,7 +52,7 @@ end
 local volume_slider = base_slider('')
 
 volume_slider.slider:connect_signal('property::value', function(_, value)
-	-- awful.spawn("pamixer --set-volume " .. value)
+  awful.spawn("pamixer --set-volume " .. value)
 	awesome.emit_signal('signal::volume', value)
 end)
 

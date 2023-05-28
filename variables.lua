@@ -30,6 +30,7 @@ modkey = 'Mod4' -- the voldemort key
 -- -------------------------------------------------------------------------- --
 --                              Global Variables                              --
 -- -------------------------------------------------------------------------- --
+capi = { awesome = awesome }
 debug = debug
 keygrabber = keygrabber
 mouse = mouse
@@ -76,6 +77,9 @@ ruled = require('ruled')
 animations = require('utilities.animations')
 fade = require('utilities.animations.fade')
 Effects = require('utilities.animations.effects')
+
+
+
 
 -- -------------------------------------------------------------------------- --
 -- --------------------------- Builtin Submodules --------------------------- --

@@ -19,6 +19,7 @@ return {
 	crop_surface = require(... .. '.crop_surface'),
 	dropdown = require(... .. '.dropdown'),
 	get_colorized_markup = require(... .. '.get_colorized_markup'),
+	filesystem = require(... .. '.filesystem'),
 	icon_theme = require('utilities.icon_theme'),
 	limit_by_length = require(... .. '.limit_by_length'),
 	make_popup_tooltip = require(... .. '.make_popup_tooltip'),
