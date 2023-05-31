@@ -4,16 +4,16 @@
 -- |___|___||   __|   __|    |_______|___._|_____|__|__|____||__|__|_____|__|
 --          |__|  |__|
 -- -------------------------------------------------------------------------- --
-local Gio = require('lgi').Gio
-local awful = require('awful')
-local gobject = require('gears.object')
-local gtable = require('gears.table')
-local gtimer = require('gears.timer')
-local gfilesystem = require('gears.filesystem')
-local wibox = require('wibox')
-local beautiful = require('beautiful')
-local color = require(tostring(...):match('.*app_menu') .. '.helpers.color')
-local prompt = require(... .. '.prompt')
+local Gio = require("lgi").Gio
+local awful = require("awful")
+local gobject = require("gears.object")
+local gtable = require("gears.table")
+local gtimer = require("gears.timer")
+local gfilesystem = require("gears.filesystem")
+local wibox = require("wibox")
+local beautiful = require("beautiful")
+local color = require(tostring(...):match(".*app_menu") .. ".helpers.color")
+local prompt = require(... .. ".prompt")
 local dpi = beautiful.xresources.apply_dpi
 local string = string
 local table = table
@@ -27,10 +27,10 @@ local path = ...
 local app_launcher = { mt = {} }
 
 local terminal_commands_lookup = {
-	alacritty = 'alacritty -e',
-	termite = 'termite -e',
-	rxvt = 'rxvt -e',
-	terminator = 'terminator -e',
+	alacritty = "alacritty -e",
+	termite = "termite -e",
+	rxvt = "rxvt -e",
+	terminator = "terminator -e",
 }
 
 local function string_levenshtein(str1, str2)
@@ -76,13 +76,13 @@ end
 
 local function case_insensitive_pattern(pattern)
 	-- find an optional '%' (group 1) followed by any character (group 2)
-	local p = pattern:gsub('(%%?)(.)', function(percent, letter)
-		if percent ~= '' or not letter:match('%a') then
+	local p = pattern:gsub("(%%?)(.)", function(percent, letter)
+		if percent ~= "" or not letter:match("%a") then
 			-- if the '%' matched, or `letter` is not a letter, return "as is"
 			return percent .. letter
 		else
 			-- else, return a case-insensitive character class of the matched letter
-			return string.format('[%s%s]', letter:lower(), letter:upper())
+			return string.format("[%s%s]", letter:lower(), letter:upper())
 		end
 	end)
 
@@ -91,7 +91,9 @@ end
 
 local function has_value(tab, val)
 	for index, value in pairs(tab) do
-		if val:find(case_insensitive_pattern(value)) then return true end
+		if val:find(case_insensitive_pattern(value)) then
+			return true
+		end
 	end
 	return false
 end
@@ -102,13 +104,13 @@ local function select_app(self, x, y)
 		self._private.active_widget = widgets[1]
 		if self._private.active_widget ~= nil then
 			self._private.active_widget.selected = true
-			self._private.active_widget:get_children_by_id('background')[1].bg = self.app_selected_color
-			local name_widget = self._private.active_widget:get_children_by_id('name')[1]
+			self._private.active_widget:get_children_by_id("background")[1].bg = self.app_selected_color
+			local name_widget = self._private.active_widget:get_children_by_id("name")[1]
 			if name_widget then
 				name_widget.markup =
 					string.format("<span foreground='%s'>%s</span>", self.app_name_selected_color, name_widget.text)
 			end
-			local generic_name_widget = self._private.active_widget:get_children_by_id('generic_name')[1]
+			local generic_name_widget = self._private.active_widget:get_children_by_id("generic_name")[1]
 			if generic_name_widget then
 				generic_name_widget.markup = string.format(
 					"<i><span weight='300'foreground='%s'>%s</span></i>",
@@ -123,13 +125,13 @@ end
 local function unselect_app(self)
 	if self._private.active_widget ~= nil then
 		self._private.active_widget.selected = false
-		self._private.active_widget:get_children_by_id('background')[1].bg = self.app_normal_color
-		local name_widget = self._private.active_widget:get_children_by_id('name')[1]
+		self._private.active_widget:get_children_by_id("background")[1].bg = self.app_normal_color
+		local name_widget = self._private.active_widget:get_children_by_id("name")[1]
 		if name_widget then
 			name_widget.markup =
 				string.format("<span foreground='%s'>%s</span>", self.app_name_normal_color, name_widget.text)
 		end
-		local generic_name_widget = self._private.active_widget:get_children_by_id('generic_name')[1]
+		local generic_name_widget = self._private.active_widget:get_children_by_id("generic_name")[1]
 		if generic_name_widget then
 			generic_name_widget.markup = string.format(
 				"<i><span weight='300'foreground='%s'>%s</span></i>",
@@ -155,7 +157,7 @@ local function create_app_widget(self, entry)
 	local name = self.app_show_name == true
 			and {
 				widget = wibox.widget.textbox,
-				id = 'name',
+				id = "name",
 				font = self.app_name_font,
 				markup = string.format("<span foreground='%s'>%s</span>", self.app_name_normal_color, entry.name),
 			}
@@ -165,17 +167,17 @@ local function create_app_widget(self, entry)
 			and self.app_show_generic_name == true
 			and {
 				widget = wibox.widget.textbox,
-				id = 'generic_name',
+				id = "generic_name",
 				font = self.app_name_font,
-				markup = entry.generic_name ~= ''
-						and "<span weight='300'> <i>(" .. entry.generic_name .. ')</i></span>'
-					or '',
+				markup = entry.generic_name ~= ""
+						and "<span weight='300'> <i>(" .. entry.generic_name .. ")</i></span>"
+					or "",
 			}
 		or nil
 
 	local app = wibox.widget({
 		widget = wibox.container.background,
-		id = 'background',
+		id = "background",
 		forced_width = self.app_width,
 		forced_height = self.app_height,
 		shape = self.app_shape,
@@ -186,7 +188,7 @@ local function create_app_widget(self, entry)
 			{
 				-- Using this hack instead of container.place because that will fuck with the name/icon halign
 				layout = wibox.layout.align.vertical,
-				expand = 'outside',
+				expand = "outside",
 				nil,
 				{
 					layout = wibox.layout.fixed.horizontal,
@@ -212,49 +214,57 @@ local function create_app_widget(self, entry)
 		if entry.terminal == true then
 			if self.terminal ~= nil then
 				local terminal_command = terminal_commands_lookup[self.terminal] or self.terminal
-				awful.spawn(terminal_command .. ' ' .. entry.executable)
+				awful.spawn(terminal_command .. " " .. entry.executable)
 			else
-				awful.spawn.easy_async('gtk-launch ' .. entry.executable, function(stdout, stderr)
-					if stderr then awful.spawn(entry.executable) end
+				awful.spawn.easy_async("gtk-launch " .. entry.executable, function(stdout, stderr)
+					if stderr then
+						awful.spawn(entry.executable)
+					end
 				end)
 			end
 		else
 			awful.spawn(entry.executable)
 		end
 
-		if self.hide_on_launch then self:hide() end
+		if self.hide_on_launch then
+			self:hide()
+		end
 	end
 
-	app:connect_signal('mouse::enter', function(_self)
+	app:connect_signal("mouse::enter", function(_self)
 		local widget = capi.mouse.current_wibox
-		if widget then widget.cursor = 'hand2' end
+		if widget then
+			widget.cursor = "hand2"
+		end
 
 		local app = _self
 		if app.selected then
-			app:get_children_by_id('background')[1].bg = self.app_selected_hover_color
+			app:get_children_by_id("background")[1].bg = self.app_selected_hover_color
 		else
 			local is_opaque = color.is_opaque(self.app_normal_color)
 			local is_dark = color.is_dark(self.app_normal_color)
 			local app_normal_color = color.hex_to_rgba(self.app_normal_color)
 			local hover_color = (is_dark or is_opaque) and color.rgba_to_hex(color.multiply(app_normal_color, 2.5))
 				or color.rgba_to_hex(color.multiply(app_normal_color, 0.5))
-			app:get_children_by_id('background')[1].bg = self.app_normal_hover_color
+			app:get_children_by_id("background")[1].bg = self.app_normal_hover_color
 		end
 	end)
 
-	app:connect_signal('mouse::leave', function(_self)
+	app:connect_signal("mouse::leave", function(_self)
 		local widget = capi.mouse.current_wibox
-		if widget then widget.cursor = 'left_ptr' end
+		if widget then
+			widget.cursor = "left_ptr"
+		end
 
 		local app = _self
 		if app.selected then
-			app:get_children_by_id('background')[1].bg = self.app_selected_color
+			app:get_children_by_id("background")[1].bg = self.app_selected_color
 		else
-			app:get_children_by_id('background')[1].bg = self.app_normal_color
+			app:get_children_by_id("background")[1].bg = self.app_normal_color
 		end
 	end)
 
-	app:connect_signal('button::press', function(_self, lx, ly, button, mods, find_widgets_result)
+	app:connect_signal("button::press", function(_self, lx, ly, button, mods, find_widgets_result)
 		if button == 1 then
 			local app = _self
 			if self._private.active_widget == app or not self.select_before_spawn then
@@ -283,11 +293,11 @@ local function search(self, text)
 	-- Remove all the grid widgets
 	self._private.grid:reset()
 
-	if text == '' then
+	if text == "" then
 		self._private.matched_entries = self._private.all_entries
 	else
 		for index, entry in pairs(self._private.all_entries) do
-			text = text:gsub('%W', '')
+			text = text:gsub("%W", "")
 
 			-- Check if there's a match by the app name or app command
 			if
@@ -306,10 +316,9 @@ local function search(self, text)
 		end
 
 		-- Sort by string similarity
-		table.sort(
-			self._private.matched_entries,
-			function(a, b) return string_levenshtein(text, a.name) < string_levenshtein(text, b.name) end
-		)
+		table.sort(self._private.matched_entries, function(a, b)
+			return string_levenshtein(text, a.name) < string_levenshtein(text, b.name)
+		end)
 	end
 	for index, entry in pairs(self._private.matched_entries) do
 		-- Only add the widgets for apps that are part of the first page
@@ -374,14 +383,14 @@ local function page_backward(self, direction)
 
 	local rows, columns = self._private.grid:get_dimension()
 	if self._private.current_page < self._private.pages_count then
-		if direction == 'up' then
+		if direction == "up" then
 			select_app(self, rows, columns)
 		else
 			-- Keep the same row from last page
 			select_app(self, pos.row, columns)
 		end
 	elseif self.wrap_page_scrolling then
-		if direction == 'up' then
+		if direction == "up" then
 			select_app(self, math.min(rows, #self._private.grid.children % self.apps_per_row), columns)
 		else
 			-- Keep the same row from last page
@@ -423,7 +432,7 @@ local function page_forward(self, direction)
 	end
 
 	if self._private.current_page > 1 or self.wrap_page_scrolling then
-		if direction == 'down' then
+		if direction == "down" then
 			select_app(self, 1, 1)
 		else
 			local last_col_max_row = math.min(pos.row, #self._private.grid.children % self.apps_per_row)
@@ -455,7 +464,7 @@ local function scroll_up(self)
 			select_app(self, pos.row - 1, pos.col)
 		end
 	else
-		page_backward(self, 'up')
+		page_backward(self, "up")
 	end
 end
 
@@ -479,7 +488,7 @@ local function scroll_down(self)
 			select_app(self, pos.row + 1, pos.col)
 		end
 	else
-		page_forward(self, 'down')
+		page_forward(self, "down")
 	end
 end
 
@@ -497,7 +506,7 @@ local function scroll_left(self)
 		unselect_app(self)
 		select_app(self, pos.row, pos.col - 1)
 	else
-		page_backward(self, 'left')
+		page_backward(self, "left")
 	end
 end
 
@@ -525,7 +534,7 @@ local function scroll_right(self)
 			select_app(self, pos.row, pos.col + 1)
 		end
 	else
-		page_forward(self, 'right')
+		page_forward(self, "right")
 	end
 end
 
@@ -557,18 +566,26 @@ local function generate_apps(self)
 	if self.sort_alphabetically then
 		table.sort(apps, function(a, b)
 			local app_a_score = app_info.get_name(a):lower()
-			if has_value(self.favorites, app_info.get_name(a)) then app_a_score = 'aaaaaaaaaaa' .. app_a_score end
+			if has_value(self.favorites, app_info.get_name(a)) then
+				app_a_score = "aaaaaaaaaaa" .. app_a_score
+			end
 			local app_b_score = app_info.get_name(b):lower()
-			if has_value(self.favorites, app_info.get_name(b)) then app_b_score = 'aaaaaaaaaaa' .. app_b_score end
+			if has_value(self.favorites, app_info.get_name(b)) then
+				app_b_score = "aaaaaaaaaaa" .. app_b_score
+			end
 
 			return app_a_score < app_b_score
 		end)
 	elseif self.reverse_sort_alphabetically then
 		table.sort(apps, function(a, b)
 			local app_a_score = app_info.get_name(a):lower()
-			if has_value(self.favorites, app_info.get_name(a)) then app_a_score = 'zzzzzzzzzzz' .. app_a_score end
+			if has_value(self.favorites, app_info.get_name(a)) then
+				app_a_score = "zzzzzzzzzzz" .. app_a_score
+			end
 			local app_b_score = app_info.get_name(b):lower()
-			if has_value(self.favorites, app_info.get_name(b)) then app_b_score = 'zzzzzzzzzzz' .. app_b_score end
+			if has_value(self.favorites, app_info.get_name(b)) then
+				app_b_score = "zzzzzzzzzzz" .. app_b_score
+			end
 
 			return app_a_score > app_b_score
 		end)
@@ -601,26 +618,26 @@ local function generate_apps(self)
 			-- Check if this app should be skipped, depanding on the skip_names / skip_commands table
 			if not has_value(self.skip_names, name) and not has_value(self.skip_commands, commandline) then
 				-- Check if this app should be skipped becuase it's iconless depanding on skip_empty_icons
-				if icon ~= '' or self.skip_empty_icons == false then
-					if icon == '' then
+				if icon ~= "" or self.skip_empty_icons == false then
+					if icon == "" then
 						if self.default_app_icon_name ~= nil then
 							icon = icon_theme:get_icon_path(self.default_app_icon_name)
 						elseif self.default_app_icon_path ~= nil then
 							icon = self.default_app_icon_path
 						else
 							icon = icon_theme:choose_icon({
-								'application-all',
-								'application',
-								'application-default-icon',
-								'app',
+								"application-all",
+								"application",
+								"application-default-icon",
+								"app",
 							})
 						end
 					end
 
 					local desktop_app_info = Gio.DesktopAppInfo.new(app_info.get_id(app))
-					local terminal = Gio.DesktopAppInfo.get_string(desktop_app_info, 'Terminal') == 'true' and true
+					local terminal = Gio.DesktopAppInfo.get_string(desktop_app_info, "Terminal") == "true" and true
 						or false
-					local generic_name = Gio.DesktopAppInfo.get_string(desktop_app_info, 'GenericName') or nil
+					local generic_name = Gio.DesktopAppInfo.get_string(desktop_app_info, "GenericName") or nil
 
 					table.insert(self._private.all_entries, {
 						name = name,
@@ -639,7 +656,9 @@ end
 --- Shows the app launcher
 function app_launcher:show()
 	local screen = self.screen
-	if self.show_on_focused_screen then screen = awful.screen.focused() end
+	if self.show_on_focused_screen then
+		screen = awful.screen.focused()
+	end
 
 	screen.app_launcher = self._private.widget
 	screen.app_launcher.screen = screen
@@ -647,7 +666,9 @@ function app_launcher:show()
 
 	local animation = self.rubato
 	if animation ~= nil then
-		if self._private.widget.goal_x == nil then self._private.widget.goal_x = self._private.widget.x end
+		if self._private.widget.goal_x == nil then
+			self._private.widget.goal_x = self._private.widget.x
+		end
 		if self._private.widget.goal_y == nil then
 			self._private.widget.goal_y = self._private.widget.y
 			self._private.widget.placement = nil
@@ -661,7 +682,9 @@ function app_launcher:show()
 				call_now = false,
 				autostart = true,
 				single_shot = true,
-				callback = function() screen.app_launcher.visible = true end,
+				callback = function()
+					screen.app_launcher.visible = true
+				end,
 			})
 		end
 		if animation.y then
@@ -672,29 +695,39 @@ function app_launcher:show()
 				call_now = false,
 				autostart = true,
 				single_shot = true,
-				callback = function() screen.app_launcher.visible = true end,
+				callback = function()
+					screen.app_launcher.visible = true
+				end,
 			})
 		end
 	else
 		screen.app_launcher.visible = true
 	end
 
-	self:emit_signal('app_menu::app_launcher::visibility', true)
+	self:emit_signal("app_menu::app_launcher::visibility", true)
 end
 
 --- Hides the app launcher
 function app_launcher:hide()
 	local screen = self.screen
-	if self.show_on_focused_screen then screen = awful.screen.focused() end
+	if self.show_on_focused_screen then
+		screen = awful.screen.focused()
+	end
 
-	if screen.app_launcher == nil or screen.app_launcher.visible == false then return end
+	if screen.app_launcher == nil or screen.app_launcher.visible == false then
+		return
+	end
 
 	self._private.prompt:stop()
 
 	local animation = self.rubato
 	if animation ~= nil then
-		if animation.x then animation.x:set(animation.x:initial()) end
-		if animation.y then animation.y:set(animation.y:initial()) end
+		if animation.x then
+			animation.x:set(animation.x:initial())
+		end
+		if animation.y then
+			animation.y:set(animation.y:initial())
+		end
 
 		local anim_x_duration = (animation.x and animation.x.duration) or 0
 		local anim_y_duration = (animation.y and animation.y.duration) or 0
@@ -702,32 +735,40 @@ function app_launcher:hide()
 
 		if turn_off_on_anim_x_end then
 			animation.x.ended:subscribe(function()
-				if self.reset_on_hide == true then reset(self) end
+				if self.reset_on_hide == true then
+					reset(self)
+				end
 				screen.app_launcher.visible = false
 				screen.app_launcher = nil
 				animation.x.ended:unsubscribe()
 			end)
 		else
 			animation.y.ended:subscribe(function()
-				if self.reset_on_hide == true then reset(self) end
+				if self.reset_on_hide == true then
+					reset(self)
+				end
 				screen.app_launcher.visible = false
 				screen.app_launcher = nil
 				animation.y.ended:unsubscribe()
 			end)
 		end
 	else
-		if self.reset_on_hide == true then reset(self) end
+		if self.reset_on_hide == true then
+			reset(self)
+		end
 		screen.app_launcher.visible = false
 		screen.app_launcher = nil
 	end
 
-	self:emit_signal('app_menu::app_launcher::visibility', false)
+	self:emit_signal("app_menu::app_launcher::visibility", false)
 end
 
 --- Toggles the app launcher
 function app_launcher:toggle()
 	local screen = self.screen
-	if self.show_on_focused_screen then screen = awful.screen.focused() end
+	if self.show_on_focused_screen then
+		screen = awful.screen.focused()
+	end
 
 	if screen.app_launcher and screen.app_launcher.visible then
 		self:hide()
@@ -768,39 +809,39 @@ local function new(args)
 	args.icon_theme = args.icon_theme or nil
 	args.icon_size = args.icon_size or nil
 
-	args.type = args.type or 'dock'
+	args.type = args.type or "dock"
 	args.show_on_focused_screen = args.show_on_focused_screen == nil and true or args.show_on_focused_screen
 	args.screen = args.screen or capi.screen.primary
 	args.placement = args.placement or awful.placement.centered
 	args.rubato = args.rubato or nil
 	args.shrink_width = args.shrink_width ~= nil and args.shrink_width or false
 	args.shrink_height = args.shrink_height ~= nil and args.shrink_height or false
-	args.background = args.background or '#000000'
+	args.background = args.background or "#000000"
 	args.border_width = args.border_width or beautiful.border_width or dpi(0)
-	args.border_color = args.border_color or beautiful.border_color or '#FFFFFF'
+	args.border_color = args.border_color or beautiful.border_color or "#FFFFFF"
 	args.shape = args.shape or nil
 
 	args.prompt_height = args.prompt_height or dpi(100)
 	args.prompt_margins = args.prompt_margins or dpi(0)
 	args.prompt_paddings = args.prompt_paddings or dpi(30)
 	args.prompt_shape = args.prompt_shape or nil
-	args.prompt_color = args.prompt_color or beautiful.fg_normal or '#FFFFFF'
+	args.prompt_color = args.prompt_color or beautiful.fg_normal or "#FFFFFF"
 	args.prompt_border_width = args.prompt_border_width or beautiful.border_width or dpi(0)
 	args.prompt_border_color = args.prompt_border_color or beautiful.border_color or args.prompt_color
-	args.prompt_text_halign = args.prompt_text_halign or 'left'
-	args.prompt_text_valign = args.prompt_text_valign or 'center'
+	args.prompt_text_halign = args.prompt_text_halign or "left"
+	args.prompt_text_valign = args.prompt_text_valign or "center"
 	args.prompt_icon_text_spacing = args.prompt_icon_text_spacing or dpi(10)
 	args.prompt_show_icon = args.prompt_show_icon == nil and true or args.prompt_show_icon
 	args.prompt_icon_font = args.prompt_icon_font or beautiful.nerd_font
-	args.prompt_icon_color = args.prompt_icon_color or beautiful.bg_normal or '#000000'
-	args.prompt_icon = args.prompt_icon or ''
+	args.prompt_icon_color = args.prompt_icon_color or beautiful.bg_normal or "#000000"
+	args.prompt_icon = args.prompt_icon or ""
 	args.prompt_icon_markup = args.prompt_icon_markup
 		or string.format("<span size='xx-large' foreground='%s'>%s</span>", args.prompt_icon_color, args.prompt_icon)
-	args.prompt_text = args.prompt_text or '<b>Search</b>: '
-	args.prompt_start_text = args.prompt_start_text or ''
+	args.prompt_text = args.prompt_text or "<b>Search</b>: "
+	args.prompt_start_text = args.prompt_start_text or ""
 	args.prompt_font = args.prompt_font or beautiful.nerd_font
-	args.prompt_text_color = args.prompt_text_color or beautiful.bg_normal or '#000000'
-	args.prompt_cursor_color = args.prompt_cursor_color or beautiful.bg_normal or '#000000'
+	args.prompt_text_color = args.prompt_text_color or beautiful.bg_normal or "#000000"
+	args.prompt_cursor_color = args.prompt_cursor_color or beautiful.bg_normal or "#000000"
 
 	args.apps_per_row = args.apps_per_row or 5
 	args.apps_per_column = args.apps_per_column or 3
@@ -811,13 +852,13 @@ local function new(args)
 	args.app_width = args.app_width or dpi(300)
 	args.app_height = args.app_height or dpi(120)
 	args.app_shape = args.app_shape or nil
-	args.app_normal_color = args.app_normal_color or beautiful.bg_normal or '#000000'
+	args.app_normal_color = args.app_normal_color or beautiful.bg_normal or "#000000"
 	args.app_normal_hover_color = args.app_normal_hover_color
 		or (color.is_dark(args.app_normal_color) or color.is_opaque(args.app_normal_color)) and color.rgba_to_hex(
 			color.multiply(color.hex_to_rgba(args.app_normal_color), 2.5)
 		)
 		or color.rgba_to_hex(color.multiply(color.hex_to_rgba(args.app_normal_color), 0.5))
-	args.app_selected_color = args.app_selected_color or beautiful.fg_normal or '#FFFFFF'
+	args.app_selected_color = args.app_selected_color or beautiful.fg_normal or "#FFFFFF"
 	args.app_selected_hover_color = args.app_selected_hover_color
 		or (color.is_dark(args.app_normal_color) or color.is_opaque(args.app_normal_color)) and color.rgba_to_hex(
 			color.multiply(color.hex_to_rgba(args.app_selected_color), 2.5)
@@ -826,20 +867,20 @@ local function new(args)
 	args.app_content_padding = args.app_content_padding or dpi(10)
 	args.app_content_spacing = args.app_content_spacing or dpi(10)
 	args.app_show_icon = args.app_show_icon == nil and true or args.app_show_icon
-	args.app_icon_halign = args.app_icon_halign or 'center'
+	args.app_icon_halign = args.app_icon_halign or "center"
 	args.app_icon_width = args.app_icon_width or dpi(70)
 	args.app_icon_height = args.app_icon_height or dpi(70)
 	args.app_show_name = args.app_show_name == nil and true or args.app_show_name
 	args.app_name_generic_name_spacing = args.app_name_generic_name_spacing or dpi(0)
-	args.app_name_halign = args.app_name_halign or 'center'
+	args.app_name_halign = args.app_name_halign or "center"
 	args.app_name_font = args.app_name_font or beautiful.nerd_font
-	args.app_name_normal_color = args.app_name_normal_color or beautiful.fg_normal or '#FFFFFF'
-	args.app_name_selected_color = args.app_name_selected_color or beautiful.bg_normal or '#000000'
+	args.app_name_normal_color = args.app_name_normal_color or beautiful.fg_normal or "#FFFFFF"
+	args.app_name_selected_color = args.app_name_selected_color or beautiful.bg_normal or "#000000"
 	args.app_show_generic_name = args.app_show_generic_name ~= nil and args.app_show_generic_name or false
 
 	local ret = gobject({})
 	ret._private = {}
-	ret._private.text = ''
+	ret._private.text = ""
 
 	gtable.crush(ret, app_launcher)
 	gtable.crush(ret, args)
@@ -860,9 +901,11 @@ local function new(args)
 		font = ret.prompt_font,
 		reset_on_stop = ret.reset_on_hide,
 		bg_cursor = ret.prompt_cursor_color,
-		history_path = ret.save_history == true and gfilesystem.get_cache_dir() .. '/history' or nil,
+		history_path = ret.save_history == true and gfilesystem.get_cache_dir() .. "/history" or nil,
 		changed_callback = function(text)
-			if text == ret._private.text then return end
+			if text == ret._private.text then
+				return
+			end
 
 			if ret._private.search_timer ~= nil and ret._private.search_timer.started then
 				ret._private.search_timer:stop()
@@ -872,20 +915,34 @@ local function new(args)
 				timeout = 0.05,
 				autostart = true,
 				single_shot = true,
-				callback = function() search(ret, text) end,
+				callback = function()
+					search(ret, text)
+				end,
 			})
 
 			ret._private.text = text
 		end,
 		keypressed_callback = function(mod, key, cmd)
-			if key == 'Escape' then ret:hide() end
-			if key == 'Return' then
-				if ret._private.active_widget ~= nil then ret._private.active_widget.spawn() end
+			if key == "Escape" then
+				ret:hide()
 			end
-			if key == 'Up' then scroll_up(ret) end
-			if key == 'Down' then scroll_down(ret) end
-			if key == 'Left' then scroll_left(ret) end
-			if key == 'Right' then scroll_right(ret) end
+			if key == "Return" then
+				if ret._private.active_widget ~= nil then
+					ret._private.active_widget.spawn()
+				end
+			end
+			if key == "Up" then
+				scroll_up(ret)
+			end
+			if key == "Down" then
+				scroll_down(ret)
+			end
+			if key == "Left" then
+				scroll_left(ret)
+			end
+			if key == "Right" then
+				scroll_right(ret)
+			end
 		end,
 	})
 	-- -------------------------------------------------------------------------- --
@@ -894,17 +951,25 @@ local function new(args)
 		layout = wibox.layout.grid,
 		forced_width = grid_width,
 		forced_height = grid_height,
-		orientation = 'horizontal',
+		orientation = "horizontal",
 		homogeneous = true,
 		expand = ret.expand_apps,
 		spacing = ret.apps_spacing,
 		forced_num_rows = ret.apps_per_row,
 		buttons = {
-			awful.button({}, 4, function() scroll_up(ret) end),
-			awful.button({}, 5, function() scroll_down(ret) end),
+			awful.button({}, 4, function()
+				scroll_up(ret)
+			end),
+			awful.button({}, 5, function()
+				scroll_down(ret)
+			end),
 			-- Because the scroll wheel is a little wild sometimes
-			awful.button({}, 8, function() scroll_up(ret) end),
-			awful.button({}, 9, function() scroll_down(ret) end),
+			awful.button({}, 8, function()
+				scroll_up(ret)
+			end),
+			awful.button({}, 9, function()
+				scroll_down(ret)
+			end),
 		},
 	})
 	-- -------------------------------------------------------------------------- --
@@ -916,8 +981,8 @@ local function new(args)
 		{
 			widget = wibox.widget.imagebox,
 			image = icons.logo,
-			halign = 'center',
-			valign = 'center',
+			halign = "center",
+			valign = "center",
 		},
 	})
 	-- Saving this for the off chance I figure out something useful to do with this
@@ -940,7 +1005,7 @@ local function new(args)
 		fg = beautiful.fg_normal,
 		bg = beautiful.widget_back,
 		shape = utilities.mkroundedrect(),
-		border_color = beautiful.grey .. 'cc',
+		border_color = beautiful.grey .. "cc",
 		border_width = dpi(1),
 		forced_width = dpi(36),
 		forced_height = dpi(36),
@@ -949,23 +1014,25 @@ local function new(args)
 			{
 				widget = wibox.widget.imagebox,
 				image = icons.logout,
-				halign = 'center',
-				valign = 'center',
+				halign = "center",
+				valign = "center",
 			},
 			widget = wibox.container.margin,
 			margins = dpi(8),
 		},
 	})
-	ret._private.exit_button:connect_signal('mouse::enter', function(c)
+	ret._private.exit_button:connect_signal("mouse::enter", function(c)
 		c:set_bg(beautiful.widget_back_focus)
 		c:set_fg(beautiful.lessgrey)
 	end)
-	ret._private.exit_button:connect_signal('mouse::leave', function(c)
+	ret._private.exit_button:connect_signal("mouse::leave", function(c)
 		c:set_bg(beautiful.widget_back)
 		c:set_fg(beautiful.fg_normal)
 	end)
-	ret._private.exit_button:connect_signal('button::press', function(c, _, _, button)
-		if button == 1 then awful.spawn.with_shell('doas systemctl restart lightdm') end
+	ret._private.exit_button:connect_signal("button::press", function(c, _, _, button)
+		if button == 1 then
+			awful.spawn.with_shell("doas systemctl restart lightdm")
+		end
 	end)
 	-- -------------------------------------------------------------------------- --
 	-- reboot button
@@ -974,7 +1041,7 @@ local function new(args)
 		fg = beautiful.fg_normal,
 		bg = beautiful.widget_back,
 		shape = utilities.mkroundedrect(),
-		border_color = beautiful.grey .. 'cc',
+		border_color = beautiful.grey .. "cc",
 		border_width = dpi(1),
 		forced_width = dpi(36),
 		forced_height = dpi(36),
@@ -982,23 +1049,25 @@ local function new(args)
 			{
 				widget = wibox.widget.imagebox,
 				image = icons.restart,
-				halign = 'center',
-				valign = 'center',
+				halign = "center",
+				valign = "center",
 			},
 			widget = wibox.container.margin,
 			margins = dpi(8),
 		},
 	})
-	ret._private.reboot_button:connect_signal('mouse::enter', function(c)
+	ret._private.reboot_button:connect_signal("mouse::enter", function(c)
 		c:set_bg(beautiful.widget_back_focus)
 		c:set_fg(beautiful.lessgrey)
 	end)
-	ret._private.reboot_button:connect_signal('mouse::leave', function(c)
+	ret._private.reboot_button:connect_signal("mouse::leave", function(c)
 		c:set_bg(beautiful.widget_back)
 		c:set_fg(beautiful.fg_normal)
 	end)
-	ret._private.reboot_button:connect_signal('button::press', function(c, _, _, button)
-		if button == 1 then awful.spawn.with_shell('doas reboot -f') end
+	ret._private.reboot_button:connect_signal("button::press", function(c, _, _, button)
+		if button == 1 then
+			awful.spawn.with_shell("doas reboot -f")
+		end
 	end)
 	-- -------------------------------------------------------------------------- --
 	-- power off
@@ -1007,7 +1076,7 @@ local function new(args)
 		fg = beautiful.fg_normal,
 		bg = beautiful.widget_back,
 		shape = utilities.mkroundedrect(),
-		border_color = beautiful.grey .. 'cc',
+		border_color = beautiful.grey .. "cc",
 		border_width = dpi(1),
 		forced_width = dpi(36),
 		forced_height = dpi(36),
@@ -1016,24 +1085,26 @@ local function new(args)
 			{
 				widget = wibox.widget.imagebox,
 				image = icons.power,
-				halign = 'center',
-				valign = 'center',
+				halign = "center",
+				valign = "center",
 			},
 			widget = wibox.container.margin,
 			margins = dpi(8),
 		},
 	})
 
-	ret._private.poweroff_button:connect_signal('mouse::enter', function(c)
+	ret._private.poweroff_button:connect_signal("mouse::enter", function(c)
 		c:set_bg(beautiful.widget_back_focus)
 		c:set_fg(beautiful.lessgrey)
 	end)
-	ret._private.poweroff_button:connect_signal('mouse::leave', function(c)
+	ret._private.poweroff_button:connect_signal("mouse::leave", function(c)
 		c:set_bg(beautiful.widget_back)
 		c:set_fg(beautiful.fg_normal)
 	end)
-	ret._private.poweroff_button:connect_signal('button::press', function(c, _, _, button)
-		if button == 1 then awful.spawn.with_shell('doas poweroff -f') end
+	ret._private.poweroff_button:connect_signal("button::press", function(c, _, _, button)
+		if button == 1 then
+			awful.spawn.with_shell("doas poweroff -f")
+		end
 	end)
 	-- -------------------------------------------------------------------------- --
 	-- panel for the above buttons
@@ -1062,10 +1133,10 @@ local function new(args)
 					margins = dpi(8),
 				},
 				widget = wibox.container.background,
-				bg = beautiful.dimblack .. 'cc',
+				bg = beautiful.dimblack .. "cc",
 				shape = utilities.mkroundedrect(),
 				border_width = dpi(0.75),
-				border_color = beautiful.lessgrey .. '77',
+				border_color = beautiful.lessgrey .. "77",
 			},
 			widget = wibox.container.margin,
 			margins = dpi(6),
@@ -1079,7 +1150,7 @@ local function new(args)
 		ontop = true,
 		placement = ret.placement,
 		border_width = dpi(1),
-		border_color = beautiful.grey .. 'cc',
+		border_color = beautiful.grey .. "cc",
 		shape = ret.shape,
 		bg = ret.background,
 		widget = {
@@ -1137,9 +1208,9 @@ local function new(args)
 						},
 						shape = utilities.mkroundedrect(),
 						border_width = dpi(0.75),
-						border_color = beautiful.lessgrey .. '77',
+						border_color = beautiful.lessgrey .. "77",
 						widget = wibox.container.background,
-						bg = beautiful.dimblack .. 'cc',
+						bg = beautiful.dimblack .. "cc",
 					},
 					widget = wibox.container.margin,
 					margins = dpi(8),
@@ -1147,7 +1218,7 @@ local function new(args)
 			},
 			{
 				{
-					require('ui.bar.popups.app_menu.widget.app_launcher.charts'),
+					require("ui.bar.popups.app_menu.widget.app_launcher.charts"),
 					widget = wibox.container.margin,
 					top = dpi(8),
 					bottom = dpi(2),
@@ -1155,7 +1226,7 @@ local function new(args)
 					left = dpi(0),
 				},
 				{
-					require('ui.bar.popups.app_menu.widget.app_launcher.controls'),
+					require("ui.bar.popups.app_menu.widget.app_launcher.controls"),
 					widget = wibox.container.margin,
 					top = dpi(3),
 					bottom = dpi(2),
@@ -1185,18 +1256,34 @@ local function new(args)
 	generate_apps(ret)
 	reset(ret)
 
-	if ret.rubato and ret.rubato.x then ret.rubato.x:subscribe(function(pos) ret._private.widget.x = pos end) end
-	if ret.rubato and ret.rubato.y then ret.rubato.y:subscribe(function(pos) ret._private.widget.y = pos end) end
+	if ret.rubato and ret.rubato.x then
+		ret.rubato.x:subscribe(function(pos)
+			ret._private.widget.x = pos
+		end)
+	end
+	if ret.rubato and ret.rubato.y then
+		ret.rubato.y:subscribe(function(pos)
+			ret._private.widget.y = pos
+		end)
+	end
 
 	if ret.hide_on_left_clicked_outside then
-		awful.mouse.append_client_mousebinding(awful.button({}, 1, function(c) ret:hide() end))
+		awful.mouse.append_client_mousebinding(awful.button({}, 1, function(c)
+			ret:hide()
+		end))
 
-		awful.mouse.append_global_mousebinding(awful.button({}, 1, function(c) ret:hide() end))
+		awful.mouse.append_global_mousebinding(awful.button({}, 1, function(c)
+			ret:hide()
+		end))
 	end
 	if ret.hide_on_right_clicked_outside then
-		awful.mouse.append_client_mousebinding(awful.button({}, 3, function(c) ret:hide() end))
+		awful.mouse.append_client_mousebinding(awful.button({}, 3, function(c)
+			ret:hide()
+		end))
 
-		awful.mouse.append_global_mousebinding(awful.button({}, 3, function(c) ret:hide() end))
+		awful.mouse.append_global_mousebinding(awful.button({}, 3, function(c)
+			ret:hide()
+		end))
 	end
 
 	local kill_old_inotify_process_script =
@@ -1205,7 +1292,9 @@ local function new(args)
 
 	awful.spawn.easy_async_with_shell(kill_old_inotify_process_script, function()
 		awful.spawn.with_line_callback(subscribe_script, {
-			stdout = function(_) generate_apps(ret) end,
+			stdout = function(_)
+				generate_apps(ret)
+			end,
 		})
 	end)
 
@@ -1223,7 +1312,7 @@ function app_launcher.text(args)
 	args.apps_spacing = args.apps_spacing or dpi(10)
 	args.apps_per_row = args.apps_per_row or 15
 	args.apps_per_column = args.apps_per_column or 1
-	args.app_name_halign = args.app_name_halign or 'left'
+	args.app_name_halign = args.app_name_halign or "left"
 	args.app_show_icon = args.app_show_icon ~= nil and args.app_show_icon or false
 	args.app_show_generic_name = args.app_show_generic_name == nil and true or args.app_show_generic_name
 	args.apps_margin = args.apps_margin or { left = dpi(40), right = dpi(40), bottom = dpi(30) }
@@ -1231,6 +1320,8 @@ function app_launcher.text(args)
 	return new(args)
 end
 
-function app_launcher.mt:__call(...) return new(...) end
+function app_launcher.mt:__call(...)
+	return new(...)
+end
 
 return setmetatable(app_launcher, app_launcher.mt)

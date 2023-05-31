@@ -124,7 +124,9 @@
     "window",
     "xresources",
         "ngx",
-        "lfs"
+        "lfs",
+        "busy",
+        "timers"
   ],
   "workspace.library": [
     "~/.local/share/awesome-emmylua/lua",

@@ -1,42 +1,20 @@
---  ______ __               __                __   __
--- |   __ \  |.--.--.-----.|  |_.-----.-----.|  |_|  |--.
--- |   __ <  ||  |  |  -__||   _|  _  |  _  ||   _|     |
--- |______/__||_____|_____||____|_____|_____||____|__|__|
--- ------------------------------------------------- --
--- emits bluetooth status
+local awful = require("awful")
+local gears = require("gears")
 
--- ("signal::bluetooth"), function(status(bool), service_status(bool))
--- ------------------------------------------------- --
--- requirements
-local awful = require('awful')
-
--- update interval
-local update_interval = 10
-
---  import bluetooth info
-local cmd = [[
-  bash -c "
-  bluetoothctl show | grep "Powered:" | awk '{ print $2 }'
-  "
-]]
-
-awful.widget.watch(cmd, update_interval, function(_, stdout)
-	local output = string.gsub(stdout, '^%s*(.-)%s*$', '%1')
-	local bluetooth_active = true
-	local bluetooth_runnding_service
-
-	-- lets see if bluetooth.service is enabled
-	awful.spawn.easy_async_with_shell("bash -c 'pgrep bluetooth'", function(lets_see)
-		if lets_see == '' then
-			bluetooth_runnding_service = false
-		else
-			bluetooth_runnding_service = true
-		end
+local function emit_bluetooth_status()
+	awful.spawn.easy_async_with_shell("bash -c 'bluetoothctl show | grep -i powered:'", function(stdout)
+		local status = stdout:match("yes") -- boolean
+		awesome.emit_signal("signal::bluetooth", status)
 	end)
+end
 
-	-- set output as above info
-	if output == 'no' then bluetooth_active = bluetooth_runnding_service end
-
-	-- emit (powered on?) , (is the proceess running?)
-	awesome.emit_signal('signal::bluetooth', bluetooth_active, bluetooth_runnding_service)
-end)
+-- Refreshing
+-------------
+gears.timer({
+	timeout = 2,
+	call_now = true,
+	autostart = true,
+	callback = function()
+		emit_bluetooth_status()
+	end,
+})
