@@ -1,4 +1,4 @@
-local easing = require(RUBATO_DIR .. 'easing')
+local easing = require(RUBATO_DIR .. "easing")
 --[[
 manager.timed.defaults.rate = 60 --sets default rate to 60
 manager.timed.override.rate = 30 --sets all rates to 30
@@ -64,7 +64,9 @@ local function manager()
 	}
 
 	setmetatable(obj.timed.override, {
-		__index = function(self, key) return self._props[key] end,
+		__index = function(self, key)
+			return self._props[key]
+		end,
 		__newindex = function(self, key, value)
 			for _, timed in pairs(obj.timeds) do
 				timed[key] = value

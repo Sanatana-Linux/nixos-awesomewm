@@ -1,19 +1,19 @@
-local wibox = require('wibox')
-local beautiful = require('beautiful')
+local wibox = require("wibox")
+local beautiful = require("beautiful")
 local dpi = beautiful.xresources.apply_dpi
 
-local notifwidget = require('ui.bar.popups.notification_center.widgets.notifcenter')
+local notifwidget = require("ui.bar.popups.notification_center.widgets.notifcenter")
 
 awful.screen.connect_for_each_screen(function(s)
 	-- ----------------------------------------------------------- --
 	notification_center = wibox({
-		type = 'dock',
-		shape = utilities.mkroundedrect(),
+		type = "dock",
+		shape = utilities.widgets.mkroundedrect(),
 		screen = s,
 		width = dpi(380),
 		height = dpi(560),
-		bg = beautiful.bg_normal .. 'cc',
-		border_color = beautiful.grey .. 'cc',
+		bg = beautiful.bg_normal .. "cc",
+		border_color = beautiful.grey .. "cc",
 		border_width = dpi(2),
 		margins = dpi(20),
 		ontop = true,
@@ -22,58 +22,54 @@ awful.screen.connect_for_each_screen(function(s)
 
 	-- animations
 	--------------
-  local slide_right =
-  rubato.timed(
-  {
-      pos = s.geometry.height,
-      rate = 60,
-      intro = 0.14,
-      duration = 0.33,
-      subscribed = function(pos)
-          notification_center.y = (s.geometry.y - beautiful.bar_height) + pos
-      end
-  }
-)
+	local slide_right = rubato.timed({
+		pos = s.geometry.height,
+		rate = 60,
+		intro = 0.14,
+		duration = 0.33,
+		subscribed = function(pos)
+			notification_center.y = (s.geometry.y - beautiful.bar_height) + pos
+		end,
+	})
 
-local slide_end =
-  gears.timer(
-  {
-      single_shot = true,
-      timeout = 0.33 + 0.08,
-      callback = function()
-        notification_center.visible = false
-      end
-  }
-)
+	local slide_end = gears.timer({
+		single_shot = true,
+		timeout = 0.33 + 0.08,
+		callback = function()
+			notification_center.visible = false
+		end,
+	})
 
-
-  	-- -------------------------------------------------------------------------- --
+	-- -------------------------------------------------------------------------- --
 	-- keygrabber
 	--
 	keygrabber_no = awful.keygrabber({
 		keybindings = {
 			awful.key({
 				modifiers = {},
-				key = 'Escape',
+				key = "Escape",
 				on_press = function()
 					no_toggle()
 					keygrabber_no:stop()
+					collectgarbage("collect")
 				end,
 			}),
 			awful.key({
 				modifiers = {},
-				key = 'q',
+				key = "q",
 				on_press = function()
 					no_toggle()
 					keygrabber_no:stop()
+					collectgarbage("collect")
 				end,
 			}),
 			awful.key({
 				modifiers = {},
-				key = 'x',
+				key = "x",
 				on_press = function()
 					no_toggle()
 					keygrabber_no:stop()
+					collectgarbage("collect")
 				end,
 			}),
 		},
@@ -85,7 +81,9 @@ local slide_end =
 
 	no_toggle = function(screen)
 		-- set screen to default, if none were found
-		if not screen then screen = awful.screen.focused() end
+		if not screen then
+			screen = awful.screen.focused()
+		end
 
 		-- control center x position
 		notification_center.x = screen.geometry.x + beautiful.useless_gap
@@ -128,17 +126,21 @@ local slide_end =
 	function no_hide(s)
 		notification_center.visible = false
 		keygrabber_no:stop()
+		collectgarbage("collect")
 	end
 
-	awesome.connect_signal('notification_center::toggle', function(s) no_toggle(s) end)
+	awesome.connect_signal("notification_center::toggle", function(s)
+		no_toggle(s)
+	end)
 	notification_center:setup({
 		{
-			{nil,
-        require('ui.bar.popups.notification_center.widgets.notifcenter'),
-        nil,
-        halign = 'center',
-        valign = 'center',
-        layout = wibox.layout.align.horizontal,
+			{
+				nil,
+				require("ui.bar.popups.notification_center.widgets.notifcenter"),
+				nil,
+				halign = "center",
+				valign = "center",
+				layout = wibox.layout.align.horizontal,
 			},
 			widget = wibox.container.margin,
 			margins = dpi(20),

@@ -1,8 +1,8 @@
-local awful = require('awful')
-local gears = require('gears')
-local beautiful = require('beautiful')
+local awful = require("awful")
+local gears = require("gears")
+local beautiful = require("beautiful")
 
-local helpers = require(tostring(...):match('.*bling') .. '.helpers')
+local helpers = require(tostring(...):match(".*bling") .. ".helpers")
 
 -- It might actually swallow too much, that's why there is a filter option by classname
 -- without the don't-swallow-list it would also swallow for example
@@ -13,7 +13,7 @@ local window_swallowing_activated = false
 -- you might want to add or remove applications here
 local parent_filter_list = beautiful.parent_filter_list
     or beautiful.dont_swallow_classname_list
-    or { 'firefox', 'Gimp', 'Google-chrome' }
+    or { "firefox", "Gimp", "Google-chrome" }
 local child_filter_list = beautiful.child_filter_list
     or beautiful.dont_swallow_classname_list
     or {}
@@ -56,10 +56,10 @@ end
 -- recieves a child process pid and a callback function
 -- parent_pid in format "init(1)---ancestorA(pidA)---ancestorB(pidB)...---process(pid)"
 function get_parent_pid(child_ppid, callback)
-    local ppid_cmd = string.format('pstree -A -p -s %s', child_ppid)
+    local ppid_cmd = string.format("pstree -A -p -s %s", child_ppid)
     awful.spawn.easy_async(ppid_cmd, function(stdout, stderr, reason, exit_code)
         -- primitive error checking
-        if stderr and stderr ~= '' then
+        if stderr and stderr ~= "" then
             callback(stderr)
             return
         end
@@ -74,23 +74,25 @@ local function manage_clientspawn(c)
     local parent_client = awful.client.focus.history.get(c.screen, 1)
     if not parent_client then
         return
-    elseif parent_client.type == 'dialog' or parent_client.type == 'splash' then
+    elseif parent_client.type == "dialog" or parent_client.type == "splash" then
         return
     end
 
     get_parent_pid(c.pid, function(err, ppid)
-        if err then return end
+        if err then
+            return
+        end
         parent_pid = ppid
         if
             -- will search for "(parent_client.pid)" inside the parent_pid string
             (
                 tostring(parent_pid):find(
-                    '(' .. tostring(parent_client.pid) .. ')'
+                    "(" .. tostring(parent_client.pid) .. ")"
                 )
             )
             and check_swallow(parent_client.class, c.class)
         then
-            c:connect_signal('unmanage', function()
+            c:connect_signal("unmanage", function()
                 if parent_client then
                     helpers.client.turn_on(parent_client)
                     helpers.client.sync(parent_client, c)
@@ -107,12 +109,12 @@ end
 -- a toggle window swallowing hotkey is also possible that way
 
 local function start()
-    client.connect_signal('manage', manage_clientspawn)
+    client.connect_signal("manage", manage_clientspawn)
     window_swallowing_activated = true
 end
 
 local function stop()
-    client.disconnect_signal('manage', manage_clientspawn)
+    client.disconnect_signal("manage", manage_clientspawn)
     window_swallowing_activated = false
 end
 

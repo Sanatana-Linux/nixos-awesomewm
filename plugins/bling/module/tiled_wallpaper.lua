@@ -12,17 +12,17 @@
     cr:fill() in lua
 --]]
 
-local cairo = require('lgi').cairo
-local gears = require('gears')
+local cairo = require("lgi").cairo
+local gears = require("gears")
 
 function create_tiled_wallpaper(str, s, args_table)
     -- user input
     args_table = args_table or {}
-    local fg = args_table.fg or '#ff0000'
-    local bg = args_table.bg or '#00ffff'
+    local fg = args_table.fg or "#ff0000"
+    local bg = args_table.bg or "#00ffff"
     local offset_x = args_table.offset_x
     local offset_y = args_table.offset_y
-    local font = args_table.font or 'Hack'
+    local font = args_table.font or "Hack"
     local font_size = tonumber(args_table.font_size) or 16
     local zickzack_bool = args_table.zickzack or false
     local padding = args_table.padding or 100

@@ -11,7 +11,7 @@
 local pairs = pairs
 
 local horizon = {
-	name = 'horizon',
+	name = "horizon",
 }
 -- --------------------- method -------------------- --
 function horizon.arrange(p)

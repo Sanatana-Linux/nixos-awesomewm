@@ -12,7 +12,7 @@
 local pairs = pairs
 
 local thrizen = {
-	name = 'thrizen',
+	name = "thrizen",
 }
 
 function thrizen.arrange(screen)

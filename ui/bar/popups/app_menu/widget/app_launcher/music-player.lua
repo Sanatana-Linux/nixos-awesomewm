@@ -1,8 +1,8 @@
 ---@diagnostic disable: undefined-global
-local wibox = require('wibox')
-local beautiful = require('beautiful')
-local gears = require('gears')
-local awful = require('awful')
+local wibox = require("wibox")
+local beautiful = require("beautiful")
+local gears = require("gears")
+local awful = require("awful")
 
 local playerctl = PlayerctlSignal
 local playerctl_cli = PlayerctlCli
@@ -11,25 +11,25 @@ local dpi = beautiful.xresources.apply_dpi
 
 local picture = wibox.widget({
 	image = beautiful.fallback_music,
-	halign = 'center',
+	halign = "center",
 	forced_width = dpi(48),
 	forced_height = dpi(48),
-	horizontal_fit_policy = 'fit',
-	vertical_fit_policy = 'fit',
-	valign = 'center',
-	clip_shape = utilities.mkroundedrect(),
+	horizontal_fit_policy = "fit",
+	vertical_fit_policy = "fit",
+	valign = "center",
+	clip_shape = utilities.widgets.mkroundedrect(),
 	widget = wibox.widget.imagebox,
 })
 
 local title = wibox.widget({
-	markup = '<b>No playing</b>',
-	align = 'center',
+	markup = "<b>No playing</b>",
+	align = "center",
 	widget = wibox.widget.textbox,
 })
 
 local artist = wibox.widget({
-	markup = 'No artist',
-	font = beautiful.font_name .. ' ' .. tostring(tonumber(beautiful.font_size) - 1),
+	markup = "No artist",
+	font = beautiful.font_name .. " " .. tostring(tonumber(beautiful.font_size) - 1),
 	widget = wibox.widget.textbox,
 })
 
@@ -38,10 +38,10 @@ local function base_control_button(default_icon, font)
 	local btn = wibox.widget({
 		{
 			{
-				id = 'icon_role',
+				id = "icon_role",
 				markup = default_icon,
-				align = 'center',
-				font = font or beautiful.nerd_font .. ' 14',
+				align = "center",
+				font = font or beautiful.nerd_font .. " 14",
 				widget = wibox.widget.textbox,
 			},
 			top = dpi(1),
@@ -50,30 +50,38 @@ local function base_control_button(default_icon, font)
 			right = dpi(11),
 			widget = wibox.container.margin,
 		},
-		shape = utilities.mkroundedrect(dpi(4)),
+		shape = utilities.widgets.mkroundedrect(dpi(4)),
 		bg = beautiful.black,
 		widget = wibox.container.background,
-		set_txt = function(self, value) self:get_children_by_id('icon_role')[1].markup = value end,
+		set_txt = function(self, value)
+			self:get_children_by_id("icon_role")[1].markup = value
+		end,
 	})
 
-	utilities.add_hover(btn, beautiful.black, beautiful.dimblack)
+	utilities.visual.add_hover(btn, beautiful.black, beautiful.dimblack)
 
 	return btn
 end
 
-local previous = base_control_button('玲')
-local pause = base_control_button('', beautiful.nerd_font .. ' 18')
-local next = base_control_button('怜')
+local previous = base_control_button("玲")
+local pause = base_control_button("", beautiful.nerd_font .. " 18")
+local next = base_control_button("怜")
 
 -- WIP
-local shuffle = base_control_button('怜')
+local shuffle = base_control_button("怜")
 
 -- controls buttons
-previous:add_button(awful.button({}, 1, function() playerctl_cli:previous() end))
+previous:add_button(awful.button({}, 1, function()
+	playerctl_cli:previous()
+end))
 
-pause:add_button(awful.button({}, 1, function() playerctl_cli:play_pause() end))
+pause:add_button(awful.button({}, 1, function()
+	playerctl_cli:play_pause()
+end))
 
-next:add_button(awful.button({}, 1, function() playerctl_cli:next() end))
+next:add_button(awful.button({}, 1, function()
+	playerctl_cli:next()
+end))
 
 local progress_slider = wibox.widget({
 	bar_shape = gears.shape.rounded_bar,
@@ -90,34 +98,38 @@ local progress_slider = wibox.widget({
 })
 
 -- make connection to playerctl
-playerctl:connect_signal('metadata', function(_, music_title, music_artist, music_album_path)
-	title:set_markup_silently('<b>' .. utilities.limit_by_length(music_title, 16, true) .. '</b>')
-	artist:set_markup_silently('By ' .. utilities.limit_by_length(music_artist, 19, true))
+playerctl:connect_signal("metadata", function(_, music_title, music_artist, music_album_path)
+	title:set_markup_silently("<b>" .. utilities.textual.limit_by_length(music_title, 16, true) .. "</b>")
+	artist:set_markup_silently("By " .. utilities.textual.limit_by_length(music_artist, 19, true))
 	picture:set_image(gears.surface.load_uncached(music_album_path))
 end)
 
-playerctl:connect_signal('no_players', function()
-	title:set_markup_silently('No music')
-	artist:set_markup_silently('No artist')
+playerctl:connect_signal("no_players", function()
+	title:set_markup_silently("No music")
+	artist:set_markup_silently("No artist")
 	picture:set_image(gears.surface.load_uncached(beautiful.fallback_music))
-	pause:set_markup('')
+	pause:set_markup("")
 	progress_slider.maximum = 100
 	progress_slider.value = 0
 end)
 
-playerctl:connect_signal('playback_status', function(_, playing) pause.txt = playing and '' or '' end)
+playerctl:connect_signal("playback_status", function(_, playing)
+	pause.txt = playing and "" or ""
+end)
 
 local interval, length = nil, nil
 
-playerctl:connect_signal('position', function(_, interval_sec, length_sec)
+playerctl:connect_signal("position", function(_, interval_sec, length_sec)
 	length = length_sec
 	interval = interval_sec
 	progress_slider.maximum = length
 	progress_slider.value = interval
 end)
 
-progress_slider:connect_signal('property::value', function(_, val)
-	if interval ~= nil and length ~= nil and val ~= interval then playerctl_cli:set_position(val) end
+progress_slider:connect_signal("property::value", function(_, val)
+	if interval ~= nil and length ~= nil and val ~= interval then
+		playerctl_cli:set_position(val)
+	end
 end)
 
 local music_player = wibox.widget({
@@ -129,7 +141,7 @@ local music_player = wibox.widget({
 				{
 					{
 						{
-							markup = '',
+							markup = "",
 							widget = wibox.widget.textbox,
 						},
 						{
@@ -139,8 +151,8 @@ local music_player = wibox.widget({
 								spacing = dpi(5),
 								layout = wibox.layout.fixed.vertical,
 							},
-							halign = 'center',
-							valign = 'center',
+							halign = "center",
+							valign = "center",
 							widget = wibox.container.margin,
 							layout = wibox.container.place,
 						},
@@ -167,8 +179,8 @@ local music_player = wibox.widget({
 					},
 					{
 						pause,
-						halign = 'center',
-						valign = 'center',
+						halign = "center",
+						valign = "center",
 						widget = wibox.container.margin,
 						layout = wibox.container.place,
 					},
@@ -188,7 +200,7 @@ local music_player = wibox.widget({
 		},
 		layout = wibox.layout.fixed.vertical,
 	},
-	shape = utilities.mkroundedrect(),
+	shape = utilities.widgets.mkroundedrect(),
 	bg = beautiful.bg_contrast,
 	border_color = beautiful.grey,
 	border_width = 0.75,

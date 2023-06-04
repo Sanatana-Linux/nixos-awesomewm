@@ -5,11 +5,11 @@
 -- @copyright 2020 Aire-One
 ---------------------------------------------------------------------------
 
-local upower = require('lgi').require('UPowerGlib')
+local upower = require("lgi").require("UPowerGlib")
 
-local gtable = require('gears.table')
-local gtimer = require('gears.timer')
-local wbase = require('wibox.widget.base')
+local gtable = require("gears.table")
+local gtimer = require("gears.timer")
+local wbase = require("wibox.widget.base")
 
 local setmetatable = setmetatable -- luacheck: ignore setmetatable
 
@@ -38,7 +38,9 @@ function battery_widget.get_device(path)
 	local devices = upower.Client():get_devices()
 
 	for _, d in ipairs(devices) do
-		if d:get_object_path() == path then return d end
+		if d:get_object_path() == path then
+			return d
+		end
 	end
 
 	return nil
@@ -48,7 +50,7 @@ end
 -- @treturn string The BAT0 device path.
 -- @staticfct battery_widget.get_BAT0_device_path
 function battery_widget.get_BAT0_device_path()
-	local bat0_path = '/org/freedesktop/UPower/devices/battery_BAT0'
+	local bat0_path = "/org/freedesktop/UPower/devices/battery_BAT0"
 	return bat0_path
 end
 
@@ -62,18 +64,20 @@ end
 -- @staticfct battery_widget.to_clock
 function battery_widget.to_clock(seconds)
 	if seconds <= 0 then
-		return '00:00'
+		return "00:00"
 	else
-		local hours = string.format('%02.f', math.floor(seconds / 3600))
-		local mins = string.format('%02.f', math.floor(seconds / 60 - hours * 60))
-		return hours .. ':' .. mins
+		local hours = string.format("%02.f", math.floor(seconds / 3600))
+		local mins = string.format("%02.f", math.floor(seconds / 60 - hours * 60))
+		return hours .. ":" .. mins
 	end
 end
 
 --- Gives the default widget to use if user didn't specify one.
 -- The default widget used is an `empty_widget` instance.
 -- @treturn widget The default widget to use.
-local function default_template() return wbase.empty_widget() end
+local function default_template()
+	return wbase.empty_widget()
+end
 
 --- The device monitored by the widget.
 -- @property device
@@ -101,7 +105,7 @@ local function default_template() return wbase.empty_widget() end
 function battery_widget.new(args)
 	args = gtable.crush({
 		widget_template = default_template(),
-		device_path = '',
+		device_path = "",
 		use_display_device = false,
 	}, args or {})
 
@@ -111,14 +115,20 @@ function battery_widget.new(args)
 		or battery_widget.get_device(args.device_path)
 
 	-- Attach signals:
-	widget.device.on_notify = function(d) widget:emit_signal('upower::update', d) end
+	widget.device.on_notify = function(d)
+		widget:emit_signal("upower::update", d)
+	end
 
 	-- Call an update cycle if the user asked to instan update the widget.
-	if args.instant_update then gtimer.delayed_call(widget.emit_signal, widget, 'upower::update', widget.device) end
+	if args.instant_update then
+		gtimer.delayed_call(widget.emit_signal, widget, "upower::update", widget.device)
+	end
 
 	return widget
 end
 
-function mt.__call(self, ...) return battery_widget.new(...) end
+function mt.__call(self, ...)
+	return battery_widget.new(...)
+end
 
 return setmetatable(battery_widget, mt)

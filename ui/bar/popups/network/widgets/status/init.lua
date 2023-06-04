@@ -5,20 +5,20 @@
 
 -- ------------------------------------------------- --
 local left_content = wibox.widget({
-	text = 'Network Connected:',
-	font = beautiful.nerd_font .. ' 12',
+	text = "Network Connected:",
+	font = beautiful.nerd_font .. " 12",
 	widget = wibox.widget.textbox,
 })
 
 local right_content = wibox.widget({
-	text = 'None',
-	font = beautiful.nerd_font .. ' 12',
+	text = "None",
+	font = beautiful.nerd_font .. " 12",
 	widget = wibox.widget.textbox,
 })
 
 local widget_user = wibox.widget({
 	layout = wibox.layout.align.vertical,
-	expand = 'none',
+	expand = "none",
 	nil,
 	{
 		left_content,
@@ -29,7 +29,7 @@ local widget_user = wibox.widget({
 
 local widget_host = wibox.widget({
 	layout = wibox.layout.align.vertical,
-	expand = 'none',
+	expand = "none",
 	nil,
 	{
 		right_content,
@@ -40,7 +40,7 @@ local widget_host = wibox.widget({
 
 local spacer_bar = wibox.widget({
 	{
-		orientation = 'vertical',
+		orientation = "vertical",
 		forced_height = dpi(1),
 		forced_width = dpi(150),
 		shape = gears.shape.rounded_bar,
@@ -50,13 +50,18 @@ local spacer_bar = wibox.widget({
 	widget = wibox.container.margin,
 })
 
-awesome.connect_signal('network::connected::wireless', function(interface, essid) right_content:set_text(essid) end)
-awesome.connect_signal('network::connected::wired', function(interface) right_content:set_text(interface) end)
-awesome.connect_signal(
-	'network::disconnected::wireless',
-	function(interface, essid) right_content:set_text('Disconnected') end
-)
-awesome.connect_signal('network::disconnected::wired', function(interface) right_content:set_text('Disconnected') end)
+awesome.connect_signal("network::connected::wireless", function(interface, essid)
+	right_content:set_text(essid)
+end)
+awesome.connect_signal("network::connected::wired", function(interface)
+	right_content:set_text(interface)
+end)
+awesome.connect_signal("network::disconnected::wireless", function(interface, essid)
+	right_content:set_text("Disconnected")
+end)
+awesome.connect_signal("network::disconnected::wired", function(interface)
+	right_content:set_text("Disconnected")
+end)
 local widget = wibox.widget({
 	{
 		widget_user,

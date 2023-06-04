@@ -93,8 +93,10 @@ function arrange(p)
 	end
 end
 -- ------------------------------------------------- --
-centermaster.name = 'centermaster'
+centermaster.name = "centermaster"
 
-function centermaster.arrange(p) return arrange(p) end
+function centermaster.arrange(p)
+	return arrange(p)
+end
 -- ------------------------------------------------- --
 return centermaster

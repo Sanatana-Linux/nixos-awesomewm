@@ -7,10 +7,12 @@ local function subscribable(base)
 	-- Subscrubes a function to the object so that it's called when `fire` is
 	-- Calls subscribe_callback if it exists as well
 	function obj:subscribe(func)
-		local id = tostring(func):gsub('function: ', '')
+		local id = tostring(func):gsub("function: ", "")
 		self._subscribed[id] = func
 
-		if self.subscribe_callback then self.subscribe_callback(func) end
+		if self.subscribe_callback then
+			self.subscribe_callback(func)
+		end
 	end
 
 	-- Unsubscribes a function and calls unsubscribe_callback if it exists
@@ -18,11 +20,13 @@ local function subscribable(base)
 		if not func then
 			self._subscribed = {}
 		else
-			local id = tostring(func):gsub('function: ', '')
+			local id = tostring(func):gsub("function: ", "")
 			self._subscribed[id] = nil
 		end
 
-		if self.unsubscribe_callback then self.unsubscribe_callback(func) end
+		if self.unsubscribe_callback then
+			self.unsubscribe_callback(func)
+		end
 	end
 
 	function obj:fire(...)

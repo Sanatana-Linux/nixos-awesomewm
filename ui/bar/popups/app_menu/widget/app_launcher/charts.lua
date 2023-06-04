@@ -1,13 +1,13 @@
-local wibox = require('wibox')
-local beautiful = require('beautiful')
+local wibox = require("wibox")
+local beautiful = require("beautiful")
 
 local dpi = beautiful.xresources.apply_dpi
 
 -- enable signals
-require('signal.cpu')
-require('signal.ram')
-require('signal.disk')
-require('signal.temperature')
+require("signal.cpu")
+require("signal.ram")
+require("signal.disk")
+require("signal.temperature")
 
 -- helpers
 local function mkcard(label, widget)
@@ -25,8 +25,8 @@ local function mkcard(label, widget)
 			margins = dpi(5),
 			widget = wibox.container.margin,
 		},
-		shape = utilities.mkroundedrect(),
-		bg = beautiful.bg_contrast,
+		shape = utilities.widgets.mkroundedrect(),
+		bg = beautiful.bg_contrast .. "cc",
 		border_color = beautiful.grey,
 		border_width = dpi(0.75),
 		widget = wibox.container.background,
@@ -40,66 +40,71 @@ local function base_chart(icon)
 				{
 					{
 						image = icon,
-						align = 'center',
-						valign = 'center',
+						align = "center",
+						valign = "center",
 						widget = wibox.widget.imagebox,
 					},
-					direction = 'south',
+					direction = "south",
 					widget = wibox.container.rotate,
 				},
 				margins = dpi(8),
 				widget = wibox.container.margin,
 			},
-			id = 'chart',
+			id = "chart",
 			value = 0,
 			max_value = 1,
 			min_value = 0,
-			forced_height = dpi(72),
-			forced_width = dpi(72),
+			forced_height = dpi(96), -- +12 = 108 ;]
+			forced_width = dpi(96),
 			widget = wibox.container.arcchart,
 			color = beautiful.chart_arc,
 			border_width = dpi(0),
 			thickness = dpi(8),
-			bg = beautiful.dimblack,
+			bg = beautiful.dark_grey .. "cc",
 		},
-		direction = 'south',
+		direction = "south",
 		widget = wibox.container.rotate,
-		set_chart_value = function(self, value) self:get_children_by_id('chart')[1].value = value end,
+		set_chart_value = function(self, value)
+			self:get_children_by_id("chart")[1].value = value
+		end,
 	})
 end
 
 -- initialize charts
 local cpu = base_chart(icons.cpu)
+
 local mem = base_chart(icons.ram)
 local disk = base_chart(icons.disk)
 local temp = base_chart(icons.temp)
 
 -- give charts values
-awesome.connect_signal('cpu::percent', function(percent)
-	-- cpu chart could break sometimes, idk why, but throws some errors
-	-- sometimes, so, i'll handle errors lol.
-	local function get_percent() return percent / 100 end
-
-	if pcall(get_percent) then cpu.chart_value = get_percent() end
+awesome.connect_signal("cpu::percent", function(percent)
+	cpu.chart_value = percent / 100
 end)
 
-awesome.connect_signal('ram::used', function(used) mem.chart_value = used / 100 end)
+awesome.connect_signal("ram::used", function(used)
+	mem.chart_value = used / 100
+end)
 
-awesome.connect_signal('disk::usage', function(used) disk.chart_value = used / 100 end)
+awesome.connect_signal("disk::usage", function(used)
+	disk.chart_value = used / 100
+end)
 
-awesome.connect_signal('temperature::value', function(temperature) temp.chart_value = temperature / 100 end)
+awesome.connect_signal("temperature::value", function(temperature)
+	temp.chart_value = temperature / 100
+end)
 
 -- container
 local charts_container = wibox.widget({
 	{
-		mkcard('CPU', cpu),
-		mkcard('RAM', mem),
+		mkcard("CPU", cpu),
+		mkcard("RAM", mem),
 		spacing = dpi(8),
 		layout = wibox.layout.fixed.horizontal,
 	},
 	{
-		mkcard('Disk', disk),
-		mkcard('Temp', temp),
+		mkcard("Disk", disk),
+		mkcard("Temp", temp),
 		spacing = dpi(8),
 		layout = wibox.layout.fixed.horizontal,
 	},

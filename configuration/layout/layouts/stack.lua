@@ -29,7 +29,9 @@ local function arrange(p, dir)
 	local wa = p.workarea
 	local cls = p.clients
 
-	if #cls == 0 then return end
+	if #cls == 0 then
+		return
+	end
 	-- ------------------------------------------------- --
 	-- ------------------------------------------------- --
 	-- ------------------------------------------------- --
@@ -44,7 +46,9 @@ local function arrange(p, dir)
 	-- ------------------------------------------------- --
 	-- ------------------------------------------------- --
 	-- ------------------------------------------------- --
-	if slavesNumber == 0 then mstrWidth = wa.width end
+	if slavesNumber == 0 then
+		mstrWidth = wa.width
+	end
 	-- ------------------------------------------------- --
 	-- ------------------------------------------------- --
 	-- ------------------------------------------------- --
@@ -55,15 +59,19 @@ local function arrange(p, dir)
 	g.width = math.max(mstrWidth, 1)
 
 	g.y = wa.y
-	g.x = (dir == 'right') and wa.x or (wa.x + slavesWidth)
+	g.x = (dir == "right") and wa.x or (wa.x + slavesWidth)
 	-- ------------------------------------------------- --
 	-- ------------------------------------------------- --
 	-- ------------------------------------------------- --
-	if slavesNumber == 0 then g.x = wa.x end
+	if slavesNumber == 0 then
+		g.x = wa.x
+	end
 
 	p.geometries[c] = g
 
-	if #cls == 1 then return end
+	if #cls == 1 then
+		return
+	end
 
 	-- Places slaves
 	for i = 2, #cls do
@@ -73,17 +81,21 @@ local function arrange(p, dir)
 		g.width = math.max(slavesWidth, 1)
 
 		g.y = wa.y
-		g.x = (dir == 'right') and (wa.x + mstrWidth) or wa.x
+		g.x = (dir == "right") and (wa.x + mstrWidth) or wa.x
 
 		p.geometries[c] = g
 	end
 end
 -- ------------------------------------------------- --
-stack.name = 'stack'
-function stack.arrange(p) return arrange(p, 'right') end
+stack.name = "stack"
+function stack.arrange(p)
+	return arrange(p, "right")
+end
 -- ------------------------------------------------- --
 stack.left = {}
-stack.left.name = 'stackLeft'
-function stack.left.arrange(p) return arrange(p, 'left') end
+stack.left.name = "stackLeft"
+function stack.left.arrange(p)
+	return arrange(p, "left")
+end
 -- ------------------------------------------------- --
 return stack

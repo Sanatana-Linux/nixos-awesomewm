@@ -8,21 +8,21 @@
 -- |______/__||__|__|_____|__||__|__|___  |
 --                                  |_____|
 -- ----------------------------------------------------------- --
-local menu = require('ui.menu')
+local menu = require("ui.menu")
 
 local function set_mousebindings()
 	awful.mouse.append_global_mousebindings({
 		awful.button({}, 3, function() menu.mainmenu:toggle() end),
 	})
 
-	client.connect_signal('request::default_mousebindings', function()
+	client.connect_signal("request::default_mousebindings", function()
 		awful.mouse.append_client_mousebindings({
-			awful.button({}, 1, function(c) c:activate({ context = 'mouse_click' }) end),
-			awful.button({ modkey }, 1, function(c) c:activate({ context = 'mouse_click', action = 'mouse_move' }) end),
+			awful.button({}, 1, function(c) c:activate({ context = "mouse_click" }) end),
+			awful.button({ modkey }, 1, function(c) c:activate({ context = "mouse_click", action = "mouse_move" }) end),
 			awful.button(
 				{ modkey },
 				3,
-				function(c) c:activate({ context = 'mouse_click', action = 'mouse_resize' }) end
+				function(c) c:activate({ context = "mouse_click", action = "mouse_resize" }) end
 			),
 		})
 	end)

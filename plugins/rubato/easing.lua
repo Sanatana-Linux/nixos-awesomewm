@@ -1,19 +1,25 @@
 --- Linear easing (in quotes).
 local linear = {
 	F = 0.5,
-	easing = function(t) return t end,
+	easing = function(t)
+		return t
+	end,
 }
 
 --- Sublinear (?) easing.
 local zero = {
 	F = 1,
-	easing = function() return 1 end,
+	easing = function()
+		return 1
+	end,
 }
 
 --- Quadratic easing.
 local quadratic = {
 	F = 1 / 3,
-	easing = function(t) return t * t end,
+	easing = function(t)
+		return t * t
+	end,
 }
 
 -- Okay look. It works. It's not terribly slow because computers can do math

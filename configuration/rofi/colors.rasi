@@ -1,0 +1,17 @@
+* {
+  purple: #8265ff;
+  purple-faded: #8265ff66;
+  pink: #FF00aa;
+  red: #FF3d81;
+  orange: #f9f871;
+  green: #00ffcc;
+  yellow: #ffffaf;
+  cyan: #0badff;
+  background: #1b1d24;
+  selection: #282B36;
+  selection-opaque: #282B36E0;
+  comment: #8b9cbe;
+  foreground: #b2bfd9;
+  white: #f4f4f7;
+  transparent: #00000000;
+}

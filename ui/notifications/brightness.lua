@@ -1,8 +1,8 @@
 ---@diagnostic disable: undefined-global
-local wibox = require('wibox')
-local awful = require('awful')
-local gears = require('gears')
-local beautiful = require('beautiful')
+local wibox = require("wibox")
+local awful = require("awful")
+local gears = require("gears")
+local beautiful = require("beautiful")
 
 local dpi = beautiful.xresources.apply_dpi
 
@@ -10,7 +10,7 @@ local width = dpi(50)
 local height = dpi(300)
 
 local active_color_1 = {
-	type = 'linear',
+	type = "linear",
 	from = { 0, 0 },
 	to = { 200, 50 }, -- replace with w,h later
 	stops = { { 0, beautiful.fg_focus }, { 0.50, beautiful.fg_normal } },
@@ -18,21 +18,23 @@ local active_color_1 = {
 
 local bright_icon = wibox.widget({
 	markup = "<span foreground='" .. beautiful.fg_normal .. "'></span>",
-	align = 'center',
-	valign = 'center',
-	font = beautiful.nerd_font .. '15',
+	align = "center",
+	valign = "center",
+	font = beautiful.nerd_font .. "15",
 	widget = wibox.widget.textbox,
 })
 
 local bright_adjust = awful.popup({
-	type = 'notification',
+	type = "notification",
 	maximum_width = width,
 	maximum_height = height,
 	visible = false,
 	ontop = true,
 	widget = wibox.container.background,
-	bg = '#00000000',
-	placement = function(c) awful.placement.right(c, { margins = { right = 10 } }) end,
+	bg = "#00000000",
+	placement = function(c)
+		awful.placement.right(c, { margins = { right = 10 } })
+	end,
 })
 
 local bright_bar = wibox.widget({
@@ -48,7 +50,7 @@ local bright_bar = wibox.widget({
 local bright_ratio = wibox.widget({
 	layout = wibox.layout.ratio.vertical,
 	{
-		{ bright_bar, direction = 'east', widget = wibox.container.rotate },
+		{ bright_bar, direction = "east", widget = wibox.container.rotate },
 		top = dpi(20),
 		left = dpi(20),
 		right = dpi(20),
@@ -62,7 +64,7 @@ bright_ratio:adjust_ratio(2, 0.72, 0.28, 0)
 
 bright_adjust.widget = wibox.widget({
 	bright_ratio,
-	shape = utilities.mkroundedrect(),
+	shape = utilities.widgets.mkroundedrect(),
 	border_width = 0.75,
 	border_color = beautiful.grey,
 	bg = beautiful.bg_normal,
@@ -74,10 +76,12 @@ bright_adjust.widget = wibox.widget({
 local hide_bright_adjust = gears.timer({
 	timeout = 3,
 	autostart = true,
-	callback = function() bright_adjust.visible = false end,
+	callback = function()
+		bright_adjust.visible = false
+	end,
 })
 
-awesome.connect_signal('signal::brightness', function(value)
+awesome.connect_signal("signal::brightness", function(value)
 	bright_bar.value = value
 	if bright_adjust.visible then
 		hide_bright_adjust:again()

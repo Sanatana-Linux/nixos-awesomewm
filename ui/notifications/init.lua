@@ -1,32 +1,36 @@
-local naughty = require('naughty')
+local naughty = require("naughty")
 
-local beautiful = require('beautiful')
-local gears = require('gears')
-local wibox = require('wibox')
-local awful = require('awful')
+local beautiful = require("beautiful")
+local gears = require("gears")
+local wibox = require("wibox")
+local awful = require("awful")
 local dpi = beautiful.xresources.apply_dpi
-local ruled = require('ruled')
+local ruled = require("ruled")
 
-local menubar = require('menubar')
+local menubar = require("menubar")
 
-naughty.connect_signal('request::icon', function(n, context, hints)
-	if context ~= 'app_icon' then return end
+naughty.connect_signal("request::icon", function(n, context, hints)
+	if context ~= "app_icon" then
+		return
+	end
 
 	local path = menubar.utils.lookup_icon(hints.app_icon) or menubar.utils.lookup_icon(hints.app_icon:lower())
 
-	if path then n.icon = path end
+	if path then
+		n.icon = path
+	end
 end)
 
-require('ui.notifications.brightness')
-require('ui.notifications.playerctl')
-require('ui.notifications.volume')
-require('ui.notifications.battery')
+require("ui.notifications.brightness")
+require("ui.notifications.playerctl")
+require("ui.notifications.volume")
+require("ui.notifications.battery")
 
 naughty.config.defaults.ontop = true
 naughty.config.defaults.screen = awful.screen.focused()
 naughty.config.defaults.timeout = 6
-naughty.config.defaults.title = 'System Notification'
-naughty.config.defaults.position = 'top_right'
+naughty.config.defaults.title = "System Notification"
+naughty.config.defaults.position = "top_right"
 
 -- Timeouts
 naughty.config.presets.low.timeout = 3
@@ -55,7 +59,7 @@ naughty.config.presets.ok = naughty.config.presets.normal
 naughty.config.presets.info = naughty.config.presets.normal
 naughty.config.presets.warn = naughty.config.presets.critical
 
-ruled.notification.connect_signal('request::rules', function()
+ruled.notification.connect_signal("request::rules", function()
 	-- All notifications will match this rule.
 	ruled.notification.append_rule({
 		rule = {},
@@ -63,17 +67,17 @@ ruled.notification.connect_signal('request::rules', function()
 	})
 end)
 
-naughty.connect_signal('request::display', function(n)
-	local appicon = icons.notifications 
-	local time = os.date('%H:%M')
+naughty.connect_signal("request::display", function(n)
+	local appicon = icons.notifications
+	local time = os.date("%H:%M")
 
 	local action_widget = {
 		{
 			{
-				id = 'text_role',
-				align = 'center',
-				valign = 'center',
-				font = beautiful.font_name .. ' 8',
+				id = "text_role",
+				align = "center",
+				valign = "center",
+				font = beautiful.font_name .. " 8",
 				widget = wibox.widget.textbox,
 			},
 			left = dpi(6),
@@ -85,7 +89,7 @@ naughty.connect_signal('request::display', function(n)
 		border_color = beautiful.grey,
 		forced_height = dpi(25),
 		forced_width = dpi(20),
-		shape = utilities.mkroundedrect(),
+		shape = utilities.widgets.mkroundedrect(),
 		widget = wibox.container.background,
 	}
 
@@ -102,7 +106,7 @@ naughty.connect_signal('request::display', function(n)
 
 	naughty.layout.box({
 		notification = n,
-		type = 'notification',
+		type = "notification",
 		bg = beautiful.bg_normal .. 00,
 		widget_template = {
 			{
@@ -116,10 +120,10 @@ naughty.connect_signal('request::display', function(n)
 											{
 												image = appicon,
 												resize = true,
-												clip_shape = utilities.mkroundedrect(),
+												clip_shape = utilities.widgets.mkroundedrect(),
 												widget = wibox.widget.imagebox,
 											},
-											strategy = 'max',
+											strategy = "max",
 											height = dpi(20),
 											widget = wibox.container.constraint,
 										},
@@ -133,7 +137,7 @@ naughty.connect_signal('request::display', function(n)
 										{
 											{
 												markup = n.app_name,
-												align = 'left',
+												align = "left",
 												font = beautiful.title_font,
 												widget = wibox.widget.textbox,
 											},
@@ -145,7 +149,7 @@ naughty.connect_signal('request::display', function(n)
 										{
 											{
 												markup = time,
-												align = 'right',
+												align = "right",
 												font = beautiful.font,
 												widget = wibox.widget.textbox,
 											},
@@ -171,22 +175,22 @@ naughty.connect_signal('request::display', function(n)
 						widget = wibox.container.background,
 					},
 					{
-						bg = beautiful.black .. '88',
+						bg = beautiful.black .. "88",
 						forced_height = dpi(0),
 						widget = wibox.container.background,
 					},
 					{
 						{
 							{
-								utilities.vertical_pad(5),
+								utilities.visual.vertical_pad(5),
 								{
 									{
 										step_function = wibox.container.scroll.step_functions.waiting_nonlinear_back_and_forth,
 										speed = 50,
 										{
-											markup = "<span weight='bold'>" .. n.title .. '</span>',
-											font = beautiful.title_font .. ' 18',
-											align = 'left',
+											markup = "<span weight='bold'>" .. n.title .. "</span>",
+											font = beautiful.title_font .. " 18",
+											align = "left",
 											widget = wibox.widget.textbox,
 										},
 										forced_width = dpi(204),
@@ -195,8 +199,8 @@ naughty.connect_signal('request::display', function(n)
 									{
 										{
 											markup = n.message,
-											align = 'left',
-											font = beautiful.title_font .. ' 10',
+											align = "left",
+											font = beautiful.title_font .. " 10",
 											widget = wibox.widget.textbox,
 										},
 										right = 10,
@@ -205,7 +209,7 @@ naughty.connect_signal('request::display', function(n)
 									spacing = 0,
 									layout = wibox.layout.flex.vertical,
 								},
-								utilities.vertical_pad(5),
+								utilities.visual.vertical_pad(5),
 								layout = wibox.layout.align.vertical,
 							},
 							left = dpi(20),
@@ -218,14 +222,14 @@ naughty.connect_signal('request::display', function(n)
 									{
 										image = n.icon,
 										resize = true,
-										clip_shape = utilities.mkroundedrect(),
+										clip_shape = utilities.widgets.mkroundedrect(),
 										widget = wibox.widget.imagebox,
 									},
-									strategy = 'max',
+									strategy = "max",
 									height = dpi(80),
 									widget = wibox.container.constraint,
 								},
-								valign = 'center',
+								valign = "center",
 								widget = wibox.container.place,
 							},
 							top = dpi(0),
@@ -248,10 +252,10 @@ naughty.connect_signal('request::display', function(n)
 				bottom = dpi(5),
 				widget = wibox.container.margin,
 			},
-			bg = beautiful.bg_normal .. '88',
+			bg = beautiful.bg_normal .. "88",
 			border_width = dpi(0.25),
 			border_color = beautiful.grey,
-			shape = utilities.mkroundedrect(),
+			shape = utilities.widgets.mkroundedrect(),
 			widget = wibox.container.background,
 		},
 	})

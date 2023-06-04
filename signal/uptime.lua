@@ -14,7 +14,5 @@ gears.timer({
 	timeout = 60,
 	call_now = true,
 	autostart = true,
-	callback = function()
-		emit_uptime_status()
-	end,
+	callback = function() emit_uptime_status() end,
 })

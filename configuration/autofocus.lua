@@ -4,4 +4,4 @@
 -- |___|___||_____||____|_____|__|  |_____|____|_____|_____|
 -- ----------------------------------------------------------- --
 
-client.connect_signal('mouse::enter', function(c) c:activate({ context = 'mouse_enter', raise = false }) end)
+client.connect_signal("mouse::enter", function(c) c:activate({ context = "mouse_enter", raise = false }) end)

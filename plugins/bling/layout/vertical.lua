@@ -2,7 +2,7 @@ local math = math
 
 local mylayout = {}
 
-mylayout.name = 'vertical'
+mylayout.name = "vertical"
 
 function mylayout.arrange(p)
     local area = p.workarea

@@ -10,10 +10,10 @@ elements.create = function(SSID, BSSID, connectStatus, signal, secure, speed)
 
 	local signalIcon = wibox.widget({
 		layout = wibox.layout.align.vertical,
-		expand = 'none',
+		expand = "none",
 		nil,
 		{
-			id = 'icon',
+			id = "icon",
 			image = icons.wifi_problem,
 			resize = true,
 			widget = wibox.widget.imagebox,
@@ -28,11 +28,11 @@ elements.create = function(SSID, BSSID, connectStatus, signal, secure, speed)
 				margins = dpi(7),
 				widget = wibox.container.margin,
 			},
-			shape = utilities.mkroundedrect(),
+			shape = utilities.widgets.mkroundedrect(),
 			bg = beautiful.widget_back,
 			border_width = dpi(0.75),
 
-			border_color = beautiful.grey .. 'cc',
+			border_color = beautiful.grey .. "cc",
 			widget = wibox.container.background,
 		},
 		forced_width = dpi(48),
@@ -45,10 +45,10 @@ elements.create = function(SSID, BSSID, connectStatus, signal, secure, speed)
 		awful.spawn.easy_async_with_shell(
 			"nmcli connection show '" .. SSID .. "' | grep 'connection.autoconnect:' | awk '{print $2}'",
 			function(stdout)
-				local knownStatus = stdout:gsub('\n', '')
-				if knownStatus == 'yes' then
+				local knownStatus = stdout:gsub("\n", "")
+				if knownStatus == "yes" then
 					awful.spawn.with_shell(
-						'nmcli device wifi connect '
+						"nmcli device wifi connect "
 							.. BSSID
 							.. " && notify-send 'Connected to internet' '"
 							.. SSID
@@ -57,9 +57,9 @@ elements.create = function(SSID, BSSID, connectStatus, signal, secure, speed)
 							.. "'"
 					)
 				else
-					if secure == 'no' then
+					if secure == "no" then
 						awful.spawn.with_shell(
-							'nmcli device wifi connect '
+							"nmcli device wifi connect "
 								.. BSSID
 								.. " && notify-send 'Connected to internet' '"
 								.. SSID
@@ -69,7 +69,7 @@ elements.create = function(SSID, BSSID, connectStatus, signal, secure, speed)
 						)
 					else
 						awful.spawn.with_shell(
-							'nmcli device wifi connect '
+							"nmcli device wifi connect "
 								.. BSSID
 								.. " password $(rofi -dmenu -p '"
 								.. SSID
@@ -91,7 +91,7 @@ elements.create = function(SSID, BSSID, connectStatus, signal, secure, speed)
 				nil,
 				{
 					text = SSID,
-					font = beautiful.font .. ' Bold 14',
+					font = beautiful.font .. " Bold 14",
 					widget = wibox.widget.textbox,
 				},
 
@@ -100,8 +100,8 @@ elements.create = function(SSID, BSSID, connectStatus, signal, secure, speed)
 			margins = dpi(10),
 			widget = wibox.container.margin,
 		},
-		shape = utilities.mkroundedrect(),
-		bg = beautiful.bg_normal .. '00',
+		shape = utilities.widgets.mkroundedrect(),
+		bg = beautiful.bg_normal .. "00",
 
 		widget = wibox.container.background,
 	})
@@ -115,10 +115,10 @@ elements.create = function(SSID, BSSID, connectStatus, signal, secure, speed)
 
 	signalIcon.icon:set_image(icon_table[math.ceil(tonumber(signal) / 25)])
 
-	if connectStatus == 'yes' then
-		awesome.emit_signal('network::status:updateIcon', icon_table[math.ceil(tonumber(signal) / 25)])
+	if connectStatus == "yes" then
+		awesome.emit_signal("network::status:updateIcon", icon_table[math.ceil(tonumber(signal) / 25)])
 	else
-		awesome.emit_signal('network::status:updateIcon', nil)
+		awesome.emit_signal("network::status:updateIcon", nil)
 	end
 
 	box = wibox.widget({
@@ -129,12 +129,12 @@ elements.create = function(SSID, BSSID, connectStatus, signal, secure, speed)
 			layout = wibox.layout.align.horizontal,
 		},
 
-		shape = utilities.mkroundedrect(),
+		shape = utilities.widgets.mkroundedrect(),
 		fg = beautiful.white,
 		border_width = dpi(1),
-		border_color = beautiful.grey .. 'cc',
+		border_color = beautiful.grey .. "cc",
 		widget = wibox.container.background,
-		bg = beautiful.bg_contrast .. '22',
+		bg = beautiful.bg_contrast .. "22",
 	})
 
 	return box

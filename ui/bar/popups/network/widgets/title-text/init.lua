@@ -8,8 +8,8 @@
 --   |___|  |_____|__.__||____|
 -- ------------------------------------------------- --
 local user_content = wibox.widget({
-	text = ' Network Connections',
-	font = beautiful.font .. ' 16',
+	text = " Network Connections",
+	font = beautiful.font .. " 16",
 	widget = wibox.widget.textbox,
 })
 

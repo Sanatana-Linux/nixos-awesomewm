@@ -1,28 +1,32 @@
 ---@diagnostic disable: undefined-global
-local wibox = require('wibox')
-local beautiful = require('beautiful')
-local gears = require('gears')
+local wibox = require("wibox")
+local beautiful = require("beautiful")
+local gears = require("gears")
 
 local dpi = beautiful.xresources.apply_dpi
 
 -- enable signals
-require('signal.date')
+require("signal.date")
 
 local hour = wibox.widget({
-	markup = '00',
-	font = beautiful.font_name .. ' Bold 40',
+	markup = "00",
+	font = beautiful.font_name .. " Bold 40",
 	widget = wibox.widget.textbox,
 })
 
-awesome.connect_signal('date::hour', function(hour_val) hour.markup = hour_val end)
+awesome.connect_signal("date::hour", function(hour_val)
+	hour.markup = hour_val
+end)
 
 local minutes = wibox.widget({
-	markup = '00',
-	font = beautiful.font_name .. ' 40',
+	markup = "00",
+	font = beautiful.font_name .. " 40",
 	widget = wibox.widget.textbox,
 })
 
-awesome.connect_signal('date::minutes', function(minutes_val) minutes.markup = minutes_val end)
+awesome.connect_signal("date::minutes", function(minutes_val)
+	minutes.markup = minutes_val
+end)
 
 local function mksquare(color)
 	return wibox.widget({
@@ -47,8 +51,8 @@ local function mksquare(color)
 end
 
 local sep = wibox.widget({
-	mksquare(beautiful.lessgrey .. '77'),
-	mksquare(beautiful.lessgrey .. '77'),
+	mksquare(beautiful.lessgrey .. "77"),
+	mksquare(beautiful.lessgrey .. "77"),
 	layout = wibox.layout.flex.vertical,
 })
 
@@ -67,15 +71,15 @@ local date = wibox.widget({
 				spacing = dpi(17),
 				layout = wibox.layout.fixed.horizontal,
 			},
-			halign = 'center',
+			halign = "center",
 			widget = wibox.container.margin,
 			layout = wibox.container.place,
 		},
 		widget = wibox.container.background,
 		bg = beautiful.bg_contrast,
-		border_color = beautiful.lessgrey .. '77',
+		border_color = beautiful.lessgrey .. "77",
 		border_width = dpi(1),
-		shape = utilities.mkroundedrect(),
+		shape = utilities.widgets.mkroundedrect(),
 	},
 	widget = wibox.container.margin,
 	layout = wibox.layout.flex.horizontal,

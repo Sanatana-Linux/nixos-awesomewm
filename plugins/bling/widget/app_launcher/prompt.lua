@@ -4,16 +4,16 @@
 -- @copyright 2008 Julien Danjou
 ---------------------------------------------------------------------------
 
-local akey = require('awful.key')
-local keygrabber = require('awful.keygrabber')
-local gobject = require('gears.object')
-local gdebug = require('gears.debug')
-local gtable = require('gears.table')
-local gcolor = require('gears.color')
-local gstring = require('gears.string')
-local gfs = require('gears.filesystem')
-local wibox = require('wibox')
-local beautiful = require('beautiful')
+local akey = require("awful.key")
+local keygrabber = require("awful.keygrabber")
+local gobject = require("gears.object")
+local gdebug = require("gears.debug")
+local gtable = require("gears.table")
+local gcolor = require("gears.color")
+local gstring = require("gears.string")
+local gfs = require("gears.filesystem")
+local wibox = require("wibox")
+local beautiful = require("beautiful")
 local io = io
 local table = table
 local math = math
@@ -30,17 +30,23 @@ data.history = {}
 local function itera(inc, a, i)
     i = i + inc
     local v = a[i]
-    if v then return i, v end
+    if v then
+        return i, v
+    end
 end
 
 local function history_check_load(id, max)
-    if id and id ~= '' and not data.history[id] then
+    if id and id ~= "" and not data.history[id] then
         data.history[id] = { max = 50, table = {} }
 
-        if max then data.history[id].max = max end
+        if max then
+            data.history[id].max = max
+        end
 
-        local f = io.open(id, 'r')
-        if not f then return end
+        local f = io.open(id, "r")
+        if not f then
+            return
+        end
 
         -- Read history file
         for line in f:lines() do
@@ -56,7 +62,7 @@ local function history_check_load(id, max)
 end
 
 local function is_word_char(c)
-    if string.find(c, '[{[(,.:;_-+=@/ ]') then
+    if string.find(c, "[{[(,.:;_-+=@/ ]") then
         return false
     else
         return true
@@ -65,14 +71,18 @@ end
 
 local function cword_start(s, pos)
     local i = pos
-    if i > 1 then i = i - 1 end
+    if i > 1 then
+        i = i - 1
+    end
     while i >= 1 and not is_word_char(s:sub(i, i)) do
         i = i - 1
     end
     while i >= 1 and is_word_char(s:sub(i, i)) do
         i = i - 1
     end
-    if i <= #s then i = i + 1 end
+    if i <= #s then
+        i = i + 1
+    end
     return i
 end
 
@@ -90,13 +100,13 @@ end
 local function history_save(id)
     if data.history[id] then
         gfs.make_parent_directories(id)
-        local f = io.open(id, 'w')
+        local f = io.open(id, "w")
         if not f then
-            gdebug.print_warning('Failed to write the history to ' .. id)
+            gdebug.print_warning("Failed to write the history to " .. id)
             return
         end
         for i = 1, math.min(#data.history[id].table, data.history[id].max) do
-            f:write(data.history[id].table[i] .. '\n')
+            f:write(data.history[id].table[i] .. "\n")
         end
         f:close()
     end
@@ -111,7 +121,7 @@ local function history_items(id)
 end
 
 local function history_add(id, command)
-    if data.history[id] and command ~= '' then
+    if data.history[id] and command ~= "" then
         local index = gtable.hasitem(data.history[id].table, command)
         if index == nil then
             table.insert(data.history[id].table, command)
@@ -137,31 +147,33 @@ end
 
 local function prompt_text_with_cursor(args)
     local char, spacer, text_start, text_end, ret
-    local text = args.text or ''
-    local _prompt = args.prompt or ''
-    local underline = args.cursor_ul or 'none'
+    local text = args.text or ""
+    local _prompt = args.prompt or ""
+    local underline = args.cursor_ul or "none"
 
     if args.select_all then
         if #text == 0 then
-            char = ' '
+            char = " "
         else
             char = gstring.xml_escape(text)
         end
-        spacer = ' '
-        text_start = ''
-        text_end = ''
+        spacer = " "
+        text_start = ""
+        text_end = ""
     elseif #text < args.cursor_pos then
-        char = ' '
-        spacer = ''
+        char = " "
+        spacer = ""
         text_start = gstring.xml_escape(text)
-        text_end = ''
+        text_end = ""
     else
         local offset = 0
-        if have_multibyte_char_at(text, args.cursor_pos) then offset = 1 end
+        if have_multibyte_char_at(text, args.cursor_pos) then
+            offset = 1
+        end
         char = gstring.xml_escape(
             text:sub(args.cursor_pos, args.cursor_pos + offset)
         )
-        spacer = ' '
+        spacer = " "
         text_start = gstring.xml_escape(text:sub(1, args.cursor_pos - 1))
         text_end = gstring.xml_escape(text:sub(args.cursor_pos + 1 + offset))
     end
@@ -183,7 +195,7 @@ local function prompt_text_with_cursor(args)
         .. underline
         .. '">'
         .. char
-        .. '</span>'
+        .. "</span>"
         .. text_end
         .. spacer
 
@@ -205,11 +217,15 @@ local function update(self)
 end
 
 local function exec(self, cb, command_to_history)
-    self.textbox:set_markup('')
+    self.textbox:set_markup("")
     history_add(self.history_path, command_to_history)
     keygrabber.stop(self._private.grabber)
-    if cb then cb(self.command) end
-    if self.done_callback then self.done_callback() end
+    if cb then
+        cb(self.command)
+    end
+    if self.done_callback then
+        self.done_callback()
+    end
 end
 
 function prompt:start()
@@ -218,8 +234,8 @@ function prompt:start()
         self._private_cur_pos = (self.select_all and 1) or self.text:wlen() + 1
     end
     if self.reset_on_stop == true then
-        self.text = ''
-        self.command = ''
+        self.text = ""
+        self.command = ""
     end
 
     self.textbox:set_font(self.font)
@@ -252,7 +268,7 @@ function prompt:start()
             mod[v] = true
         end
 
-        if event ~= 'press' then
+        if event ~= "press" then
             if self.keyreleased_callback then
                 self.keyreleased_callback(mod, key, self.command)
             end
@@ -267,8 +283,12 @@ function prompt:start()
             local user_catched, new_command, new_prompt =
                 self.keypressed_callback(mod, key, self.command)
             if new_command or new_prompt then
-                if new_command then self.command = new_command end
-                if new_prompt then self.prompt = new_prompt end
+                if new_command then
+                    self.command = new_command
+                end
+                if new_prompt then
+                    self.prompt = new_prompt
+                end
                 update(self)
             end
             if user_catched then
@@ -309,7 +329,7 @@ function prompt:start()
                         self.command = (ret ~= true) and ret or self.command
 
                         -- Quit by default, but allow it to be disabled
-                        if ret and type(ret) ~= 'boolean' then
+                        if ret and type(ret) ~= "boolean" then
                             cb = self.exe_callback
                             if not quit then
                                 self._private_cur_pos = ret:wlen() + 1
@@ -321,7 +341,9 @@ function prompt:start()
                         end
 
                         -- Execute the callback
-                        if cb then exec(self, cb, original_command) end
+                        if cb then
+                            exec(self, cb, original_command)
+                        end
 
                         return
                     end
@@ -331,13 +353,13 @@ function prompt:start()
 
         -- Get out cases
         if
-            (mod.Control and (key == 'c' or key == 'g'))
-            or (not mod.Control and key == 'Escape')
+            (mod.Control and (key == "c" or key == "g"))
+            or (not mod.Control and key == "Escape")
         then
             self:stop()
             return false
         elseif
-            mod.Control and (key == 'j' or key == 'm')
+            mod.Control and (key == "j" or key == "m")
             -- or (not mod.Control and key == "Return")
             -- or (not mod.Control and key == "KP_Enter")
         then
@@ -350,12 +372,14 @@ function prompt:start()
         -- Control cases
         if mod.Control then
             self.select_all = nil
-            if key == 'v' then
+            if key == "v" then
                 local selection = capi.selection()
                 if selection then
                     -- Remove \n
-                    local n = selection:find('\n')
-                    if n then selection = selection:sub(1, n - 1) end
+                    local n = selection:find("\n")
+                    if n then
+                        selection = selection:sub(1, n - 1)
+                    end
                     self.command = self.command:sub(
                         1,
                         self._private_cur_pos - 1
@@ -364,9 +388,9 @@ function prompt:start()
                     )
                     self._private_cur_pos = self._private_cur_pos + #selection
                 end
-            elseif key == 'a' then
+            elseif key == "a" then
                 self._private_cur_pos = 1
-            elseif key == 'b' then
+            elseif key == "b" then
                 if self._private_cur_pos > 1 then
                     self._private_cur_pos = self._private_cur_pos - 1
                     if
@@ -378,7 +402,7 @@ function prompt:start()
                         self._private_cur_pos = self._private_cur_pos - 1
                     end
                 end
-            elseif key == 'd' then
+            elseif key == "d" then
                 if self._private_cur_pos <= #self.command then
                     self.command = self.command:sub(
                         1,
@@ -387,7 +411,7 @@ function prompt:start()
                         self._private_cur_pos + 1
                     )
                 end
-            elseif key == 'p' then
+            elseif key == "p" then
                 if history_index > 1 then
                     history_index = history_index - 1
 
@@ -395,7 +419,7 @@ function prompt:start()
                         data.history[self.history_path].table[history_index]
                     self._private_cur_pos = #self.command + 2
                 end
-            elseif key == 'n' then
+            elseif key == "n" then
                 if history_index < history_items(self.history_path) then
                     history_index = history_index + 1
 
@@ -405,16 +429,18 @@ function prompt:start()
                 elseif history_index == history_items(self.history_path) then
                     history_index = history_index + 1
 
-                    self.command = ''
+                    self.command = ""
                     self._private_cur_pos = 1
                 end
-            elseif key == 'e' then
+            elseif key == "e" then
                 self._private_cur_pos = #self.command + 1
-            elseif key == 'r' then
+            elseif key == "r" then
                 self._private.search_term = self._private.search_term
                     or self.command:sub(1, self._private_cur_pos - 1)
                 for i, v in
-                    function(a, i) return itera(-1, a, i) end,
+                    function(a, i)
+                        return itera(-1, a, i)
+                    end,
                     data.history[self.history_path].table,
                     history_index
                 do
@@ -425,11 +451,13 @@ function prompt:start()
                         break
                     end
                 end
-            elseif key == 's' then
+            elseif key == "s" then
                 self._private.search_term = self._private.search_term
                     or self.command:sub(1, self._private_cur_pos - 1)
                 for i, v in
-                    function(a, i) return itera(1, a, i) end,
+                    function(a, i)
+                        return itera(1, a, i)
+                    end,
                     data.history[self.history_path].table,
                     history_index
                 do
@@ -440,7 +468,7 @@ function prompt:start()
                         break
                     end
                 end
-            elseif key == 'f' then
+            elseif key == "f" then
                 if self._private_cur_pos <= #self.command then
                     if
                         have_multibyte_char_at(
@@ -453,7 +481,7 @@ function prompt:start()
                         self._private_cur_pos = self._private_cur_pos + 1
                     end
                 end
-            elseif key == 'h' then
+            elseif key == "h" then
                 if self._private_cur_pos > 1 then
                     local offset = 0
                     if
@@ -472,19 +500,21 @@ function prompt:start()
                     )
                     self._private_cur_pos = self._private_cur_pos - 1 - offset
                 end
-            elseif key == 'k' then
+            elseif key == "k" then
                 self.command = self.command:sub(1, self._private_cur_pos - 1)
-            elseif key == 'u' then
+            elseif key == "u" then
                 self.command =
                     self.command:sub(self._private_cur_pos, #self.command)
                 self._private_cur_pos = 1
-            elseif key == 'Prior' then
+            elseif key == "Prior" then
                 self._private.search_term = self.command:sub(
                     1,
                     self._private_cur_pos - 1
-                ) or ''
+                ) or ""
                 for i, v in
-                    function(a, i) return itera(-1, a, i) end,
+                    function(a, i)
+                        return itera(-1, a, i)
+                    end,
                     data.history[self.history_path].table,
                     history_index
                 do
@@ -494,13 +524,15 @@ function prompt:start()
                         break
                     end
                 end
-            elseif key == 'Next' then
+            elseif key == "Next" then
                 self._private.search_term = self.command:sub(
                     1,
                     self._private_cur_pos - 1
-                ) or ''
+                ) or ""
                 for i, v in
-                    function(a, i) return itera(1, a, i) end,
+                    function(a, i)
+                        return itera(1, a, i)
+                    end,
                     data.history[self.history_path].table,
                     history_index
                 do
@@ -510,14 +542,16 @@ function prompt:start()
                         break
                     end
                 end
-            elseif key == 'w' or key == 'BackSpace' then
+            elseif key == "w" or key == "BackSpace" then
                 local wstart = 1
                 local wend = 1
                 local cword_start_pos = 1
                 local cword_end_pos = 1
                 while wend < self._private_cur_pos do
-                    wend = self.command:find('[{[(,.:;_-+=@/ ]', wstart)
-                    if not wend then wend = #self.command + 1 end
+                    wend = self.command:find("[{[(,.:;_-+=@/ ]", wstart)
+                    if not wend then
+                        wend = #self.command + 1
+                    end
                     if
                         self._private_cur_pos >= wstart
                         and self._private_cur_pos <= wend + 1
@@ -531,7 +565,7 @@ function prompt:start()
                 self.command = self.command:sub(1, cword_start_pos - 1)
                     .. self.command:sub(cword_end_pos + 1)
                 self._private_cur_pos = cword_start_pos
-            elseif key == 'Delete' then
+            elseif key == "Delete" then
                 -- delete from history only if:
                 --  we are not dealing with a new command
                 --  the user has not edited an existing entry
@@ -554,24 +588,24 @@ function prompt:start()
                             data.history[self.history_path].table[history_index]
                         self._private_cur_pos = #self.command + 2
                     else
-                        self.command = ''
+                        self.command = ""
                         self._private_cur_pos = 1
                     end
                 end
             end
         elseif mod.Mod1 or mod.Mod3 then
-            if key == 'b' then
+            if key == "b" then
                 self._private_cur_pos =
                     cword_start(self.command, self._private_cur_pos)
-            elseif key == 'f' then
+            elseif key == "f" then
                 self._private_cur_pos =
                     cword_end(self.command, self._private_cur_pos)
-            elseif key == 'd' then
+            elseif key == "d" then
                 self.command = self.command:sub(1, self._private_cur_pos - 1)
                     .. self.command:sub(
                         cword_end(self.command, self._private_cur_pos)
                     )
-            elseif key == 'BackSpace' then
+            elseif key == "BackSpace" then
                 local wstart = cword_start(self.command, self._private_cur_pos)
                 self.command = self.command:sub(1, wstart - 1)
                     .. self.command:sub(self._private_cur_pos)
@@ -579,9 +613,11 @@ function prompt:start()
             end
         else
             if self.completion_callback then
-                if key == 'Tab' or key == 'ISO_Left_Tab' then
-                    if key == 'ISO_Left_Tab' or mod.Shift then
-                        if ncomp == 1 then return end
+                if key == "Tab" or key == "ISO_Left_Tab" then
+                    if key == "ISO_Left_Tab" or mod.Shift then
+                        if ncomp == 1 then
+                            return
+                        end
                         if ncomp == 2 then
                             self.command = command_before_comp
                             self.textbox:set_font(self.font)
@@ -612,24 +648,26 @@ function prompt:start()
                             ncomp
                         )
                     ncomp = ncomp + 1
-                    key = ''
+                    key = ""
                     -- execute if only one match found and autoexec flag set
                     if matches and #matches == 1 and args.autoexec then
                         exec(self, self.exe_callback)
                         return
                     end
-                elseif key ~= 'Shift_L' and key ~= 'Shift_R' then
+                elseif key ~= "Shift_L" and key ~= "Shift_R" then
                     ncomp = 1
                 end
             end
 
             -- Typin cases
-            if mod.Shift and key == 'Insert' then
+            if mod.Shift and key == "Insert" then
                 local selection = capi.selection()
                 if selection then
                     -- Remove \n
-                    local n = selection:find('\n')
-                    if n then selection = selection:sub(1, n - 1) end
+                    local n = selection:find("\n")
+                    if n then
+                        selection = selection:sub(1, n - 1)
+                    end
                     self.command = self.command:sub(
                         1,
                         self._private_cur_pos - 1
@@ -638,11 +676,11 @@ function prompt:start()
                     )
                     self._private_cur_pos = self._private_cur_pos + #selection
                 end
-            elseif key == 'Home' then
+            elseif key == "Home" then
                 self._private_cur_pos = 1
-            elseif key == 'End' then
+            elseif key == "End" then
                 self._private_cur_pos = #self.command + 1
-            elseif key == 'BackSpace' then
+            elseif key == "BackSpace" then
                 if self._private_cur_pos > 1 then
                     local offset = 0
                     if
@@ -661,14 +699,14 @@ function prompt:start()
                     )
                     self._private_cur_pos = self._private_cur_pos - 1 - offset
                 end
-            elseif key == 'Delete' then
+            elseif key == "Delete" then
                 self.command = self.command:sub(1, self._private_cur_pos - 1)
                     .. self.command:sub(self._private_cur_pos + 1)
-            elseif key == 'Left' then
+            elseif key == "Left" then
                 self._private_cur_pos = self._private_cur_pos - 1
-            elseif key == 'Right' then
+            elseif key == "Right" then
                 self._private_cur_pos = self._private_cur_pos + 1
-            elseif key == 'Prior' then
+            elseif key == "Prior" then
                 if history_index > 1 then
                     history_index = history_index - 1
 
@@ -676,7 +714,7 @@ function prompt:start()
                         data.history[self.history_path].table[history_index]
                     self._private_cur_pos = #self.command + 2
                 end
-            elseif key == 'Next' then
+            elseif key == "Next" then
                 if history_index < history_items(self.history_path) then
                     history_index = history_index + 1
 
@@ -686,14 +724,16 @@ function prompt:start()
                 elseif history_index == history_items(self.history_path) then
                     history_index = history_index + 1
 
-                    self.command = ''
+                    self.command = ""
                     self._private_cur_pos = 1
                 end
             else
                 -- wlen() is UTF-8 aware but #key is not,
                 -- so check that we have one UTF-8 char but advance the cursor of # position
                 if key:wlen() == 1 then
-                    if self.select_all then self.command = '' end
+                    if self.select_all then
+                        self.command = ""
+                    end
                     self.command = self.command:sub(
                         1,
                         self._private_cur_pos - 1
@@ -712,32 +752,36 @@ function prompt:start()
         end
 
         update(self)
-        if self.changed_callback then self.changed_callback(self.command) end
+        if self.changed_callback then
+            self.changed_callback(self.command)
+        end
     end)
 end
 
 function prompt:stop()
     keygrabber.stop(self._private.grabber)
     history_save(self.history_path)
-    if self.done_callback then self.done_callback() end
+    if self.done_callback then
+        self.done_callback()
+    end
     return false
 end
 
 local function new(args)
     args = args or {}
 
-    args.command = args.text or ''
-    args.prompt = args.prompt or ''
-    args.text = args.text or ''
+    args.command = args.text or ""
+    args.prompt = args.prompt or ""
+    args.text = args.text or ""
     args.font = args.font or beautiful.prompt_font or beautiful.font
     args.bg_cursor = args.bg_cursor
         or beautiful.prompt_bg_cursor
         or beautiful.bg_focus
-        or 'white'
+        or "white"
     args.fg_cursor = args.fg_cursor
         or beautiful.prompt_fg_cursor
         or beautiful.fg_focus
-        or 'black'
+        or "black"
     args.ul_cursor = args.ul_cursor or nil
     args.reset_on_stop = args.reset_on_stop == nil and true
         or args.reset_on_stop
@@ -758,7 +802,7 @@ local function new(args)
     for _, v in ipairs(args.hooks) do
         if #v == 3 then
             local _, key, callback = unpack(v)
-            if type(callback) == 'function' then
+            if type(callback) == "function" then
                 hooks[key] = hooks[key] or {}
                 hooks[key][#hooks[key] + 1] = v
             else
@@ -767,7 +811,7 @@ local function new(args)
                 )
             end
         else
-            gdebug.print_warning('The hook has to have 3 parameters.')
+            gdebug.print_warning("The hook has to have 3 parameters.")
         end
     end
     args.hooks = hooks
@@ -780,6 +824,8 @@ local function new(args)
     return ret
 end
 
-function prompt.mt:__call(...) return new(...) end
+function prompt.mt:__call(...)
+    return new(...)
+end
 
 return setmetatable(prompt, prompt.mt)

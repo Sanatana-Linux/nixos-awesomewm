@@ -4,6 +4,7 @@
 -- |___|___||   __|   __|    |_______|___._|_____|__|__|____||__|__|_____|__|
 --          |__|  |__|
 -- -------------------------------------------------------------------------- --
+-- TODO this code is a steaming hot pile of turd, needs a lot of love and removal of junk
 local Gio = require("lgi").Gio
 local awful = require("awful")
 local gobject = require("gears.object")
@@ -31,6 +32,7 @@ local terminal_commands_lookup = {
 	termite = "termite -e",
 	rxvt = "rxvt -e",
 	terminator = "terminator -e",
+	kitty = "kitty -e",
 }
 
 local function string_levenshtein(str1, str2)
@@ -606,7 +608,7 @@ local function generate_apps(self)
 		end)
 	end
 
-	local icon_theme = utilities.icon_theme(beautiful.icon_theme, self.icon_size)
+	local icon_theme = modules.icon_theme(beautiful.icon_theme, self.icon_size)
 
 	for _, app in ipairs(apps) do
 		if app.should_show(app) then
@@ -652,123 +654,62 @@ local function generate_apps(self)
 		end
 	end
 end
+-- animations
+
+local slide = modules.animations.instance:new({
+	intro = 0.64,
+	duration = 0.93,
+	rate = 20,
+	pos = 0 - dpi(540),
+	easing = modules.animations.instance.easing.inOutExpo,
+	update = function(_, pos)
+		screen.app_launcher.y = s.geometry.y + pos
+	end,
+})
+
+local slide_end = gears.timer({
+	single_shot = true,
+	timeout = 0.43 + 0.08,
+	callback = function()
+		screen.app_launcher.visible = false
+	end,
+})
 
 --- Shows the app launcher
 function app_launcher:show()
-	local screen = self.screen
-	if self.show_on_focused_screen then
-		screen = awful.screen.focused()
-	end
+	screen = awful.screen.focused()
 
 	screen.app_launcher = self._private.widget
 	screen.app_launcher.screen = screen
 	self._private.prompt:start()
 
-	local animation = self.rubato
-	if animation ~= nil then
-		if self._private.widget.goal_x == nil then
-			self._private.widget.goal_x = self._private.widget.x
-		end
-		if self._private.widget.goal_y == nil then
-			self._private.widget.goal_y = self._private.widget.y
-			self._private.widget.placement = nil
-		end
-
-		if animation.x then
-			animation.x.ended:unsubscribe()
-			animation.x:set(self._private.widget.goal_x)
-			gtimer({
-				timeout = 0.01,
-				call_now = false,
-				autostart = true,
-				single_shot = true,
-				callback = function()
-					screen.app_launcher.visible = true
-				end,
-			})
-		end
-		if animation.y then
-			animation.y.ended:unsubscribe()
-			animation.y:set(self._private.widget.goal_y)
-			gtimer({
-				timeout = 0.01,
-				call_now = false,
-				autostart = true,
-				single_shot = true,
-				callback = function()
-					screen.app_launcher.visible = true
-				end,
-			})
-		end
-	else
-		screen.app_launcher.visible = true
-	end
+	screen.app_launcher.visible = true
 
 	self:emit_signal("app_menu::app_launcher::visibility", true)
 end
 
 --- Hides the app launcher
 function app_launcher:hide()
-	local screen = self.screen
-	if self.show_on_focused_screen then
-		screen = awful.screen.focused()
-	end
+	screen = awful.screen.focused()
 
 	if screen.app_launcher == nil or screen.app_launcher.visible == false then
 		return
 	end
-
+	screen.app_launcher.visible = false
 	self._private.prompt:stop()
 
-	local animation = self.rubato
-	if animation ~= nil then
-		if animation.x then
-			animation.x:set(animation.x:initial())
-		end
-		if animation.y then
-			animation.y:set(animation.y:initial())
-		end
-
-		local anim_x_duration = (animation.x and animation.x.duration) or 0
-		local anim_y_duration = (animation.y and animation.y.duration) or 0
-		local turn_off_on_anim_x_end = (anim_x_duration >= anim_y_duration) and true or false
-
-		if turn_off_on_anim_x_end then
-			animation.x.ended:subscribe(function()
-				if self.reset_on_hide == true then
-					reset(self)
-				end
-				screen.app_launcher.visible = false
-				screen.app_launcher = nil
-				animation.x.ended:unsubscribe()
-			end)
-		else
-			animation.y.ended:subscribe(function()
-				if self.reset_on_hide == true then
-					reset(self)
-				end
-				screen.app_launcher.visible = false
-				screen.app_launcher = nil
-				animation.y.ended:unsubscribe()
-			end)
-		end
-	else
-		if self.reset_on_hide == true then
-			reset(self)
-		end
-		screen.app_launcher.visible = false
-		screen.app_launcher = nil
+	if self.reset_on_hide == true then
+		reset(self)
 	end
+
+	screen.app_launcher = nil
 
 	self:emit_signal("app_menu::app_launcher::visibility", false)
 end
 
 --- Toggles the app launcher
 function app_launcher:toggle()
-	local screen = self.screen
-	if self.show_on_focused_screen then
-		screen = awful.screen.focused()
-	end
+	screen = awful.screen.focused()
 
 	if screen.app_launcher and screen.app_launcher.visible then
 		self:hide()
@@ -781,15 +722,13 @@ end
 local function new(args)
 	args = args or {}
 
-	args.terminal = args.terminal or nil
 	args.favorites = args.favorites or {}
 	args.search_commands = args.search_commands == nil and true or args.search_commands
-	args.skip_names = args.skip_names or {}
-	args.skip_commands = args.skip_commands or {}
-	args.skip_empty_icons = args.skip_empty_icons ~= nil and args.skip_empty_icons or false
+	args.skip_names = {}
+	args.skip_commands = {}
+	args.skip_empty_icons = false
 	args.sort_alphabetically = args.sort_alphabetically == nil and true or args.sort_alphabetically
-	args.reverse_sort_alphabetically = args.reverse_sort_alphabetically ~= nil and args.reverse_sort_alphabetically
-		or false
+	args.reverse_sort_alphabetically = false
 	args.select_before_spawn = args.select_before_spawn == nil and true or args.select_before_spawn
 	args.hide_on_left_clicked_outside = args.hide_on_left_clicked_outside == nil and true
 		or args.hide_on_left_clicked_outside
@@ -813,7 +752,6 @@ local function new(args)
 	args.show_on_focused_screen = args.show_on_focused_screen == nil and true or args.show_on_focused_screen
 	args.screen = args.screen or capi.screen.primary
 	args.placement = args.placement or awful.placement.centered
-	args.rubato = args.rubato or nil
 	args.shrink_width = args.shrink_width ~= nil and args.shrink_width or false
 	args.shrink_height = args.shrink_height ~= nil and args.shrink_height or false
 	args.background = args.background or "#000000"
@@ -1004,7 +942,7 @@ local function new(args)
 		widget = wibox.container.background,
 		fg = beautiful.fg_normal,
 		bg = beautiful.widget_back,
-		shape = utilities.mkroundedrect(),
+		shape = utilities.widgets.mkroundedrect(),
 		border_color = beautiful.grey .. "cc",
 		border_width = dpi(1),
 		forced_width = dpi(36),
@@ -1040,7 +978,7 @@ local function new(args)
 		widget = wibox.container.background,
 		fg = beautiful.fg_normal,
 		bg = beautiful.widget_back,
-		shape = utilities.mkroundedrect(),
+		shape = utilities.widgets.mkroundedrect(),
 		border_color = beautiful.grey .. "cc",
 		border_width = dpi(1),
 		forced_width = dpi(36),
@@ -1075,7 +1013,7 @@ local function new(args)
 		widget = wibox.container.background,
 		fg = beautiful.fg_normal,
 		bg = beautiful.widget_back,
-		shape = utilities.mkroundedrect(),
+		shape = utilities.widgets.mkroundedrect(),
 		border_color = beautiful.grey .. "cc",
 		border_width = dpi(1),
 		forced_width = dpi(36),
@@ -1134,7 +1072,7 @@ local function new(args)
 				},
 				widget = wibox.container.background,
 				bg = beautiful.dimblack .. "cc",
-				shape = utilities.mkroundedrect(),
+				shape = utilities.widgets.mkroundedrect(),
 				border_width = dpi(0.75),
 				border_color = beautiful.lessgrey .. "77",
 			},
@@ -1204,9 +1142,9 @@ local function new(args)
 							widget = wibox.container.margin,
 							margins = ret.apps_margin,
 							ret._private.grid,
-							shape = utilities.mkroundedrect(),
+							shape = utilities.widgets.mkroundedrect(),
 						},
-						shape = utilities.mkroundedrect(),
+						shape = utilities.widgets.mkroundedrect(),
 						border_width = dpi(0.75),
 						border_color = beautiful.lessgrey .. "77",
 						widget = wibox.container.background,
@@ -1233,14 +1171,14 @@ local function new(args)
 					right = dpi(10),
 					left = dpi(0),
 				},
-				-- {
-				-- 	require('ui.bar.popups.app_menu.widget.app_launcher.music-player'),
-				-- 	widget = wibox.container.margin,
-				-- 	top = dpi(3),
-				-- 	bottom = dpi(2),
-				-- 	right = dpi(10),
-				-- 	left = dpi(0),
-				-- },
+				{
+					-- require("ui.bar.popups.app_menu.widget.app_launcher.music-player"),
+					widget = wibox.container.margin,
+					top = dpi(3),
+					bottom = dpi(2),
+					right = dpi(10),
+					left = dpi(0),
+				},
 
 				layout = wibox.layout.fixed.vertical,
 			},
@@ -1256,35 +1194,20 @@ local function new(args)
 	generate_apps(ret)
 	reset(ret)
 
-	if ret.rubato and ret.rubato.x then
-		ret.rubato.x:subscribe(function(pos)
-			ret._private.widget.x = pos
-		end)
-	end
-	if ret.rubato and ret.rubato.y then
-		ret.rubato.y:subscribe(function(pos)
-			ret._private.widget.y = pos
-		end)
-	end
+	awful.mouse.append_client_mousebinding(awful.button({}, 1, function(c)
+		ret:hide()
+	end))
 
-	if ret.hide_on_left_clicked_outside then
-		awful.mouse.append_client_mousebinding(awful.button({}, 1, function(c)
-			ret:hide()
-		end))
+	awful.mouse.append_global_mousebinding(awful.button({}, 1, function(c)
+		ret:hide()
+	end))
+	awful.mouse.append_client_mousebinding(awful.button({}, 3, function(c)
+		ret:hide()
+	end))
 
-		awful.mouse.append_global_mousebinding(awful.button({}, 1, function(c)
-			ret:hide()
-		end))
-	end
-	if ret.hide_on_right_clicked_outside then
-		awful.mouse.append_client_mousebinding(awful.button({}, 3, function(c)
-			ret:hide()
-		end))
-
-		awful.mouse.append_global_mousebinding(awful.button({}, 3, function(c)
-			ret:hide()
-		end))
-	end
+	awful.mouse.append_global_mousebinding(awful.button({}, 3, function(c)
+		ret:hide()
+	end))
 
 	local kill_old_inotify_process_script =
 		[[ ps x | grep "inotifywait -e modify /usr/share/applications" | grep -v grep | awk '{print $1}' | xargs kill ]]

@@ -12,9 +12,9 @@ return function()
 		autostart = true,
 		call_now = true,
 		callback = function()
-			collectgarbage('setpause', 110)
-			collectgarbage('setstepmul', 1000)
-			collectgarbage('collect')
+			collectgarbage("setpause", 110)
+			collectgarbage("setstepmul", 1000)
+			collectgarbage("collect")
 		end,
 	})
 end

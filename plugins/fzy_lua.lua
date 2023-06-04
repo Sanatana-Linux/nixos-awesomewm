@@ -44,21 +44,21 @@ function fzy.has_match(needle, haystack, case_sensitive)
 	return true
 end
 
-local function is_lower(c) return c:match('%l') end
+local function is_lower(c) return c:match("%l") end
 
-local function is_upper(c) return c:match('%u') end
+local function is_upper(c) return c:match("%u") end
 
 local function precompute_bonus(haystack)
 	local match_bonus = {}
 
-	local last_char = '/'
+	local last_char = "/"
 	for i = 1, string.len(haystack) do
 		local this_char = haystack:sub(i, i)
-		if last_char == '/' or last_char == '\\' then
+		if last_char == "/" or last_char == "\\" then
 			match_bonus[i] = SCORE_MATCH_SLASH
-		elseif last_char == '-' or last_char == '_' or last_char == ' ' then
+		elseif last_char == "-" or last_char == "_" or last_char == " " then
 			match_bonus[i] = SCORE_MATCH_WORD
-		elseif last_char == '.' then
+		elseif last_char == "." then
 			match_bonus[i] = SCORE_MATCH_DOT
 		elseif is_lower(last_char) and is_upper(this_char) then
 			match_bonus[i] = SCORE_MATCH_CAPITAL
@@ -253,6 +253,6 @@ function fzy.get_score_floor() return MATCH_MAX_LENGTH * SCORE_GAP_INNER end
 function fzy.get_score_ceiling() return MATCH_MAX_LENGTH * SCORE_MATCH_CONSECUTIVE end
 
 -- The name of the currently-running implmenetation, "lua" or "native".
-function fzy.get_implementation_name() return 'lua' end
+function fzy.get_implementation_name() return "lua" end
 
 return fzy

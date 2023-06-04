@@ -1,3 +1,3 @@
 return {
-	app_launcher = require(... .. '.app_launcher'),
+	app_launcher = require(... .. ".app_launcher"),
 }

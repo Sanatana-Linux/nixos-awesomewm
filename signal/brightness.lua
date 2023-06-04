@@ -1,7 +1,7 @@
 -- Provides:
 -- signal::brightness
 --      percentage (integer)
-local awful = require('awful')
+local awful = require("awful")
 
 -- Subscribe to backlight changes
 -- Requires inotify-tools
@@ -25,7 +25,7 @@ local emit_brightness_info = function()
 			awful.spawn.with_line_callback(brightness_max, {
 				stdout = function(max)
 					percentage = tonumber(value) / tonumber(max) * 100
-					awesome.emit_signal('signal::brightness', math.floor(percentage + 0.5))
+					awesome.emit_signal("signal::brightness", math.floor(percentage + 0.5))
 				end,
 			})
 		end,
@@ -37,7 +37,7 @@ emit_brightness_info()
 
 -- Kill old inotifywait process
 awful.spawn.easy_async_with_shell(
-	'ps x | grep "inotifywait -e modify /sys/class/backlight" | grep -v grep | awk \'{print $1}\' | xargs kill',
+	"ps x | grep \"inotifywait -e modify /sys/class/backlight\" | grep -v grep | awk '{print $1}' | xargs kill",
 	function()
 		-- Update brightness status with each line printed
 		awful.spawn.with_line_callback(brightness_subscribe_script, {

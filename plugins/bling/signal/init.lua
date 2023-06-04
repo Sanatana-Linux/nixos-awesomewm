@@ -1,3 +1,3 @@
 return {
-    playerctl = require(... .. '.playerctl'),
+    playerctl = require(... .. ".playerctl"),
 }

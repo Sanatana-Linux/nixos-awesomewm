@@ -6,7 +6,7 @@
 -- -------------------------------------------------------------------------- --
 -- enable visibility listener.
 --
-require('ui.dashboard.listener')
+require("ui.dashboard.listener")
 
 -- -------------------------------------------------------------------------- --
 -- dashboard for each monitor not just primary
@@ -21,11 +21,11 @@ awful.screen.connect_for_each_screen(function(s)
 		-- -------------------------------------------------------------------------- --
 		-- locally scoped variables
 		--
-		local date = require('ui.dashboard.date')
-		local charts = require('ui.dashboard.charts')
-		local music = require('ui.dashboard.music-player')
-		local controls = require('ui.dashboard.controls')
-		local actions = require('ui.dashboard.actions')
+		local date = require("ui.dashboard.date")
+		local charts = require("ui.dashboard.charts")
+		local music = require("ui.dashboard.music-player")
+		local controls = require("ui.dashboard.controls")
+		local actions = require("ui.dashboard.actions")
 		-- -------------------------------------------------------------------------- --
 		-- widget template
 		--
@@ -61,7 +61,7 @@ awful.screen.connect_for_each_screen(function(s)
 			},
 			fg = beautiful.fg_normal,
 			widget = wibox.container.background,
-			shape = utilities.mkroundedrect(),
+			shape = utilities.widgets.mkroundedrect(),
 		})
 	end
 	-- -------------------------------------------------------------------------- --
@@ -75,12 +75,12 @@ awful.screen.connect_for_each_screen(function(s)
 		end,
 		ontop = true,
 		visible = false,
-		shape = utilities.mkroundedrect(),
+		shape = utilities.widgets.mkroundedrect(),
 		minimum_width = dpi(455),
 		fg = beautiful.fg_normal,
 		screen = s,
-		bg = beautiful.bg_normal .. 'cc',
-		border_color = beautiful.grey .. 'cc',
+		bg = beautiful.bg_normal .. "cc",
+		border_color = beautiful.grey .. "cc",
 		border_width = dpi(2),
 		widget = wibox.container.background,
 	})
@@ -94,7 +94,7 @@ awful.screen.connect_for_each_screen(function(s)
 		keybindings = {
 			awful.key({
 				modifiers = {},
-				key = 'Escape',
+				key = "Escape",
 				on_press = function()
 					s.dashboard.toggle()
 					dash_kg:stop()
@@ -102,7 +102,7 @@ awful.screen.connect_for_each_screen(function(s)
 			}),
 			awful.key({
 				modifiers = {},
-				key = 'q',
+				key = "q",
 				on_press = function()
 					s.dashboard.toggle()
 					dash_kg:stop()
@@ -110,7 +110,7 @@ awful.screen.connect_for_each_screen(function(s)
 			}),
 			awful.key({
 				modifiers = {},
-				key = 'x',
+				key = "x",
 				on_press = function()
 					s.dashboard.toggle()
 					dash_kg:stop()
@@ -125,21 +125,25 @@ awful.screen.connect_for_each_screen(function(s)
 		if self.visible then
 			s.dashboard.hide()
 			dash_kg:stop()
-			collectgarbage('collect')
+			collectgarbage("collect")
 		else
 			s.dashboard.show()
 			dash_kg:start()
-			collectgarbage('collect')
+			collectgarbage("collect")
 		end
 	end
 
 	function s.dashboard.show()
 		dash_kg:start()
-		if not PlayerctlSignal then PlayerctlSignal = require('plugins.bling').signal.playerctl.lib() end
-		if not PlayerctlCli then PlayerctlCli = require('plugins.bling').signal.playerctl.cli() end
+		if not PlayerctlSignal then
+			PlayerctlSignal = require("plugins.bling").signal.playerctl.lib()
+		end
+		if not PlayerctlCli then
+			PlayerctlCli = require("plugins.bling").signal.playerctl.cli()
+		end
 		self.widget = mkwidget()
 		self.visible = true
-		collectgarbage('collect')
+		collectgarbage("collect")
 	end
 
 	function s.dashboard.hide()
@@ -153,6 +157,6 @@ awful.screen.connect_for_each_screen(function(s)
 			bg = beautiful.bg_normal,
 			widget = wibox.container.background,
 		})
-		collectgarbage('collect')
+		collectgarbage("collect")
 	end
 end)

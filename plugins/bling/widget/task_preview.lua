@@ -5,13 +5,13 @@
 --      v   (boolean)
 --      c   (client)
 --
-local awful = require('awful')
-local wibox = require('wibox')
-local helpers = require(tostring(...):match('.*bling') .. '.helpers')
-local gears = require('gears')
-local beautiful = require('beautiful')
+local awful = require("awful")
+local wibox = require("wibox")
+local helpers = require(tostring(...):match(".*bling") .. ".helpers")
+local gears = require("gears")
+local beautiful = require("beautiful")
 local dpi = beautiful.xresources.apply_dpi
-local cairo = require('lgi').cairo
+local cairo = require("lgi").cairo
 
 -- TODO: rename structure to something better?
 local function draw_widget(
@@ -25,7 +25,11 @@ local function draw_widget(
     widget_width,
     widget_height
 )
-    if not pcall(function() return type(c.content) end) then return end
+    if not pcall(function()
+        return type(c.content)
+    end) then
+        return
+    end
 
     local content = nil
     if c.active then
@@ -53,7 +57,7 @@ local function draw_widget(
                     {
                         {
                             {
-                                id = 'icon_role',
+                                id = "icon_role",
                                 resize = true,
                                 forced_height = dpi(20),
                                 forced_width = dpi(20),
@@ -61,8 +65,8 @@ local function draw_widget(
                             },
                             {
                                 {
-                                    id = 'name_role',
-                                    align = 'center',
+                                    id = "name_role",
+                                    align = "center",
                                     widget = wibox.widget.textbox,
                                 },
                                 left = dpi(4),
@@ -74,15 +78,15 @@ local function draw_widget(
                         {
                             {
                                 {
-                                    id = 'image_role',
+                                    id = "image_role",
                                     resize = true,
                                     clip_shape = helpers.shape.rrect(
                                         screen_radius
                                     ),
                                     widget = wibox.widget.imagebox,
                                 },
-                                valign = 'center',
-                                halign = 'center',
+                                valign = "center",
+                                halign = "center",
                                 widget = wibox.container.place,
                             },
                             top = margin * 0.25,
@@ -108,15 +112,15 @@ local function draw_widget(
 
     -- TODO: have something like a create callback here?
 
-    for _, w in ipairs(widget:get_children_by_id('image_role')) do
+    for _, w in ipairs(widget:get_children_by_id("image_role")) do
         w.image = img -- TODO: copy it with gears.surface.xxx or something
     end
 
-    for _, w in ipairs(widget:get_children_by_id('name_role')) do
+    for _, w in ipairs(widget:get_children_by_id("name_role")) do
         w.text = c.name
     end
 
-    for _, w in ipairs(widget:get_children_by_id('icon_role')) do
+    for _, w in ipairs(widget:get_children_by_id("icon_role")) do
         w.image = c.icon -- TODO: detect clienticon
     end
 
@@ -134,23 +138,23 @@ local enable = function(opts)
 
     local margin = beautiful.task_preview_widget_margin or dpi(0)
     local screen_radius = beautiful.task_preview_widget_border_radius or dpi(0)
-    local widget_bg = beautiful.task_preview_widget_bg or '#000000'
+    local widget_bg = beautiful.task_preview_widget_bg or "#000000"
     local widget_border_color = beautiful.task_preview_widget_border_color
-        or '#ffffff'
+        or "#ffffff"
     local widget_border_width = beautiful.task_preview_widget_border_width
         or dpi(3)
 
     local task_preview_box = awful.popup({
-        type = 'dropdown_menu',
+        type = "dropdown_menu",
         visible = false,
         ontop = true,
         placement = placement_fn,
         widget = wibox.container.background, -- A dummy widget to make awful.popup not scream
         input_passthrough = true,
-        bg = '#00000000',
+        bg = "#00000000",
     })
 
-    tag.connect_signal('property::selected', function(t)
+    tag.connect_signal("property::selected", function(t)
         -- Awesome switches up tags on startup really fast it seems, probably depends on what rules you have set
         -- which can cause the c.content to not show the correct image
         gears.timer({
@@ -169,7 +173,7 @@ local enable = function(opts)
         })
     end)
 
-    awesome.connect_signal('bling::task_preview::visibility', function(s, v, c)
+    awesome.connect_signal("bling::task_preview::visibility", function(s, v, c)
         if v then
             -- Update task preview contents
             task_preview_box.widget = draw_widget(
@@ -185,7 +189,7 @@ local enable = function(opts)
             )
         else
             task_preview_box.widget = nil
-            collectgarbage('collect')
+            collectgarbage("collect")
         end
 
         if not placement_fn then

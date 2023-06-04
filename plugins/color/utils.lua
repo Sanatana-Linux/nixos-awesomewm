@@ -9,12 +9,12 @@ end
 
 -- Useful public methods
 local function hex_to_rgba(hex)
-	hex = hex:gsub('#', '')
-	return tonumber('0x' .. hex:sub(1, 2)),
-		tonumber('0x' .. hex:sub(3, 4)),
-		tonumber('0x' .. hex:sub(5, 6)),
+	hex = hex:gsub("#", "")
+	return tonumber("0x" .. hex:sub(1, 2)),
+		tonumber("0x" .. hex:sub(3, 4)),
+		tonumber("0x" .. hex:sub(5, 6)),
 		--if alpha exists in hex, return it
-		#hex == 8 and tonumber('0x' .. hex:sub(7, 8)) or nil
+		#hex == 8 and tonumber("0x" .. hex:sub(7, 8)) or nil
 end
 
 local function rgba_to_hex(obj)
@@ -22,11 +22,11 @@ local function rgba_to_hex(obj)
 	local g = obj.g or obj[2]
 	local b = obj.b or obj[3]
 	local a = obj.a or 1
-	local h = (obj.hashtag or obj[4]) and '#' or ''
+	local h = (obj.hashtag or obj[4]) and "#" or ""
 	return h
-		.. string.format('%02x%02x%02x', math.floor(r), math.floor(g), math.floor(b))
+		.. string.format("%02x%02x%02x", math.floor(r), math.floor(g), math.floor(b))
 		--this part only shows the alpha channel if it's not 1
-		.. (a ~= 1 and string.format('%02x', math.floor(a * 255)) or '')
+		.. (a ~= 1 and string.format("%02x", math.floor(a * 255)) or "")
 end
 
 --disclaimer I have no idea what any of the math does
@@ -66,7 +66,9 @@ local function rgb_to_hsl(obj)
 	end
 
 	-- Make sure it goes around if it's negative (hue is a circle)
-	if h ~= 360 then h = h % 360 end
+	if h ~= 360 then
+		h = h % 360
+	end
 
 	return h, s, l
 end
@@ -95,15 +97,21 @@ local function hsl_to_rgb(obj)
 	temp_b = temp_h - 1 / 3
 
 	-- Make sure it's between 0 and 1
-	if temp_r ~= 1 then temp_r = temp_r % 1 end
-	if temp_g ~= 1 then temp_g = temp_g % 1 end
-	if temp_b ~= 1 then temp_b = temp_b % 1 end
+	if temp_r ~= 1 then
+		temp_r = temp_r % 1
+	end
+	if temp_g ~= 1 then
+		temp_g = temp_g % 1
+	end
+	if temp_b ~= 1 then
+		temp_b = temp_b % 1
+	end
 
 	local rgb = {}
 
 	-- Bunch of tests
 	-- Once again I haven't the foggiest what any of this does
-	for _, v in pairs({ { temp_r, 'r' }, { temp_g, 'g' }, { temp_b, 'b' } }) do
+	for _, v in pairs({ { temp_r, "r" }, { temp_g, "g" }, { temp_b, "b" } }) do
 		if v[1] * 6 < 1 then
 			rgb[v[2]] = temp2 + (temp1 - temp2) * v[1] * 6
 		elseif v[1] * 2 < 1 then
@@ -121,7 +129,9 @@ end
 --check if table contains item
 local function contains(obj, value)
 	for _, v in pairs(obj) do
-		if v == value then return true end
+		if v == value then
+			return true
+		end
 	end
 	return false
 end

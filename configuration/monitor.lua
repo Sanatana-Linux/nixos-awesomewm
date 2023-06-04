@@ -8,8 +8,8 @@
 -- |___|___||___._|__|__|_____|__|__||__|__|___  |
 --                                         |_____|
 -- ----------------------------------------------------------- --
-local awful = require('awful')
+local awful = require("awful")
 
 awful.screen.connect_for_each_screen(function(s)
-	s:connect_signal('property::geometry', function() awesome.restart() end)
+	s:connect_signal("property::geometry", function() awesome.restart() end)
 end)

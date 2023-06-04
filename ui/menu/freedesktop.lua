@@ -9,26 +9,28 @@
 
 --]]
 
-local awful_menu = require('awful.menu')
-local menu_gen = require('menubar.menu_gen')
-local menu_utils = require('menubar.utils')
-local icon_theme = require('menubar.icon_theme')
-local gls = require('gears.filesystem')
+local awful_menu = require("awful.menu")
+local menu_gen = require("menubar.menu_gen")
+local menu_utils = require("menubar.utils")
+local icon_theme = require("menubar.icon_theme")
+local gls = require("gears.filesystem")
 
 local pairs, string, table, os = pairs, string, table, os
 
 -- Add support for NixOS systems too
-table.insert(menu_gen.all_menu_dirs, string.format('%s/.nix-profile/share/applications', os.getenv('HOME')))
+table.insert(menu_gen.all_menu_dirs, string.format("%s/.nix-profile/share/applications", os.getenv("HOME")))
 
 -- Remove non existent paths in order to avoid issues
 local existent_paths = {}
 for k, v in pairs(menu_gen.all_menu_dirs) do
-	if gls.is_dir(v) then table.insert(existent_paths, v) end
+	if gls.is_dir(v) then
+		table.insert(existent_paths, v)
+	end
 end
 menu_gen.all_menu_dirs = existent_paths
 
 -- Expecting a wm_name of awesome omits too many applications and tools
-menu_utils.wm_name = ''
+menu_utils.wm_name = ""
 
 -- Menu
 -- freedesktop.menu
@@ -40,7 +42,9 @@ local freedesktop = {}
 -- @return true if the given string is found within the search table; otherwise, false if not
 function freedesktop.has_value(tab, val)
 	for index, value in pairs(tab) do
-		if val:find(value) then return true end
+		if val:find(value) then
+			return true
+		end
 	end
 	return false
 end
@@ -84,17 +88,23 @@ function freedesktop.build(args)
 				table.remove(result, i)
 			else
 				--Sort entries alphabetically (by name)
-				table.sort(v[2], function(a, b) return string.byte(a[1]) < string.byte(b[1]) end)
+				table.sort(v[2], function(a, b)
+					return string.byte(a[1]) < string.byte(b[1])
+				end)
 				-- Replace category name with nice name
 				v[1] = menu_gen.all_categories[v[1]].name
 			end
 		end
 
 		-- Sort categories alphabetically also
-		table.sort(result, function(a, b) return string.byte(a[1]) < string.byte(b[1]) end)
+		table.sort(result, function(a, b)
+			return string.byte(a[1]) < string.byte(b[1])
+		end)
 
 		-- Add menu item to hold the generated menu
-		if sub_menu then result = { { sub_menu, result } } end
+		if sub_menu then
+			result = { { sub_menu, result } }
+		end
 
 		-- Add items to menu
 		for _, v in pairs(result) do

@@ -13,10 +13,10 @@ local muted_old = -1
 local function emit_volume_info()
 	-- Get volume info of the currently active sink
 	awful.spawn.easy_async_with_shell('echo -n $(pamixer --get-mute); echo "_$(pamixer --get-volume)"', function(stdout)
-		local bool = string.match(stdout, '(.-)_')
-		local volume = string.match(stdout, '%d+')
+		local bool = string.match(stdout, "(.-)_")
+		local volume = string.match(stdout, "%d+")
 		local muted_int = -1
-		if bool == 'true' then
+		if bool == "true" then
 			muted_int = 1
 		else
 			muted_int = 0
@@ -31,7 +31,7 @@ local function emit_volume_info()
 		-- when a media file starts playing.
 		--
 		if volume_int ~= volume_old or muted_int ~= muted_old then
-			awesome.emit_signal('signal::volume', volume_int, muted_int)
+			awesome.emit_signal("signal::volume", volume_int, muted_int)
 			volume_old = volume_int
 			muted_old = muted_int
 		end
@@ -53,16 +53,18 @@ local volume_script = [[
 -- Kill old pactl subscribe processes
 --
 awful.spawn.easy_async({
-	'pkill',
-	'--full',
-	'--uid',
-	os.getenv('USER'),
-	'^pactl subscribe',
+	"pkill",
+	"--full",
+	"--uid",
+	os.getenv("USER"),
+	"^pactl subscribe",
 }, function()
 	-- -------------------------------------------------------------------------- --
 	-- Run emit_volume_info() with each line printed
 	--
 	awful.spawn.with_line_callback(volume_script, {
-		stdout = function(line) emit_volume_info() end,
+		stdout = function(line)
+			emit_volume_info()
+		end,
 	})
 end)

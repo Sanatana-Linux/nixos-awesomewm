@@ -1,6 +1,6 @@
 local mylayout = {}
 
-mylayout.name = 'deck'
+mylayout.name = "deck"
 
 function mylayout.arrange(p)
     local area = p.workarea

@@ -11,9 +11,18 @@ local function make_button(txt, fg, bg, hfg, hbg, onclick)
 		local btn = wibox.widget({
 			{
 				{
-					markup = txt,
-					font = beautiful.nerd_font .. " 10",
-					widget = wibox.widget.textbox,
+					nil,
+					{
+						markup = txt,
+						font = beautiful.nerd_font .. " 14",
+						widget = wibox.widget.textbox,
+					},
+					nil,
+					layout = wibox.layout.align.horizontal,
+					halign = "center",
+					valign = "center",
+					align = "center",
+					expand = "inside",
 				},
 				left = dpi(2),
 				right = dpi(2),
@@ -21,20 +30,20 @@ local function make_button(txt, fg, bg, hfg, hbg, onclick)
 				bottom = dpi(2),
 				widget = wibox.container.margin,
 			},
-			shape = utilities.mkroundedrect(2),
+			shape = utilities.widgets.mkroundedrect(2),
 			fg = beautiful[fg],
 			bg = beautiful[bg],
 			widget = wibox.container.background,
 		})
 
-		local fg_transition = utilities.apply_transition({
+		local fg_transition = utilities.visual.apply_transition({
 			element = btn,
 			prop = "fg",
 			bg = beautiful[fg],
 			hbg = beautiful[hfg],
 		})
 
-		local bg_transition = utilities.apply_transition({
+		local bg_transition = utilities.visual.apply_transition({
 			element = btn,
 			prop = "bg",
 			bg = beautiful[bg],
@@ -115,16 +124,16 @@ client.connect_signal("request::titlebars", function(c)
 				{
 					minimize_button(c),
 					widget = wibox.container.margin,
-					left = dpi(2),
-					right = dpi(2),
+					left = dpi(4),
+					right = dpi(4),
 				},
 				{
 					maximize_button(c),
 					widget = wibox.container.margin,
-					left = dpi(2),
-					right = dpi(2),
+					left = dpi(4),
+					right = dpi(4),
 				},
-				{ close_button(c), widget = wibox.container.margin, left = dpi(2), right = dpi(2) },
+				{ close_button(c), widget = wibox.container.margin, left = dpi(4), right = dpi(4) },
 				layout = wibox.layout.fixed.horizontal,
 			},
 			right = dpi(10),

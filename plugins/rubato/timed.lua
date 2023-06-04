@@ -1,5 +1,5 @@
-local subscribable = require(RUBATO_DIR .. 'subscribable')
-local glib = require('lgi').GLib
+local subscribable = require(RUBATO_DIR .. "subscribable")
+local glib = require("lgi").GLib
 
 --- Get the slope (this took me forever to find).
 -- i is intro duration
@@ -11,7 +11,9 @@ local glib = require('lgi').GLib
 -- b is the y-intercept
 -- m is the slope
 -- @see timed
-local function get_slope(i, o, t, d, F_1, F_2, b) return (d + i * b * (F_1 - 1)) / (i * (F_1 - 1) + o * (F_2 - 1) + t) end
+local function get_slope(i, o, t, d, F_1, F_2, b)
+	return (d + i * b * (F_1 - 1)) / (i * (F_1 - 1) + o * (F_2 - 1) + t)
+end
 
 --- Get the dx based off of a bunch of factors
 -- @see timed
@@ -32,7 +34,7 @@ end
 
 --weak table for memoizing results
 local simulate_easing_mem = {}
-setmetatable(simulate_easing_mem, { __mode = 'kv' })
+setmetatable(simulate_easing_mem, { __mode = "kv" })
 
 --- Simulates the easing to get the result to find an error coefficient
 -- Uses the coefficient to adjust dx so that it's guaranteed to hit the target
@@ -45,7 +47,7 @@ local function simulate_easing(pos, duration, intro, intro_e, outro, outro_e, m,
 
 	-- Key for cacheing results
 	local key = string.format(
-		'%f %f %f %s %f %s %f %f',
+		"%f %f %f %s %f %s %f %f",
 		pos,
 		duration,
 		intro,
@@ -57,7 +59,9 @@ local function simulate_easing(pos, duration, intro, intro_e, outro, outro_e, m,
 	)
 
 	-- Short circuits if it's already done the calculation
-	if simulate_easing_mem[key] then return simulate_easing_mem[key] end
+	if simulate_easing_mem[key] then
+		return simulate_easing_mem[key]
+	end
 
 	-- Effectively runs the exact same  code to find what the target will be
 	while duration - ps_time >= dt / 2 do
@@ -79,7 +83,9 @@ end
 --function creates timers which run in the background handling animations at distinct rates
 --this allows for rates to change dynamiclally during runtime should you wanna set everything's
 --rate to like 2fps for some reason or if you wanna switch from 144Hz to 60Hz or something
-if not RUBATO_TIMEOUTS then RUBATO_TIMEOUTS = {} end
+if not RUBATO_TIMEOUTS then
+	RUBATO_TIMEOUTS = {}
+end
 
 --create_timeout is called whenever a timer tries to start an animation and there's not a timeout
 --with the correct rate already in RUBATO_TIMEOUTS
@@ -89,7 +95,9 @@ local function create_timeout(rate)
 	return glib.timeout_add(glib.PRIORITY_DEFAULT, initial_dt * 1000, function()
 		--correct for it being too slow if need be
 		local dt = (glib.get_monotonic_time() - time_last) / 1000000
-		if dt < initial_dt * 1.05 then dt = initial_dt end --give it 5% moe
+		if dt < initial_dt * 1.05 then
+			dt = initial_dt
+		end --give it 5% moe
 
 		for _, obj in pairs(RUBATO_MANAGER.timeds) do
 			if obj.rate == rate and obj._props.target ~= obj.pos and not obj.pause then
@@ -125,7 +133,9 @@ local function create_timeout(rate)
 					obj:fire(obj.pos, obj.duration, obj._dx)
 
 					-- awestore compatibility
-					if obj.awestore_compat then obj.ended:fire(obj.pos, obj.duration, obj._dx) end
+					if obj.awestore_compat then
+						obj.ended:fire(obj.pos, obj.duration, obj._dx)
+					end
 
 				--otherwise it just fires normally
 				else
@@ -172,11 +182,11 @@ local function timed(args)
 		--deal with 0.1+0.2!=0.3 somehow??
 		assert(
 			self.intro + self.outro <= self.duration or self.prop_intro,
-			'Intro and Outro must be less than or equal to total duration'
+			"Intro and Outro must be less than or equal to total duration"
 		)
 		assert(
 			self.intro + self.outro <= 1 or not self.prop_intro,
-			'Proportional Intro and Outro must be less than or equal to 1'
+			"Proportional Intro and Outro must be less than or equal to 1"
 		)
 
 		self.easing = args.easing or RUBATO_MANAGER.timed.defaults.easing
@@ -209,8 +219,12 @@ local function timed(args)
 		obj._initial = obj.pos
 		obj._last = 0
 
-		function obj:initial() return obj._initial end
-		function obj:last() return obj._last end
+		function obj:initial()
+			return obj._initial
+		end
+		function obj:last()
+			return obj._last
+		end
 
 		obj.started = subscribable()
 		obj.ended = subscribable()
@@ -231,14 +245,18 @@ local function timed(args)
 	-- Set target and begin interpolation
 	local function set(value)
 		--disallow setting it twice (because it makes it go wonky sometimes)
-		if not obj.rapid_set and obj._props.target == value then return end
+		if not obj.rapid_set and obj._props.target == value then
+			return
+		end
 
 		--animation values
 		obj._time = 0 --resets time
 		obj._coef = 1 --resets coefficient
 
 		--ensure that timer for specific rate exists, then set it
-		if not RUBATO_TIMEOUTS[obj.rate] then RUBATO_TIMEOUTS[obj.rate] = create_timeout(obj.rate) end
+		if not RUBATO_TIMEOUTS[obj.rate] then
+			RUBATO_TIMEOUTS[obj.rate] = create_timeout(obj.rate)
+		end
 		obj._dt = 1 / obj.rate
 
 		--does awestore compatibility
@@ -282,7 +300,9 @@ local function timed(args)
 
 			--get coefficient by calculating ratio of theoretical range : experimental range
 			obj._coef = (obj.pos - value) / (obj.pos - obj._ps_pos)
-			if obj._coef ~= obj._coef then obj._coef = 1 end --check for div by 0 resulting in NaN
+			if obj._coef ~= obj._coef then
+				obj._coef = 1
+			end --check for div by 0 resulting in NaN
 		end
 
 		--set target, triggering timeout since pos != target
@@ -293,7 +313,9 @@ local function timed(args)
 	end
 
 	if obj.awestore_compat then
-		function obj:set(target) set(target) end
+		function obj:set(target)
+			set(target)
+		end
 	end
 
 	-- Functions for setting state
@@ -321,14 +343,18 @@ local function timed(args)
 	end
 
 	--subscribe stuff initially and add callback
-	obj.subscribe_callback = function(func) func(obj.pos, obj._time, obj._dt) end
-	if args.subscribed ~= nil then obj:subscribe(args.subscribed) end
+	obj.subscribe_callback = function(func)
+		func(obj.pos, obj._time, obj._dt)
+	end
+	if args.subscribed ~= nil then
+		obj:subscribe(args.subscribed)
+	end
 
 	-- Metatable for cooler api
 	local mt = {}
 	function mt:__index(key)
 		-- Returns the state value
-		if key == 'running' then
+		if key == "running" then
 			if obj.pause then
 				return false
 			else
@@ -346,15 +372,15 @@ local function timed(args)
 	end
 	function mt:__newindex(key, value)
 		-- Don't allow for setting state
-		if key == 'running' then
+		if key == "running" then
 			return
 
 		-- Changing target should call set
-		elseif key == 'target' then
+		elseif key == "target" then
 			set(value) --set target
 
 		-- Changing rate should also update timeout
-		elseif key == 'rate' then
+		elseif key == "rate" then
 			self._props.rate = value
 			self._dt = 1 / value
 

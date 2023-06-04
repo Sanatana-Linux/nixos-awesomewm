@@ -1,11 +1,15 @@
 ---@diagnostic disable: undefined-global
 
 -- listens for requests to open/hide the systray popup in the focused screen ofc.
-local function get_tray() return awful.screen.focused().tray end
+local function get_tray()
+	return awful.screen.focused().tray
+end
 
-awesome.connect_signal('tray::toggle', function() get_tray().toggle() end)
+awesome.connect_signal("tray::toggle", function()
+	get_tray().toggle()
+end)
 
-awesome.connect_signal('tray::visibility', function(v)
+awesome.connect_signal("tray::visibility", function(v)
 	if v then
 		get_tray().show()
 	else
@@ -31,12 +35,12 @@ awful.screen.connect_for_each_screen(function(s)
 				margins = dpi(12),
 				widget = wibox.container.margin,
 			},
-			bg = beautiful.bg_normal .. '55',
-			border_color = beautiful.grey .. 'cc',
+			bg = beautiful.bg_normal .. "55",
+			border_color = beautiful.grey .. "cc",
 			border_width = dpi(1),
 			fg = beautiful.fg_normal,
 			widget = wibox.container.background,
-			shape = utilities.mkroundedrect(),
+			shape = utilities.widgets.mkroundedrect(),
 		},
 		widget = wibox.container.margin,
 		margins = dpi(3),
@@ -47,11 +51,11 @@ awful.screen.connect_for_each_screen(function(s)
 		screen = s,
 		visible = false,
 		ontop = true,
-		bg = beautiful.bg_normal .. '00',
+		bg = beautiful.bg_normal .. "00",
 		fg = beautiful.fg_normal,
 		minimum_width = dpi(200),
 		minimum_height = dpi(120),
-		shape = utilities.mkroundedrect(),
+		shape = utilities.widgets.mkroundedrect(),
 		placement = function(d)
 			return awful.placement.bottom_right(d, {
 				margins = {
@@ -72,7 +76,11 @@ awful.screen.connect_for_each_screen(function(s)
 		end
 	end
 
-	function tray.show() self.visible = true end
+	function tray.show()
+		self.visible = true
+	end
 
-	function tray.hide() self.visible = false end
+	function tray.hide()
+		self.visible = false
+	end
 end)

@@ -1,10 +1,10 @@
-local awful = require('awful')
-local beautiful = require('beautiful')
+local awful = require("awful")
+local beautiful = require("beautiful")
 local dpi = beautiful.xresources.apply_dpi
-local wibox = require('wibox')
-local gears = require('gears')
+local wibox = require("wibox")
+local gears = require("gears")
 
-local maticons = gears.filesystem.get_configuration_dir() .. '/themes/assets/icons/svg/'
+local maticons = gears.filesystem.get_configuration_dir() .. "/themes/assets/icons/svg/"
 
 local update_on_master
 
@@ -17,9 +17,9 @@ local entry_template = {
 		forced_width = dpi(30),
 		margins = dpi(5),
 		{
-			id = 'symbol',
+			id = "symbol",
 			widget = wibox.widget.imagebox,
-			image = gears.color.recolor_image(maticons .. 'volume_up.svg', beautiful.fg_normal),
+			image = gears.color.recolor_image(maticons .. "volume_up.svg", beautiful.fg_normal),
 			resize = true,
 		},
 		buttons = {
@@ -27,16 +27,16 @@ local entry_template = {
 				modifiers = {},
 				button = 1,
 				on_press = function()
-					awful.spawn('pamixer -t')
+					awful.spawn("pamixer -t")
 					update_on_master()
 				end,
 			}),
 		},
 	},
 	{
-		id = 'slider',
+		id = "slider",
 		widget = wibox.widget.slider,
-		handle_cursor = 'hand1',
+		handle_cursor = "hand1",
 		handle_shape = gears.shape.circle,
 		handle_width = dpi(20),
 		handle_border_width = dpi(2),
@@ -53,28 +53,34 @@ local entry_template = {
 }
 
 local widget = wibox.widget(entry_template)
-local slider = widget:get_children_by_id('slider')[1]
+local slider = widget:get_children_by_id("slider")[1]
 
-slider:connect_signal('mouse::enter', function() slider.handle_color = beautiful.grey end)
-slider:connect_signal('mouse::leave', function() slider.handle_color = beautiful.dark_grey end)
+slider:connect_signal("mouse::enter", function()
+	slider.handle_color = beautiful.grey
+end)
+slider:connect_signal("mouse::leave", function()
+	slider.handle_color = beautiful.dark_grey
+end)
 
 update_on_master = function()
 	--volume
-	awful.spawn.easy_async('pamixer --get-volume', function(out, _, _, code)
-		if code == 0 then slider.value = out end
+	awful.spawn.easy_async("pamixer --get-volume", function(out, _, _, code)
+		if code == 0 then
+			slider.value = out
+		end
 	end)
 	--mute status
-	awful.spawn.easy_async('pamixer --get-mute', function(_, _, _, code)
+	awful.spawn.easy_async("pamixer --get-mute", function(_, _, _, code)
 		if code == 0 then
 			slider.bar_active_color = beautiful.grey
 			widget
-				:get_children_by_id('symbol')[1]
-				:set_image(gears.color.recolor_image(maticons .. 'volume_off.svg', beautiful.fg_normal))
+				:get_children_by_id("symbol")[1]
+				:set_image(gears.color.recolor_image(maticons .. "volume_off.svg", beautiful.fg_normal))
 		else
 			slider.bar_active_color = beautiful.blue
 			widget
-				:get_children_by_id('symbol')[1]
-				:set_image(gears.color.recolor_image(maticons .. 'volume_up.svg', beautiful.fg_normal))
+				:get_children_by_id("symbol")[1]
+				:set_image(gears.color.recolor_image(maticons .. "volume_up.svg", beautiful.fg_normal))
 		end
 	end)
 end
@@ -94,8 +100,8 @@ slider:add_button(awful.button({
 	end,
 }))
 
-slider:connect_signal('property::value', function()
-	awful.spawn.with_shell('pamixer --set-volume ' .. slider.value)
+slider:connect_signal("property::value", function()
+	awful.spawn.with_shell("pamixer --set-volume " .. slider.value)
 	timer:start()
 end)
 

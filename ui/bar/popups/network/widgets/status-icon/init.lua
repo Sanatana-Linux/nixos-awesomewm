@@ -11,10 +11,10 @@
 -- Icon widget
 local widget_icon = wibox.widget({
 	layout = wibox.layout.align.vertical,
-	expand = 'none',
+	expand = "none",
 	nil,
 	{
-		id = 'icon',
+		id = "icon",
 		image = icons.wifi_problem,
 		resize = true,
 		widget = wibox.widget.imagebox,
@@ -37,15 +37,15 @@ local widget = wibox.widget({
 		widget = wibox.container.background,
 		bg = beautiful.widget_back,
 		border_width = dpi(0.75),
-		border_color = beautiful.bg_normal .. 'cc',
-		shape = utilities.mkroundedrect(),
+		border_color = beautiful.bg_normal .. "cc",
+		shape = utilities.widgets.mkroundedrect(),
 	},
-	shape = utilities.mkroundedrect(),
-	bg = 'transparent',
+	shape = utilities.widgets.mkroundedrect(),
+	bg = "transparent",
 	widget = wibox.container.background,
 })
 
-awesome.connect_signal('network::status::wireless', function(interface, healthy, essid, bitrate, strength)
+awesome.connect_signal("network::status::wireless", function(interface, healthy, essid, bitrate, strength)
 	if healthy == true then
 		if strength <= 100 then
 			widget_icon.icon:set_image(icons.wifi_3)
@@ -60,7 +60,7 @@ awesome.connect_signal('network::status::wireless', function(interface, healthy,
 		widget_icon.icon:set_image(icons.wifi_problem)
 	end
 end)
-awesome.connect_signal('network::status::wired', function(interface, healthy)
+awesome.connect_signal("network::status::wired", function(interface, healthy)
 	if healthy == true then
 		widget_icon.icon:set_image(icons.wired)
 	else
@@ -68,12 +68,14 @@ awesome.connect_signal('network::status::wired', function(interface, healthy)
 	end
 end)
 
-awesome.connect_signal('network::disconnected::wireless', function() widget_icon.icon:set_image(icons.wifi_off) end)
-awesome.connect_signal('network::disconnected::wired', function() widget_icon.icon:set_image(icons.wired_off) end)
+awesome.connect_signal("network::disconnected::wireless", function()
+	widget_icon.icon:set_image(icons.wifi_off)
+end)
+awesome.connect_signal("network::disconnected::wired", function()
+	widget_icon.icon:set_image(icons.wired_off)
+end)
 
-widget_icon:buttons(
-	awful.util.table.join(
-		awful.button({}, 1, nil, function() awesome.emit_signal('networks::network:refreshPanel') end)
-	)
-)
+widget_icon:buttons(awful.util.table.join(awful.button({}, 1, nil, function()
+	awesome.emit_signal("networks::network:refreshPanel")
+end)))
 return widget

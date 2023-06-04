@@ -1,13 +1,15 @@
-local wibox = require('wibox')
-local beautiful = require('beautiful')
-local awful = require('awful')
+local wibox = require("wibox")
+local beautiful = require("beautiful")
+local awful = require("awful")
 
-local theme = utilities.icon_theme(beautiful.icon_theme)
+local theme = modules.icon_theme(beautiful.icon_theme)
 
 local extract_icon = function(c)
 	-- exceptions (add support for simple terminal and many mores).
 	if c.class then
-		if string.lower(c.class) == 'st' then return theme:get_icon_path(string.lower(c.class)) end
+		if string.lower(c.class) == "st" then
+			return theme:get_icon_path(string.lower(c.class))
+		end
 	end
 
 	-- has support for some others apps like spotify
@@ -41,7 +43,7 @@ local mktag = function(tag)
 			for _, c in ipairs(tag:clients()) do
 				clients_layout:add(wibox.widget({
 					image = c.icon or extract_icon(c),
-					valign = 'center',
+					valign = "center",
 					forced_height = dpi(16),
 					forced_width = dpi(16),
 					widget = wibox.widget.imagebox,
@@ -52,10 +54,10 @@ local mktag = function(tag)
 
 	update_clients()
 
-	client.connect_signal('request::manage', update_clients)
-	client.connect_signal('request::unmanage', update_clients)
-	client.connect_signal('tagged', update_clients)
-	client.connect_signal('untagged', update_clients)
+	client.connect_signal("request::manage", update_clients)
+	client.connect_signal("request::unmanage", update_clients)
+	client.connect_signal("tagged", update_clients)
+	client.connect_signal("untagged", update_clients)
 
 	local container = wibox.widget({
 		{
@@ -67,17 +69,19 @@ local mktag = function(tag)
 			widget = wibox.container.margin,
 		},
 		bg = beautiful.widget_back,
-		shape = utilities.mkroundedrect(),
-		border_color = beautiful.grey .. 'cc',
+		shape = utilities.widgets.mkroundedrect(),
+		border_color = beautiful.grey .. "cc",
 		border_width = dpi(2),
 		widget = wibox.container.background,
 	})
 
-	container:add_button(awful.button({}, 1, function() tag:view_only() end))
+	container:add_button(awful.button({}, 1, function()
+		tag:view_only()
+	end))
 
-	utilities.add_hover(container, beautiful.widget_back_tag, beautiful.widget_back_focus_tag)
+	utilities.visual.add_hover(container, beautiful.widget_back_tag, beautiful.widget_back_focus_tag)
 
-	-- local active_transition = utilities.apply_transition {
+	-- local active_transition = utilities.visual.apply_transition {
 	--   element = container,
 	--   prop = 'bg',
 	--   bg = scheme.colorE,
@@ -94,7 +98,7 @@ local mktag = function(tag)
 
 	update_tag_status()
 
-	tag:connect_signal('property::selected', update_tag_status)
+	tag:connect_signal("property::selected", update_tag_status)
 
 	return container
 end

@@ -1,7 +1,7 @@
 local math = math
 local screen = screen
 local mylayout = {}
-mylayout.name = 'equalarea'
+mylayout.name = "equalarea"
 
 local function divide(p, g, low, high, cls, mwfact, mcount)
     if low == high then
@@ -61,7 +61,9 @@ function mylayout.arrange(p)
     local wa = p.workarea
     local cls = p.clients
 
-    if #cls == 0 then return end
+    if #cls == 0 then
+        return
+    end
     local mwfact = t.master_width_factor * 2
     local mcount = t.master_count
     local g = {}

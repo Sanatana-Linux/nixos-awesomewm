@@ -1,14 +1,14 @@
-local awful = require('awful')
-local wibox = require('wibox')
-local dpi = require('beautiful').xresources.apply_dpi
-local watch = require('awful.widget.watch')
-local beautiful = require('beautiful')
+local awful = require("awful")
+local wibox = require("wibox")
+local dpi = require("beautiful").xresources.apply_dpi
+local watch = require("awful.widget.watch")
+local beautiful = require("beautiful")
 
 -- create battery widgets components
 local baticon = wibox.widget.imagebox()
 
 local batperc = wibox.widget.textbox()
-batperc.font = beautiful.title_font .. ' 11'
+batperc.font = beautiful.title_font .. " 11"
 
 local charging = wibox.widget({
 	image = icons.bolt,
@@ -16,8 +16,8 @@ local charging = wibox.widget({
 })
 
 local warning = wibox.widget({
-	text = '',
-	font = beautiful.nerd_font .. ' 14',
+	text = "",
+	font = beautiful.nerd_font .. " 14",
 	widget = wibox.widget.textbox,
 })
 
@@ -26,20 +26,20 @@ warning.visible = false
 
 -- update icons and percentage
 gears.timer({
-	timeout = 5,
+	timeout = 15,
 	call_now = true,
 	autostart = true,
 	callback = function()
 		--  if battery widget is not visible or correctly showing replace BA* in a scripts below with (BAT1, BAT0 whatever you have.)
-		awful.spawn.easy_async_with_shell('cat /sys/class/power_supply/BA*/capacity', function(stdout)
+		awful.spawn.easy_async_with_shell("cat /sys/class/power_supply/BA*/capacity", function(stdout)
 			local battery = tonumber(stdout)
-			awful.spawn.easy_async_with_shell('cat /sys/class/power_supply/BA*/status', function(out)
-				if string.match(out, 'Charging') then
+			awful.spawn.easy_async_with_shell("cat /sys/class/power_supply/BA*/status", function(out)
+				if string.match(out, "Charging") then
 					charging.visible = true
 				else
 					charging.visible = false
 				end
-				batperc.text = tonumber(battery) .. '%'
+				batperc.text = tonumber(battery) .. "%"
 				if battery <= 10 then
 					baticon.image = icons.battery_alert_red
 					if charging.visible then
@@ -79,7 +79,7 @@ gears.timer({
 })
 
 -- return widget
-local battery_button = utilities.mkbtn({
+local battery_button = utilities.widgets.mkbtn({
 	{
 		wibox.widget({
 			baticon,
@@ -107,7 +107,7 @@ local battery_button = utilities.mkbtn({
 		border_width = dpi(1.25),
 		widget = wibox.container.background,
 		bg = beautiful.widget_back,
-		shape = utilities.mkroundedrect(),
+		shape = utilities.widgets.mkroundedrect(),
 	},
 	left = dpi(3),
 	right = dpi(2),

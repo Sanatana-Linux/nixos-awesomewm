@@ -27,10 +27,12 @@ local function do_empathy(p)
 		local cls = {}
 		local buddylist_swap
 		for k, c in ipairs(p.clients) do
-			if c.name ~= 'Empathy' and c.name ~= 'Contact List' and c.name ~= 'Empathy' then
+			if c.name ~= "Empathy" and c.name ~= "Contact List" and c.name ~= "Empathy" then
 				table.insert(cls, c)
 			else
-				if k ~= 1 then buddylist_swap = c end
+				if k ~= 1 then
+					buddylist_swap = c
+				end
 				c:geometry({
 					width = buddylist_width - 2,
 					height = area.height - 3,
@@ -77,16 +79,20 @@ local function do_empathy(p)
 
 			c:geometry(g)
 		end
-		if #cls > 0 and buddylist_swap then buddylist_swap:swap(cls[1]) end
+		if #cls > 0 and buddylist_swap then
+			buddylist_swap:swap(cls[1])
+		end
 	end
 end
 
 local empathy = {}
-empathy.name = 'empathy'
+empathy.name = "empathy"
 
 -- ------------------------------------------------- --
 -- NOTE: The screen to arrange.
 
-function empathy.arrange(p) return do_empathy(p) end
+function empathy.arrange(p)
+	return do_empathy(p)
+end
 
 return empathy

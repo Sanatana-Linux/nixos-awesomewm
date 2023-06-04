@@ -7,22 +7,22 @@
 -- NOTE: need to use regular lua local require calls for the libraries here
 -- because this is called earlier than they are
 --
-local awful = require('awful')
-local empathy = require('configuration.layout.layouts.empathy')
-local stack = require('configuration.layout.layouts.stack')
-local centermaster = require('configuration.layout.layouts.centermaster')
-local thrizen = require('configuration.layout.layouts.thrizen')
-local horizon = require('configuration.layout.layouts.horizon')
-local equalarea = require('configuration.layout.layouts.equalarea')
-local deck = require('configuration.layout.layouts.deck')
+local awful = require("awful")
+local empathy = require("configuration.layout.layouts.empathy")
+local stack = require("configuration.layout.layouts.stack")
+local centermaster = require("configuration.layout.layouts.centermaster")
+local thrizen = require("configuration.layout.layouts.thrizen")
+local horizon = require("configuration.layout.layouts.horizon")
+local equalarea = require("configuration.layout.layouts.equalarea")
+local deck = require("configuration.layout.layouts.deck")
 
-local beautiful = require('beautiful')
+local beautiful = require("beautiful")
 local tag = tag
 local dpi = beautiful.xresources.apply_dpi
 -- ------------------------------------------------- --
 -- NOTE: define the default layouts, incliding the custom ones called above
 --
-tag.connect_signal('request::default_layouts', function(s)
+tag.connect_signal("request::default_layouts", function(s)
 	awful.layout.append_default_layouts({
 		stack,
 		empathy,
