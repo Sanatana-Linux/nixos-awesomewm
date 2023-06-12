@@ -13,7 +13,6 @@ local beautiful = require("beautiful")
 local dpi = beautiful.xresources.apply_dpi
 local cairo = require("lgi").cairo
 
--- TODO: rename structure to something better?
 local function draw_widget(
     c,
     widget_template,
@@ -110,10 +109,9 @@ local function draw_widget(
         widget = wibox.container.constraint,
     })
 
-    -- TODO: have something like a create callback here?
 
     for _, w in ipairs(widget:get_children_by_id("image_role")) do
-        w.image = img -- TODO: copy it with gears.surface.xxx or something
+        w.image = img
     end
 
     for _, w in ipairs(widget:get_children_by_id("name_role")) do
@@ -121,7 +119,7 @@ local function draw_widget(
     end
 
     for _, w in ipairs(widget:get_children_by_id("icon_role")) do
-        w.image = c.icon -- TODO: detect clienticon
+        w.image = c.icon
     end
 
     return widget

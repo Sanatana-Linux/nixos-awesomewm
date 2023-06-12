@@ -12,7 +12,6 @@ local function tabobj_support(self, c, index, clients)
 
     local group = c.bling_tabbed
 
-    -- TODO: Allow customization here
     local layout_v = wibox.widget({
         vertical_spacing = dpi(2),
         horizontal_spacing = dpi(2),

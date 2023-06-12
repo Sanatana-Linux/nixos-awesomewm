@@ -56,7 +56,6 @@ function _client.sync(to_c, from_c)
     to_c.above = from_c.above
     to_c.below = from_c.below
     to_c:geometry(from_c:geometry())
-    -- TODO: Should also copy over the position in a tiling layout
 end
 
 --- Checks whether the passed client is a childprocess of a given process ID

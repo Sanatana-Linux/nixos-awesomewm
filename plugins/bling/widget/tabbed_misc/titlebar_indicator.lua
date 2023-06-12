@@ -103,7 +103,6 @@ return function(c, opts)
 
                 -- Add icons & etc
                 for _, w in ipairs(widget:get_children_by_id("icon_role")) do
-                    -- TODO: Allow fallback icon?
                     w.image = client.icon
                     w.client = client
                 end

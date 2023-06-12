@@ -1,11 +1,9 @@
 configuration {
-  font: "Operator SSm  14";
   show-icons: true;
   drun-display-format: "{name}";
   threads: 0;
-  scroll-method: 0;
+
   disable-history: false;
-  icon-theme: "chhinamasta";
   timeout {
     delay: 15;
     action: "kb-cancel";
@@ -13,10 +11,10 @@ configuration {
 }
 
 * {
-  background: #1b1d2400;
-  background-selected: #b2bfd944;
-  foreground: #b2bfd9ff;
-  foreground-selected: #f4f4f7ff;
+  background: #2c2c2caa;
+  background-selected: #3c3c3caa;
+  foreground: #f4f4f4aa;
+  foreground-selected: #f4f4f4ff;
   urgent: #ff3d81ee;
   urgent-selected: #ff3d81ee;
   padding: 0;
@@ -41,7 +39,6 @@ prompt {
 button {
   action: "ok";
   str: " ";
-  font: "Operator SSm    22";
   expand: true;
   text-color: @foreground-selected;
   background-color: @background;
@@ -51,7 +48,7 @@ button {
 }
 
 entry {
-  font: "Operator SSm    14";
+
   background-color: @background;
   text-color: @foreground;
   expand: true;
