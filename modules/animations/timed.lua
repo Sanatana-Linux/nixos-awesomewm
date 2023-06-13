@@ -1,4 +1,8 @@
-local subscribable = require(RUBATO_DIR .. "subscribable")
+if not MANAGER then
+	MANAGER = require("modules.animations.manager")
+end
+
+local subscribable = require("modules.animations.subscribable")
 local glib = require("lgi").GLib
 
 --- Get the slope (this took me forever to find).
@@ -44,6 +48,7 @@ local function simulate_easing(pos, duration, intro, intro_e, outro, outro_e, m,
 	local ps_time = 0
 	local ps_pos = pos
 	local dx
+	print("simulating")
 
 	-- Key for cacheing results
 	local key = string.format(
@@ -79,28 +84,42 @@ local function simulate_easing(pos, duration, intro, intro_e, outro, outro_e, m,
 	return ps_pos
 end
 
---RUBATO_TIMEOUTS contains multiple timeouts for different rates
+--- Preprocess position
+-- do any preprocessing of position necessary
+-- currently just handles clamp_position but should be flexible
+local function preprocess_pos(obj)
+	local pos = obj.pos
+	if obj.clamp_position then
+		pos = (obj._m < 0 and math.max or math.min)(obj.pos, obj.target)
+	end
+	return pos
+end
+
+--TIMEOUTS contains multiple timeouts for different rates
 --function creates timers which run in the background handling animations at distinct rates
 --this allows for rates to change dynamiclally during runtime should you wanna set everything's
 --rate to like 2fps for some reason or if you wanna switch from 144Hz to 60Hz or something
-if not RUBATO_TIMEOUTS then
-	RUBATO_TIMEOUTS = {}
+--first index is normal timeouts, second index is override_dt timeouts
+if not TIMEOUTS then
+	TIMEOUTS = { {}, {} }
 end
 
 --create_timeout is called whenever a timer tries to start an animation and there's not a timeout
---with the correct rate already in RUBATO_TIMEOUTS
-local function create_timeout(rate)
+--with the correct rate already in TIMEOUTS
+local function create_timeout(rate, override_dt)
 	local time_last = glib.get_monotonic_time()
 	local initial_dt = 1 / rate
 	return glib.timeout_add(glib.PRIORITY_DEFAULT, initial_dt * 1000, function()
-		--correct for it being too slow if need be
-		local dt = (glib.get_monotonic_time() - time_last) / 1000000
-		if dt < initial_dt * 1.05 then
-			dt = initial_dt
-		end --give it 5% moe
+		local dt = initial_dt
+		if not override_dt then
+			local time = (glib.get_monotonic_time() - time_last) / 1000000
+			if time >= initial_dt * 1.05 then
+				dt = time
+			end --give it 5% moe
+		end
 
-		for _, obj in pairs(RUBATO_MANAGER.timeds) do
-			if obj.rate == rate and obj._props.target ~= obj.pos and not obj.pause then
+		for _, obj in pairs(MANAGER.timeds) do
+			if obj.rate == rate and obj.override_dt == override_dt and obj._time ~= obj.duration and not obj.pause then
 				--increment time
 				obj._time = obj._time + dt
 
@@ -122,7 +141,9 @@ local function create_timeout(rate)
 
 				--sets up when to stop by time
 				--weirdness is to try to get as close to duration as possible
-				if obj.duration - obj._time < dt / 2 or obj.is_instant then
+				if
+					obj.duration - obj._time < dt / 2 --[[or obj.is_instant]]
+				then
 					obj.pos = obj._props.target --snaps to target in case of small error
 					obj._time = obj.duration --snaps time to duration
 
@@ -130,7 +151,7 @@ local function create_timeout(rate)
 
 					--run subscribed in functions
 					--snap time to duration at end
-					obj:fire(obj.pos, obj.duration, obj._dx)
+					obj:fire(preprocess_pos(obj), obj.duration, obj._dx)
 
 					-- awestore compatibility
 					if obj.awestore_compat then
@@ -139,7 +160,7 @@ local function create_timeout(rate)
 
 				--otherwise it just fires normally
 				else
-					obj:fire(obj.pos, obj._time, obj._dx)
+					obj:fire(preprocess_pos(obj), obj._time, obj._dx)
 				end
 			end
 		end
@@ -157,15 +178,15 @@ local function timed(args)
 
 	function obj:reset_values()
 		--set up default arguments
-		self.duration = args.duration or RUBATO_MANAGER.timed.defaults.duration
-		self.pos = args.pos or RUBATO_MANAGER.timed.defaults.pos
+		self.duration = args.duration or MANAGER.timed.defaults.duration
+		self.pos = args.pos or MANAGER.timed.defaults.pos
 
-		self.prop_intro = args.prop_intro or RUBATO_MANAGER.timed.defaults.prop_intro
+		self.prop_intro = args.prop_intro or MANAGER.timed.defaults.prop_intro
 
 		self.intro = args.intro
 			or (
-				RUBATO_MANAGER.timed.defaults.intro > self.duration * 0.5 and self.duration * 0.5
-				or RUBATO_MANAGER.timed.defaults.intro
+				MANAGER.timed.defaults.intro > self.duration * 0.5 and self.duration * 0.5
+				or MANAGER.timed.defaults.intro
 			)
 		self.inter = args.inter or args.intro
 
@@ -189,27 +210,26 @@ local function timed(args)
 			"Proportional Intro and Outro must be less than or equal to 1"
 		)
 
-		self.easing = args.easing or RUBATO_MANAGER.timed.defaults.easing
+		self.easing = args.easing or MANAGER.timed.defaults.easing
 		self.easing_outro = args.easing_outro or self.easing
 		self.easing_inter = args.easing_inter or self.easing
 
 		--dev interface changes
-		self.log = args.log or RUBATO_MANAGER.timed.defaults.log
+		self.log = args.log or MANAGER.timed.defaults.log
 		self.debug = args.debug
-		self.awestore_compat = args.awestore_compat or RUBATO_MANAGER.timed.defaults.awestore_compat
+		self.awestore_compat = args.awestore_compat or MANAGER.timed.defaults.awestore_compat
 
 		--animation logic changes
-		self.override_simulate = args.override_simulate or RUBATO_MANAGER.timed.defaults.override_simulate
-		--[[ rapid_set is allowed by awestore but I don't like it, so it's bound to awestore_compat if not explicitly set
-		override_dt doesn't work well with big animations or scratchpads (blame awesome not me) (probably) so that too is
-		is tied to awestore_compat if not explicitly set, then to the default value ]]
+		self.override_simulate = args.override_simulate or MANAGER.timed.defaults.override_simulate
 		self.rapid_set = args.rapid_set == nil and self.awestore_compat or args.rapid_set
+		self.clamp_position = args.clamp_position or MANAGER.timed.defaults.clamp_position
 		self.is_instant = args.is_instant
 
 		-- hidden properties
 		self._props = {
 			target = self.pos,
-			rate = args.rate or RUBATO_MANAGER.timed.defaults.rate,
+			rate = args.rate or MANAGER.timed.defaults.rate,
+			override_dt = args.override_dt or MANAGER.timed.defaults.override_dt,
 		}
 	end
 	obj:reset_values()
@@ -233,6 +253,7 @@ local function timed(args)
 	-- Variables used in calculation, defined once bcz less operations
 	obj._time = 0 -- current time
 	obj._dt = 1 / obj._props.rate -- change in time
+	obj._dt_index = obj._props.override_dt and 2 or 1 --index in TIMEOUTS
 	obj._dx = 0 -- value of slope at current time
 	obj._m = 0 -- slope
 	obj._b = 0 -- y-intercept
@@ -240,10 +261,16 @@ local function timed(args)
 
 	-- Variables used in simulation
 	obj._ps_pos = 0 -- pseudoposition
-	obj._coef = 1 -- corrective coefficient
+	obj._coef = 1 -- corrective coefficient TODO: apply to plateau
 
 	-- Set target and begin interpolation
 	local function set(value)
+		--if it's instant just do it lol, no need to go through all this
+		if obj.is_instant then
+			obj:fire(preproceesvalue, obj.duration, obj.pos - value)
+			return
+		end
+
 		--disallow setting it twice (because it makes it go wonky sometimes)
 		if not obj.rapid_set and obj._props.target == value then
 			return
@@ -254,8 +281,8 @@ local function timed(args)
 		obj._coef = 1 --resets coefficient
 
 		--ensure that timer for specific rate exists, then set it
-		if not RUBATO_TIMEOUTS[obj.rate] then
-			RUBATO_TIMEOUTS[obj.rate] = create_timeout(obj.rate)
+		if not TIMEOUTS[obj._dt_index][obj.rate] then
+			TIMEOUTS[obj._dt_index][obj.rate] = create_timeout(obj.rate, obj.override_dt)
 		end
 		obj._dt = 1 / obj.rate
 
@@ -336,7 +363,7 @@ local function timed(args)
 	--override to allow calling fire with no arguments
 	local unpack = unpack or table.unpack
 	function obj:fire(...)
-		args = ({ ... })[1] and { ... } or { obj.pos, obj._time, obj._dt }
+		args = ({ ... })[1] and { ... } or { obj.pos, obj._time, obj._dx }
 		for _, func in pairs(obj._subscribed) do
 			func(unpack(args))
 		end
@@ -379,11 +406,15 @@ local function timed(args)
 		elseif key == "target" then
 			set(value) --set target
 
-		-- Changing rate should also update timeout
+		-- Changing rate should also update dt
 		elseif key == "rate" then
 			self._props.rate = value
 			self._dt = 1 / value
 
+		-- Changing override_dt should also update dt_state
+		elseif key == "override_dt" then
+			self._props.override_dt = value
+			self._dt_index = self._props.override_dt and 2 or 1
 		-- If it's in _props set it there
 		elseif self._props[key] ~= nil then
 			self._props[key] = value
@@ -396,7 +427,7 @@ local function timed(args)
 
 	setmetatable(obj, mt)
 
-	table.insert(RUBATO_MANAGER.timeds, obj)
+	table.insert(MANAGER.timeds, obj)
 	return obj
 end
 

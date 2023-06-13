@@ -1,13 +1,8 @@
-local easing = require(RUBATO_DIR .. "easing")
---[[
-manager.timed.defaults.rate = 60 --sets default rate to 60
-manager.timed.override.rate = 30 --sets all rates to 30
-manager.timed.override.clear() --resets timeds to their initial values
-manager.timed.override.forall(function(timed) print(timed) end) --prints all timeds
-if you only want to do something to specific timeds you can tag them beforehand
-with some attribute or something and then check for that attribute when calling
-forall
-]]
+if not RUBATO_DIR then
+	RUBATO_DIR = (...):match("(.-)[^%.]+$")
+end
+
+local easing = require("modules.animations.easing")
 
 local function make_props_immutable(table)
 	setmetatable(table, {
@@ -45,6 +40,7 @@ local function manager()
 		log = function() end,
 		override_simulate = false,
 		override_dt = false,
+		clamp_position = false,
 		rate = 60,
 	}
 	make_props_immutable(obj.timed)
@@ -78,4 +74,7 @@ local function manager()
 	return obj
 end
 
-return RUBATO_MANAGER or manager()
+if not MANAGER then
+	MANAGER = manager()
+end
+return MANAGER

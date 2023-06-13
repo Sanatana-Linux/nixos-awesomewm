@@ -2,17 +2,17 @@
 local M = {}
 
 local effects = {
-    { require("modules.animations.effects.tagswitch"), "tagswitch" },
+	{ require("modules.animations.effects.tagswitch"), "tagswitch" },
 }
 
 M.request_effect = function(name)
-    for _, e in ipairs(effects) do
-        if name == e[2] then
-            return e[1]
-        end
-    end
+	for _, e in ipairs(effects) do
+		if name == e[2] then
+			return e[1]
+		end
+	end
 
-    return false
+	return false
 end
 
 return M

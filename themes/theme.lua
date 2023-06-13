@@ -60,30 +60,15 @@ theme.bg_urgent = scheme.alpha(theme.red, "88")
 theme.bg_minimize = theme.bg_lighter
 theme.bg_systray = theme.bg_focus
 
-theme.widget_back = "linear:63,0:0,21:0,"
-    .. scheme.colorT
-    .. ":1,"
-    .. scheme.colorK
+theme.widget_back = "linear:63,0:0,21:0," .. scheme.colorT .. ":1," .. scheme.colorK
 
-theme.widget_back_focus = "linear:12,0:0,21:0,"
-    .. scheme.colorK
-    .. ":1,"
-    .. scheme.colorT
+theme.widget_back_focus = "linear:12,0:0,21:0," .. scheme.colorK .. ":1," .. scheme.colorT
 
-theme.widget_back_focus_tag = "linear:63,0:0,21:0,"
-    .. scheme.colorT
-    .. ":1,"
-    .. scheme.colorN
+theme.widget_back_focus_tag = "linear:63,0:0,21:0," .. scheme.colorT .. ":1," .. scheme.colorN
 
-theme.widget_back_tag = "linear:63,0:0,21:0,"
-    .. scheme.colorN
-    .. ":1,"
-    .. scheme.colorT
+theme.widget_back_tag = "linear:63,0:0,21:0," .. scheme.colorN .. ":1," .. scheme.colorT
 
-theme.appmenu_back = "linear:180,0:0,121:0,"
-    .. scheme.colorB
-    .. ":1,"
-    .. scheme.colorR
+theme.appmenu_back = "linear:180,0:0,121:0," .. scheme.colorB .. ":1," .. scheme.colorR
 -- -------------------------------------------------------------------------- --
 -- foregrounds
 theme.fg_normal = scheme.white
@@ -95,10 +80,10 @@ theme.fg_minimize = theme.fg_normal
 -- -------------------------------------------------------------------------- --
 -- some actions bg colors
 theme.actions = {
-    bg = theme.bg_normal,
-    contrast = theme.bg_contrast,
-    lighter = theme.bg_lighter,
-    fg = theme.fg_normal,
+	bg = theme.bg_normal,
+	contrast = theme.bg_contrast,
+	lighter = theme.bg_lighter,
+	fg = theme.fg_normal,
 }
 -- ----------------------------- Theme Variables ---------------------------- --
 -- bar
@@ -138,8 +123,7 @@ theme.taglist_fg_occupied = theme.blue
 -- -------------------------------------------------------------------------- --
 -- menu
 theme.menu_font = theme.font
-theme.menu_submenu_icon =
-    gears.color.recolor_image(shapes_path .. "triangle.png", theme.fg_normal)
+theme.menu_submenu_icon = gears.color.recolor_image(shapes_path .. "triangle.png", theme.fg_normal)
 theme.menu_height = dpi(40)
 theme.menu_width = dpi(180)
 theme.menu_bg_focus = theme.bg_lighter
@@ -155,183 +139,63 @@ theme.wallpaper = assets_path .. "wallpaper4.jpg"
 -- -------------------------------------------------------------------------- --
 -- ---------------------------------- Icons --------------------------------- --
 -- layouts
-theme.layout_fairh = gears.color.recolor_image(
-    themes_path .. "default/layouts/fairhw.png",
-    theme.fg_normal
-)
-theme.layout_fairv = gears.color.recolor_image(
-    themes_path .. "default/layouts/fairvw.png",
-    theme.fg_normal
-)
-theme.layout_floating = gears.color.recolor_image(
-    themes_path .. "default/layouts/floatingw.png",
-    theme.fg_normal
-)
-theme.layout_magnifier = gears.color.recolor_image(
-    themes_path .. "default/layouts/magnifierw.png",
-    theme.fg_normal
-)
-theme.layout_max = gears.color.recolor_image(
-    themes_path .. "default/layouts/maxw.png",
-    theme.fg_normal
-)
-theme.layout_fullscreen = gears.color.recolor_image(
-    themes_path .. "default/layouts/fullscreenw.png",
-    theme.fg_normal
-)
-theme.layout_tilebottom = gears.color.recolor_image(
-    themes_path .. "default/layouts/tilebottomw.png",
-    theme.fg_normal
-)
-theme.layout_tileleft = gears.color.recolor_image(
-    themes_path .. "default/layouts/tileleftw.png",
-    theme.fg_normal
-)
-theme.layout_tile = gears.color.recolor_image(
-    themes_path .. "default/layouts/tilew.png",
-    theme.fg_normal
-)
-theme.layout_tiletop = gears.color.recolor_image(
-    themes_path .. "default/layouts/tiletopw.png",
-    theme.fg_normal
-)
-theme.layout_spiral = gears.color.recolor_image(
-    themes_path .. "default/layouts/spiralw.png",
-    theme.fg_normal
-)
-theme.layout_dwindle = gears.color.recolor_image(
-    themes_path .. "default/layouts/dwindlew.png",
-    theme.fg_normal
-)
-theme.layout_cornernw = gears.color.recolor_image(
-    themes_path .. "default/layouts/cornernww.png",
-    theme.fg_normal
-)
-theme.layout_cornerne = gears.color.recolor_image(
-    themes_path .. "default/layouts/cornernew.png",
-    theme.fg_normal
-)
-theme.layout_cornersw = gears.color.recolor_image(
-    themes_path .. "default/layouts/cornersww.png",
-    theme.fg_normal
-)
-theme.layout_cornerse = gears.color.recolor_image(
-    themes_path .. "default/layouts/cornersew.png",
-    theme.fg_normal
-)
-theme.layout_centermaster = gears.color.recolor_image(
-    assets_path .. "/layouts/centermaster.png",
-    theme.fg_normal
-)
-theme.layout_stackLeft = gears.color.recolor_image(
-    assets_path .. "/layouts/stack_left.png",
-    theme.fg_normal
-)
-theme.layout_stack = gears.color.recolor_image(
-    assets_path .. "/layouts/stack.png",
-    theme.fg_normal
-)
-theme.layout_empathy = gears.color.recolor_image(
-    assets_path .. "/layouts/empathy.png",
-    theme.fg_normal
-)
-theme.layout_floating = gears.color.recolor_image(
-    assets_path .. "/layouts/floating.png",
-    theme.fg_normal
-)
-theme.layout_thrizen = gears.color.recolor_image(
-    assets_path .. "/layouts/thrizen.png",
-    theme.fg_normal
-)
-theme.layout_horizon = gears.color.recolor_image(
-    assets_path .. "/layouts/horizon.png",
-    theme.fg_normal
-)
-theme.layout_equalarea = gears.color.recolor_image(
-    assets_path .. "/layouts/equalarea.png",
-    theme.fg_normal
-)
-theme.layout_deck = gears.color.recolor_image(
-    assets_path .. "/layouts/deck.png",
-    theme.fg_normal
-)
-theme.layout_overflow = gears.color.recolor_image(
-    assets_path .. "/layouts/deck.png",
-    theme.fg_normal
-)
+theme.layout_fairh = gears.color.recolor_image(themes_path .. "default/layouts/fairhw.png", theme.fg_normal)
+theme.layout_fairv = gears.color.recolor_image(themes_path .. "default/layouts/fairvw.png", theme.fg_normal)
+theme.layout_floating = gears.color.recolor_image(themes_path .. "default/layouts/floatingw.png", theme.fg_normal)
+theme.layout_magnifier = gears.color.recolor_image(themes_path .. "default/layouts/magnifierw.png", theme.fg_normal)
+theme.layout_max = gears.color.recolor_image(themes_path .. "default/layouts/maxw.png", theme.fg_normal)
+theme.layout_fullscreen = gears.color.recolor_image(themes_path .. "default/layouts/fullscreenw.png", theme.fg_normal)
+theme.layout_tilebottom = gears.color.recolor_image(themes_path .. "default/layouts/tilebottomw.png", theme.fg_normal)
+theme.layout_tileleft = gears.color.recolor_image(themes_path .. "default/layouts/tileleftw.png", theme.fg_normal)
+theme.layout_tile = gears.color.recolor_image(themes_path .. "default/layouts/tilew.png", theme.fg_normal)
+theme.layout_tiletop = gears.color.recolor_image(themes_path .. "default/layouts/tiletopw.png", theme.fg_normal)
+theme.layout_spiral = gears.color.recolor_image(themes_path .. "default/layouts/spiralw.png", theme.fg_normal)
+theme.layout_dwindle = gears.color.recolor_image(themes_path .. "default/layouts/dwindlew.png", theme.fg_normal)
+theme.layout_cornernw = gears.color.recolor_image(themes_path .. "default/layouts/cornernww.png", theme.fg_normal)
+theme.layout_cornerne = gears.color.recolor_image(themes_path .. "default/layouts/cornernew.png", theme.fg_normal)
+theme.layout_cornersw = gears.color.recolor_image(themes_path .. "default/layouts/cornersww.png", theme.fg_normal)
+theme.layout_cornerse = gears.color.recolor_image(themes_path .. "default/layouts/cornersew.png", theme.fg_normal)
+theme.layout_centermaster = gears.color.recolor_image(assets_path .. "/layouts/centermaster.png", theme.fg_normal)
+theme.layout_stackLeft = gears.color.recolor_image(assets_path .. "/layouts/stack_left.png", theme.fg_normal)
+theme.layout_stack = gears.color.recolor_image(assets_path .. "/layouts/stack.png", theme.fg_normal)
+theme.layout_empathy = gears.color.recolor_image(assets_path .. "/layouts/empathy.png", theme.fg_normal)
+theme.layout_floating = gears.color.recolor_image(assets_path .. "/layouts/floating.png", theme.fg_normal)
+theme.layout_thrizen = gears.color.recolor_image(assets_path .. "/layouts/thrizen.png", theme.fg_normal)
+theme.layout_horizon = gears.color.recolor_image(assets_path .. "/layouts/horizon.png", theme.fg_normal)
+theme.layout_equalarea = gears.color.recolor_image(assets_path .. "/layouts/equalarea.png", theme.fg_normal)
+theme.layout_deck = gears.color.recolor_image(assets_path .. "/layouts/deck.png", theme.fg_normal)
+theme.layout_overflow = gears.color.recolor_image(assets_path .. "/layouts/deck.png", theme.fg_normal)
 -- -------------------------------------------------------------------------- --
 -- other icons
 --
 theme.icon_theme = "Fluent-dark"
 theme.launcher_icon = icons_path .. "home.svg"
-theme.menu_icon =
-    gears.color.recolor_image(icons_path .. "menu.svg", theme.fg_normal)
-theme.hints_icon =
-    gears.color.recolor_image(icons_path .. "hints.svg", theme.fg_normal)
-theme.powerbutton_icon =
-    gears.color.recolor_image(icons_path .. "power.svg", theme.fg_normal)
+theme.menu_icon = gears.color.recolor_image(icons_path .. "menu.svg", theme.fg_normal)
+theme.hints_icon = gears.color.recolor_image(icons_path .. "hints.svg", theme.fg_normal)
+theme.powerbutton_icon = gears.color.recolor_image(icons_path .. "power.svg", theme.fg_normal)
 theme.poweroff_icon = icons_path .. "poweroff.svg"
 -- -------------------------------------------------------------------------- --
 -- volume
-theme.volume_on =
-    gears.color.recolor_image(icons_path .. "volume-high.svg", theme.fg_normal)
-theme.volume_muted =
-    gears.color.recolor_image(icons_path .. "volume-mute.svg", theme.fg_normal)
+theme.volume_on = gears.color.recolor_image(icons_path .. "volume-high.svg", theme.fg_normal)
+theme.volume_muted = gears.color.recolor_image(icons_path .. "volume-mute.svg", theme.fg_normal)
 
 theme.tray_chevron_down = icons_path .. "arrow-down.svg"
-theme.notification_none_icon =
-    gears.color.recolor_image(icons_path .. "notifs.svg", theme.fg_normal)
-theme.notification_icon =
-    gears.color.recolor_image(icons_path .. "notifs.svg", theme.fg_normal)
-theme.delete_icon =
-    gears.color.recolor_image(icons_path .. "close.svg", theme.fg_normal)
+theme.notification_none_icon = gears.color.recolor_image(icons_path .. "notifs.svg", theme.fg_normal)
+theme.notification_icon = gears.color.recolor_image(icons_path .. "notifs.svg", theme.fg_normal)
+theme.delete_icon = gears.color.recolor_image(icons_path .. "close.svg", theme.fg_normal)
 
-theme.delete_grey_icon =
-    gears.color.recolor_image(icons_path .. "close.svg", theme.rey)
+theme.delete_grey_icon = gears.color.recolor_image(icons_path .. "close.svg", theme.rey)
 
-theme.clear_grey_icon =
-    gears.color.recolor_image(icons_path .. "clear.svg", theme.grey)
+theme.clear_grey_icon = gears.color.recolor_image(icons_path .. "clear.svg", theme.grey)
 
-theme.clear_icon =
-    gears.color.recolor_image(icons_path .. "clear.svg", theme.fg_normal)
+theme.clear_icon = gears.color.recolor_image(icons_path .. "clear.svg", theme.fg_normal)
 theme.tray_chevron_up = icons_path .. "arrow-up.svg"
 
 -- -------------------------------------------------------------------------- --
 -- battery
-theme.battery_full = gears.color.recolor_image(
-    icons_path .. "battery-discharging-100.svg",
-    theme.fg_normal
-)
-theme.battery_charging = gears.color.recolor_image(
-    icons_path .. "battery-fully-charged.svg",
-    theme.fg_normal
-)
-theme.battery_low = gears.color.recolor_image(
-    icons_path .. "battery-alert.svg",
-    theme.fg_normal
-)
--- -------------------------------------------------------------------------- --
--- window switcher
-
-theme.window_switcher_widget_bg = theme.dimblack .. "66" --The bg color of the widget
-theme.window_switcher_widget_border_width = dpi(3) --The border width of the widget
-theme.window_switcher_widget_border_radius = dpi(6) --The border radius of the widget
-theme.window_switcher_widget_border_color = theme.grey .. "aa" --The border color of the widget
-theme.window_switcher_clients_spacing = dpi(20) --The space between each client item
-theme.window_switcher_client_icon_horizontal_spacing = dpi(5) --The space between client icon and text
-theme.window_switcher_client_width = dpi(275) --The width of one client widget
-theme.window_switcher_client_height = dpi(275) --The height of one client widget
-theme.window_switcher_client_margins = dpi(10) --The margin between the content and the border of the widget
-theme.window_switcher_thumbnail_margins = dpi(10) --The margin between one client thumbnail and the rest of the widget
-theme.thumbnail_scale = true --If set to true, the thumbnails fit policy will be set to "fit" instead of "auto"
-theme.window_switcher_name_margins = dpi(10) --The margin of one clients title to the rest of the widget
-theme.window_switcher_name_valign = "center" --How to vertically align one clients title
-theme.window_switcher_name_forced_width = dpi(200) --The width of one title
-theme.window_switcher_name_font = theme.nerd_font .. "7" --The font of all titles
-theme.window_switcher_name_normal_color = theme.lessgrey --The color of one title if the client is unfocused
-theme.window_switcher_name_focus_color = theme.fg_focus --The color of one title if the client is focused
-theme.window_switcher_icon_valign = "center" --How to vertically align the one icon
-theme.window_switcher_icon_width = dpi(48) --The width of one icon
+theme.battery_full = gears.color.recolor_image(icons_path .. "battery-discharging-100.svg", theme.fg_normal)
+theme.battery_charging = gears.color.recolor_image(icons_path .. "battery-fully-charged.svg", theme.fg_normal)
+theme.battery_low = gears.color.recolor_image(icons_path .. "battery-alert.svg", theme.fg_normal)
 
 -- -------------------------------------------------------------------------- --
 -- network
@@ -345,8 +209,7 @@ theme.pfp = assets_path .. "pfp.png"
 theme.fallback_music = assets_path .. "fallback-music.png"
 -- -------------------------------------------------------------------------- --
 -- fallback notification icon
-theme.fallback_notif_icon =
-    gears.color.recolor_image(icons_path .. "hints.svg", theme.fg_normal)
+theme.fallback_notif_icon = gears.color.recolor_image(icons_path .. "hints.svg", theme.fg_normal)
 
 -- -------------------------------------------------------------------------- --
 -- task preview
@@ -372,11 +235,6 @@ theme.tag_preview_widget_margin = dpi(7)
 theme.tooltip_bg = theme.bg_normal
 theme.tooltip_fg = theme.fg_normal
 
-theme.chart_arc = "radial:0,0,0:360,360,360:0,"
-    .. scheme.colorW
-    .. ":0.5,"
-    .. scheme.colorZ
-    .. ":1,"
-    .. scheme.color1
+theme.chart_arc = "radial:0,0,0:360,360,360:0," .. scheme.colorW .. ":0.5," .. scheme.colorZ .. ":1," .. scheme.color1
 
 return theme

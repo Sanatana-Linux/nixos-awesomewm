@@ -16,14 +16,14 @@ local numpad_map = { 87, 88, 89, 83, 84, 85, 79, 80, 81 }
 -- -------------------------------------------------------------------------- --
 --
 local function set_keybindings()
-    -- each of the groups listed on the hotkeys popup has been separated into
-    -- its own file for readability purposes
-    --
-    require("configuration.keybindings.awesome")
-    require("configuration.keybindings.focus")
-    require("configuration.keybindings.layout")
-    require("configuration.keybindings.tags")
-    require("configuration.keybindings.client")
+	-- each of the groups listed on the hotkeys popup has been separated into
+	-- its own file for readability purposes
+	--
+	require("configuration.keybindings.awesome")
+	require("configuration.keybindings.focus")
+	require("configuration.keybindings.layout")
+	require("configuration.keybindings.tags")
+	require("configuration.keybindings.client")
 end
 
 set_keybindings()

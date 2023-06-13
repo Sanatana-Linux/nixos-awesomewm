@@ -28,8 +28,9 @@ local quadratic = {
 -- just leave it be and laugh to myself whenever I see this. As they say, if
 -- As they say, if you want something fixed that badly, make a pull request lol
 local bouncy = {
-	F = (20 * math.sqrt(3) * math.pi - 30 * math.log(2) - 6147)
-		/ (10 * (2 * math.sqrt(3) * math.pi - 6147 * math.log(2))),
+	F = (20 * math.sqrt(3) * math.pi - 30 * math.log(2) - 6147) / (
+			10 * (2 * math.sqrt(3) * math.pi - 6147 * math.log(2))
+		),
 	easing = function(t)
 		return (
 			4096 * math.pi * math.pow(2, 10 * t - 10) * math.cos(20 / 3 * math.pi * t - 43 / 6 * math.pi)

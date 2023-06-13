@@ -109,7 +109,6 @@ local function draw_widget(
         widget = wibox.container.constraint,
     })
 
-
     for _, w in ipairs(widget:get_children_by_id("image_role")) do
         w.image = img
     end
