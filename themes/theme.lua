@@ -115,7 +115,6 @@ theme.taglist_bg = theme.bg_normal
 theme.taglist_bg_urgent = theme.taglist_bg
 theme.normal_tag_format = assets_path .. "taglist/ghost.svg"
 theme.occupied_tag_format = theme.normal_tag_format
-theme.selected_tag_format = assets_path .. "taglist/pacman.svg"
 theme.taglist_fg_focus = theme.yellow
 theme.taglist_fg = theme.dimblack
 theme.taglist_fg_occupied = theme.blue
