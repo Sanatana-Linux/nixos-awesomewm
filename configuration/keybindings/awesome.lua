@@ -7,6 +7,7 @@ local hotkeys_popup = require("awful.hotkeys_popup")
 local menubar = require("menubar")
 local switcher = require("ui.window_switcher")
 local tagswitch = Effects.request_effect("tagswitch")
+local launcher = require("ui.launcher")
 -- -------------------------------------------------------------------------- --
 --                                  Essential                                 --
 -- -------------------------------------------------------------------------- --
@@ -83,10 +84,10 @@ awful.keyboard.append_global_keybindings({
     -- -------------------------------------------------------------------------- --
     --
     awful.key({ modkey, "Shift" }, "Return", function()
-        -- awful.spawn(
-        --     "bash -c 'rofi -show drun -config $HOME/.config/awesome/configuration/rofi/centered.rasi'"
-        -- )
-        awesome.emit_signal("signal::launcher")
+        awesome.emit_signal("toggle::launcher")
+        if launcher.launcherdisplay.visible == true then
+            awful.keyboard.emulate_key_combination({}, "Escape")
+        end
     end, { description = "Open application launcher", group = "Awesome" }),
     -- -------------------------------------------------------------------------- --
     --                                  Hardware                                  --

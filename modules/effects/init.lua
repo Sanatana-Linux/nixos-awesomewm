@@ -10,6 +10,6 @@ local M = {}
 M.busy = false
 M.timers = {}
 
-M.instance = require("modules.animations.instance")
+M.instance = require("modules.effects.instance")
 
 return M

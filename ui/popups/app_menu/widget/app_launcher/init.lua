@@ -721,8 +721,8 @@ local function generate_apps(self)
     end
 end
 screen = awful.screen.focused()
--- animations
-local slide_right = animations.instance.timed({
+-- effects
+local slide_right = effects.instance.timed({
 
     pos = screen.geometry.height,
     rate = 60,

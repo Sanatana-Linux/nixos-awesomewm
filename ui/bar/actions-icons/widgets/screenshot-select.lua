@@ -216,7 +216,7 @@ awful.screen.connect_for_each_screen(function(s)
         widget = s.screenshot_selecter.widget,
     })
 
-    local slide = animations.instance.timed({
+    local slide = effects.instance.timed({
         pos = s.geometry.height,
         rate = 60,
         intro = 0.14,

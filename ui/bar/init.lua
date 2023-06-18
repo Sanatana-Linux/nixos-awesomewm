@@ -11,6 +11,7 @@ local volume = require("ui.bar.actions-icons.volume")
 local get_screenshot_icon = require("ui.bar.actions-icons.screenshot")
 -- local get_notification_icon = require("ui.bar.actions-icons.notifications")
 local battery_widget = require("ui.bar.widgets.battery")
+local launcher = require("ui.launcher")
 require("ui.bar.widgets.calendar")
 require("ui.bar.widgets.tray")
 require("ui.popups.network")
@@ -59,6 +60,9 @@ screen.connect_signal("request::desktop_decoration", function(s)
     launcher:add_button(awful.button({}, 1, function()
         launcher_tooltip.hide()
         awesome.emit_signal("toggle::launcher")
+        if launcher.launcherdisplay.visible == true then
+            awful.keyboard.emulate_key_combination({}, "Escape")
+        end
     end))
     launcher:add_button(awful.button({}, 3, function()
         launcher_tooltip.hide()
@@ -316,11 +320,13 @@ screen.connect_signal("request::desktop_decoration", function(s)
             awful.screen.connect_for_each_screen(function()
                 s.mywibox.visible = true
                 s.mywibox.status = true
+                s.activation_zone.visible = false
             end)
         elseif s.mywibox.visible == true then
             awful.screen.connect_for_each_screen(function()
                 s.mywibox.visible = false
                 s.mywibox.status = false
+                s.activation_zone.visible = true
             end)
         end
     end
@@ -334,7 +340,7 @@ screen.connect_signal("request::desktop_decoration", function(s)
 
     -- NOTE defining the anotation
     local animation = rubato.timed({
-        intro = 0.2,
+        intro = 0.3,
         outro = 0.2,
         duration = 0.6,
         pos = hidden_y,
@@ -351,14 +357,24 @@ screen.connect_signal("request::desktop_decoration", function(s)
     --
     s.detect = gears.timer({
         timeout = 3,
-        -- autostart = true,
+        single_shot = true,
 
         callback = function()
             animation.target = hidden_y
+            s.disable_wibar:start()
+            awesome.emit_signal("bar:false")
+        end,
+    })
+
+    s.disable_wibar = gears.timer({
+        autostart = true,
+        timeout = 0.6,
+        callback = function()
             s.mywibox.visible = false
+            s.mywibox.status = false
             s.activation_zone.visible = true
             s.detect:stop()
-            awesome.emit_signal("bar:false")
+            s.disable_wibar:stop()
         end,
     })
 

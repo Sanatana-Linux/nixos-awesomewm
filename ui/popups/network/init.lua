@@ -19,7 +19,7 @@ awful.screen.connect_for_each_screen(function(s)
         screen = s,
         width = dpi(380),
         height = dpi(560),
-        bg = beautiful.bg_normal .. "cc",
+        bg = beautiful.bg_normal .. "66",
         border_color = beautiful.grey .. "cc",
         border_width = dpi(2),
         margins = dpi(20),
@@ -124,7 +124,7 @@ awful.screen.connect_for_each_screen(function(s)
         widget = wibox.container.background,
     })
 
-    -- animations
+    -- effects
     --------------
     local slide_right = rubato.timed({
         pos = s.geometry.height,
