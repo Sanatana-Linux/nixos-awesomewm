@@ -58,7 +58,7 @@ screen.connect_signal("request::desktop_decoration", function(s)
 
     launcher:add_button(awful.button({}, 1, function()
         launcher_tooltip.hide()
-        awesome.emit_signal("signal::launcher")
+        awesome.emit_signal("toggle::launcher")
     end))
     launcher:add_button(awful.button({}, 3, function()
         launcher_tooltip.hide()
