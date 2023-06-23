@@ -8,7 +8,7 @@
 
 return {
 
-	visual = require(... .. ".visual"),
-	textual = require(... .. ".textual"),
-	widgets = require(... .. ".widgets"),
+    visual = require(... .. ".visual"),
+    textual = require(... .. ".textual"),
+    widgets = require(... .. ".widgets"),
 }

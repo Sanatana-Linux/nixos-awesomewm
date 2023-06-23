@@ -16,6 +16,7 @@ end
 
 local start = function(fps, file_name)
     local display = os.getenv("DISPLAY")
+    -- TODO make this functional, choose application to use, etc.
     local defCommand = string.format(
         "ffmpeg -y -f x11grab "
             .. '-r "%s" -i %s -f pulse -i 0 -c:v libx264 -qp 0 -profile:v main '
@@ -72,12 +73,12 @@ end
 
 awful.screen.connect_for_each_screen(function(s)
     local recorder = wibox({
-        width = dpi(270),
-        height = dpi(180),
+        width = dpi(220),
+        height = dpi(100),
         shape = utilities.widgets.mkroundedrect(),
-        bg = beautiful.dimblack .. "66",
+        bg = beautiful.bg_normal .. "66",
         border_width = dpi(1),
-        border_color = beautiful.grey .. "66",
+        border_color = beautiful.grey .. "cc",
         ontop = true,
         visible = false,
     })
@@ -104,13 +105,13 @@ awful.screen.connect_for_each_screen(function(s)
         record_kg:stop()
     end
 
-    local fullscreen = createButton("󰄄", "Start", function()
+    local fullscreen = createButton("󰄄", "Start Screen Recording", function()
         close()
         local name = getName()
         start("60", name)
     end)
 
-    local window = createButton("󰜺", "Finish", function()
+    local window = createButton("󰜺", "Finish Screen Recording", function()
         close()
         awful.spawn.with_shell("killall ffmpeg")
     end)
@@ -156,7 +157,7 @@ awful.screen.connect_for_each_screen(function(s)
             },
             widget = wibox.container.background,
             maximum_height = dpi(60),
-            height= dpi(60)
+            height = dpi(60),
         },
         widget = wibox.container.margin,
         margins = 13,

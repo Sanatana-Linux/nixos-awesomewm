@@ -5,7 +5,7 @@
 -- -------------------------------------------------------------------------- --
 local hotkeys_popup = require("awful.hotkeys_popup")
 local menubar = require("menubar")
-local switcher = require("ui.window_switcher")
+local switcher = require("ui.popups.window_switcher")
 local tagswitch = Effects.request_effect("tagswitch")
 local launcher = require("ui.launcher")
 -- -------------------------------------------------------------------------- --

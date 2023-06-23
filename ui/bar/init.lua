@@ -4,18 +4,16 @@
 -- |  |  |  ||  |  _  |  _  |   _|
 -- |________||__|_____|___._|__|
 -- -------------------------------------------------------------------------- --
-
-local searchbar = require("ui.bar.widgets.searchbox")
 local network = require("ui.bar.actions-icons.network")
 local volume = require("ui.bar.actions-icons.volume")
 local get_screenshot_icon = require("ui.bar.actions-icons.screenshot")
--- local get_notification_icon = require("ui.bar.actions-icons.notifications")
 local battery_widget = require("ui.bar.widgets.battery")
 local launcher = require("ui.launcher")
 require("ui.bar.widgets.calendar")
 require("ui.bar.widgets.tray")
 require("ui.popups.network")
 require("ui.popups.notification_center")
+
 
 -- -------------------------------------------------------------------------- --
 -- assign to each screen
@@ -26,14 +24,46 @@ screen.connect_signal("request::desktop_decoration", function(s)
     --
     awful.tag({ "1", "2", "3", "4", "5", "6" }, s, awful.layout.layouts[1])
     local get_tags = require("ui.bar.widgets.tags")
-    local taglist = get_tags(s)
+    local taglist = get_tags.new({
+        screen = s,
+        taglist = {
+            buttons = {
+                awful.button({}, 1, function(t)
+                    t:view_only()
+                end),
+                awful.button({ modkey }, 1, function(t)
+                    if client.focus then
+                        client.focus:move_to_tag(t)
+                    end
+                end),
+                awful.button({}, 3, awful.tag.viewtoggle),
+            },
+        },
+        tasklist = {
+            buttons = {
+
+                awful.button({}, 1, function(c)
+                    if c ~= nil then
+                        if not c:isvisible() and c.first_tag then
+                            c.first_tag:view_only()
+                        end
+                        c:emit_signal("request::activate")
+                        c:raise()
+                    end
+                end),
+                awful.button({}, 3, function()
+                    c:activate({ context = "titlebar", action = "mouse_resize" })
+                end),
+            },
+        },
+    })
 
     -- -------------------------------------------------------------------------- --
     --                                  launcher                                  --
     -- -------------------------------------------------------------------------- --
     --
     local launcher = utilities.widgets.mkbtn({
-        image = beautiful.launcher_icon,
+        image = icons.home,
         screen = s,
         forced_height = dpi(28),
         forced_width = dpi(28),
@@ -74,7 +104,7 @@ screen.connect_signal("request::desktop_decoration", function(s)
     -- -------------------------------------------------------------------------- --
     --
     local tray_dispatcher = wibox.widget({
-        image = beautiful.tray_chevron_up,
+        image = icons.arrow_up,
         forced_height = dpi(15),
         forced_width = dpi(15),
         valign = "center",
@@ -99,9 +129,9 @@ screen.connect_signal("request::desktop_decoration", function(s)
         tray_dispatcher_tooltip.hide()
 
         if s.tray.popup.visible then
-            tray_dispatcher.image = beautiful.tray_chevron_down
+            tray_dispatcher.image = icons.arrow_down
         else
-            tray_dispatcher.image = beautiful.tray_chevron_up
+            tray_dispatcher.image = icons.arrow_up
         end
     end))
 
@@ -344,8 +374,7 @@ screen.connect_signal("request::desktop_decoration", function(s)
         outro = 0.2,
         duration = 0.6,
         pos = hidden_y,
-        rate = 80,
-        easing = rubato.quadratic,
+        easing = rubato.bouncy,
         subscribed = function(pos)
             s.mywibox.y = pos
         end,
@@ -423,12 +452,14 @@ screen.connect_signal("request::desktop_decoration", function(s)
     --
     s.mywibox:connect_signal("button::press", function()
         s.enable_wibox()
+        s.detect:stop()
     end)
     -- ------------------------------------------------- --
     --  NOTE this keeps the bar open so long is the mouse is within its boundaries so the other can be hidden
     --
     s.mywibox:connect_signal("button::release", function()
         s.enable_wibox()
+        s.detect:stop()
     end)
     -- ------------------------------------------------- --
     --  NOTE signals to begin timer when mouse leaves

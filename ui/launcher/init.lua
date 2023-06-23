@@ -9,9 +9,9 @@ local icon_theme = modules.icon_theme(beautiful.icon_theme)
 
 awful.screen.connect_for_each_screen(function(s)
     local launcherdisplay = wibox({
-        width = dpi(360),
+        width = dpi(440),
         shape = utilities.widgets.mkroundedrect(),
-        height = dpi(800),
+        height = dpi(720),
         bg = beautiful.bg_normal .. "66",
         border_color = beautiful.grey .. "cc",
         border_width = dpi(2),
@@ -60,74 +60,84 @@ awful.screen.connect_for_each_screen(function(s)
             shape = utilities.widgets.mkroundedrect(),
         },
         widget = wibox.container.margin,
+        layout = wibox.layout.fixed.vertical,
     })
 
     local entries = wibox.widget({
-        homogeneous = false,
+        homogeneous = true,
         expand = false,
         forced_num_cols = 1,
         spacing = 4,
-        layout = wibox.layout.grid,
+        layout = wibox.layout.grid.vertical,
     })
     -- -------------------------------------------------------------------------- --
 
     -- -------------------------------------------------------------------------- --
     launcherdisplay:setup({
         {
+            widget = wibox.container.background,
+            border_color = beautiful.grey .. "99",
+            border_width = dpi(2),
             {
+                widget = wibox.container.margin,
+                margins = dpi(5),
+                spacing = dpi(8),
+                layout = wibox.layout.align.vertical,
+
                 {
                     {
-                        {
-                            widget = wibox.widget.imagebox,
-                            image = icons.awesome,
-                            resize = true,
-                            forced_height = dpi(48),
-                            forced_width = dpi(48),
-                        },
-                        {
-                            widget = wibox.widget.textbox,
-                            font = beautiful.title_font .. " 18",
-                            text = "Application Launcher",
-                        },
-                        layout = wibox.layout.fixed.horizontal,
-                        spacing = 20,
-                        widget = wibox.container.background,
-                        bg = beautiful.bg_contrast .. "88",
-                        shape = utilities.widgets.mkroundedrect(),
+                        widget = wibox.widget.imagebox,
+                        image = icons.logo,
+                        forced_height = dpi(60),
+                        forced_width = dpi(60),
                     },
-                    forced_height = dpi(60),
+                    valign = "top",
+                    widget = wibox.container.margin,
+                    margins = dpi(5),
+                },
+                -- require("ui.launcher.charts"),
+                {
+                    valign = "bottom",
                     widget = wibox.container.margin,
                     margins = dpi(10),
+                    {
+                        widget = wibox.container.background,
+                        layout = wibox.layout.fixed.vertical,
+                        spacing = dpi(10),
+                        require("ui.launcher.powermenu_containers.lock"),
+                        require("ui.launcher.powermenu_containers.logout"),
+                        require("ui.launcher.powermenu_containers.restart"),
+                        require("ui.launcher.powermenu_containers.shutdown"),
+                    },
                 },
-                widget = wibox.container.background,
-                bg = beautiful.black .. "77",
-                border_width = dpi(2),
-                border_color = beautiful.grey .. "cc",
-                shape = utilities.widgets.mkroundedrect(),
             },
-            widget = wibox.container.margin,
-            margins = dpi(10),
-        },
-        {
-            entries,
-            left = dpi(10),
-            right = dpi(10),
-            bottom = dpi(5),
-            top = dpi(5),
-            widget = wibox.container.margin,
         },
         {
             {
-                prompt,
+                entries,
+                left = dpi(10),
+                right = dpi(10),
+                bottom = dpi(5),
+                top = dpi(5),
+                forced_height = dpi(650),
                 widget = wibox.container.margin,
-                margins = dpi(10),
-                shape = utilities.widgets.mkroundedrect(),
             },
+            {
+                {
+                    prompt,
+                    widget = wibox.container.margin,
+                    margins = dpi(10),
+                    shape = utilities.widgets.mkroundedrect(),
+                },
 
-            widget = wibox.container.background,
+                widget = wibox.container.background,
+            },
+            spacing = dpi(10),
+            layout = wibox.layout.align.vertical,
         },
-        spacing = dpi(10),
-        layout = wibox.layout.align.vertical,
+
+        widget = wibox.container.background,
+        layout = wibox.layout.fixed.horizontal,
     })
     -- -------------------------------------------------------------------------- --
     -- Functions
@@ -312,24 +322,41 @@ awful.screen.connect_for_each_screen(function(s)
         })
     end
 
+    local function launcher_hide()
+        if launcherdisplay.visible then
+            slide_end:again()
+            slide:set(0 - launcherdisplay.height)
+            awful.keygrabber.stop()
+        end
+    end
     -- -------------------------------------------------------------------------- --
     awesome.connect_signal("toggle::launcher", function()
         open()
+        local click = awful.button({}, 1, function(c)
+            launcher_hide()
+        end)
 
         if launcherdisplay.visible then
             slide_end:again()
             slide:set(0 - launcherdisplay.height)
+            client.disconnect_signal("mouse::press", function()
+                launcher_hide()
+            end)
+            awful.mouse.remove_global_mousebinding(click)
             awful.keyboard.emulate_key_combination({}, "Escape")
         elseif not launcherdisplay.visible then
             slide:set(
                 awful.screen.focused().geometry.height / 2
                     - launcherdisplay.height / 2
             )
+            client.connect_signal("button::press", function()
+                launcher_hide()
+            end)
             launcherdisplay.visible = true
         end
         awful.placement.bottom_left(launcherdisplay, {
             honor_workarea = true,
-            margins = dpi(12),
+            margins = dpi(6),
             parent = awful.screen.focused(),
         })
     end)
