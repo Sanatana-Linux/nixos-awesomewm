@@ -1,10 +1,13 @@
 local function cross_enter(self, _)
     self:get_children_by_id("remove")[1]
-        :set_image(gears.color.recolor_image(icons.close, beautiful.red))
+        :set_image(
+            gears.color.recolor_image(icons.checkbox_marked, beautiful.red)
+        )
 end
 local function cross_leave(self, _)
-    self:get_children_by_id("remove")[1]
-        :set_image(gears.color.recolor_image(icons.close, beautiful.fg_normal))
+    self:get_children_by_id("remove")[1]:set_image(
+        gears.color.recolor_image(icons.checkbox_marked, beautiful.fg_normal)
+    )
 end
 -- -------------------------------------------------------------------------- --
 local main_widget
@@ -239,8 +242,9 @@ local function add_notif_widget(n)
     -- -------------------------------------------------------------------------- --
     -- create notification widget and add it to its widget's drawer
     --
-    w:get_children_by_id("remove")[1]
-        :set_image(gears.color.recolor_image(icons.close, beautiful.fg_normal))
+    w:get_children_by_id("remove")[1]:set_image(
+        gears.color.recolor_image(icons.checkbox_marked, beautiful.fg_normal)
+    )
     w:get_children_by_id("remove")[1]:connect_signal("mouse::enter", function()
         cross_enter(w)
     end)
@@ -296,9 +300,11 @@ local notifbox
 notifbox =
     wibox.widget({ -- empty because it will be filled with the update function
         layout = wibox.layout.fixed.vertical,
+
         spacing = dpi(5),
         {
             widget = wibox.container.background,
+            layout = modules.overflow.vertical,
             bg = beautiful.black .. "88",
             border_color = beautiful.grey,
             border_width = dpi(1.25),
@@ -366,6 +372,7 @@ naughty.connect_signal("request::display", function(n)
     if client.focus then
         client_focused = string.lower(client.focus.class) ~= (n.app_name or "")
     end
+    
     add_notif_widget(n)
 end)
 -- -------------------------------------------------------------------------- --

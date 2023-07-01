@@ -1,7 +1,6 @@
 local naughty = require("naughty")
 
 local beautiful = require("beautiful")
-local gears = require("gears")
 local wibox = require("wibox")
 local awful = require("awful")
 local dpi = beautiful.xresources.apply_dpi
@@ -31,7 +30,7 @@ naughty.config.defaults.ontop = true
 naughty.config.defaults.screen = awful.screen.focused()
 naughty.config.defaults.timeout = 6
 naughty.config.defaults.title = "System Notification"
-naughty.config.defaults.position = "top_right"
+--naughty.config.defaults.position = "top_right"
 
 -- Timeouts
 naughty.config.presets.low.timeout = 3
@@ -64,12 +63,12 @@ ruled.notification.connect_signal("request::rules", function()
     -- All notifications will match this rule.
     ruled.notification.append_rule({
         rule = {},
-        properties = { screen = awful.screen.preferred, implicit_timeout = 6 },
+        properties = { screen = awful.screen.focused(), implicit_timeout = 6 },
     })
 end)
 
 naughty.connect_signal("request::display", function(n)
-    local appicon = icons.notifications
+    local appicon = icons.message_square
     local time = os.date("%H:%M")
 
     local action_widget = {
@@ -78,10 +77,12 @@ naughty.connect_signal("request::display", function(n)
                 id = "text_role",
                 align = "center",
                 valign = "center",
-                font = beautiful.font_name .. " 8",
+                font = beautiful.title_font .. " 11",
                 widget = wibox.widget.textbox,
             },
             left = dpi(6),
+            top = dpi(6),
+            bottom = dpi(6),
             right = dpi(6),
             widget = wibox.container.margin,
         },
@@ -237,10 +238,10 @@ naughty.connect_signal("request::display", function(n)
                                 valign = "center",
                                 widget = wibox.container.place,
                             },
-                            top = dpi(0),
+                            top = dpi(10),
                             left = dpi(10),
                             right = dpi(10),
-                            bottom = dpi(0),
+                            bottom = dpi(10),
                             widget = wibox.container.margin,
                         },
                         layout = wibox.layout.fixed.horizontal,

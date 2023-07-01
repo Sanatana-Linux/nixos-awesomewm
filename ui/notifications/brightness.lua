@@ -17,11 +17,10 @@ local active_color_1 = {
 }
 
 local bright_icon = wibox.widget({
-    markup = "<span foreground='" .. beautiful.fg_normal .. "'></span>",
+    image = icons.brightness,
     align = "center",
     valign = "center",
-    font = beautiful.nerd_font .. "15",
-    widget = wibox.widget.textbox,
+    widget = wibox.widget.imagebox,
 })
 
 local bright_adjust = awful.popup({
@@ -43,7 +42,7 @@ local bright_bar = wibox.widget({
     background_color = beautiful.bg_contrast,
     color = active_color_1,
     max_value = 100,
-    value = 0,
+    min_value = 0,
     widget = wibox.widget.progressbar,
 })
 
@@ -56,7 +55,14 @@ local bright_ratio = wibox.widget({
         right = dpi(20),
         widget = wibox.container.margin,
     },
-    bright_icon,
+    {
+        bright_icon,
+        top = dpi(10),
+        left = dpi(10),
+        right = dpi(10),
+        bottom = dpi(10),
+        widget = wibox.container.margin,
+    },
     nil,
 })
 
@@ -65,9 +71,9 @@ bright_ratio:adjust_ratio(2, 0.72, 0.28, 0)
 bright_adjust.widget = wibox.widget({
     bright_ratio,
     shape = utilities.widgets.mkroundedrect(),
-    border_width = 0.75,
-    border_color = beautiful.grey,
-    bg = beautiful.bg_normal,
+    border_width = dpi(0.75),
+    border_color = beautiful.grey .. "cc",
+    bg = beautiful.bg_normal .. "33",
     widget = wibox.container.background,
 })
 

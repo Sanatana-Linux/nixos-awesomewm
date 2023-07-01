@@ -13,7 +13,7 @@ local menu = require("ui.menu")
 local function set_mousebindings()
     awful.mouse.append_global_mousebindings({
         awful.button({}, 3, function()
-            menu.mainmenu:toggle()
+            menu.mebox:toggle(nil, { source = "mouse" })
         end),
     })
 

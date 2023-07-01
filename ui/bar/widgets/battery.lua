@@ -60,22 +60,50 @@ gears.timer({
                             end
                         elseif battery <= 20 then
                             baticon.image = icons.battery_discharging_20
+                            if warning.visible then
+                                warning.visible = false
+                            end
                         elseif battery <= 30 then
                             baticon.image = icons.battery_discharging_30
+                            if warning.visible then
+                                warning.visible = false
+                            end
                         elseif battery <= 40 then
                             baticon.image = icons.battery_discharging_40
+
+                            if warning.visible then
+                                warning.visible = false
+                            end
                         elseif battery <= 50 then
                             baticon.image = icons.battery_discharging_50
+                            if warning.visible then
+                                warning.visible = false
+                            end
                         elseif battery <= 60 then
                             baticon.image = icons.battery_discharging_60
+                            if warning.visible then
+                                warning.visible = false
+                            end
                         elseif battery <= 70 then
                             baticon.image = icons.battery_discharging_70
+                            if warning.visible then
+                                warning.visible = false
+                            end
                         elseif battery <= 80 then
                             baticon.image = icons.battery_discharging_60
+                            if warning.visible then
+                                warning.visible = false
+                            end
                         elseif battery <= 90 then
                             baticon.image = icons.battery_discharging_60
+                            if warning.visible then
+                                warning.visible = false
+                            end
                         elseif battery <= 100 then
                             baticon.image = icons.battery_fully_charged
+                            if warning.visible then
+                                warning.visible = false
+                            end
                         end
                     end
                 )
@@ -119,5 +147,34 @@ local battery_button = utilities.widgets.mkbtn({
     right = dpi(2),
     widget = wibox.container.margin,
 }, beautiful.widget_back, beautiful.widget_back_focus)
+
+battery_button:buttons(gears.table.join(awful.button({}, 1, nil, function()
+    awful.spawn("xfce4-power-manager")
+end)))
+
+local battery_tooltip = awful.tooltip({
+    objects = { battery_button },
+    text = "None",
+    mode = "outside",
+    align = "right",
+    margin_leftright = dpi(8),
+    margin_topbottom = dpi(8),
+    preferred_positions = { "right", "left", "top", "bottom" },
+})
+local get_battery_info = function()
+    awful.spawn.easy_async_with_shell(
+        "upower -i $(upower -e | grep BAT)",
+        function(stdout)
+            if stdout == nil or stdout == "" then
+                battery_tooltip:set_text("No battery detected!")
+                return
+            end
+
+            -- Remove new line from the last line
+            battery_tooltip:set_text(stdout:sub(1, -2))
+        end
+    )
+end
+get_battery_info()
 
 return battery_button

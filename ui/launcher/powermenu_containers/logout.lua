@@ -1,28 +1,32 @@
+--   +---------------------------------------------------------------+
 local function do_notify()
     local confirm = naughty.action({ name = "Confirm" })
     local cancel = naughty.action({ name = "Cancel" })
-    -- -------------------------------------------------------------------------- --
+    --   +---------------------------------------------------------------+
     -- copy to clipboard button
     confirm:connect_signal("invoked", function()
         awful.spawn("doas systemctl restart display-manager")
     end)
-    -- -------------------------------------------------------------------------- --
+    --   +---------------------------------------------------------------+
     -- delete
     cancel:connect_signal("invoked", function()
         return
     end)
-    -- -------------------------------------------------------------------------- --
+    --   +---------------------------------------------------------------+
     -- Show the notification.
     naughty.notify({
         app_name = "Confirmation",
         app_icon = icons.power,
+        position = "top_middle",
+        ontop = true,
         icon = icons.logout,
         title = "Please Confirm You Want to Log Out",
         text = "Please Confirm You Would Like to Log Out by Pressing Confirm Below",
         actions = { confirm, cancel },
     })
 end
-
+--   +---------------------------------------------------------------+
+-- log out button
 Logout = utilities.widgets.mkbtn({
     {
         {

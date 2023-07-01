@@ -1,34 +1,37 @@
---  _____               __
--- |     |_.-----.----.|  |--.
--- |       |  _  |  __||    <
--- |_______|_____|____||__|__|
-
+--      _____               __
+--     |     |_.-----.----.|  |--.
+--     |       |  _  |  __||    <
+--     |_______|_____|____||__|__|
+--   +---------------------------------------------------------------+
 -- confirmation dialog
 local function do_notify()
     local confirm = naughty.action({ name = "Confirm" })
     local cancel = naughty.action({ name = "Cancel" })
-    -- -------------------------------------------------------------------------- --
+    --   +---------------------------------------------------------------+
     -- copy to clipboard button
     confirm:connect_signal("invoked", function()
-        awful.spawn("dm-tool lock") -- -------------------------------------------------------------------------- --
+        awful.spawn("dm-tool lock")
     end)
-    -- -------------------------------------------------------------------------- --
+    --   +---------------------------------------------------------------+
     -- delete
     cancel:connect_signal("invoked", function()
         return
     end)
-    -- -------------------------------------------------------------------------- --
+    --   +---------------------------------------------------------------+
     -- Show the notification.
     naughty.notify({
         app_name = "Confirmation",
         app_icon = icons.power,
         icon = icons.lock,
+        ontop = true,
+        position = "top_middle",
         title = "Please Confirm You Want to Lock the Screen",
         text = "Please Confirm You Would Like to Lock the Screen by Pressing Confirm Below",
         actions = { confirm, cancel },
     })
 end
-
+--   +---------------------------------------------------------------+
+-- lock button
 Lock = utilities.widgets.mkbtn({
     {
         {

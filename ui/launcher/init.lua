@@ -1,9 +1,6 @@
-local iconTheme = require("lgi").require("Gtk", "3.0").IconTheme.get_default()
 local beautiful = require("beautiful")
-local gfs = require("gears.filesystem")
-local animation = require("modules.animation")
+
 local dpi = beautiful.xresources.apply_dpi
-local icon_theme = modules.icon_theme(beautiful.icon_theme)
 -- -------------------------------------------------------------------------- --
 -- Widgets
 
@@ -20,11 +17,12 @@ awful.screen.connect_for_each_screen(function(s)
         visible = false,
     })
     -- -------------------------------------------------------------------------- --
-    local slide = animation:new({
-        duration = 0.6,
-        pos = 0 - launcherdisplay.height,
-        easing = animation.easing.inOutExpo,
-        update = function(_, pos)
+    local slide = effects.instance.timed({
+        pos = s.geometry.height,
+        rate = 60,
+        intro = 0.14,
+        duration = 0.33,
+        subscribed = function(pos)
             launcherdisplay.y = s.geometry.y + pos
         end,
     })
@@ -95,11 +93,11 @@ awful.screen.connect_for_each_screen(function(s)
                     widget = wibox.container.margin,
                     margins = dpi(5),
                 },
-                -- require("ui.launcher.charts"),
+                require("ui.launcher.charts"),
                 {
                     valign = "bottom",
                     widget = wibox.container.margin,
-                    margins = dpi(10),
+                    margins = dpi(20),
                     {
                         widget = wibox.container.background,
                         layout = wibox.layout.fixed.vertical,
@@ -298,7 +296,7 @@ awful.screen.connect_for_each_screen(function(s)
             textbox = prompt:get_children_by_id("txt")[1],
             done_callback = function()
                 slide_end:again()
-                slide:set(0 - launcherdisplay.height)
+                slide.target = (0 - launcherdisplay.height)
                 awful.keyboard.emulate_key_combination({}, "Escape")
             end,
             changed_callback = function(cmd)
@@ -325,7 +323,7 @@ awful.screen.connect_for_each_screen(function(s)
     local function launcher_hide()
         if launcherdisplay.visible then
             slide_end:again()
-            slide:set(0 - launcherdisplay.height)
+            slide.target = (0 - launcherdisplay.height)
             awful.keygrabber.stop()
         end
     end
@@ -338,16 +336,16 @@ awful.screen.connect_for_each_screen(function(s)
 
         if launcherdisplay.visible then
             slide_end:again()
-            slide:set(0 - launcherdisplay.height)
-            client.disconnect_signal("mouse::press", function()
+            slide.target = (0 - launcherdisplay.height)
+            client.connect_signal("mouse::press", function()
                 launcher_hide()
             end)
             awful.mouse.remove_global_mousebinding(click)
             awful.keyboard.emulate_key_combination({}, "Escape")
         elseif not launcherdisplay.visible then
-            slide:set(
+            slide.target = (
                 awful.screen.focused().geometry.height / 2
-                    - launcherdisplay.height / 2
+                - launcherdisplay.height / 2
             )
             client.connect_signal("button::press", function()
                 launcher_hide()

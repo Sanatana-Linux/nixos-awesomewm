@@ -1,5 +1,5 @@
-if not RUBATO_DIR then
-    RUBATO_DIR = (...):match("(.-)[^%.]+$")
+if not EFFECTS_DIR then
+    EFFECTS_DIR = (...):match("(.-)[^%.]+$")
 end
 
 local easing = require("modules.effects.easing")

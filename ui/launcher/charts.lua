@@ -6,7 +6,6 @@ local dpi = beautiful.xresources.apply_dpi
 -- enable signals
 require("signal.cpu")
 require("signal.ram")
-require("signal.disk")
 require("signal.temperature")
 
 -- helpers
@@ -54,12 +53,12 @@ local function base_chart(icon)
             value = 0,
             max_value = 1,
             min_value = 0,
-            forced_height = dpi(54),
-            forced_width = dpi(54),
+            forced_height = dpi(48),
+            forced_width = dpi(48),
             widget = wibox.container.arcchart,
             color = beautiful.chart_arc,
             border_width = dpi(0),
-            thickness = dpi(4),
+            thickness = dpi(3),
             bg = beautiful.dark_grey .. "cc",
         },
         direction = "south",
@@ -72,9 +71,7 @@ end
 
 -- initialize charts
 local cpu = base_chart(icons.cpu)
-
 local mem = base_chart(icons.ram)
-local disk = base_chart(icons.disk)
 local temp = base_chart(icons.temp)
 
 -- give charts values
@@ -86,10 +83,6 @@ awesome.connect_signal("ram::used", function(used)
     mem.chart_value = used / 100
 end)
 
-awesome.connect_signal("disk::usage", function(used)
-    disk.chart_value = used / 100
-end)
-
 awesome.connect_signal("temperature::value", function(temperature)
     temp.chart_value = temperature / 100
 end)
@@ -99,7 +92,6 @@ local charts_container = wibox.widget({
 
     mkcard("CPU", cpu),
     mkcard("RAM", mem),
-    mkcard("Disk", disk),
     mkcard("Temp", temp),
 
     spacing = dpi(8),

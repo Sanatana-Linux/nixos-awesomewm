@@ -78,9 +78,9 @@ end
 function animation:start(args)
     args = args or {}
 
-    -- Awestoer/Rubbto compatibility
-    -- I'd rather this always be a table, but Awestoer/Rubbto
-    -- except the :set() method to have 1 number value parameter
+    -- Awestore/Rubbto compatibility
+    -- I'd rather this always be a table, but Awestore/Rubbto
+    -- expect the :set() method to have 1 number value parameter
     -- used to set the target
     local is_table = type(args) == "table"
     local initial = is_table and (args.pos or self.pos) or self.pos

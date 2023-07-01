@@ -12,7 +12,7 @@ ownership of the code so that I could
 
 | Layout       | Characteristics                                                                                                  |
 | ------------ | ---------------------------------------------------------------------------------------------------------------- |
-| centermaster | center of the layout is most of the screen, additional windows on sides of the master client                     |
+| center | center of the layout is most of the screen, additional windows on sides of the master client                     |
 | deck         | stacks clients over one another like a hand of playing cards                                                     |
 | empathy      | Three windows in a row and then the second row is populated, same for the next row                               |
 | stack        | Two clients, with the master to the left and new windows stacking on the right (can be switched, check the code) |

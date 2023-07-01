@@ -25,7 +25,7 @@ local theme = {}
 -- fonts
 theme.font_name = "Oxanium Semi-Bold  "
 theme.nerd_font = "Agave Nerd Font Mono Bold "
-theme.title_font = "Oxanium Semi-Bold "
+theme.title_font = "Oxanium Bold "
 theme.material_icons = "Font Awesome 5 Free s"
 theme.font_size = "10"
 theme.font = theme.font_name .. " " .. theme.font_size
@@ -60,25 +60,18 @@ theme.bg_urgent = scheme.alpha(theme.red, "88")
 theme.bg_minimize = theme.bg_lighter
 theme.bg_systray = theme.bg_focus
 
-theme.widget_back = "linear:63,0:0,21:0,"
-    .. scheme.colorT
-    .. ":1,"
-    .. scheme.colorK
+theme.widget_back =
+    "linear:180,0:0,121:0,#28282899:0.25,#44444499:0.5,#717171cc:0.75,#55555599:1,#2C2C2C99"
 
-theme.widget_back_focus = "linear:12,0:0,21:0,"
-    .. scheme.colorK
-    .. ":1,"
-    .. scheme.colorT
+theme.widget_back_focus =
+    "linear:180,0:0,180:0,#666666aa:0.25,#5c5c5caa:0.4,#555555dd:0.5,#3c3c3caa:0.6,#5c5c5cdd:0.75, #666666aa:1,#717171aa"
 
-theme.widget_back_focus_tag = "linear:63,0:0,21:0,"
-    .. scheme.colorT
-    .. ":1,"
-    .. scheme.colorN
-
+theme.widget_back_focus_tag =
+"linear:180,0:0,180:0,#666666aa:0.25,#5c5c5caa:0.4,#555555dd:0.5,#3c3c3caa:0.6,#5c5c5cdd:0.75, #666666aa:1,#717171aa"
 theme.widget_back_tag = "linear:63,0:0,21:0,"
-    .. scheme.colorN
+    .. scheme.colorM
     .. ":1,"
-    .. scheme.colorT
+    .. scheme.colorR
 
 theme.appmenu_back = "linear:180,0:0,121:0,"
     .. scheme.colorB
@@ -120,10 +113,10 @@ theme.tasklist_bg_urgent = theme.red .. "4D" -- 30% of transparency
 
 -- -------------------------------------------------------------------------- --
 -- taglist
-theme.taglist_bg = theme.widget_back
-theme.taglist_bg_empty = theme.widget_back
+theme.taglist_bg = theme.widget_back_tag
+theme.taglist_bg_empty = theme.widget_back_tag
 theme.taglist_bg_focus = theme.widget_back_focus_tag
-theme.taglist_bg_occupied = theme.widget_back_focus
+theme.taglist_bg_occupied = theme.widget_back
 
 theme.taglist_font = theme.nerd_font .. " 12"
 theme.taglist_shape = require("utilities.widgets.mkroundedrect")()
@@ -214,7 +207,7 @@ theme.layout_cornerse = gears.color.recolor_image(
     themes_path .. "default/layouts/cornersew.png",
     theme.fg_normal
 )
-theme.layout_centermaster = gears.color.recolor_image(
+theme.layout_center = gears.color.recolor_image(
     assets_path .. "/layouts/centermaster.png",
     theme.fg_normal
 )
@@ -224,6 +217,14 @@ theme.layout_stackLeft = gears.color.recolor_image(
 )
 theme.layout_stack = gears.color.recolor_image(
     assets_path .. "/layouts/stack.png",
+    theme.fg_normal
+)
+theme.layout_cascade = gears.color.recolor_image(
+    assets_path .. "/layouts/cascade.png",
+    theme.fg_normal
+)
+theme.layout_cascadetile = gears.color.recolor_image(
+    assets_path .. "/layouts/cascadetile.png",
     theme.fg_normal
 )
 theme.layout_empathy = gears.color.recolor_image(

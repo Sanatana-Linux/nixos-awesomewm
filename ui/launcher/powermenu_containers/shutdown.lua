@@ -16,6 +16,8 @@ local function do_notify()
     naughty.notify({
         app_name = "Confirmation",
         app_icon = icons.power,
+        position = "top_middle",
+        ontop = true,
         icon = icons.power,
         title = "Please Confirm You Want to Shut Down",
         text = "Please Confirm You Would Like to Shut Down by Pressing Confirm Below",

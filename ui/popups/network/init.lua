@@ -126,7 +126,7 @@ awful.screen.connect_for_each_screen(function(s)
 
     -- effects
     --------------
-    local slide_right = rubato.timed({
+    local slide_right =effects.instance.timed({
         pos = s.geometry.height,
         rate = 60,
         intro = 0.14,

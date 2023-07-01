@@ -46,7 +46,7 @@ return function()
                     {
                         {
                             {
-                                id = "icon",
+                                id = "clienticon",
                                 valign = "center",
                                 halign = "center",
 

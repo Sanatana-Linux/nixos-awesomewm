@@ -22,7 +22,7 @@ awful.screen.connect_for_each_screen(function(s)
 
     -- effects
     --------------
-    local slide_right = rubato.timed({
+    local slide = effects.instance.timed({
         pos = s.geometry.height,
         rate = 60,
         intro = 0.14,
@@ -97,10 +97,10 @@ awful.screen.connect_for_each_screen(function(s)
             else
                 keygrabber_no:stop()
                 slide_end:again()
-                slide_right.target = s.geometry.height
+                slide.target = s.geometry.height
             end
         elseif not notification_center.visible then
-            slide_right.target = s.geometry.height
+            slide.target = s.geometry.height
                 - (notification_center.height + beautiful.useless_gap * 2)
             notification_center.visible = true
             keygrabber_no:start()
@@ -114,7 +114,7 @@ awful.screen.connect_for_each_screen(function(s)
     no_off = function(screen)
         if notification_center.visible then
             slide_end:again()
-            slide_right.target = s.geometry.height
+            slide.target = s.geometry.height
         end
     end
 
@@ -136,12 +136,24 @@ awful.screen.connect_for_each_screen(function(s)
     notification_center:setup({
         {
             {
-                nil,
-                require("ui.popups.notification_center.widgets.notifcenter"),
-                nil,
-                halign = "center",
-                valign = "center",
-                layout = wibox.layout.align.horizontal,
+                {
+                    nil,
+                    require(
+                        "ui.popups.notification_center.widgets.notifcenter"
+                    ),
+                    utilities.visual.vertical_pad(dpi(12)),
+                    height = dpi(400),
+                    minimum_height = dpi(400),
+                    forced_height = dpi(400),
+                    layout = wibox.layout.fixed.horizontal,
+                },
+                {
+                    layout = wibox.layout.align.horizontal,
+                    nil,
+                    require("ui.popups.notification_center.widgets.controls"),
+                    nil,
+                },
+                layout = wibox.layout.align.vertical,
             },
             widget = wibox.container.margin,
             margins = dpi(20),

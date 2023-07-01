@@ -16,13 +16,12 @@ local active_color_1 = {
 }
 
 local volume_icon = wibox.widget({
-    markup = "<span foreground='"
-        .. beautiful.fg_normal
-        .. "'><b></b></span>",
+    image = icons.volume,
+    forced_height = dpi(12),
+    forced_width = dpi(12),
     align = "center",
     valign = "center",
-    font = beautiful.font_name .. "15",
-    widget = wibox.widget.textbox,
+    widget = wibox.widget.imagebox,
 })
 
 local volume_adjust = awful.popup({
@@ -44,7 +43,7 @@ local volume_bar = wibox.widget({
     background_color = beautiful.bg_contrast,
     color = active_color_1,
     max_value = 100,
-    value = 0,
+    min_value = 0,
     widget = wibox.widget.progressbar,
 })
 
@@ -57,7 +56,15 @@ local volume_ratio = wibox.widget({
         right = dpi(20),
         widget = wibox.container.margin,
     },
-    volume_icon,
+    {
+        volume_icon,
+        top = dpi(10),
+        left = dpi(10),
+        right = dpi(10),
+        bottom = dpi(10),
+        widget = wibox.container.margin,
+    },
+
     nil,
 })
 
@@ -87,13 +94,9 @@ awesome.connect_signal("signal::volume", function(vol, muted)
     volume_bar.value = vol
 
     if muted == 1 or vol == 0 then
-        volume_icon.markup = "<span foreground='"
-            .. beautiful.fg_normal
-            .. "'></span>"
+        volume_icon.image = icons.volume_off
     else
-        volume_icon.markup = "<span foreground='"
-            .. beautiful.fg_normal
-            .. "'></span>"
+        volume_icon.image = icons.volume
     end
 
     if volume_adjust.visible then

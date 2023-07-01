@@ -82,7 +82,7 @@ awful.screen.connect_for_each_screen(function(s)
         ontop = true,
         visible = false,
     })
-    local slide = rubato.timed({
+    local slide = effects.instance.timed({
         pos = s.geometry.height,
         rate = 60,
         intro = 0.14,

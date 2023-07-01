@@ -31,6 +31,11 @@ local function do_empathy(p)
                 c.name ~= "Empathy"
                 and c.name ~= "Contact List"
                 and c.name ~= "Empathy"
+                and c.name ~= "Discord"
+                and c.name ~= "Telegram"
+                and c.name ~= "Viber"
+                and c.name ~= "WhatsApp"
+                and c.name ~= "Skype"
             then
                 table.insert(cls, c)
             else

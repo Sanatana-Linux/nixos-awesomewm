@@ -1,7 +1,6 @@
 local beautiful = require("beautiful")
 
 local color = require("plugins.color")
-local rubato = require("plugins.rubato")
 
 return function(opts)
     opts = opts or {}
@@ -17,7 +16,12 @@ return function(opts)
     local transition =
         color.transition(background, hover_background, color.transition.RGB)
 
-    local fading = rubato.timed({ duration = 0.90 })
+    local fading = effects.instance.timed({
+
+        rate = 60,
+        intro = 0.14,
+        duration = 0.33,
+    })
 
     fading:subscribe(function(pos)
         element[prop] = transition(pos / 100).hex

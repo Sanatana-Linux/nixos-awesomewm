@@ -6,3 +6,7 @@
 
 3. **The Open Source Community at Large** - *Nix desktop customization is a niche within a wider ecosystem of open source software that has demonstrated that the constraining of ideas by using patent courts to prevent ideas from being stolen when hardly any one person's in the first place is not the best nor most efficient way to move technology forward but instead is pushed forward by those so irritated with something not functioning they fix it themselves and many less irritable volunteers devoting time to improving human technology sheerly out of interest in doing so and knowledge of the code and version control system. 
 
+## "I want links to other configurations, modules, libraries and widgets"
+For the innumerable configurations that have inspired me and other AwesomeWM related goodness, check out [my GitHub starlist dedicated to AwesomeWM](https://github.com/stars/Thomashighbaugh/lists/awesomewm)
+
+I also maintain a list of [modules, libraries and widgets](https://github.com/Thomashighbaugh/Awesome-AwesomeWM-Modules-Widgets-And-Libraries/) you may find useful. Don't forget to leave a star. 

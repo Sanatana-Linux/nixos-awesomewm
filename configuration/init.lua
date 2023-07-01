@@ -5,13 +5,14 @@
 --                              |_____|
 -- -------------------------------------------------------------------------- --
 --
+-- global variable scoping of everything possibly useful (goes first)
+require("configuration.variables")
+
+-- usual stuff after
 require("configuration.autostart")
 require("configuration.layout")
 require("configuration.mousebindings")
 require("configuration.keybindings")
 require("configuration.rules")
-require("configuration.autofocus")
-require("configuration.better-resize")
-require("configuration.floating-clients")
 require("configuration.monitor")
 require("configuration.garbage_collection")()

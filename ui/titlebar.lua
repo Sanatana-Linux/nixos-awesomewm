@@ -132,7 +132,7 @@ client.connect_signal("request::titlebars", function(c)
         {
             {
                 widget = awful.titlebar.widget.titlewidget(c),
-                font = beautiful.font_name .. "  10",
+                font = beautiful.title_font .. "  10",
             },
             widget = wibox.container.margin,
             left = dpi(16),

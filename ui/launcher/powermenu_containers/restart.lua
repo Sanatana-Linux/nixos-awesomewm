@@ -16,7 +16,9 @@ local function do_notify()
     naughty.notify({
         app_name = "Confirmation",
         app_icon = icons.power,
+        position = "top_middle",
         icon = icons.restart,
+        ontop = true,
         title = "Please Confirm You Want to Reboot",
         text = "Please Confirm You Would Like to Reboot by Pressing Confirm Below",
         actions = { confirm, cancel },

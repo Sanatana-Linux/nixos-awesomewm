@@ -7,6 +7,7 @@
 --
 -- if luarocks exists load it, if not don't trip
 pcall(require, "luarocks.loader")
+
 --   +---------------------------------------------------------------+
 -- first the autofocus library is loaded in
 require("awful.autofocus")
@@ -16,9 +17,8 @@ require("themes")
 require("utilities")
 -- locally-derived back-end functionality
 require("modules")
--- global variable scoping of everything possibly useful
-require("variables")
 -- Settings of various builtin options (and some custom layouts)
+--  with globally scoped variales
 require("configuration")
 -- UI elements (widgets) that the user interacts with
 require("ui")

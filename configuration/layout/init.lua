@@ -10,12 +10,12 @@
 local awful = require("awful")
 local empathy = require("configuration.layout.layouts.empathy")
 local stack = require("configuration.layout.layouts.stack")
-local centermaster = require("configuration.layout.layouts.centermaster")
+local center = require("configuration.layout.layouts.center")
 local thrizen = require("configuration.layout.layouts.thrizen")
 local horizon = require("configuration.layout.layouts.horizon")
 local equalarea = require("configuration.layout.layouts.equalarea")
 local deck = require("configuration.layout.layouts.deck")
-
+local cascade = require("configuration.layout.layouts.cascade")
 local beautiful = require("beautiful")
 local tag = tag
 local dpi = beautiful.xresources.apply_dpi
@@ -25,8 +25,10 @@ local dpi = beautiful.xresources.apply_dpi
 tag.connect_signal("request::default_layouts", function(s)
     awful.layout.append_default_layouts({
         stack,
+        cascade,
+        cascade.tile,
         empathy,
-        centermaster,
+        center,
         thrizen,
         horizon,
         equalarea,
@@ -46,7 +48,7 @@ tag.connect_signal("request::default_layouts", function(s)
         --awful.layout.suit.fair.horizontal,
         --awful.layout.suit.max.fullscreen,
         --awful.layout.suit.corner.nw
-        --awful.layout.suit.corner.sw,
+        awful.layout.suit.corner.sw,
         --awful.layout.suit.corner.se,
     })
 end)

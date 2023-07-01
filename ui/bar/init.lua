@@ -1,4 +1,4 @@
----@diagnostic disable: undefined-global
+---@diagnostic disable, 113: undefined-global, 113
 --            __ __
 -- .--.--.--.|__|  |--.---.-.----.
 -- |  |  |  ||  |  _  |  _  |   _|
@@ -13,7 +13,6 @@ require("ui.bar.widgets.calendar")
 require("ui.bar.widgets.tray")
 require("ui.popups.network")
 require("ui.popups.notification_center")
-
 
 -- -------------------------------------------------------------------------- --
 -- assign to each screen
@@ -49,9 +48,10 @@ screen.connect_signal("request::desktop_decoration", function(s)
                         end
                         c:emit_signal("request::activate")
                         c:raise()
+                        c.minimized = false
                     end
                 end),
-                awful.button({}, 3, function()
+                awful.button({}, 3, function(c)
                     c:activate({ context = "titlebar", action = "mouse_resize" })
                 end),
             },
@@ -90,9 +90,6 @@ screen.connect_signal("request::desktop_decoration", function(s)
     launcher:add_button(awful.button({}, 1, function()
         launcher_tooltip.hide()
         awesome.emit_signal("toggle::launcher")
-        if launcher.launcherdisplay.visible == true then
-            awful.keyboard.emulate_key_combination({}, "Escape")
-        end
     end))
     launcher:add_button(awful.button({}, 3, function()
         launcher_tooltip.hide()
@@ -369,12 +366,11 @@ screen.connect_signal("request::desktop_decoration", function(s)
     -- ------------------------------------------------- --
 
     -- NOTE defining the anotation
-    local animation = rubato.timed({
-        intro = 0.3,
-        outro = 0.2,
-        duration = 0.6,
-        pos = hidden_y,
-        easing = rubato.bouncy,
+    local animation = effects.instance.timed({
+        pos = visible_y,
+        rate = 60,
+        intro = 0.14,
+        duration = 0.33,
         subscribed = function(pos)
             s.mywibox.y = pos
         end,
