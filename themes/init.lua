@@ -8,5 +8,5 @@ local function load_theme()
 end
 return {
     load_theme(),
-    awesome.set_preferred_icon_size(48),
+    awesome.set_preferred_icon_size(96),
 }

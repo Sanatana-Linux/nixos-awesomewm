@@ -4,9 +4,9 @@
 -- |  |  |  ||  |  _  |  _  |   _|
 -- |________||__|_____|___._|__|
 -- -------------------------------------------------------------------------- --
-local network = require("ui.bar.actions-icons.network")
-local volume = require("ui.bar.actions-icons.volume")
-local get_screenshot_icon = require("ui.bar.actions-icons.screenshot")
+local network = require("ui.bar.widgets.actions-icons.network")
+local volume = require("ui.bar.widgets.actions-icons.volume")
+local get_screenshot_icon = require("ui.bar.widgets.actions-icons.screenshot")
 local battery_widget = require("ui.bar.widgets.battery")
 local launcher = require("ui.launcher")
 require("ui.bar.widgets.calendar")

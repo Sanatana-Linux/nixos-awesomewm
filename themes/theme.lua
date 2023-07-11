@@ -25,7 +25,7 @@ local theme = {}
 -- fonts
 theme.font_name = "Oxanium Semi-Bold  "
 theme.nerd_font = "Agave Nerd Font Mono Bold "
-theme.title_font = "Oxanium Bold "
+theme.title_font = "Oxanium Ultra-Bold "
 theme.material_icons = "Font Awesome 5 Free s"
 theme.font_size = "10"
 theme.font = theme.font_name .. " " .. theme.font_size
@@ -67,7 +67,7 @@ theme.widget_back_focus =
     "linear:180,0:0,180:0,#666666aa:0.25,#5c5c5caa:0.4,#555555dd:0.5,#3c3c3caa:0.6,#5c5c5cdd:0.75, #666666aa:1,#717171aa"
 
 theme.widget_back_focus_tag =
-"linear:180,0:0,180:0,#666666aa:0.25,#5c5c5caa:0.4,#555555dd:0.5,#3c3c3caa:0.6,#5c5c5cdd:0.75, #666666aa:1,#717171aa"
+    "linear:180,0:0,180:0,#666666aa:0.25,#5c5c5caa:0.4,#555555dd:0.5,#3c3c3caa:0.6,#5c5c5cdd:0.75, #666666aa:1,#717171aa"
 theme.widget_back_tag = "linear:63,0:0,21:0,"
     .. scheme.colorM
     .. ":1,"
@@ -118,7 +118,7 @@ theme.taglist_bg_empty = theme.widget_back_tag
 theme.taglist_bg_focus = theme.widget_back_focus_tag
 theme.taglist_bg_occupied = theme.widget_back
 
-theme.taglist_font = theme.nerd_font .. " 12"
+theme.taglist_font = theme.title_font .. " 11"
 theme.taglist_shape = require("utilities.widgets.mkroundedrect")()
 theme.taglist_spacing = dpi(5)
 theme.taglist_shape_border_color = theme.grey .. "cc"
@@ -139,7 +139,7 @@ theme.titlebar_fg = theme.fg_normal
 
 -- -------------------------------------------------------------------------- --
 -- wallpaper
-theme.wallpaper = assets_path .. "wallpaper2.png"
+theme.wallpaper = assets_path .. "wallpaper6.jpg"
 -- -------------------------------------------------------------------------- --
 -- ---------------------------------- Icons --------------------------------- --
 -- layouts
