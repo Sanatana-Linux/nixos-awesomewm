@@ -61,13 +61,13 @@ theme.bg_minimize = theme.bg_lighter
 theme.bg_systray = theme.bg_focus
 
 theme.widget_back =
-    "linear:180,0:0,121:0,#28282899:0.25,#44444499:0.5,#717171cc:0.75,#55555599:1,#2C2C2C99"
+"linear:180,0:0,121:0,#28282899:0.25,#44444499:0.5,#717171cc:0.75,#55555599:1,#2C2C2C99"
 
 theme.widget_back_focus =
-    "linear:180,0:0,180:0,#666666aa:0.25,#5c5c5caa:0.4,#555555dd:0.5,#3c3c3caa:0.6,#5c5c5cdd:0.75, #666666aa:1,#717171aa"
+"linear:180,0:0,180:0,#666666aa:0.25,#5c5c5caa:0.4,#555555dd:0.5,#3c3c3caa:0.6,#5c5c5cdd:0.75, #666666aa:1,#717171aa"
 
 theme.widget_back_focus_tag =
-    "linear:180,0:0,180:0,#666666aa:0.25,#5c5c5caa:0.4,#555555dd:0.5,#3c3c3caa:0.6,#5c5c5cdd:0.75, #666666aa:1,#717171aa"
+"linear:180,0:0,180:0,#666666aa:0.25,#5c5c5caa:0.4,#555555dd:0.5,#3c3c3caa:0.6,#5c5c5cdd:0.75, #666666aa:1,#717171aa"
 theme.widget_back_tag = "linear:63,0:0,21:0,"
     .. scheme.colorM
     .. ":1,"
@@ -88,14 +88,14 @@ theme.fg_minimize = theme.fg_normal
 -- -------------------------------------------------------------------------- --
 -- some actions bg colors
 theme.actions = {
-    bg = theme.bg_normal,
-    contrast = theme.bg_contrast,
-    lighter = theme.bg_lighter,
-    fg = theme.fg_normal,
+  bg = theme.bg_normal,
+  contrast = theme.bg_contrast,
+  lighter = theme.bg_lighter,
+  fg = theme.fg_normal,
 }
 -- ----------------------------- Theme Variables ---------------------------- --
 -- bar
-theme.bar_height = dpi(42)
+theme.bar_height = dpi(48)
 -- -------------------------------------------------------------------------- --
 -- gaps and borders
 theme.useless_gap = dpi(4)
@@ -144,116 +144,116 @@ theme.wallpaper = assets_path .. "wallpaper6.jpg"
 -- ---------------------------------- Icons --------------------------------- --
 -- layouts
 theme.layout_fairh = gears.color.recolor_image(
-    themes_path .. "default/layouts/fairhw.png",
-    theme.fg_normal
+  themes_path .. "default/layouts/fairhw.png",
+  theme.fg_normal
 )
 theme.layout_fairv = gears.color.recolor_image(
-    themes_path .. "default/layouts/fairvw.png",
-    theme.fg_normal
+  themes_path .. "default/layouts/fairvw.png",
+  theme.fg_normal
 )
 theme.layout_floating = gears.color.recolor_image(
-    themes_path .. "default/layouts/floatingw.png",
-    theme.fg_normal
+  themes_path .. "default/layouts/floatingw.png",
+  theme.fg_normal
 )
 theme.layout_magnifier = gears.color.recolor_image(
-    themes_path .. "default/layouts/magnifierw.png",
-    theme.fg_normal
+  themes_path .. "default/layouts/magnifierw.png",
+  theme.fg_normal
 )
 theme.layout_max = gears.color.recolor_image(
-    themes_path .. "default/layouts/maxw.png",
-    theme.fg_normal
+  themes_path .. "default/layouts/maxw.png",
+  theme.fg_normal
 )
 theme.layout_fullscreen = gears.color.recolor_image(
-    themes_path .. "default/layouts/fullscreenw.png",
-    theme.fg_normal
+  themes_path .. "default/layouts/fullscreenw.png",
+  theme.fg_normal
 )
 theme.layout_tilebottom = gears.color.recolor_image(
-    themes_path .. "default/layouts/tilebottomw.png",
-    theme.fg_normal
+  themes_path .. "default/layouts/tilebottomw.png",
+  theme.fg_normal
 )
 theme.layout_tileleft = gears.color.recolor_image(
-    themes_path .. "default/layouts/tileleftw.png",
-    theme.fg_normal
+  themes_path .. "default/layouts/tileleftw.png",
+  theme.fg_normal
 )
 theme.layout_tile = gears.color.recolor_image(
-    themes_path .. "default/layouts/tilew.png",
-    theme.fg_normal
+  themes_path .. "default/layouts/tilew.png",
+  theme.fg_normal
 )
 theme.layout_tiletop = gears.color.recolor_image(
-    themes_path .. "default/layouts/tiletopw.png",
-    theme.fg_normal
+  themes_path .. "default/layouts/tiletopw.png",
+  theme.fg_normal
 )
 theme.layout_spiral = gears.color.recolor_image(
-    themes_path .. "default/layouts/spiralw.png",
-    theme.fg_normal
+  themes_path .. "default/layouts/spiralw.png",
+  theme.fg_normal
 )
 theme.layout_dwindle = gears.color.recolor_image(
-    themes_path .. "default/layouts/dwindlew.png",
-    theme.fg_normal
+  themes_path .. "default/layouts/dwindlew.png",
+  theme.fg_normal
 )
 theme.layout_cornernw = gears.color.recolor_image(
-    themes_path .. "default/layouts/cornernww.png",
-    theme.fg_normal
+  themes_path .. "default/layouts/cornernww.png",
+  theme.fg_normal
 )
 theme.layout_cornerne = gears.color.recolor_image(
-    themes_path .. "default/layouts/cornernew.png",
-    theme.fg_normal
+  themes_path .. "default/layouts/cornernew.png",
+  theme.fg_normal
 )
 theme.layout_cornersw = gears.color.recolor_image(
-    themes_path .. "default/layouts/cornersww.png",
-    theme.fg_normal
+  themes_path .. "default/layouts/cornersww.png",
+  theme.fg_normal
 )
 theme.layout_cornerse = gears.color.recolor_image(
-    themes_path .. "default/layouts/cornersew.png",
-    theme.fg_normal
+  themes_path .. "default/layouts/cornersew.png",
+  theme.fg_normal
 )
 theme.layout_center = gears.color.recolor_image(
-    assets_path .. "/layouts/centermaster.png",
-    theme.fg_normal
+  assets_path .. "/layouts/centermaster.png",
+  theme.fg_normal
 )
 theme.layout_stackLeft = gears.color.recolor_image(
-    assets_path .. "/layouts/stack_left.png",
-    theme.fg_normal
+  assets_path .. "/layouts/stack_left.png",
+  theme.fg_normal
 )
 theme.layout_stack = gears.color.recolor_image(
-    assets_path .. "/layouts/stack.png",
-    theme.fg_normal
+  assets_path .. "/layouts/stack.png",
+  theme.fg_normal
 )
 theme.layout_cascade = gears.color.recolor_image(
-    assets_path .. "/layouts/cascade.png",
-    theme.fg_normal
+  assets_path .. "/layouts/cascade.png",
+  theme.fg_normal
 )
 theme.layout_cascadetile = gears.color.recolor_image(
-    assets_path .. "/layouts/cascadetile.png",
-    theme.fg_normal
+  assets_path .. "/layouts/cascadetile.png",
+  theme.fg_normal
 )
 theme.layout_empathy = gears.color.recolor_image(
-    assets_path .. "/layouts/empathy.png",
-    theme.fg_normal
+  assets_path .. "/layouts/empathy.png",
+  theme.fg_normal
 )
 theme.layout_floating = gears.color.recolor_image(
-    assets_path .. "/layouts/floating.png",
-    theme.fg_normal
+  assets_path .. "/layouts/floating.png",
+  theme.fg_normal
 )
 theme.layout_thrizen = gears.color.recolor_image(
-    assets_path .. "/layouts/thrizen.png",
-    theme.fg_normal
+  assets_path .. "/layouts/thrizen.png",
+  theme.fg_normal
 )
 theme.layout_horizon = gears.color.recolor_image(
-    assets_path .. "/layouts/horizon.png",
-    theme.fg_normal
+  assets_path .. "/layouts/horizon.png",
+  theme.fg_normal
 )
 theme.layout_equalarea = gears.color.recolor_image(
-    assets_path .. "/layouts/equalarea.png",
-    theme.fg_normal
+  assets_path .. "/layouts/equalarea.png",
+  theme.fg_normal
 )
 theme.layout_deck = gears.color.recolor_image(
-    assets_path .. "/layouts/deck.png",
-    theme.fg_normal
+  assets_path .. "/layouts/deck.png",
+  theme.fg_normal
 )
 theme.layout_overflow = gears.color.recolor_image(
-    assets_path .. "/layouts/deck.png",
-    theme.fg_normal
+  assets_path .. "/layouts/deck.png",
+  theme.fg_normal
 )
 -- -------------------------------------------------------------------------- --
 -- other icons
