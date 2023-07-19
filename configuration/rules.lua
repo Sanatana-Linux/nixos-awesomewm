@@ -17,7 +17,6 @@ ruled.client.connect_signal("request::rules", function()
         properties = {
             focus = awful.client.focus.filter,
             raise = true,
-            -- maximized = false,
             above = false,
             below = false,
             size_hints_honor = true,
@@ -25,8 +24,6 @@ ruled.client.connect_signal("request::rules", function()
             honor_padding = true,
             honor_workarea = true,
             sticky = false,
-            -- maximized_horizontal = false,
-            -- maximized_vertical = false,
             screen = awful.screen.preferred,
             placement = awful.placement.under_mouse
                 -- + awful.placement.no_overlap
@@ -49,6 +46,8 @@ ruled.client.connect_signal("request::rules", function()
             class = {
                 "Arandr",
                 "Blueman-manager",
+                ".shutter-unwrapped",
+
                 "Sxiv",
                 "feh",
                 "imv",
@@ -70,6 +69,7 @@ ruled.client.connect_signal("request::rules", function()
             },
             name = { "Friends List", "Steam - News" },
             instance = { "spad", "discord", "music" },
+            id = "org.shutter-project.Shutter",
         },
         properties = { floating = true, placement = awful.placement.centered },
     })

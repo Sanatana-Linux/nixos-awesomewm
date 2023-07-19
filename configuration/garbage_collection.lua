@@ -5,7 +5,7 @@
 --                                  |_____|
 -- -------------------------------------------------------------------------- --
 return function()
-    --- For lower memory consumption at the expense of *some* cpu cycles
+    --- For lower memory consumption at the expense of *some* CPU cycles
 
     gears.timer({
         timeout = 5,

@@ -12,7 +12,7 @@ awful.keyboard.append_global_keybindings({
         modifiers = { modkey },
         keygroup = "numrow",
         description = "only view tag",
-        group = "tags",
+        group = "Tags",
         on_press = function(index)
             local screen = awful.screen.focused()
             local tag = screen.tags[index]
@@ -32,7 +32,7 @@ awful.keyboard.append_global_keybindings({
         modifiers = { modkey, "Control" },
         keygroup = "numrow",
         description = "toggle tag",
-        group = "tag",
+        group = "Tags",
         on_press = function(index)
             local screen = awful.screen.focused()
             local tag = screen.tags[index]
@@ -48,7 +48,7 @@ awful.keyboard.append_global_keybindings({
         modifiers = { modkey, "Shift" },
         keygroup = "numrow",
         description = "move focused client to tag",
-        group = "tag",
+        group = "Tags",
         on_press = function(index)
             if client.focus then
                 local tag = client.focus.screen.tags[index]
@@ -65,7 +65,7 @@ awful.keyboard.append_global_keybindings({
         modifiers = { modkey, "Control", "Shift" },
         keygroup = "numrow",
         description = "toggle focused client on tag",
-        group = "tag",
+        group = "Tags",
         on_press = function(index)
             if client.focus then
                 local tag = client.focus.screen.tags[index]

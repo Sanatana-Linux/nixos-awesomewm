@@ -85,9 +85,9 @@ awful.screen.connect_for_each_screen(function(s)
                 {
                     {
                         widget = wibox.widget.imagebox,
-                        image = icons.logo,
-                        forced_height = dpi(60),
-                        forced_width = dpi(60),
+                        image = icons.awesome_alt,
+                        forced_height = dpi(75),
+                        forced_width = dpi(75),
                     },
                     valign = "top",
                     widget = wibox.container.margin,

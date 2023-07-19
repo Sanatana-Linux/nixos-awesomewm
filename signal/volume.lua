@@ -44,7 +44,14 @@ end
 -- -------------------------------------------------------------------------- --
 -- Run once to initialize widgets
 --
-emit_volume_info()
+gears.timer({
+    timeout = 1,
+    call_now = true,
+    autostart = true,
+    callback = function()
+        emit_volume_info()
+    end,
+})
 -- -------------------------------------------------------------------------- --
 -- Sleeps until pactl detects an event (volume up/down/toggle mute)
 --

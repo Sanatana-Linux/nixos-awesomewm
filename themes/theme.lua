@@ -37,7 +37,7 @@ theme.light_black = scheme.colorF
 theme.dark_grey = scheme.colorH
 theme.grey = scheme.colorR
 theme.light_grey = scheme.colorX
-theme.lessgrey = scheme.colorZ
+theme.lessgrey = scheme.color1
 theme.red = scheme.color16
 theme.yellow = scheme.color18
 theme.magenta = scheme.color13
@@ -61,7 +61,7 @@ theme.bg_minimize = theme.bg_lighter
 theme.bg_systray = theme.bg_focus
 
 theme.widget_back =
-"linear:180,0:0,121:0,#28282899:0.25,#44444499:0.5,#717171cc:0.75,#55555599:1,#2C2C2C99"
+"linear:180,0:0,180:0,#28282899:0.25,#44444499:0.5,#717171cc:0.75,#55555599:1,#2C2C2C99"
 
 theme.widget_back_focus =
 "linear:180,0:0,180:0,#666666aa:0.25,#5c5c5caa:0.4,#555555dd:0.5,#3c3c3caa:0.6,#5c5c5cdd:0.75, #666666aa:1,#717171aa"

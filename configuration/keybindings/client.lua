@@ -28,7 +28,7 @@ client.connect_signal("request::default_keybindings", function()
         ),
         -- -------------------------------------------------------------------------- --
         --
-        awful.key({ modkey, "Control" }, "Return", function(c)
+        awful.key({ modkey }, "g", function(c)
             c:swap(awful.client.getmaster())
         end, { description = "move to master", group = "Client" }),
         -- -------------------------------------------------------------------------- --
@@ -46,6 +46,7 @@ client.connect_signal("request::default_keybindings", function()
         awful.key({ modkey }, "n", function(c)
             c.minimized = true
         end, { description = "minimize", group = "Client" }),
+
         -- -------------------------------------------------------------------------- --
         --
         awful.key({ modkey }, "m", function(c)
