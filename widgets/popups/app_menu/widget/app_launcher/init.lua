@@ -1275,7 +1275,9 @@ local function new(args)
             },
             {
                 {
-                    require("ui.popups.app_menu.widget.app_launcher.charts"),
+                    require(
+                        "widgets.popups.app_menu.widget.app_launcher.charts"
+                    ),
                     widget = wibox.container.margin,
                     top = dpi(8),
                     bottom = dpi(2),
@@ -1283,7 +1285,9 @@ local function new(args)
                     left = dpi(0),
                 },
                 {
-                    require("ui.popups.app_menu.widget.app_launcher.controls"),
+                    require(
+                        "widgets.popups.app_menu.widget.app_launcher.controls"
+                    ),
                     widget = wibox.container.margin,
                     top = dpi(3),
                     bottom = dpi(2),
@@ -1293,7 +1297,7 @@ local function new(args)
                 {
                     {
                         --  require(
-                        --    "ui.popups.app_menu.widget.app_launcher.music-player"
+                        --    "widgets.popups.app_menu.widget.app_launcher.music-player"
                         -- ),
                         widget = wibox.container.background,
                         bg = beautiful.bg_normal .. "89",

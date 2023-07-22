@@ -2,7 +2,8 @@ local wibox = require("wibox")
 local beautiful = require("beautiful")
 local dpi = beautiful.xresources.apply_dpi
 
-local notifwidget = require("ui.popups.notification_center.widgets.notifcenter")
+local notifwidget =
+    require("widgets.popups.notification_center.widgets.notifcenter")
 
 awful.screen.connect_for_each_screen(function(s)
     -- ----------------------------------------------------------- --
@@ -139,7 +140,7 @@ awful.screen.connect_for_each_screen(function(s)
                 {
                     nil,
                     require(
-                        "ui.popups.notification_center.widgets.notifcenter"
+                        "widgets.popups.notification_center.widgets.notifcenter"
                     ),
                     utilities.visual.vertical_pad(dpi(12)),
                     height = dpi(400),
@@ -150,7 +151,9 @@ awful.screen.connect_for_each_screen(function(s)
                 {
                     layout = wibox.layout.align.horizontal,
                     nil,
-                    require("ui.popups.notification_center.widgets.controls"),
+                    require(
+                        "widgets.popups.notification_center.widgets.controls"
+                    ),
                     nil,
                 },
                 layout = wibox.layout.align.vertical,

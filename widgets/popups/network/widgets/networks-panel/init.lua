@@ -4,7 +4,7 @@
 -- |___|   |___._|__|__|_____||__|
 -- ------------------------------------------------- --
 
-local searching = require("ui.popups.network.widgets.searching")
+local searching = require("widgets.popups.network.widgets.searching")
 local width = dpi(450)
 
 local panelLayout = modules.overflow.vertical()
@@ -17,7 +17,7 @@ local resetDevicePanelLayout = function()
 end
 
 local networksAdd = function(n)
-    local box = require("ui.popups.network.widgets.elements")
+    local box = require("widgets.popups.network.widgets.elements")
     panelLayout:insert(
         #panelLayout.children + 1,
         box.create(

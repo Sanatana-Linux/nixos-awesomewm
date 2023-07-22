@@ -93,7 +93,7 @@ awful.screen.connect_for_each_screen(function(s)
                     widget = wibox.container.margin,
                     margins = dpi(5),
                 },
-                require("ui.launcher.charts"),
+                require("widgets.launcher.charts"),
                 {
                     valign = "bottom",
                     widget = wibox.container.margin,
@@ -102,10 +102,14 @@ awful.screen.connect_for_each_screen(function(s)
                         widget = wibox.container.background,
                         layout = wibox.layout.fixed.vertical,
                         spacing = dpi(10),
-                        require("ui.launcher.powermenu_containers.lock"),
-                        require("ui.launcher.powermenu_containers.logout"),
-                        require("ui.launcher.powermenu_containers.restart"),
-                        require("ui.launcher.powermenu_containers.shutdown"),
+                        require("widgets.launcher.powermenu_containers.lock"),
+                        require("widgets.launcher.powermenu_containers.logout"),
+                        require(
+                            "widgets.launcher.powermenu_containers.restart"
+                        ),
+                        require(
+                            "widgets.launcher.powermenu_containers.shutdown"
+                        ),
                     },
                 },
             },

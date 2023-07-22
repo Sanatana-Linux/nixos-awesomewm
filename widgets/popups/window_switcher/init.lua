@@ -2,7 +2,7 @@ local awful = require("awful")
 local beautiful = require("beautiful")
 local wibox = require("wibox")
 
-local elems = require("ui.popups.window_switcher.elements")
+local elems = require("widgets.popups.window_switcher.elements")
 
 local window_switcher = function(s)
     local winlist = wibox.widget({

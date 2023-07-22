@@ -9,7 +9,7 @@
 -- |__|_|__||_____|__|__|_____|
 -- -------------------------------------------------------------------------- --
 -- screenshot menu for each screen
-local recorder = require("ui.bar.widgets.actions-icons.widgets.record")
+local recorder = require("widgets.bar.widgets.actions-icons.widgets.record")
 --
 awful.screen.connect_for_each_screen(function(s)
     s.screenshot_selecter = {}

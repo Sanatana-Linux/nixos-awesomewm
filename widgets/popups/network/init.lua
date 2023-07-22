@@ -60,7 +60,7 @@ awful.screen.connect_for_each_screen(function(s)
                         widget = wibox.container.margin,
                         margins = dpi(15),
                     },
-                    require("ui.popups.network.widgets.title-text"),
+                    require("widgets.popups.network.widgets.title-text"),
                 },
             },
             margins = dpi(5),
@@ -84,8 +84,8 @@ awful.screen.connect_for_each_screen(function(s)
                 {
                     layout = wibox.layout.fixed.horizontal,
                     spacing = dpi(16),
-                    require("ui.popups.network.widgets.status-icon"),
-                    require("ui.popups.network.widgets.status"),
+                    require("widgets.popups.network.widgets.status-icon"),
+                    require("widgets.popups.network.widgets.status"),
                 },
             },
             margins = dpi(5),
@@ -109,7 +109,7 @@ awful.screen.connect_for_each_screen(function(s)
                 {
                     layout = wibox.layout.fixed.horizontal,
                     spacing = dpi(16),
-                    require("ui.popups.network.widgets.networks-panel"),
+                    require("widgets.popups.network.widgets.networks-panel"),
                 },
             },
             margins = dpi(5),
@@ -126,7 +126,7 @@ awful.screen.connect_for_each_screen(function(s)
 
     -- effects
     --------------
-    local slide_right =effects.instance.timed({
+    local slide_right = effects.instance.timed({
         pos = s.geometry.height,
         rate = 60,
         intro = 0.14,

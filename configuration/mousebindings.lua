@@ -8,7 +8,7 @@
 -- |______/__||__|__|_____|__||__|__|___  |
 --                                  |_____|
 -- ----------------------------------------------------------- --
-local menu = require("ui.menu")
+local menu = require("widgets.menu")
 
 local function set_mousebindings()
     awful.mouse.append_global_mousebindings({

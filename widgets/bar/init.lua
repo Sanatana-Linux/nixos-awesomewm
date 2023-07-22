@@ -4,15 +4,16 @@
 -- |  |  |  ||  |  _  |  _  |   _|
 -- |________||__|_____|___._|__|
 -- -------------------------------------------------------------------------- --
-local network = require("ui.bar.widgets.actions-icons.network")
-local volume = require("ui.bar.widgets.actions-icons.volume")
-local get_screenshot_icon = require("ui.bar.widgets.actions-icons.screenshot")
-local battery_widget = require("ui.bar.widgets.battery")
-local launcher = require("ui.launcher")
-require("ui.bar.widgets.calendar")
-require("ui.bar.widgets.tray")
-require("ui.popups.network")
-require("ui.popups.notification_center")
+local network = require("widgets.bar.widgets.actions-icons.network")
+local volume = require("widgets.bar.widgets.actions-icons.volume")
+local get_screenshot_icon =
+    require("widgets.bar.widgets.actions-icons.screenshot")
+local battery_widget = require("widgets.bar.widgets.battery")
+local launcher = require("widgets.launcher")
+require("widgets.bar.widgets.calendar")
+require("widgets.bar.widgets.tray")
+require("widgets.popups.network")
+require("widgets.popups.notification_center")
 
 -- -------------------------------------------------------------------------- --
 -- assign to each screen
@@ -22,7 +23,7 @@ screen.connect_signal("request::desktop_decoration", function(s)
     -- -------------------------------------------------------------------------- --
     --
     awful.tag({ "1", "2", "3", "4", "5", "6" }, s, awful.layout.layouts[1])
-    local get_tags = require("ui.bar.widgets.tags")
+    local get_tags = require("widgets.bar.widgets.tags")
     local taglist = get_tags.new({
         screen = s,
         taglist = {

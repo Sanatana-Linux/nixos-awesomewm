@@ -5,7 +5,7 @@
 -- -------------------------------------------------------------------------- --
 local hotkeys_popup = require("awful.hotkeys_popup")
 local menubar = require("menubar")
-local launcher = require("ui.launcher")
+local launcher = require("widgets.launcher")
 
 --       ┏╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍┓
 --       ╏                                                               ╏
@@ -94,22 +94,39 @@ awful.keyboard.append_global_keybindings({
     -- ------------------------------- Brightness ------------------------------- --
     awful.key({}, "XF86MonBrightnessUp", function()
         awful.spawn("brightnessctl s +5%")
+        awful.spawn("brightnessctl get", function(brightness)
+            awful.emit_signal("signal::brightness", brightness)
+        end)
     end, { description = "increase brightness", group = "Awesome" }),
     --+---------------------------------------------------------------+
     awful.key({}, "XF86MonBrightnessDown", function()
         awful.spawn("brightnessctl s 5%-")
+        awful.spawn("brightnessctl get", function(brightness)
+            awful.emit_signal("signal::brightness", brightness)
+        end)
     end, { description = "decrease brightness", group = "Awesome" }),
     -- ------------------------------- Volume  ------------------------------- --
     awful.key({}, "XF86AudioRaiseVolume", function()
-        awful.spawn("pamixer -i 5")
+        awful.spawn("pamixer --get-volume", function(value)
+            value = value + 5
+            awful.spawn("pamixer --set-volume " .. value)
+            awesome.emit_signal("signal::volume", value)
+        end)
     end, { description = "increase volume", group = "Awesome" }),
     --+---------------------------------------------------------------+
     awful.key({}, "XF86AudioLowerVolume", function()
-        awful.spawn("pamixer -d 3")
+        awful.spawn("pamixer --get-volume", function(value)
+            value = value - 5
+            awful.spawn("pamixer --set-volume " .. value)
+            awesome.emit_signal("signal::volume", value)
+        end)
     end, { description = "decrease volume", group = "Awesome" }),
     --   +---------------------------------------------------------------+
     awful.key({}, "XF86AudioMute", function()
-        awful.spawn("pamixer -t ")
+        awful.spawn("pamixer --toggle-mute ")
+        awful.spawn("pamixer --get-mute", function(mute)
+            awesome.emit_signal("signal::volume", nil, mute)
+        end)
     end, { description = "mute volume", group = "Awesome" }),
     -- ------------------------------ Media Control ----------------------------- --
     --
