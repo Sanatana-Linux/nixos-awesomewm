@@ -23,9 +23,9 @@ local icon = require("themes.assets.icons")
 local theme = {}
 -- -------------------------------------------------------------------------- --
 -- fonts
-theme.font_name = "Oxanium Semi-Bold  "
-theme.nerd_font = "Agave Nerd Font Mono Bold "
-theme.title_font = "Oxanium Ultra-Bold "
+theme.font_name = "M+1 Nerd Font Propo Black"
+theme.nerd_font = "M+1 Nerd Font Propo Black"
+theme.title_font = "M+1 Nerd Font Propo Black"
 theme.material_icons = "Font Awesome 5 Free s"
 theme.font_size = "10"
 theme.font = theme.font_name .. " " .. theme.font_size
@@ -95,7 +95,7 @@ theme.actions = {
 }
 -- ----------------------------- Theme Variables ---------------------------- --
 -- bar
-theme.bar_height = dpi(48)
+theme.bar_height = dpi(42)
 -- -------------------------------------------------------------------------- --
 -- gaps and borders
 theme.useless_gap = dpi(4)
@@ -118,14 +118,14 @@ theme.taglist_bg_empty = theme.widget_back_tag
 theme.taglist_bg_focus = theme.widget_back_focus_tag
 theme.taglist_bg_occupied = theme.widget_back
 
-theme.taglist_font = theme.title_font .. " 11"
+theme.taglist_font = "awesomewm-font Regular 13"
 theme.taglist_shape = require("utilities.widgets.mkroundedrect")()
 theme.taglist_spacing = dpi(5)
 theme.taglist_shape_border_color = theme.grey .. "cc"
 theme.taglist_shape_border_width = dpi(1)
 -- -------------------------------------------------------------------------- --
 -- menu
-theme.menu_font = theme.font
+theme.menu_font = theme.nerd_font .. " 12"
 theme.menu_submenu_icon =
     gears.color.recolor_image(shapes_path .. "triangle.png", theme.fg_normal)
 theme.menu_height = dpi(40)
@@ -139,7 +139,7 @@ theme.titlebar_fg = theme.fg_normal
 
 -- -------------------------------------------------------------------------- --
 -- wallpaper
-theme.wallpaper = assets_path .. "wallpaper6.jpg"
+theme.wallpaper = assets_path .. "wallpaper9.png"
 -- -------------------------------------------------------------------------- --
 -- ---------------------------------- Icons --------------------------------- --
 -- layouts

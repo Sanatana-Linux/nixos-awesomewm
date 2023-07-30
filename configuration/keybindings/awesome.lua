@@ -107,26 +107,15 @@ awful.keyboard.append_global_keybindings({
     end, { description = "decrease brightness", group = "Awesome" }),
     -- ------------------------------- Volume  ------------------------------- --
     awful.key({}, "XF86AudioRaiseVolume", function()
-        awful.spawn("pamixer --get-volume", function(value)
-            value = value + 5
-            awful.spawn("pamixer --set-volume " .. value)
-            awesome.emit_signal("signal::volume", value)
-        end)
+        modules.sfx.volumeUp()
     end, { description = "increase volume", group = "Awesome" }),
     --+---------------------------------------------------------------+
     awful.key({}, "XF86AudioLowerVolume", function()
-        awful.spawn("pamixer --get-volume", function(value)
-            value = value - 5
-            awful.spawn("pamixer --set-volume " .. value)
-            awesome.emit_signal("signal::volume", value)
-        end)
+        modules.sfx.volumeDown()
     end, { description = "decrease volume", group = "Awesome" }),
     --   +---------------------------------------------------------------+
     awful.key({}, "XF86AudioMute", function()
-        awful.spawn("pamixer --toggle-mute ")
-        awful.spawn("pamixer --get-mute", function(mute)
-            awesome.emit_signal("signal::volume", nil, mute)
-        end)
+        modules.sfx.muteVolume()
     end, { description = "mute volume", group = "Awesome" }),
     -- ------------------------------ Media Control ----------------------------- --
     --

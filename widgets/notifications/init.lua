@@ -67,6 +67,10 @@ ruled.notification.connect_signal("request::rules", function()
     })
 end)
 
+naughty.connect_signal("added", function()
+    --    modules.sfx.play()
+end)
+
 naughty.connect_signal("request::display", function(n)
     local appicon = icons.message_square
     local time = os.date("%H:%M")

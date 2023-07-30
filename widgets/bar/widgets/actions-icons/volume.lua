@@ -28,12 +28,12 @@ local tooltip = utilities.widgets.make_popup_tooltip(
 tooltip.attach_to_object(volume)
 
 volume:add_button(awful.button({}, 1, function()
-  awful.spawn("amixer set Master toggle")
+  modules.sfx.muteVolume()
 end))
 
 awesome.connect_signal("signal::volume", function(vol, is_muted)
-  if is_muted == 1 or vol == 0 then
-    volume.image = icons.muted
+  if vol == 0 or is_muted == 1 then
+    volume.image = icons.volume_off
   else
     volume.image = icons.volume_high
   end

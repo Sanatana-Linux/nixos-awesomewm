@@ -29,6 +29,7 @@ menu.mainmenu.wibox.shape = utilities.widgets.mkroundedrect()
 menu.mainmenu.wibox.bg = beautiful.bg_normal .. "00"
 menu.mainmenu.wibox:set_widget(wibox.widget({
     menu.mainmenu.wibox.widget,
+    font = beautiful.nerd_font .. " 16",
     bg = beautiful.bg_normal,
     shape = utilities.widgets.mkroundedrect(),
     widget = wibox.container.background,
