@@ -104,6 +104,7 @@ return {
     mic = dir .. "audio-input-microphone.svg",
     ontop = dir .. "ontop.svg",
     refresh = dir .. "refresh.svg",
+    maximize = dir .. "maximize.svg",
     minus = dir .. "minus.svg",
     moon = dir .. "moon.svg",
     mute = dir .. "volume-mute.svg",

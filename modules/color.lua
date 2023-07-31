@@ -272,9 +272,9 @@ local function color(args)
     mt.__newindex = function(self, key, value)
         if self._props[key] ~= nil then
             -- Set what values are currently accessible
-            if contains(RGB, key) then
+            if utils.contains(RGB, key) then
                 obj._access = RGB
-            elseif contains(HSL, key) and not obj.disable_hsl then
+            elseif utils.contains(HSL, key) and not obj.disable_hsl then
                 obj._access = HSL
             elseif key == "hex" then
                 obj._access = HEX

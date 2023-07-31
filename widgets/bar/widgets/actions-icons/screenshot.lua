@@ -46,21 +46,29 @@ local function get_icon(s)
         tooltip.toggle()
 
         if s.screenshot_selecter.popup.visible then
-            icon.image = gears.color.recolor_image(icons.camera, beautiful.grey)
+            icon.image = gears.color.recolor_image(
+                icons.camera,
+                beautiful.bg_normal .. "66"
+            )
             awesome.emit_signal("screenshot::show")
+            icon:emit_signal("widget::redraw_needed")
         else
             icon.image = CAMERA_ICON
+
             awesome.emit_signal("screenshot::hide")
+            icon:emit_signal("widget::redraw_needed")
         end
     end))
 
     awesome.connect_signal("screenshot::show", function()
         icon.image =
             gears.color.recolor_image(icons.camera, beautiful.bg_normal .. "66")
+        icon:emit_signal("widget::redraw_needed")
     end)
 
     awesome.connect_signal("screenshot::hide", function()
         icon.image = CAMERA_ICON
+        icon:emit_signal("widget::redraw_needed")
     end)
 
     return icon

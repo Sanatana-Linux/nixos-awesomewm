@@ -1,4 +1,6 @@
--- add hover support to wibox.container.background-based elements
+-- @param element widget - must be a `widget = wibox.container.background` widget for this to work
+-- @param bg string - normal background color or pattern
+-- @param hbg string - color or pattern for when widget is hovered
 
 return function(element, bg, hbg)
     element:connect_signal("mouse::enter", function(self)

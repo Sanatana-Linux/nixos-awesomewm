@@ -7,6 +7,7 @@ return {
     require(... .. ".better-resize"),
     --   +---------------------------------------------------------------+
     -- returned modules that can be invoked as globally scoped functions afterwards when prefixed with `modules.`
+    color = require(... .. ".color"),
     effects = require(... .. ".effects"),
     battery = require(... .. ".battery"),
     dropdown = require(... .. ".dropdown"),

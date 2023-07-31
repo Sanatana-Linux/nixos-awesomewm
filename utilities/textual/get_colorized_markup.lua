@@ -1,4 +1,6 @@
--- colorize a text using pango markup
+-- @param content widget
+-- @param fg string
+-- @return widget colorized
 
 local beautiful = require("beautiful")
 

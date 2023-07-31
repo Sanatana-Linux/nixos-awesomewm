@@ -1,3 +1,7 @@
+-- @param str string
+-- @param max_length number - maximum length of string
+-- @param use_pango bool
+
 local beautiful = require("beautiful")
 local get_colorized_markup = require("utilities.textual.get_colorized_markup")
 -- limit a string by a length and put ... at the final if the

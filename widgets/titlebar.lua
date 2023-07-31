@@ -6,22 +6,23 @@
 
 -- -------------------------------------------------------------------------- --
 
-local function make_button(txt, fg, bg, hfg, hbg, onclick)
+local function make_button(txt, fg, bg, hfg, hbg, onclick, size)
     return function(c)
         local btn = wibox.widget({
             {
                 {
-                    nil,
+
                     {
                         markup = txt,
-                        font = beautiful.nerd_font .. " 14",
+                        font = beautiful.material_icons .. " " .. size,
+                        align = "center",
                         widget = wibox.widget.textbox,
                     },
-                    nil,
-                    layout = wibox.layout.align.horizontal,
+
+                    layout = wibox.layout.fixed.horizontal,
                     halign = "center",
                     valign = "center",
-                    align = "center",
+
                     expand = "inside",
                 },
                 left = dpi(2),
@@ -78,7 +79,8 @@ local close_button = make_button(
     "red",
     function(c)
         c:kill()
-    end
+    end,
+    "16"
 )
 
 local maximize_button = make_button(
@@ -89,7 +91,8 @@ local maximize_button = make_button(
     "lessgrey",
     function(c)
         c.maximized = not c.maximized
-    end
+    end,
+    "6"
 )
 
 local minimize_button = make_button(
@@ -102,7 +105,8 @@ local minimize_button = make_button(
         gears.timer.delayed_call(function()
             c.minimized = true
         end)
-    end
+    end,
+    "8"
 )
 
 client.connect_signal("request::titlebars", function(c)
