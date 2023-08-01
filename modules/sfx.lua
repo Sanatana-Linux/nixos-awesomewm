@@ -70,8 +70,13 @@ function M.volumeUp()
 end
 
 function M.volumeDown()
-    spawn("pactl set-sink-volume @DEFAULT_SINK@ -" .. step .. "%")
     next_vol = M.get_volume_level()
+    awful.spawn.with_shell("wpctl set-mute @DEFAULT_AUDIO_SINK@ 0")
+    awful.spawn.with_shell(
+        "wpctl set-volume @DEFAULT_AUDIO_SINK@" .. step .. "%-"
+    )
+    awesome.emit_signal("widget::volume")
+
     awesome.emit_signal("signal::volume", next_vol, nil)
 end
 

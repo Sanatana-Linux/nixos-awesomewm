@@ -152,7 +152,7 @@ awful.screen.connect_for_each_screen(function(s)
                     layout = wibox.layout.align.horizontal,
                     nil,
                     require(
-                        "widgets.popups.notification_center.widgets.controls"
+                        "widgets.popups.notification_center.widgets.sliders"
                     ),
                     nil,
                 },

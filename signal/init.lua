@@ -1,3 +1,5 @@
 require("signal.volume")
 require("signal.brightness")
-require("signal.picom")
+
+require("signal.status")
+require("signal.system")

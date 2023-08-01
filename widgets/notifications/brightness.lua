@@ -1,98 +1,105 @@
----@diagnostic disable: undefined-global
-local wibox = require("wibox")
-local awful = require("awful")
-local gears = require("gears")
-local beautiful = require("beautiful")
-
+--  __           __   __
+-- |  |--.---.-.|  |_|  |_.-----.----.--.--.
+-- |  _  |  _  ||   _|   _|  -__|   _|  |  |
+-- |_____|___._||____|____|_____|__| |___  |
+--                                   |_____|
+--               __   __   ___ __              __   __
+-- .-----.-----.|  |_|__|.'  _|__|.----.---.-.|  |_|__|.-----.-----.-----.
+-- |     |  _  ||   _|  ||   _|  ||  __|  _  ||   _|  ||  _  |     |__ --|
+-- |__|__|_____||____|__||__| |__||____|___._||____|__||_____|__|__|_____|
+-- ------------------------------------------------- --
+-- the brightness OSD that is displayed when adjusting
+-- the brightness with keys or dashboard widgets
 local dpi = beautiful.xresources.apply_dpi
 
-local width = dpi(50)
-local height = dpi(300)
-
-local active_color_1 = {
-    type = "linear",
-    from = { 0, 0 },
-    to = { 200, 50 }, -- replace with w,h later
-    stops = { { 0, beautiful.fg_focus }, { 0.50, beautiful.fg_normal } },
-}
-
+local width = dpi(200)
+local height = dpi(200)
+local screen = awful.screen.focused()
+-- ------------------------------------------------- --
+-- brightness icon defined as icons.brightness
 local bright_icon = wibox.widget({
-    image = icons.brightness,
-    align = "center",
-    valign = "center",
-    widget = wibox.widget.imagebox,
+  id = "popup_icon",
+  image = icons.brightness,
+  align = "center",
+  forced_height = dpi(72),
+  forced_width = dpi(72),
+  valign = "center",
+  widget = wibox.widget.imagebox(),
 })
-
-local bright_adjust = awful.popup({
-    type = "notification",
-    maximum_width = width,
-    maximum_height = height,
-    visible = false,
-    ontop = true,
-    widget = wibox.container.background,
-    bg = "#00000000",
-    placement = function(c)
-        awful.placement.right(c, { margins = { right = 10 } })
-    end,
+-- ------------------------------------------------- --
+-- create the bright_adjust component
+local bright_adjust = wibox({
+  -- screen = screen.focused,
+  type = "notification",
+  x = screen.geometry.width / 2 - width / 2,
+  y = screen.geometry.height / 2 - height / 2 + 300,
+  width = width,
+  height = height,
+  visible = false,
+  ontop = true,
+  bg = beautiful.bg_normal .. "66",
 })
-
+-- ------------------------------------------------- --
+-- bar underneath the icon
 local bright_bar = wibox.widget({
-    bar_shape = gears.shape.rounded_rect,
-    shape = gears.shape.rounded_rect,
-    background_color = beautiful.bg_contrast,
-    color = active_color_1,
-    max_value = 100,
-    min_value = 0,
-    widget = wibox.widget.progressbar,
+  widget = wibox.widget.progressbar,
+  shape = gears.shape.rounded_bar,
+  bar_shape = gears.shape.rounded_bar,
+  color = beautiful.fg_normal,
+  background_color = beautiful.bg_normal .. "66",
+  max_value = 100,
+  value = 100,
 })
-
-local bright_ratio = wibox.widget({
-    layout = wibox.layout.ratio.vertical,
+-- ------------------------------------------------- --
+-- create OSD template
+bright_adjust:setup({
+  {
+    layout = wibox.layout.align.vertical,
     {
-        { bright_bar, direction = "east", widget = wibox.container.rotate },
-        top = dpi(20),
-        left = dpi(20),
-        right = dpi(20),
-        widget = wibox.container.margin,
+      bright_icon,
+      top = dpi(35),
+      left = dpi(65),
+      right = dpi(65),
+      bottom = dpi(35),
+      widget = wibox.container.margin,
     },
     {
-        bright_icon,
-        top = dpi(10),
-        left = dpi(10),
-        right = dpi(10),
-        bottom = dpi(10),
-        widget = wibox.container.margin,
+      bright_bar,
+      left = dpi(25),
+      right = dpi(25),
+      bottom = dpi(30),
+      widget = wibox.container.margin,
     },
-    nil,
+  },
+  shape = utilities.widgets.mkroundedrect(),
+  bg = beautiful.bg_normal .. "66",
+  border_width = dpi(2),
+  border_color = beautiful.grey .. "cc",
+  widget = wibox.container.background,
 })
 
-bright_ratio:adjust_ratio(2, 0.72, 0.28, 0)
+-- ------------------------------------------------- --
+-- adjust bar value based on brightness level
+local update_slider = function(percentage)
+  local brightness = percentage
 
-bright_adjust.widget = wibox.widget({
-    bright_ratio,
-    shape = utilities.widgets.mkroundedrect(),
-    border_width = dpi(0.75),
-    border_color = beautiful.grey .. "cc",
-    bg = beautiful.bg_normal .. "33",
-    widget = wibox.container.background,
-})
+  bright_adjust.visible = true
 
--- create a 3 second timer to hide the volume adjust
--- component whenever the timer is started
-local hide_bright_adjust = gears.timer({
-    timeout = 3,
-    autostart = true,
-    callback = function()
+  if brightness ~= nil then
+    bright_bar:set_value(brightness)
+  end
+end
+-- ------------------------------------------------- --
+-- connect to signal about brightness changes
+awesome.connect_signal("signal::brightness", function(percentage)
+  if percentage ~= nil then
+    update_slider(percentage)
+    gears.timer({
+      timeout = 3,
+      autostart = true,
+      callback = function()
         bright_adjust.visible = false
-    end,
-})
-
-awesome.connect_signal("signal::brightness", function(value)
-    bright_bar.value = value
-    if bright_adjust.visible then
-        hide_bright_adjust:again()
-    else
-        bright_adjust.visible = true
-        hide_bright_adjust:start()
-    end
+      end,
+    })
+  end
 end)

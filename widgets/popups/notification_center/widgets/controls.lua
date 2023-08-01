@@ -58,15 +58,16 @@ end
 local volume_slider = base_slider("")
 
 volume_slider.slider:connect_signal("property::value", function(_, value)
-    awful.spawn("pamixer --set-volume " .. value)
-    awesome.emit_signal("signal::volume", value)
+    awful.spawn.with_shell("wpctl set-mute @DEFAULT_AUDIO_SINK@ 0")
+    awful.spawn.with_shell(
+        "wpctl set-volume @DEFAULT_AUDIO_SINK@ " .. value .. "%"
+    )
+    awesome.emit_signal("widget::volume")
 end)
 
-awesome.connect_signal("signal::volume", function(sysvol, is_muted)
-    if volume_slider ~= sysvol then
-        volume_slider.value = sysvol
-    end
-    if is_muted == 1 then
+awesome.connect_signal("signal::volume", function(volume, is_muted)
+    volume_slider.value = volume
+    if is_muted == "MUTED" then
         volume_slider.icon = ""
     else
         volume_slider.icon = ""
