@@ -23,10 +23,10 @@ local icon = require("themes.assets.icons")
 local theme = {}
 -- -------------------------------------------------------------------------- --
 -- fonts
-theme.font_name = "M+1 Nerd Font Black "
+theme.font_name = "Rounded Mplus 1c ExtraBold "
 theme.nerd_font = "M+1Code Nerd Font Bold "
-theme.title_font = "M+1 Nerd Font Black "
-theme.material_icons = "M+1Code Nerd Font Bold "
+theme.title_font = "Rounded Mplus 1c ExtraBold "
+theme.material_icons = "Font Awesome 5 Free  "
 theme.font_size = "10"
 theme.font = theme.font_name .. " " .. theme.font_size
 -- --------------------------------- Colors --------------------------------- --
@@ -38,6 +38,7 @@ theme.dark_grey = scheme.colorH
 theme.grey = scheme.colorR
 theme.light_grey = scheme.colorX
 theme.lessgrey = scheme.color1
+theme.accent = scheme.color1
 theme.red = scheme.color16
 theme.yellow = scheme.color18
 theme.magenta = scheme.color13

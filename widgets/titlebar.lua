@@ -6,59 +6,43 @@
 
 -- -------------------------------------------------------------------------- --
 
-local function make_button(txt, fg, bg, hfg, hbg, onclick, size)
+local function make_button(txt, onclick)
     return function(c)
         local btn = wibox.widget({
             {
                 {
-
                     {
-                        markup = txt,
-                        font = beautiful.material_icons .. " " .. size,
+                        image = gears.color.recolor_image(
+                            txt,
+                            beautiful.fg_normal
+                        ),
+                        resize = true,
                         align = "center",
-                        widget = wibox.widget.textbox,
+                        valign = "center",
+                        widget = wibox.widget.imagebox,
                     },
-
-                    layout = wibox.layout.fixed.horizontal,
-                    halign = "center",
-                    valign = "center",
-
-                    expand = "inside",
+                    left = dpi(3),
+                    right = dpi(3),
+                    top = dpi(3),
+                    bottom = dpi(3),
+                    widget = wibox.container.margin,
                 },
-                left = dpi(2),
-                right = dpi(2),
-                top = dpi(2),
-                bottom = dpi(2),
-                widget = wibox.container.margin,
+                layout = wibox.layout.fixed.horizontal,
             },
             shape = utilities.widgets.mkroundedrect(2),
-            fg = beautiful[fg],
-            bg = beautiful[bg],
+            bg = beautiful.widget_back,
             widget = wibox.container.background,
         })
 
-        local fg_transition = utilities.visual.apply_transition({
-            element = btn,
-            prop = "fg",
-            bg = beautiful[fg],
-            hbg = beautiful[hfg],
-        })
-
-        local bg_transition = utilities.visual.apply_transition({
-            element = btn,
-            prop = "bg",
-            bg = beautiful[bg],
-            hbg = beautiful[hbg],
-        })
-
         btn:connect_signal("mouse::enter", function()
-            fg_transition.on()
-            bg_transition.on()
+            btn.bg =
+                beautiful.widget_back_focus,
+                btn:emit_signal("widget::redraw_needed")
         end)
 
         btn:connect_signal("mouse::leave", function()
-            fg_transition.off()
-            bg_transition.off()
+            btn.bg =
+                beautiful.widget_back, btn:emit_signal("widget::redraw_needed")
         end)
 
         btn:add_button(awful.button({}, 1, function()
@@ -71,50 +55,26 @@ local function make_button(txt, fg, bg, hfg, hbg, onclick, size)
     end
 end
 
-local close_button = make_button(
-    "",
-    "grey",
-    "grey",
-    "black",
-    "red",
-    function(c)
-        c:kill()
-    end,
-    "16"
-)
+local close_button = make_button(icons.close, function(c)
+    c:kill()
+end)
 
-local maximize_button = make_button(
-    "",
-    "grey",
-    "grey",
-    "black",
-    "lessgrey",
-    function(c)
-        c.maximized = not c.maximized
-    end,
-    "6"
-)
+local maximize_button = make_button(icons.maximize, function(c)
+    c.maximized = not c.maximized
+end)
 
-local minimize_button = make_button(
-    "",
-    "grey",
-    "grey",
-    "black",
-    "lessgrey",
-    function(c)
-        gears.timer.delayed_call(function()
-            c.minimized = true
-        end)
-    end,
-    "8"
-)
+local minimize_button = make_button(icons.minus, function(c)
+    gears.timer.delayed_call(function()
+        c.minimized = true
+    end)
+end)
 
 client.connect_signal("request::titlebars", function(c)
-    if c.requests_no_titlebar then
-        return
-    end
+    --   if c.requests_no_titlebar then
+    --       return
+    --   end
 
-    local titlebar = awful.titlebar(c, { position = "top", size = dpi(25) })
+    local titlebar = awful.titlebar(c, { position = "top", size = dpi(26) })
 
     local titlebars_buttons = {
         awful.button({}, 1, function()
@@ -146,29 +106,15 @@ client.connect_signal("request::titlebars", function(c)
         {
 
             {
-                {
-                    minimize_button(c),
-                    widget = wibox.container.margin,
-                    left = dpi(4),
-                    right = dpi(4),
-                },
-                {
-                    maximize_button(c),
-                    widget = wibox.container.margin,
-                    left = dpi(4),
-                    right = dpi(4),
-                },
-                {
-                    close_button(c),
-                    widget = wibox.container.margin,
-                    left = dpi(4),
-                    right = dpi(4),
-                },
+                minimize_button(c),
+                maximize_button(c),
+                close_button(c),
                 layout = wibox.layout.fixed.horizontal,
+                spacing = dpi(6),
             },
             right = dpi(10),
-            top = dpi(6),
-            bottom = dpi(6),
+            top = dpi(4),
+            bottom = dpi(4),
             widget = wibox.container.margin,
         },
 

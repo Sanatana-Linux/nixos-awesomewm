@@ -110,7 +110,7 @@ ruled.client.connect_signal("request::rules", function()
         properties = {
             titlebars_enabled = true,
             hide_titlebars = false,
-            size_hints_honor = false,
+            size_hints_honor = true,
             honor_padding = true,
             honor_workarea = true,
             round_corners = true,
