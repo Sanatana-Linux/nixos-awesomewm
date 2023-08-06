@@ -22,7 +22,6 @@ naughty.connect_signal("request::icon", function(n, context, hints)
 end)
 
 require("widgets.notifications.brightness")
-require("widgets.notifications.playerctl")
 require("widgets.notifications.volume")
 require("widgets.notifications.battery")
 

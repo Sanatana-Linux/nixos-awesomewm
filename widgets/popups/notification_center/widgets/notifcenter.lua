@@ -1,8 +1,10 @@
 local function cross_enter(self, _)
-    self:get_children_by_id("remove")[1]
-        :set_image(
-            gears.color.recolor_image(icons.checkbox_marked, beautiful.red)
+    self:get_children_by_id("remove")[1]:set_image(
+        gears.color.recolor_image(
+            icons.checkbox_marked,
+            beautiful.lesswhite .. "99"
         )
+    )
 end
 local function cross_leave(self, _)
     self:get_children_by_id("remove")[1]:set_image(
@@ -203,7 +205,7 @@ local function add_notif_widget(n)
                         dpi(5)
                     drawer:get_children_by_id("reveal_button")[1]:set_image(
                         gears.color.recolor_image(
-                            icons.arrow_down,
+                            icons.arrow_up,
                             beautiful.fg_normal
                         )
                     )
@@ -212,7 +214,7 @@ local function add_notif_widget(n)
                     drawer:get_children_by_id("notifs_margin")[1].margins = 0
                     drawer:get_children_by_id("reveal_button")[1]:set_image(
                         gears.color.recolor_image(
-                            icons.arrow_up,
+                            icons.arrow_down,
                             beautiful.fg_normal
                         )
                     )
@@ -372,7 +374,7 @@ naughty.connect_signal("request::display", function(n)
     if client.focus then
         client_focused = string.lower(client.focus.class) ~= (n.app_name or "")
     end
-    
+
     add_notif_widget(n)
 end)
 -- -------------------------------------------------------------------------- --

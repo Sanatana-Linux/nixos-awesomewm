@@ -68,8 +68,23 @@ function awful.menu.new(...)
         --  bg = beautiful.bg_normal .. "00",
         shape = utilities.widgets.mkroundedrect(),
     }))
-
     return ret
 end
+
+awful.mouse.append_client_mousebinding(awful.button({}, 1, function()
+    menu:hide()
+end))
+
+awful.mouse.append_global_mousebinding(awful.button({}, 1, function()
+    menu:hide()
+end))
+
+awful.mouse.append_client_mousebinding(awful.button({}, 3, function()
+    menu:hide()
+end))
+
+awful.mouse.append_global_mousebinding(awful.button({}, 3, function()
+    menu:hide()
+end))
 
 return menu

@@ -4,7 +4,7 @@ local beautiful = require("beautiful")
 local gfs = require("gears.filesystem")
 local awful = require("awful")
 
-require("signal.network")
+require("signal.system.network")
 
 local network = wibox.widget({
     widget = wibox.widget.imagebox,
