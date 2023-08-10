@@ -5,7 +5,7 @@
 -- -------------------------------------------------------------------------- --
 local hotkeys_popup = require("awful.hotkeys_popup")
 local menubar = require("menubar")
-local launcher = require("widgets.launcher")
+local launcher = require("ui.launcher")
 
 --       ┏╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍┓
 --       ╏                                                               ╏

@@ -24,7 +24,7 @@ require("modules")
 --  with globally scoped variables
 require("configuration")
 -- UI elements (widgets) that the user interacts with
-require("widgets")
+require("ui")
 
 --   +---------------------------------------------------------------+
 --                            ___ __
