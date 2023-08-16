@@ -14,16 +14,16 @@ naughty.connect_signal("request::icon", function(n, context, hints)
   end
 
   local path = menubar.utils.lookup_icon(hints.app_icon)
-    or menubar.utils.lookup_icon(hints.app_icon:lower())
+      or menubar.utils.lookup_icon(hints.app_icon:lower())
 
   if path then
     n.icon = path
   end
 end)
 
-require("ui.notifications.brightness")
-require("ui.notifications.volume")
-require("ui.notifications.battery")
+--require("ui.notifications.brightness")
+--require("ui.notifications.volume")
+--require("ui.notifications.battery")
 
 naughty.config.defaults.ontop = true
 naughty.config.defaults.screen = awful.screen.focused()

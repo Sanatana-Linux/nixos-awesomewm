@@ -1,5 +1,8 @@
--- TODO change this directory name to widgets
-require("ui.wallpaper")
+--      _______ _______
+--     |   |   |_     _|
+--     |   |   |_|   |_
+--     |_______|_______|
+--   +---------------------------------------------------------------+
 require("ui.bar")
 require("ui.titlebar")
 require("ui.notifications")
