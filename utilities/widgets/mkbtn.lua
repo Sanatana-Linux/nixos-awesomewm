@@ -1,3 +1,15 @@
+--                                 __     __     __
+--                      .--------.|  |--.|  |--.|  |_.-----.
+--                      |        ||    < |  _  ||   _|     |
+--                      |__|__|__||__|__||_____||____|__|__|
+--
+--   +---------------------------------------------------------------+
+-- Makes a button stylized the right way for the configuration
+-- @param template variable the widget that is being triggered by the button
+-- @param bg variable/string color for the background normally
+-- @param hbg variable/string color for the widget when it is hovered
+-- @rtadius string/variable the border radius for the button
+-- @return button object
 local wibox = require("wibox")
 local beautiful = require("beautiful")
 local mkroundedrect = require("utilities.widgets.mkroundedrect")

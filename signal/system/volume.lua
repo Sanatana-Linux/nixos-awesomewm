@@ -28,6 +28,7 @@ local function emit_volume_info()
             local volume_int = tonumber(volume)
             gears.timer({
                 timeout = 3,
+                call_now = true,
                 autostart = true,
                 callback = function()
                     -- ------------------------------------------------- --
@@ -56,10 +57,10 @@ end
 emit_volume_info()
 -- ------------------------------------------------- --
 -- Sleeps until pactl detects an event (volume up/down/toggle mute)
-local volume_script = [[
+local volume_script = awful.spawn.easy_async([[
     bash -c "
     LANG=C pactl subscribe 2> /dev/null | grep --line-buffered \"Event 'change' on sink #\"
-    "]]
+    "]])
 -- ------------------------------------------------- --
 -- Kill old pactl subscribe processes
 awful.spawn.easy_async({

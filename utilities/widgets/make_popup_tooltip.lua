@@ -1,3 +1,17 @@
+--       _______         __            ______
+--      |   |   |.---.-.|  |--.-----. |   __ \.-----.-----.--.--.-----.
+--      |       ||  _  ||    <|  -__| |    __/|  _  |  _  |  |  |  _  |
+--      |__|_|__||___._||__|__|_____| |___|   |_____|   __|_____|   __|
+--                                                  |__|        |__|
+--                  _______               __ __   __
+--                 |_     _|.-----.-----.|  |  |_|__|.-----.
+--                   |   |  |  _  |  _  ||  |   _|  ||  _  |
+--                   |___|  |_____|_____||__|____|__||   __|
+--                                                   |__|
+--   +---------------------------------------------------------------+
+-- Generates tooltip that popups up upon hovering a button or other widget
+-- @param text string included in tooltip
+-- @param placement strong location where the tooltip should present itself
 local awful = require("awful")
 local beautiful = require("beautiful")
 local wibox = require("wibox")

@@ -8,10 +8,12 @@
 require("configuration.variables")
 
 -- usual stuff after
+require("configuration.error_handling")
 require("configuration.layout")
 require("configuration.mousebindings")
 require("configuration.keybindings")
 require("configuration.monitor")
+
 --   +---------------------------------------------------------------+
 -- this is being run as a function, hence the (), starting the timer for garbage collection
 require("configuration.garbage_collection")()

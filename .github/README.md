@@ -12,9 +12,11 @@ Serving as the centerpiece of my NixOS configuration, `Sanatana Linux`, this con
 
 ## Documentation
 
-The documentation regarding this configuration, which is written to be useful for configuring AwesomeWM in general, as well as my explanations for various over-arching design choices and more is available in separate Markdown files linked below and included in the `.notes/` directory. Additionally, each subdirectory includes its own `README.md` file to explain the content found there within, generally including a table listing the files it contains and explaining the functionality provided by that file. Finally, in the files themselves, I have adhered to an idiosyncratic but comprehensive method and syntax of explaining the code in comments for my later reference that is written such that others will also understand at least what is going on in the code itself with minimal confusion even if they think my commenting style is excessive (it is but its better than not knowing what code does in 6 months when something breaks).
-
-- [Installation](../.notes/docs/Installation.md)
-- [Conceptual Introduction and Terminology](../.notes/docs/01-Introduction.md)
-- [Credit Where It is Due](../.notes/docs/Credit-Where-It-Is-Due.md)
-- [Additional AwesomeWM Related Resources](../.notes/docs/Additional-Resources.md)
+- For more general documentation about the configuration of AwesomeWM, I am preparing a book at present that will do so. So check back periodically if you are interested as no doubt there will be something about it posted here (and elsewhere).
+- The notes specific to this configuration, including working notes like TODO items, are found within the `.notes` directory as Markdown files, my current project notes solution.
+    - Links to the notes directory files:
+       - [Index](/.notes/index.md) - the frontpage with these links duplicated there upon
+       - [TODOs](./todo.md) - TODO items I remembered to record
+       - [Additional Resources](/.notes/Additional-Resources.md) - Links to find third party resources or additional information.
+       - [Credit Where It is Due](/.notes/Credit-Where-It-Is-Due.md) - acknowledgements of the many other codebases that inspired this one or have had their portions adapted to my use.
+       - [Installation](/.notes/Installation.md) - installing this configuration for yourself.

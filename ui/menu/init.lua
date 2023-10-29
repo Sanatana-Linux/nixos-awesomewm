@@ -72,19 +72,19 @@ function awful.menu.new(...)
 end
 
 awful.mouse.append_client_mousebinding(awful.button({}, 1, function()
-    menu:hide()
+    menu.mainmenu:hide()
 end))
 
 awful.mouse.append_global_mousebinding(awful.button({}, 1, function()
-    menu:hide()
+    menu.mainmenu:hide()
 end))
 
 awful.mouse.append_client_mousebinding(awful.button({}, 3, function()
-    menu:hide()
+    menu.mainmenu:hide()
 end))
 
 awful.mouse.append_global_mousebinding(awful.button({}, 3, function()
-    menu:hide()
+    menu.mainmenu:toggle()
 end))
 
 return menu

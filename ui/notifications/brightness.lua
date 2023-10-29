@@ -96,6 +96,7 @@ awesome.connect_signal("signal::brightness", function(percentage)
         update_slider(percentage)
         gears.timer({
             timeout = 3,
+            call_now = true,
             autostart = true,
             callback = function()
                 bright_adjust.visible = false
