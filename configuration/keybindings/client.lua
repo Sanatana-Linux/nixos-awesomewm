@@ -62,7 +62,7 @@ client.connect_signal("request::default_keybindings", function()
             description = "(un)maximize vertically",
             group = "Client",
         }),
-        -- -------------------------------------------------------------------------- --
+        --   +---------------------------------------------------------------+
         --
         awful.key({ modkey, "Shift" }, "m", function(c)
             c.maximized_horizontal = not c.maximized_horizontal
@@ -72,9 +72,38 @@ client.connect_signal("request::default_keybindings", function()
             group = "Client",
         }),
 
-        -- -------------------------------------------------------------------------- --
-        --                               Window Snapping                              --
-        -- -------------------------------------------------------------------------- --
+        --   +---------------------------------------------------------------+
+        -- Resize
+        awful.key({ modkey, "Control" }, "Down", function()
+            awful.client.moveresize(0, 0, 0, -20)
+        end),
+        awful.key({ modkey, "Control" }, "Up", function()
+            awful.client.moveresize(0, 0, 0, 20)
+        end),
+        awful.key({ modkey, "Control" }, "Left", function()
+            awful.client.moveresize(0, 0, -20, 0)
+        end),
+        awful.key({ modkey, "Control" }, "Right", function()
+            awful.client.moveresize(0, 0, 20, 0)
+        end),
+        --   +---------------------------------------------------------------+
+        -- Move
+        awful.key({ modkey, "Shift" }, "Down", function()
+            awful.client.moveresize(0, 20, 0, 0)
+        end),
+        awful.key({ modkey, "Shift" }, "Up", function()
+            awful.client.moveresize(0, -20, 0, 0)
+        end),
+        awful.key({ modkey, "Shift" }, "Left", function()
+            awful.client.moveresize(-20, 0, 0, 0)
+        end),
+        awful.key({ modkey, "Shift" }, "Right", function()
+            awful.client.moveresize(20, 0, 0, 0)
+        end),
+
+        --   +---------------------------------------------------------------+
+        --                         Window Snapping
+        --   +---------------------------------------------------------------+
         --
         awful.key({ modkey, "Shift" }, "#" .. numpad_map[1], function(c)
             modules.snap_edge(c, "bottomleft")

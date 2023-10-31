@@ -77,22 +77,19 @@ awful.keyboard.append_global_keybindings({
 
   --   +---------------------------------------------------------------+
   awful.key({ modkey }, "Return", function()
-    modules.dropdown.toggle(terminal, "left", "top", 0.85, 0.85)
-  end, { description = "open a dropdown terminal", group = "Awesome" }),
+    modules.dropdown.toggle(terminal, "left", "top", 0.75, 0.75)
+  end, { description = "Open a dropdown terminal", group = "Awesome" }),
   --   +---------------------------------------------------------------+
   awful.key({ modkey, "Control" }, "Return", function()
     awful.spawn(terminal)
-  end, { description = "open a terminal", group = "Awesome" }),
+  end, { description = "Open a terminal", group = "Awesome" }),
   --+---------------------------------------------------------------+
   awful.key({ modkey }, "p", function()
     menubar.show()
-  end, { description = "show the menubar", group = "Awesome" }),
+  end, { description = "Show the menubar", group = "Awesome" }),
   --+---------------------------------------------------------------+
   awful.key({ modkey, "Shift" }, "Return", function()
     awesome.emit_signal("toggle::launcher")
-    if launcher.launcherdisplay.visible == true then
-      awful.keyboard.emulate_key_combination({}, "Escape")
-    end
   end, { description = "Open application launcher", group = "Awesome" }),
 
   --       ┏╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍┓
@@ -116,10 +113,10 @@ awful.keyboard.append_global_keybindings({
   end, { description = "playerctl next", group = "Awesome" }),
   -- ------------------------------- Brightness ------------------------------- --
   awful.key({}, "XF86MonBrightnessUp", function()
-    awful.spawn("light -A 5%", false)
-    awful.spawn.with_line_callback("light -G", {
+    awful.spawn("doas light -A 5%", false)
+    awful.spawn.with_line_callback("doas light -G", {
       stdout = function(value)
-        awful.spawn.with_line_callback("light -M ", {
+        awful.spawn.with_line_callback("doas light -M ", {
           stdout = function(max)
             percentage = value / max * 100
             -- if percentage ~= percentage_old then
@@ -130,13 +127,13 @@ awful.keyboard.append_global_keybindings({
         })
       end,
     })
-  end, { description = "increase brightness by 10%", group = "Awesome" }),
+  end, { description = "Increase Brightness", group = "Awesome" }),
   --   +---------------------------------------------------------------+
   awful.key({}, "XF86MonBrightnessDown", function()
-    awful.spawn("light -U 5%", false)
-    awful.spawn.with_line_callback("light -G", {
+    awful.spawn("doas light -U 5%", false)
+    awful.spawn.with_line_callback("doas light -G", {
       stdout = function(value)
-        awful.spawn.with_line_callback("light -M ", {
+        awful.spawn.with_line_callback("doas light -M ", {
           stdout = function(max)
             percentage = value / max * 100
             -- if percentage ~= percentage_old then
@@ -153,7 +150,7 @@ awful.keyboard.append_global_keybindings({
     awful.spawn.easy_async_with_shell("pamixer -i 5", function()
       awful.spawn.with_line_callback("pamixer --get-volume", {
         stdout = function(value)
-          awesome.emit_signal("signal::volume", value)
+          awesome.emit_signal("signal::volume", value, nil)
         end,
       })
     end)
@@ -163,7 +160,7 @@ awful.keyboard.append_global_keybindings({
     awful.spawn.easy_async_with_shell("pamixer -d 5", function()
       awful.spawn.with_line_callback("pamixer --get-volume", {
         stdout = function(value)
-          awesome.emit_signal("signal::volume", value)
+          awesome.emit_signal("signal::volume", value, nil)
         end,
       })
     end)
@@ -171,12 +168,8 @@ awful.keyboard.append_global_keybindings({
   --   +---------------------------------------------------------------+
   awful.key({}, "XF86AudioMute", function()
     awful.spawn("pamixer -t")
-    awful.spawn("pamixer --get-mute", function(value)
-      if value == true then
-        awesome.emit_signal("signal::volume")
-      else
-        awesome.emit_signal("signal::volume", 0)
-      end
+    awful.spawn.easy_async_with_shell("pamixer --get-mute", function(value)
+      awesome.emit_signal("signal::volume:muted", value)
     end)
   end, { description = "Mute Volume", group = "Awesome" }),
 })

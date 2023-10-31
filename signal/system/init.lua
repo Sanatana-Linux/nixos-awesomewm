@@ -7,7 +7,6 @@
 --      Initializes the system-wide control signals
 
 require(... .. ".bluetooth")
-require(... .. ".brightness")
 require(... .. ".network")
 require(... .. ".picom")
 require(... .. ".volume")

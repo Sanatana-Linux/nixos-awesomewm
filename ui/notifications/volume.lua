@@ -12,98 +12,101 @@ local height = dpi(200)
 local width = dpi(200)
 
 local volume_osd_icon = wibox.widget({
-    id = "popup_icon",
-    image = icons.volume,
-    align = "center",
-    forced_height = dpi(72),
-    forced_width = dpi(72),
-    valign = "center",
-    widget = wibox.widget.imagebox(),
+  image = icons.volume,
+  align = "center",
+  forced_height = dpi(72),
+  forced_width = dpi(72),
+  valign = "center",
+  widget = wibox.widget.imagebox(),
 })
 -- ------------------------------------------------- --
 local volume_osd_bar = wibox.widget({
-    nil,
-    {
-        id = "volume_osd_progressbar",
-        max_value = 100,
-        value = 0,
-        background_color = beautiful.bg_normal .. "66",
-        color = beautiful.white,
-        border_width = dpi(1),
-        border_color = beautiful.grey .. "66",
-        shape = gears.shape.rounded_bar,
-        bar_shape = gears.shape.rounded_rect,
-        widget = wibox.widget.progressbar,
-    },
-    nil,
-    expand = "none",
-    layout = wibox.layout.align.vertical,
+  nil,
+  {
+    id = "volume_osd_progressbar",
+    max_value = 100,
+    value = 0,
+    background_color = beautiful.bg_normal .. "66",
+    color = beautiful.white,
+    border_width = dpi(1),
+    border_color = beautiful.grey .. "66",
+    shape = gears.shape.rounded_bar,
+    bar_shape = utilities.widgets.mkroundedrect(),
+    widget = wibox.widget.progressbar,
+  },
+  nil,
+  expand = "none",
+  layout = wibox.layout.align.vertical,
 })
 -- ------------------------------------------------- --
 local volume_osd = wibox({
-    type = "notification",
-    x = screen.geometry.width / 2 - width / 2,
-    y = screen.geometry.height / 2 - height / 2,
-    width = width,
-    height = height,
-    visible = false,
-    ontop = true,
-    bg = beautiful.bg_normal .. "66",
+  type = "notification",
+  x = screen.geometry.width / 2 - width / 2,
+  y = screen.geometry.height / 2 - height / 2,
+  width = width,
+  height = height,
+  visible = false,
+  ontop = true,
+  bg = beautiful.bg_normal .. "66",
 })
 
 -- ------------------------------------------------- --
 volume_osd:setup({
+  {
+    layout = wibox.layout.align.vertical,
     {
-        layout = wibox.layout.align.vertical,
-        {
-            volume_osd_icon,
-            top = dpi(35),
-            left = dpi(65),
-            right = dpi(65),
-            bottom = dpi(35),
-            widget = wibox.container.margin,
-        },
-        {
-            volume_osd_bar,
-            left = dpi(25),
-            right = dpi(25),
-            bottom = dpi(30),
-            widget = wibox.container.margin,
-        },
+      volume_osd_icon,
+      top = dpi(35),
+      left = dpi(65),
+      right = dpi(65),
+      bottom = dpi(35),
+      widget = wibox.container.margin,
     },
-    shape = utilities.widgets.mkroundedrect(),
-    bg = beautiful.bg_normal .. "66",
-    border_width = dpi(2),
-    border_color = beautiful.grey .. "cc",
-    widget = wibox.container.background,
+    {
+      volume_osd_bar,
+      left = dpi(25),
+      right = dpi(25),
+      bottom = dpi(30),
+      widget = wibox.container.margin,
+    },
+  },
+  shape = utilities.widgets.mkroundedrect(),
+  bg = beautiful.bg_normal .. "66",
+  border_width = dpi(2),
+  border_color = beautiful.grey .. "cc",
+  widget = wibox.container.background,
 })
 -- ------------------------------------------------- --
 local volume_osd_timeout = gears.timer({
-    timeout = 3,
-    autostart = true,
-    callback = function()
-        volume_osd.visible = false
-    end,
+  timeout = 3,
+  autostart = true,
+  callback = function()
+    volume_osd.visible = false
+  end,
 })
 -- ------------------------------------------------- --
 local function toggle_volume_osd()
-    if volume_osd.visible then
-        volume_osd_timeout:again()
-    else
-        volume_osd.visible = true
-        volume_osd_timeout:start()
-    end
+  if volume_osd.visible then
+    volume_osd_timeout:again()
+  else
+    volume_osd.visible = true
+    volume_osd_timeout:start()
+  end
 end
 -- ------------------------------------------------- --
 awesome.connect_signal("signal::volume", function(value, muted)
-    volume_osd_bar.volume_osd_progressbar.value = value
-    if muted == 1 or value == 0 then
-        volume_osd_icon.popup_icon = icons.mute
-        volume_osd_bar.volume_osd_progressbar.color = beautiful.fg_normal
-            .. "aa"
-    else
-        volume_osd_icon.popup_icon = icons.volume
-        volume_osd_bar.volume_osd_progressbar.color = beautiful.fg_normal
-    end
-    toggle_volume_osd()
+  volume_osd_bar.volume_osd_progressbar.value = value
+
+  toggle_volume_osd()
+end)
+
+awesome.connect_signal("signal::volume:muted", function(value)
+  if value == true then
+    volume_osd_icon.image = icons.mute
+    volume_osd_bar.volume_osd_progressbar.color = beautiful.lessgrey
+  else
+    volume_osd_icon.image = icons.volume
+    volume_osd_bar.volume_osd_progressbar.color = beautiful.fg_normal
+  end
+  toggle_volume_osd()
 end)
