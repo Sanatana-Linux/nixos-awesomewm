@@ -70,12 +70,6 @@ bright_adjust:setup({
 
 -- ------------------------------------------------- --
 -- adjust bar value based on brightness level
-local update_slider = function(percentage)
-  local brightness = percentage
-  if brightness ~= nil then
-    bright_bar:set_value(brightness)
-  end
-end
 
 local bright_adjust_timeout = gears.timer({
   timeout = 3,
@@ -86,19 +80,14 @@ local bright_adjust_timeout = gears.timer({
   end,
 })
 
-local function toggle_brightness_adjust()
-  if bright_adjust.visible then
-    bright_adjust_timeout:again()
-  else
-    bright_adjust.visible = true
-    bright_adjust_timeout:start()
-  end
-end
 -- ------------------------------------------------- --
 -- connect to signal about brightness changes
 awesome.connect_signal("signal::brightness", function(percentage)
   if percentage ~= nil then
-    update_slider(percentage)
-    toggle_brightness_adjust()
+    bright_bar:set_value(percentage)
+    if bright_adjust.visible == false then
+      bright_adjust.visible = true
+      bright_adjust_timeout:start()
+    end
   end
 end)

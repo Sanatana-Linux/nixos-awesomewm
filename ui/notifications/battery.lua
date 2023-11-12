@@ -32,7 +32,7 @@ awesome.connect_signal("signal::battery", function(percentage, state)
   end
   -- ------------------------------------------------- --
   -- only display message once if its fully charged and high
-  if display_high and state == 4 and value > 90 then
+  if display_high and state == 4 and value > 99 then
     naughty.notification({
       title = "Battery Status",
       text = "Fully charged!",

@@ -8,7 +8,7 @@ local volume = wibox.widget({
   widget = wibox.widget.imagebox,
   forced_height = dpi(24),
   forced_width = dpi(24),
-  image = icons.volume_high,
+  image = gears.surface.load_uncached(icons.volume_high),
   halign = "center",
   valign = "bottom",
 })
@@ -28,12 +28,15 @@ local tooltip = utilities.widgets.make_popup_tooltip(
 tooltip.attach_to_object(volume)
 
 volume:add_button(awful.button({}, 1, function()
-  modules.sfx.muteVolume()
+  awful.spawn("pamixer -t")
+  awful.spawn.easy_async_with_shell("pamixer --get-mute", function(value)
+    awesome.emit_signal("signal::volume:muted", value)
+  end)
 end))
 
-awesome.connect_signal("signal::volume", function(vol, is_muted)
-  if vol == 0 or is_muted == 1 then
-    volume.image = icons.volume_off
+awesome.connect_signal("signal::volume:muted", function(is_muted)
+  if is_muted == true then
+    volume.image = icons.muted
   else
     volume.image = icons.volume_high
   end
