@@ -9,18 +9,18 @@
 pcall(require, "luarocks.loader")
 
 --   +---------------------------------------------------------------+
--- NOTE: See sub-directory README files for more info
--- DONE see if this works with lua 
--- now the theme files and variables bound to the beautiful. namespace
+-- NOTE: See sub-directory README files for more info on their contents
+
+-- The theme files and variables bound to the `beautiful.` namespace
 require("themes")
--- helper functions
+-- Helper functions at the `utilities.` namespace
 require("utilities")
--- locally-derived back-end functionality
+-- Locally-derived back-end functionality
 require("modules")
 -- Settings of various builtin options (and some custom layouts)
 --  with globally scoped variables
 require("configuration")
---   +---------------------------------------------------------------+
+-- Event watching functionality
 require("signal")
 -- UI elements (widgets) that the user interacts with
 require("ui")
