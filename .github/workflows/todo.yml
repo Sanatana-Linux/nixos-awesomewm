@@ -1,12 +1,18 @@
-name: todo-issues
+name: Create issues from todos
 
 on:
   push:
     branches:
-      - "main"
+     - main
+
 jobs:
-  checks:
+  todos:
     runs-on: ubuntu-latest
-    steps:
-      - name: todo-actions
-        uses: dtinth/todo-actions@v0.2.0
+
+      steps:
+        - uses: actions/checkout@v1
+        - name: todo-actions
+          uses: dtinth/todo-actions@master
+          env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            TODO_ACTIONS_MONGO_URL: ${{ secrets.TODO_ACTIONS_MONGO_URL }}
