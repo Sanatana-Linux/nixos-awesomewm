@@ -10,7 +10,7 @@ pcall(require, "luarocks.loader")
 
 --   +---------------------------------------------------------------+
 -- NOTE: See sub-directory README files for more info
-
+-- TODO see if this works with lua 
 -- now the theme files and variables bound to the beautiful. namespace
 require("themes")
 -- helper functions
