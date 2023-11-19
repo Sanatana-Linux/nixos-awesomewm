@@ -21,7 +21,7 @@ local cascade = {
     nmaster = 0,
     ncol = 0,
     mwfact = 0,
-    offset_x = 5,
+    offset_x = 8,
     offset_y = 32,
     extra_padding = 0,
   },

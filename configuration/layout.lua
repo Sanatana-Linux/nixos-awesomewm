@@ -7,7 +7,6 @@
 --    NOTE: need to use regular lua local require calls for the libraries here because this is called earlier than they are
 --
 local awful = require("awful")
-local empathy = require("modules.layouts.empathy")
 local stack = require("modules.layouts.stack")
 local center = require("modules.layouts.center")
 local thrizen = require("modules.layouts.thrizen")
@@ -26,7 +25,6 @@ tag.connect_signal("request::default_layouts", function(s)
     stack,
     cascade,
     cascade.tile,
-    empathy,
     center,
     thrizen,
     horizon,
