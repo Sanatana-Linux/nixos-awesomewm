@@ -1,83 +1,140 @@
-local osd = wibox({
+-- requirements
+-- ~~~~~~~~~~~~
+local awful = require("awful")
+local gears = require("gears")
+local wibox = require("wibox")
+local beautiful = require("beautiful")
+local dpi = beautiful.xresources.apply_dpi
+
+local osd = {}
+-- widgets themselves
+-- ~~~~~~~~~~~~~~~~~~
+
+-- icon
+local icon = wibox.widget({
+  widget = wibox.widget.imagebox,
+  forced_width = dpi(48),
+  forced_height = dpi(48),
+  align = "center",
+  valign = "center",
+  halign = "center",
+})
+
+-- progress bar
+local bar = wibox.widget({
+  bar_color = beautiful.bg_contrast,
+  handle_color = beautiful.fg_normal,
+  handle_shape = utilities.widgets.mkroundedrect(),
+  handle_width = dpi(18),
+  bar_active_color = beautiful.fg_normal,
+  bar_height = dpi(8),
+  bar_width = dpi(80),
+  minimum = 0,
+  maximum = 100,
+  widget = wibox.widget.slider,
+})
+
+-- actual popup
+local pop = wibox({
+
   type = "notification",
-  height = dpi(200),
-  width = dpi(200),
+
+  screen = awful.screen.focused(),
+  height = dpi(180),
+  width = dpi(55),
   shape = utilities.widgets.mkroundedrect(),
-  bg = "#00000000",
+  bg = beautiful.bg_normal .. "99",
+  border_width = dpi(1),
+  border_color = beautiful.fg_normal .. "99",
+  halign = "center",
+  valign = "center",
   ontop = true,
   visible = false,
 })
 
-osd.osd_icon = wibox.widget({
-  {
-    id = "icon",
-    resize = true,
-    widget = wibox.widget.imagebox,
-    forced_height = dpi(72),
-    forced_width = dpi(72),
-    valign = "center",
-  },
-  top = dpi(35),
-  left = dpi(65),
-  right = dpi(65),
-  bottom = dpi(35),
-  widget = wibox.container.margin,
-})
+-- placement
+awful.placement.right(pop, { margins = { right = beautiful.useless_gap * 2 } })
 
-osd.osd_bar = wibox.widget({
-  max_value = 100,
-  value = 0,
-  background_color = beautiful.bg_normal,
-  color = beautiful.fg_normal,
-  shape = gears.shape.rounded_bar,
-  bar_shape = gears.shape.rounded_bar,
-  forced_height = dpi(24),
-  widget = wibox.widget.progressbar,
-})
-
-osd:setup({
-  {
-    {
-      {
-        layout = wibox.layout.align.horizontal,
-        expand = "none",
-        nil,
-        osd.osd_icon,
-        nil,
-      },
-      layout = wibox.layout.fixed.vertical,
-    },
-    {
-      osd.osd_bar,
-      left = dpi(24),
-      right = dpi(24),
-      bottom = dpi(24),
-      widget = wibox.container.margin,
-    },
-    layout = wibox.layout.align.vertical,
-  },
-  bg = beautiful.bg_normal .. "88",
-  shape = utilities.widgets.mkroundedrect(),
-  widget = wibox.container.background,
-})
-awful.placement.bottom(osd, { margins = { bottom = dpi(100) } })
-
-osd.osd_timeout = gears.timer({
-  timeout = 1.4,
-  call_now = true,
+-- tuemout
+local timeout = gears.timer({
   autostart = true,
+  timeout = 2.4,
+  single_shot = true,
   callback = function()
-    osd.visible = false
+    pop.visible = false
   end,
 })
 
-function osd.toggle_osd()
-  if osd.visible then
-    osd.osd_timeout:again()
+local function toggle_pop()
+  if pop.visible == true then
+    pop.visible = false
+    timeout:stop()
   else
-    osd.visible = true
-    osd.osd_timeout:start()
+    pop.visible = true
+    timeout:start()
   end
 end
+
+pop:setup({
+  {
+    {
+      bar,
+      forced_height = dpi(100),
+      forced_width = dpi(15),
+      direction = "east",
+      widget = wibox.container.rotate,
+    },
+    margins = dpi(15),
+    layout = wibox.container.margin,
+  },
+  {
+    icon,
+    margins = { bottom = dpi(10) },
+    widget = wibox.container.margin,
+  },
+  spacing = dpi(10),
+  layout = wibox.layout.fixed.vertical,
+})
+
+-- update widgets accordingly
+-- ~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+-- volume
+local first_V = true
+awesome.connect_signal("signal::volume", function(value, muted)
+  if first_V then
+    first_V = false
+  else
+    if value ~= nil and value >= 1 or value <= 100 then
+      bar.value = value
+      icon.image = icons.volume_up
+    end
+    if muted or value == 0 then
+      bar.handle_color = beautiful.red
+      bar.bar_active_color = beautiful.red
+      icon.image = icons.mute
+    else
+      bar.handle_color = beautiful.fg_normal
+      bar.bar_active_color = beautiful.fg_normal
+      icon.image = icons.volume_up
+    end
+
+    toggle_pop()
+  end
+end)
+
+-- brightness
+local first_B = true
+awesome.connect_signal("signal::brightness", function(value)
+  if first_B then
+    first_B = false
+  else
+    icon.image = icons.brightness
+    bar.handle_color = beautiful.fg_normal
+    bar.bar_active_color = beautiful.fg_normal
+    bar.value = value
+    toggle_pop()
+  end
+end)
 
 return osd

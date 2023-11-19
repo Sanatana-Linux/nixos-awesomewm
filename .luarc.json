@@ -126,7 +126,8 @@
         "ngx",
         "lfs",
         "busy",
-        "timers"
+        "timers",
+        "newVolume"
   ],
   "workspace.library": [
     "~/.local/share/awesome-emmylua/lua",

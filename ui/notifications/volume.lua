@@ -87,16 +87,17 @@ local volume_osd_timeout = gears.timer({
 -- ------------------------------------------------- --
 local function toggle_volume_osd()
   if volume_osd.visible then
-    volume_osd_timeout:again()
+    volume_osd.visible = false
+    volume_osd_timeout:stop()
   else
     volume_osd.visible = true
-    volume_osd_timeout:start()
+    volume_osd_timeout:again()
   end
 end
 -- ------------------------------------------------- --
 awesome.connect_signal("signal::volume", function(value, muted)
   volume_osd_bar.volume_osd_progressbar.value = value
-
+  volume_osd.visible = true
   toggle_volume_osd()
 end)
 

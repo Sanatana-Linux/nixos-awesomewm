@@ -14,15 +14,16 @@ naughty.connect_signal("request::icon", function(n, context, hints)
   end
 
   local path = menubar.utils.lookup_icon(hints.app_icon)
-      or menubar.utils.lookup_icon(hints.app_icon:lower())
+    or menubar.utils.lookup_icon(hints.app_icon:lower())
 
   if path then
     n.icon = path
   end
 end)
 
-require("ui.notifications.osd.brightness")
-require("ui.notifications.osd.volume")
+--require("ui.notifications.brightness")
+--require("ui.notifications.volume")
+require("ui.notifications.osd")
 require("ui.notifications.battery")
 
 naughty.config.defaults.ontop = true
@@ -193,11 +194,8 @@ naughty.connect_signal("request::display", function(n)
                     step_function = wibox.container.scroll.step_functions.waiting_nonlinear_back_and_forth,
                     speed = 50,
                     {
-                      markup = "<span weight='bold'>"
-                          .. n.title
-                          .. "</span>",
-                      font = beautiful.title_font
-                          .. " 18",
+                      markup = "<span weight='bold'>" .. n.title .. "</span>",
+                      font = beautiful.title_font .. " 18",
                       align = "left",
                       widget = wibox.widget.textbox,
                     },
@@ -208,8 +206,7 @@ naughty.connect_signal("request::display", function(n)
                     {
                       markup = n.message,
                       align = "left",
-                      font = beautiful.title_font
-                          .. " 10",
+                      font = beautiful.title_font .. " 10",
                       widget = wibox.widget.textbox,
                     },
                     right = 10,
