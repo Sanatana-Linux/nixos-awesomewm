@@ -78,6 +78,9 @@ theme.appmenu_back = "linear:180,0:0,121:0,"
     .. scheme.colorB
     .. ":1,"
     .. scheme.colorR
+
+theme.btn_back = "radial:50,50:50,50:50,#3c3c3caa:0.25,#444444aa:0.5,#555555aa:0.75,#d7d7d7AA:1,#e6e6e6AA"
+
 -- -------------------------------------------------------------------------- --
 -- foregrounds
 theme.fg_normal = scheme.white

@@ -13,6 +13,8 @@ local thrizen = require("modules.layouts.thrizen")
 local horizon = require("modules.layouts.horizon")
 local equalarea = require("modules.layouts.equalarea")
 local deck = require("modules.layouts.deck")
+local mstab = require("modules.layouts.mstab")
+
 local cascade = require("modules.layouts.cascade")
 local beautiful = require("beautiful")
 local tag = tag
@@ -22,14 +24,16 @@ local dpi = beautiful.xresources.apply_dpi
 --
 tag.connect_signal("request::default_layouts", function(s)
   awful.layout.append_default_layouts({
-    stack,
+    -- stack, -- using the ms tab variant eliminates the need to have this queued up I guess.
+    mstab,
     cascade,
     cascade.tile,
+    deck, -- while similar to cascade, this one has different padding and margin settings that nakes having both useful to a variable degree
     center,
     thrizen,
+    
     horizon,
     equalarea,
-    deck,
     awful.layout.suit.max,
     awful.layout.suit.spiral.dwindle,
     awful.layout.suit.spiral,
