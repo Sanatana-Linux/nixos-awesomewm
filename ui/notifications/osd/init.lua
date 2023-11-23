@@ -128,12 +128,11 @@ local first_B = true
 awesome.connect_signal("signal::brightness", function(value)
   if first_B then
     first_B = false
-  else
     icon.image = icons.brightness
     bar.handle_color = beautiful.fg_normal
     bar.bar_active_color = beautiful.fg_normal
     bar.value = value
-    toggle_pop()
+    -- toggle_pop()
   end
 end)
 
