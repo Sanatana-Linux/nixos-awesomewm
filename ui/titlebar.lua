@@ -35,7 +35,7 @@ local function make_button(txt, onclick)
 
     btn:connect_signal("mouse::enter", function()
       btn.bg =
-        beautiful.widget_back_focus, btn:emit_signal("widget::redraw_needed")
+        beautiful.btn_back_focus, btn:emit_signal("widget::redraw_needed")
     end)
 
     btn:connect_signal("mouse::leave", function()
@@ -89,9 +89,17 @@ client.connect_signal("request::titlebars", function(c)
   titlebar:setup({
     {
       { -- Left
-        wibox.widget.base.make_widget(awful.titlebar.widget.iconwidget(c)),
-        buttons = titlebars_buttons,
-        layout = wibox.layout.fixed.horizontal,
+        {
+
+          wibox.widget.base.make_widget(awful.titlebar.widget.iconwidget(c)),
+          buttons = titlebars_buttons,
+          layout = wibox.layout.fixed.horizontal,
+        },
+        widget = wibox.container.margin,
+        right = dpi(6),
+        left = dpi(12),
+        top = dpi(4),
+        bottom = dpi(4),
       },
       { -- Title
         wibox.widget.base.make_widget(awful.titlebar.widget.titlewidget(c)),
@@ -110,8 +118,8 @@ client.connect_signal("request::titlebars", function(c)
         widget = wibox.container.margin,
         left = dpi(6),
         right = dpi(12),
-        top = dpi(3),
-        bottom = dpi(3),
+        top = dpi(4),
+        bottom = dpi(4),
       },
       layout = wibox.layout.align.horizontal,
     },

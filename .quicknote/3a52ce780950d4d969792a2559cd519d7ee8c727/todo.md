@@ -15,9 +15,13 @@
   - [ ] TODO create documented examples for the usage of the result
 - [ ] TODO incorporate all the necessary functionality then remove the plugins entirely, mitigating headaches and much bloat
 -  [ ] TODO
+- [ ] TODO: Eliminate bling configuration hold-overs from tabbar and mstab 
+- [ ] TODO fix mstab annoyance layout error 
 
 ## Archived Items
 
+- [x] DONE: TabBar to single file in modules 
+    - NOTE: Used `pure` style that conforms to titlebar layout
 - [x] DONE replace taglist to enable buttons/actions on items shown
 - [x] DONE application menu animation
   - frustrated thus far, will load but now won't dismiss

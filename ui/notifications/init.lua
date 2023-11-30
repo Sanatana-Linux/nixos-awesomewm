@@ -21,9 +21,9 @@ naughty.connect_signal("request::icon", function(n, context, hints)
   end
 end)
 
---require("ui.notifications.brightness")
---require("ui.notifications.volume")
-require("ui.notifications.osd")
+require("ui.notifications.brightness")
+require("ui.notifications.volume")
+-- require("ui.notifications.osd")
 require("ui.notifications.battery")
 
 naughty.config.defaults.ontop = true

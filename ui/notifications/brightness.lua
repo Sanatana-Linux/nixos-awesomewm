@@ -79,15 +79,26 @@ local bright_adjust_timeout = gears.timer({
     bright_adjust.visible = false
   end,
 })
-
+--   +---------------------------------------------------------------+
+local function toggle_bright_adjust()
+  if bright_adjust.visible == true then
+    bright_adjust.visible = false
+    bright_adjust_timeout:stop()
+  else
+    bright_adjust.visible = true
+    bright_adjust_timeout:again()
+  end
+end
+local percentage_old = -1
 -- ------------------------------------------------- --
 -- connect to signal about brightness changes
 awesome.connect_signal("signal::brightness", function(percentage)
-  if percentage ~= nil then
-    bright_bar:set_value(percentage)
-    if bright_adjust.visible == false then
-      bright_adjust.visible = true
-      bright_adjust_timeout:start()
+  if percentage_old ~= percentage then
+    if percentage ~= nil then
+      bright_bar:set_value(percentage)
+      toggle_bright_adjust()
     end
   end
+
+  percentage_old = percentage
 end)

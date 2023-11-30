@@ -63,6 +63,7 @@ return {
   dark_gray = "#525053",
 
   white = "#fbf8ff",
+  alt_white = "#dcd8e1",
   black = "#1d1d1d",
   blacker = "#0d0d0d",
   icons = "#fbf8ff",

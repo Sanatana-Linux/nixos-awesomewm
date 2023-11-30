@@ -86,7 +86,7 @@ local volume_osd_timeout = gears.timer({
 })
 -- ------------------------------------------------- --
 local function toggle_volume_osd()
-  if volume_osd.visible then
+  if volume_osd.visible == true then
     volume_osd.visible = false
     volume_osd_timeout:stop()
   else
@@ -96,18 +96,14 @@ local function toggle_volume_osd()
 end
 -- ------------------------------------------------- --
 awesome.connect_signal("signal::volume", function(value, muted)
-  volume_osd_bar.volume_osd_progressbar.value = value
-  volume_osd.visible = true
-  toggle_volume_osd()
-end)
-
-awesome.connect_signal("signal::volume:muted", function(value)
-  if value == true then
-    volume_osd_icon.image = icons.mute
-    volume_osd_bar.volume_osd_progressbar.color = beautiful.lessgrey
-  else
+  if muted ~= 1 then
+    volume_osd_bar.volume_osd_progressbar.value = value
     volume_osd_icon.image = icons.volume
     volume_osd_bar.volume_osd_progressbar.color = beautiful.fg_normal
+    toggle_volume_osd()
+  else
+    volume_osd_icon.image = icons.muted
+    volume_osd_bar.volume_osd_progressbar.color = beautiful.lessgrey
+    toggle_volume_osd()
   end
-  toggle_volume_osd()
 end)

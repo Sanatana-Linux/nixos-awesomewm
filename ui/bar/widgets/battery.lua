@@ -157,9 +157,12 @@ local battery_tooltip = awful.tooltip({
   text = "None",
   mode = "outside",
   align = "right",
-  margin_leftright = dpi(8),
-  margin_topbottom = dpi(8),
-  bg = beautiful.bg_normal,
+  margin_leftright = dpi(18),
+  margin_topbottom = dpi(18),
+  shape = utilities.widgets.mkroundedrect(),
+  bg = beautiful.bg_normal .. '88',
+  border_color= beautiful.lesswhite .. '88',
+  border_width = dpi(2),
   preferred_positions = { "right", "left", "top", "bottom" },
 })
 local get_battery_info = function()

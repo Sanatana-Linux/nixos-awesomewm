@@ -3,7 +3,7 @@
 -- |       |__     | |   |  |  _  ||  _  |
 -- |__|_|__|_______| |___|  |___._||_____|
 --   +---------------------------------------------------------------+
--- NOTE thanks again to bling, its like stack but has a tab bar on the top. I removed settings I can configure here, refactored it and commented it all pretty as well.
+-- NOTE: thanks again to bling, its like stack but has a tab bar on the top. I removed settings I can configure here, refactored it and commented it all pretty as well.
 --
 local awful = require("awful")
 local gears = require("gears")
@@ -14,22 +14,19 @@ local beautiful = require("beautiful")
 local mstab = {}
 
 -- Configuration parameters with fallbacks
+-- TODO: remove most of this, as I don't need to have these options this is not a widget library after all
+
 mstab.name = "mstab"
 local tabbar_disable = beautiful.mstab_bar_disable or false
-local tabbar_ontop = beautiful.mstab_bar_ontop or false
+local tabbar_ontop = beautiful.mstab_bar_ontop or true
 local tabbar_padding = beautiful.mstab_bar_padding or "default"
-local border_radius = beautiful.mstab_border_radius or dpi(8)
-local tabbar_position = beautiful.mstab_tabbar_position
-  or beautiful.tabbar_position
-  or "top"
-local bar_style = beautiful.mstab_tabbar_style
-  or beautiful.tabbar_style
-  or "pure"
-local bar = require("modules.tabbar." .. bar_style)
+local border_radius = dpi(4)
+local tabbar_position = "top"
+local bar = require("modules.tabbar")
 local tabbar_size = bar.size
   or beautiful.mstab_bar_height
   or beautiful.tabbar_size
-  or 40
+  or dpi(28)
 local dont_resize_slaves = beautiful.mstab_dont_resize_slaves or false
 
 -- Initialize top index for each tag
