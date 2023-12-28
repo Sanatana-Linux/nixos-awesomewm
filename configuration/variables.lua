@@ -73,8 +73,7 @@ modules = require("modules")
 icons = require("themes.assets.icons")
 scheme = require("themes.scheme")
 fade = require("modules.effects.fade")
-animation = require("modules.animation")
-Effects = require("modules.effects.effects")
+
 effects = require("modules.effects")
 --       ┏╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍┓
 --       ╏                                                               ╏

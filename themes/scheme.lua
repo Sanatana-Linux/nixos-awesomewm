@@ -7,20 +7,20 @@ return {
   -- -------------------------------------------------------------------------- --
   -- Colors
   --
-  color1 = "#bab6c0",
+  color1 = "#69676c",
   color2 = "#fc618d",
   color3 = "#fd9353",
   color4 = "#fce566",
   color5 = "#7bd88f",
   color6 = "#5ad4e6",
-  color7 = "#0badff",
+  color7 = "#6ab0f3",
   color8 = "#948ae3",
   color9 = "#D8557B",
   color10 = "#DA804B",
   color11 = "#D9C65B",
   color12 = "#6FBE81",
   color13 = "#53BBCC",
-  color14 = "#0D98DE",
+  color14 = "#4A9CEC",
   color15 = "#8179C6",
   color16 = "#EDAEC0",
   color17 = "#BBE0C3",

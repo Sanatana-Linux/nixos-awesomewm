@@ -1,5 +1,5 @@
-local awful = require 'awful'
-local ruled = require 'ruled'
+local awful = require("awful")
+local ruled = require("ruled")
 
 ruled.client.connect_signal("request::rules", function()
   -- Global
@@ -18,8 +18,8 @@ ruled.client.connect_signal("request::rules", function()
       sticky = false,
       screen = awful.screen.preferred,
       placement = awful.placement.under_mouse
-          -- + awful.placement.no_overlap
-          + awful.placement.no_offscreen,
+        + awful.placement.no_overlap
+        + awful.placement.no_offscreen,
     },
   })
 
@@ -39,7 +39,6 @@ ruled.client.connect_signal("request::rules", function()
         "Arandr",
         "Blueman-manager",
         ".shutter-unwrapped",
-
         "Sxiv",
         "feh",
         "imv",
@@ -47,35 +46,31 @@ ruled.client.connect_signal("request::rules", function()
         "fzfmenu",
         "Gpick",
         "Kruler",
-        "MessageWin",          -- kalarm.
+        "MessageWin", -- kalarm.
         "Sxiv",
-        "Tor Browser",         -- Needs a fixed window size to avoid fingerprinting by screen size.
+        "Tor Browser", -- Needs a fixed window size to avoid fingerprinting by screen size.
         "Wpa_gui",
         "veromix",
+        "Steam",
+        "discord",
+        "markdown_input",
+        "scratchpad",
         "xtightvncviewer",
       },
       role = {
-        "AlarmWindow",           -- Thunderbird's calendar.
-        "ConfigManager",         -- Thunderbird's about:config.
-        "pop-up",                -- e.g. Google Chrome's (detached) Developer Tools.
+        "AlarmWindow", -- Thunderbird's calendar.
+        "ConfigManager", -- Thunderbird's about:config.
+        "pop-up", -- e.g. Google Chrome's (detached) Developer Tools.
+        "GtkFileChooserDialog",
+        "conversation",
       },
-      name = { "Friends List", "Steam - News" },
-      instance = { "spad", "discord", "music" },
-    },
-    properties = { floating = true, placement = awful.placement.centered },
-  })
-
-  -- Center Placement
-  ruled.client.append_rule({
-    id = "center_placement",
-    rule_any = {
       type = { "dialog" },
-      class = { "Steam", "discord", "markdown_input", "scratchpad" },
-      instance = { "markdown_input", "scratchpad" },
-      role = { "GtkFileChooserDialog", "conversation" },
+      name = { "Friends List", "Steam - News" },
+      instance = { "markdown_input", "scratchpad", "spad", "discord", "music" },
     },
     properties = {
-      placement = awful.placement.center + awful.placement.no_offscreen,
+      floating = true,
+      placement = awful.placement.center + awful.placement.centered,
     },
   })
 

@@ -62,25 +62,22 @@ theme.bg_minimize = theme.bg_lighter
 theme.bg_systray = theme.bg_focus
 
 theme.widget_back =
-  "linear:180,0:0,180:0,#3c3c3caa:0.25,#555555aa:0.5,#717171dd:0.75,#666666dd:1,#444444aa"
+  "linear:180,0:32,180:0,#3c3c3c88:0.25,#55555588:0.5,#71717188:0.75,#66666688:1,#44444488"
 
 theme.widget_back_focus =
-  "linear:180,0:0,180:0,#666666aa:0.25,#5c5c5caa:0.4,#555555dd:0.5,#3c3c3caa:0.6,#5c5c5cdd:0.75, #666666aa:1,#717171aa"
+  "linear:180,0:23,180:0,#666666aa:0.25,#5c5c5caa:0.4,#555555dd:0.5,#3c3c3caa:0.6,#5c5c5cdd:0.75, #666666aa:1,#717171aa"
 
 theme.titlebar_back =
-  "linear:180,0:0,180:0,#1c1c1caa:0.25,#222222aa:0.5,#2c2c2caa:0.75,#222222aa:1,#1c1c1caa"
+  "linear:180,0:32,180:0,#1c1c1caa:0.25,#222222aa:0.5,#2c2c2caa:0.75,#222222aa:1,#1c1c1caa"
 
 theme.titlebar_back_focus =
-  "linear:180,0:0,180:0,#3c3c3caa:0.25,#222222aa:0.5,#2c2c2caa:0.75,#1c1c1caa:1,#333333aa"
+  "linear:180,0:23,180:0,#3c3c3caa:0.25,#222222aa:0.5,#2c2c2caa:0.75,#1c1c1caa:1,#333333aa"
 
 theme.widget_back_focus_tag =
-  "linear:0,180:180,0:0,#666666aa:0.25,#5c5c5caa:0.4,#555555aa:0.5,#3c3c3caa:0.6,#5c5c5cdd:0.75, #666666aa:1,#717171aa"
+  "linear:180,0:0,180:0,#666666dd:0.25,#888888dd:0.4,#777777dd:0.5,#555555aa:0.6,#4c4c4cdd:0.75, #444444aa:1,#333333aa"
 
-
-theme.widget_back_tag = "linear:63,0:0,21:0,"
-  .. scheme.colorM
-  .. ":1,"
-  .. scheme.colorR
+theme.widget_back_tag =
+  "linear:180,0:32,180:0,#888888dd:0.25,#717171dd:0.5,#666666dd:0.75,#555555dd:1,#4c4c4cdd"
 
 theme.appmenu_back = "linear:0,0:180,180:0,"
   .. scheme.colorB
