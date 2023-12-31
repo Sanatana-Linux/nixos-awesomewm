@@ -3,7 +3,7 @@
 -- |       ||  |  |  |  -__|__ --|  _  |        |  -__|
 -- |___|___||________|_____|_____|_____|__|__|__|_____|
 -- -------------------------------------------------------------------------- --
-local hotkeys_popup = require("awful.hotkeys_popup")
+local hotkeys_popup = require("awful.hotkeys_popup").widget
 local menubar = require("menubar")
 local launcher = require("ui.launcher")
 
