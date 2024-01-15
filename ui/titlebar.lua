@@ -28,7 +28,7 @@ local function make_button(txt, onclick)
       },
       shape = utilities.widgets.mkroundedrect(2),
       border_width = dpi(1),
-      border_color = beautiful.black,
+      border_color = beautiful.black .. "cc",
       bg = beautiful.btn_back,
       widget = wibox.container.background,
     })

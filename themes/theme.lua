@@ -152,7 +152,7 @@ theme.menu_bg_focus = theme.bg_lighter
 theme.menu_bg_normal = theme.bg_normal .. "99"
 -- -------------------------------------------------------------------------- --
 -- wallpaper
-theme.wallpaper = assets_path .. "wallpaper.jpg"
+theme.wallpaper = assets_path .. "wallpaper2.png"
 -- -------------------------------------------------------------------------- --
 -- ---------------------------------- Icons --------------------------------- --
 -- layouts

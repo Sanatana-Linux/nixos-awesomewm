@@ -1,8 +1,4 @@
---  ______               __
--- |      |.-----.-----.|  |_.-----.----.
--- |   ---||  -__|     ||   _|  -__|   _|
--- |______||_____|__|__||____|_____|__|
--- ------------------------------------------------- --
+
 -- NOTE: Adapted from https://github.com/kotbaton/awesomewm-config
 --
 -- NOTE: The nelow demonstrates the tiling arrangement

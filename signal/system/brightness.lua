@@ -2,7 +2,7 @@ local awful = require("awful")
 
 local function emit()
 	awful.spawn.easy_async_with_shell("brightnessctl -m | awk -F, '{print substr($4, 0, length($4)-1)}'", function(out)
-		local brightness = math.floor(tonumber(out))
+		local brightness = tonumber(out) and math.floor(tonumber(out) or 0) or 0
 		awesome.emit_signal("signal::brightness", brightness)
 	end)
 end

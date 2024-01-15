@@ -1,8 +1,3 @@
---    _____                            __
---   |     |_.---.-.--.--.-----.--.--.|  |_
---   |       |  _  |  |  |  _  |  |  ||   _|
---   |_______|___._|___  |_____|_____||____|
---                 |_____|
 --   +---------------------------------------------------------------+
 --    NOTE: need to use regular lua local require calls for the libraries here because this is called earlier than they are
 --
@@ -31,7 +26,6 @@ tag.connect_signal("request::default_layouts", function(s)
     deck, -- while similar to cascade, this one has different padding and margin settings that nakes having both useful to a variable degree
     center,
     thrizen,
-    
     horizon,
     equalarea,
     awful.layout.suit.max,
