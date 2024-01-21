@@ -188,7 +188,7 @@ naughty.connect_signal("request::display", function(n)
           {
             {
               {
-                utilities.visual.vertical_pad(5),
+                utilities.widgets.vertical_pad(5),
                 {
                   {
                     step_function = wibox.container.scroll.step_functions.waiting_nonlinear_back_and_forth,
@@ -215,7 +215,7 @@ naughty.connect_signal("request::display", function(n)
                   spacing = 0,
                   layout = wibox.layout.flex.vertical,
                 },
-                utilities.visual.vertical_pad(5),
+                utilities.widgets.vertical_pad(5),
                 layout = wibox.layout.align.vertical,
               },
               left = dpi(20),

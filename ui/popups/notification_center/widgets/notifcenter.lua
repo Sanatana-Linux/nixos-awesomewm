@@ -1,8 +1,7 @@
 local function cross_enter(self, _)
-  self:get_children_by_id("remove")[1]
-      :set_image(
-        gears.color.recolor_image(icons.checkbox_marked, beautiful.blue)
-      )
+  self
+    :get_children_by_id("remove")[1]
+    :set_image(gears.color.recolor_image(icons.checkbox_marked, beautiful.blue))
 end
 local function cross_leave(self, _)
   self:get_children_by_id("remove")[1]:set_image(
@@ -26,9 +25,7 @@ local entry_template = {
         widget = wibox.container.background,
         bg = beautiful.bg_normal .. "88",
         fg = beautiful.fg_focus,
-        forced_height = beautiful.get_font_height(
-          beautiful.font_name .. " 11"
-        ),
+        forced_height = beautiful.get_font_height(beautiful.font_name .. " 11"),
         {
           widget = wibox.container.place,
           fill_horizontal = true,
@@ -104,9 +101,8 @@ local app_revealer_template = {
     {
       id = "revealer_top_bg",
       widget = wibox.container.background,
-      forced_height = beautiful.get_font_height(
-        beautiful.font_name .. " 11"
-      ) + dpi(10),
+      forced_height = beautiful.get_font_height(beautiful.font_name .. " 11")
+        + dpi(10),
       bg = beautiful.bg_contrast .. "88",
       {
         widget = wibox.container.margin,
@@ -197,31 +193,24 @@ local function add_notif_widget(n)
       on_press = function()
         if drawer.collapsed then
           drawer
-              :get_children_by_id("notifs")[1]
-              :set_children(drawer.attached_notifs)
-          drawer:get_children_by_id("notifs_margin")[1].margins =
-              dpi(5)
+            :get_children_by_id("notifs")[1]
+            :set_children(drawer.attached_notifs)
+          drawer:get_children_by_id("notifs_margin")[1].margins = dpi(5)
           drawer:get_children_by_id("reveal_button")[1]:set_image(
-            gears.color.recolor_image(
-              icons.arrow_up,
-              beautiful.fg_normal
-            )
+            gears.color.recolor_image(icons.arrow_up, beautiful.fg_normal)
           )
         else
           drawer:get_children_by_id("notifs")[1]:reset()
           drawer:get_children_by_id("notifs_margin")[1].margins = 0
           drawer:get_children_by_id("reveal_button")[1]:set_image(
-            gears.color.recolor_image(
-              icons.arrow_down,
-              beautiful.fg_normal
-            )
+            gears.color.recolor_image(icons.arrow_down, beautiful.fg_normal)
           )
         end
         drawer.collapsed = not drawer.collapsed
         collectgarbage("collect")
       end,
     }))
-    utilities.visual.pointer_on_focus(
+    utilities.widgets.pointer_on_focus(
       drawer:get_children_by_id("reveal_button")[1]
     )
     drawer:get_children_by_id("clear_button")[1]:add_button(awful.button({
@@ -234,7 +223,7 @@ local function add_notif_widget(n)
         collectgarbage("collect")
       end,
     }))
-    utilities.visual.pointer_on_focus(
+    utilities.widgets.pointer_on_focus(
       drawer:get_children_by_id("clear_button")[1]
     )
     main_widget:insert(1, drawer)
@@ -263,9 +252,9 @@ local function add_notif_widget(n)
     button = 1,
     on_press = function()
       w:get_children_by_id("remove")[1]
-          :disconnect_signal("mouse::enter", cross_enter)
+        :disconnect_signal("mouse::enter", cross_enter)
       w:get_children_by_id("remove")[1]
-          :disconnect_signal("mouse::leave", cross_leave)
+        :disconnect_signal("mouse::leave", cross_leave)
       drawer:get_children_by_id("notifs")[1]:remove_widgets(w)
       for i, e in ipairs(drawer.attached_notifs) do
         if e == w then
@@ -274,9 +263,9 @@ local function add_notif_widget(n)
         end
       end
       drawer:get_children_by_id("appname")[1].text = drawer.app
-          .. " ("
-          .. #drawer.attached_notifs
-          .. ")"
+        .. " ("
+        .. #drawer.attached_notifs
+        .. ")"
       if #drawer:get_children_by_id("notifs")[1]:get_children() == 0 then
         main_widget:remove_widgets(drawer)
       end
@@ -288,9 +277,9 @@ local function add_notif_widget(n)
   --
   table.insert(drawer.attached_notifs, 1, w)
   drawer:get_children_by_id("appname")[1].text = drawer.app
-      .. " ("
-      .. #drawer.attached_notifs
-      .. ")"
+    .. " ("
+    .. #drawer.attached_notifs
+    .. ")"
   if not drawer.collapsed then
     drawer:get_children_by_id("notifs")[1]:insert(1, w)
   end
@@ -298,57 +287,56 @@ end
 -- -------------------------------------------------------------------------- --
 local notifbox
 notifbox =
-    wibox.widget({ -- empty because it will be filled with the update function
-      layout = wibox.layout.fixed.vertical,
+  wibox.widget({ -- empty because it will be filled with the update function
+    layout = wibox.layout.fixed.vertical,
 
-      spacing = dpi(5),
+    spacing = dpi(5),
+    {
+      widget = wibox.container.background,
+      layout = modules.overflow.vertical,
+      bg = beautiful.black .. "88",
+      border_color = beautiful.grey,
+      border_width = dpi(1.25),
+      shape = utilities.widgets.mkroundedrect(),
       {
-        widget = wibox.container.background,
-        layout = modules.overflow.vertical,
-        bg = beautiful.black .. "88",
-        border_color = beautiful.grey,
-        border_width = dpi(1.25),
-        shape = utilities.widgets.mkroundedrect(),
+        layout = wibox.layout.align.horizontal,
+        expand = "inside",
+        -- -------------------------------------------------------------------------- --
+        --  the nil here makes the align center the title as it treats the nil as if it is a widget
+        --
+        nil,
         {
-          layout = wibox.layout.align.horizontal,
-          expand = "inside",
-          -- -------------------------------------------------------------------------- --
-          --  the nil here makes the align center the title as it treats the nil as if it is a widget
-          --
-          nil,
+          widget = wibox.container.margin,
+          margins = { left = dpi(5), right = dpi(5) },
           {
-            widget = wibox.container.margin,
-            margins = { left = dpi(5), right = dpi(5) },
+            widget = wibox.container.constraint,
+            height = beautiful.get_font_height(beautiful.font_name .. " 18")
+              + dpi(10),
             {
-              widget = wibox.container.constraint,
-              height = beautiful.get_font_height(
-                beautiful.font_name .. " 18"
-              ) + dpi(10),
+              widget = wibox.container.margin,
+              margins = dpi(5),
               {
-                widget = wibox.container.margin,
-                margins = dpi(5),
+                widget = wibox.container.place,
+                halign = "center",
+                valign = "center",
+                fill_horizontal = true,
                 {
-                  widget = wibox.container.place,
-                  halign = "center",
-                  valign = "center",
-                  fill_horizontal = true,
-                  {
-                    widget = wibox.widget.textbox,
-                    text = "Notifications",
-                    font = beautiful.title_font .. " 24",
-                  },
+                  widget = wibox.widget.textbox,
+                  text = "Notifications",
+                  font = beautiful.title_font .. " 24",
                 },
               },
             },
           },
-          -- -------------------------------------------------------------------------- --
-          -- same as above nil
-          --
-          nil,
         },
+        -- -------------------------------------------------------------------------- --
+        -- same as above nil
+        --
+        nil,
       },
-      main_widget,
-    })
+    },
+    main_widget,
+  })
 -- -------------------------------------------------------------------------- --
 local blacklisted_appnames = { "Spotify" }
 local blacklisted_titles = { "Launching Application" }

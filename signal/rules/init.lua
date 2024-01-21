@@ -15,6 +15,7 @@ ruled.client.connect_signal("request::rules", function()
       ontop = false,
       honor_padding = true,
       honor_workarea = true,
+      round_corners = true,
       sticky = false,
       screen = awful.screen.preferred,
       placement = awful.placement.under_mouse
@@ -70,7 +71,12 @@ ruled.client.connect_signal("request::rules", function()
     },
     properties = {
       floating = true,
-      placement = awful.placement.center + awful.placement.centered,
+      screen = awful.screen.preferred,
+      placement = awful.placement.under_mouse + awful.placement.center + awful.placement.centered,
+      size_hints_honor = true,
+      honor_padding = true,
+      honor_workarea = true,
+      round_corners = true,
     },
   })
 

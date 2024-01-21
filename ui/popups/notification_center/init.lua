@@ -139,7 +139,7 @@ awful.screen.connect_for_each_screen(function(s)
         {
           nil,
           require("ui.popups.notification_center.widgets.notifcenter"),
-          utilities.visual.vertical_pad(dpi(12)),
+          utilities.widgets.vertical_pad(dpi(12)),
           height = dpi(400),
           minimum_height = dpi(400),
           forced_height = dpi(400),

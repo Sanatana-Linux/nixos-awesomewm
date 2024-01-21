@@ -36,7 +36,7 @@ awful.screen.connect_for_each_screen(function(s)
     -- -------------------------------------------------------------------------- --
     -- add hover effects, onclick listener and tooltips
     --
-    utilities.visual.add_hover(
+    utilities.widgets.add_hover(
       button,
       beautiful.widget_back,
       beautiful.widget_back_focus_tag
@@ -52,7 +52,7 @@ awful.screen.connect_for_each_screen(function(s)
     button:add_button(awful.button({}, 1, function()
       tooltip.hide()
       s.myscreenshot_action_icon.image =
-          gears.color.recolor_image(icons.camera, bg_normal)
+        gears.color.recolor_image(icons.camera, bg_normal)
       if onclick then
         onclick()
       end
@@ -88,12 +88,9 @@ awful.screen.connect_for_each_screen(function(s)
           placement = function(d)
             return awful.placement.bottom_right(d, {
               margins = {
-                bottom = (
-                      beautiful.bar_height
-                      + beautiful.useless_gap * 2
-                    )
-                    + dpi(86)
-                    + (beautiful.useless_gap * 2),
+                bottom = (beautiful.bar_height + beautiful.useless_gap * 2)
+                  + dpi(86)
+                  + (beautiful.useless_gap * 2),
                 right = dpi(60) + (dpi(60) / 2.75),
                 top = dpi(160),
               },
@@ -125,12 +122,9 @@ awful.screen.connect_for_each_screen(function(s)
           placement = function(d)
             return awful.placement.bottom_right(d, {
               margins = {
-                bottom = (
-                      beautiful.bar_height
-                      + beautiful.useless_gap * 2
-                    )
-                    + dpi(86)
-                    + (beautiful.useless_gap * 2),
+                bottom = (beautiful.bar_height + beautiful.useless_gap * 2)
+                  + dpi(86)
+                  + (beautiful.useless_gap * 2),
                 right = dpi(60) + (dpi(60) / 2.75),
                 top = dpi(160),
               },
@@ -143,10 +137,7 @@ awful.screen.connect_for_each_screen(function(s)
         end),
         genbutton({
           {
-            image = gears.color.recolor_image(
-              icons.crop,
-              beautiful.fg_normal
-            ),
+            image = gears.color.recolor_image(icons.crop, beautiful.fg_normal),
             align = "center",
             valign = "center",
             resize = true,
@@ -162,12 +153,9 @@ awful.screen.connect_for_each_screen(function(s)
           placement = function(d)
             return awful.placement.bottom_right(d, {
               margins = {
-                bottom = (
-                      beautiful.bar_height
-                      + beautiful.useless_gap * 2
-                    )
-                    + dpi(60)
-                    + (beautiful.useless_gap * 2),
+                bottom = (beautiful.bar_height + beautiful.useless_gap * 2)
+                  + dpi(60)
+                  + (beautiful.useless_gap * 2),
                 right = dpi(60) + (dpi(60) / 2.75),
                 top = dpi(160),
               },
@@ -222,9 +210,8 @@ awful.screen.connect_for_each_screen(function(s)
     intro = 0.14,
     duration = 0.33,
     subscribed = function(pos)
-      s.screenshot_selecter.popup.y = (
-        s.geometry.y - beautiful.bar_height
-      ) + pos
+      s.screenshot_selecter.popup.y = (s.geometry.y - beautiful.bar_height)
+        + pos
     end,
   })
 
@@ -292,7 +279,7 @@ awful.screen.connect_for_each_screen(function(s)
 
   function s.screenshot_selecter.show()
     slide.target = s.geometry.height
-        - (s.screenshot_selecter.popup.height + beautiful.useless_gap * 2)
+      - (s.screenshot_selecter.popup.height + beautiful.useless_gap * 2)
     s.screenshot_selecter.popup.visible = true
 
     awesome.emit_signal("screenshot::show")
