@@ -28,7 +28,7 @@ local function make_button(txt, onclick)
       },
       shape = utilities.widgets.mkroundedrect(2),
       border_width = dpi(1),
-      border_color = beautiful.black .. "cc",
+      border_color = beautiful.black .. "ee",
       bg = beautiful.btn_back,
       widget = wibox.container.background,
     })
@@ -94,12 +94,13 @@ client.connect_signal("request::titlebars", function(c)
           wibox.widget.base.make_widget(awful.titlebar.widget.iconwidget(c)),
           buttons = titlebars_buttons,
           layout = wibox.layout.fixed.horizontal,
+          clip_shape = utilities.widgets.mkroundedrect(6),
         },
         widget = wibox.container.margin,
-        right = dpi(6),
+        right = dpi(2),
         left = dpi(12),
-        top = dpi(4),
-        bottom = dpi(4),
+        top = dpi(2),
+        bottom = dpi(2),
       },
       { -- Title
         wibox.widget.base.make_widget(awful.titlebar.widget.titlewidget(c)),
@@ -111,7 +112,6 @@ client.connect_signal("request::titlebars", function(c)
           minimize_button(c),
           maximize_button(c),
           close_button(c),
-
           layout = wibox.layout.fixed.horizontal,
           spacing = dpi(6),
         },
