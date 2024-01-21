@@ -271,7 +271,7 @@ theme.layout_mstab = gears.color.recolor_image(
 -- -------------------------------------------------------------------------- --
 -- other icons
 --
-theme.icon_theme = "Papirus-Dark"
+theme.icon_theme = "Qogir-Dark"
 
 theme.chart_arc = "radial:0,0,0:360,360,360:0,"
   .. scheme.colorW
