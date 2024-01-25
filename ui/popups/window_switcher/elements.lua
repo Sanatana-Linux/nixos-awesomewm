@@ -87,7 +87,7 @@ return function()
         },
         -- forced_height = dpi(96),
         -- forced_width = dpi(108),
-        shape = utilities.widgets.mkroundedrect(),
+        shape = utilities.graphics.mkroundedrect(),
         widget = wibox.container.background,
         bg = beautiful.dimblack .. "66",
       })

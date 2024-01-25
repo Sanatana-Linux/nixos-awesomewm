@@ -10,7 +10,7 @@ function M.play()
   awful.spawn(
     "pacat --property=media.role=event "
       .. gfs.get_configuration_dir()
-      .. "themes/assets/sounds/confirm1.wav"
+      .. "themes/assets/sounds/notify2.wav"
   )
 end
 

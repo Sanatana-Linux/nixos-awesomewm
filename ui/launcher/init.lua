@@ -7,7 +7,7 @@ local dpi = beautiful.xresources.apply_dpi
 awful.screen.connect_for_each_screen(function(s)
   local launcherdisplay = wibox({
     width = dpi(440),
-    shape = utilities.widgets.mkroundedrect(),
+    shape = utilities.graphics.mkroundedrect(),
     height = dpi(720),
     bg = beautiful.bg_normal .. "66",
     border_color = beautiful.grey .. "cc",
@@ -55,7 +55,7 @@ awful.screen.connect_for_each_screen(function(s)
       border_width = dpi(2),
       border_color = beautiful.grey .. "cc",
       forced_height = dpi(50),
-      shape = utilities.widgets.mkroundedrect(),
+      shape = utilities.graphics.mkroundedrect(),
     },
     widget = wibox.container.margin,
     layout = wibox.layout.fixed.vertical,
@@ -125,7 +125,7 @@ awful.screen.connect_for_each_screen(function(s)
           prompt,
           widget = wibox.container.margin,
           margins = dpi(10),
-          shape = utilities.widgets.mkroundedrect(),
+          shape = utilities.graphics.mkroundedrect(),
         },
 
         widget = wibox.container.background,
@@ -227,7 +227,7 @@ awful.screen.connect_for_each_screen(function(s)
           {
             {
               image = entry.icon,
-              clip_shape = utilities.widgets.mkroundedrect(),
+              clip_shape = utilities.graphics.mkroundedrect(),
               forced_height = dpi(48),
               forced_width = dpi(48),
               valign = "center",
@@ -250,7 +250,7 @@ awful.screen.connect_for_each_screen(function(s)
         forced_width = dpi(360),
         forced_height = dpi(60),
         border_color = beautiful.grey .. "88",
-        shape = utilities.widgets.mkroundedrect(),
+        shape = utilities.graphics.mkroundedrect(),
         border_width = dpi(2),
         widget = wibox.container.background,
         bg = beautiful.bg_contrast .. "22",

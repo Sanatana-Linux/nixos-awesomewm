@@ -26,7 +26,7 @@ local sliders = wibox.widget({
         bg = beautiful.bg_contrast .. "bb",
         border_color = beautiful.grey .. "cc",
         border_width = dpi(2),
-        shape = utilities.widgets.mkroundedrect(),
+        shape = utilities.graphics.mkroundedrect(),
       },
       {
         {
@@ -44,13 +44,13 @@ local sliders = wibox.widget({
         bg = beautiful.bg_normal .. "66",
         border_color = beautiful.grey .. "cc",
         border_width = dpi(1),
-        shape = utilities.widgets.mkroundedrect(),
+        shape = utilities.graphics.mkroundedrect(),
       },
     },
     margins = dpi(0),
     widget = wibox.container.margin,
   },
-  shape = utilities.widgets.mkroundedrect(),
+  shape = utilities.graphics.mkroundedrect(),
   widget = wibox.container.background,
 })
 -- ------------------------------------------------- --

@@ -8,7 +8,7 @@ awful.screen.connect_for_each_screen(function(s)
   -- ----------------------------------------------------------- --
   notification_center = wibox({
     type = "dock",
-    shape = utilities.widgets.mkroundedrect(),
+    shape = utilities.graphics.mkroundedrect(),
     screen = s,
     width = dpi(380),
     height = dpi(560),
@@ -139,7 +139,7 @@ awful.screen.connect_for_each_screen(function(s)
         {
           nil,
           require("ui.popups.notification_center.widgets.notifcenter"),
-          utilities.widgets.vertical_pad(dpi(12)),
+          utilities.layout.vertical_pad(dpi(12)),
           height = dpi(400),
           minimum_height = dpi(400),
           forced_height = dpi(400),

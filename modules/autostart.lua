@@ -1,10 +1,13 @@
 -- autostart module
+
 -- Libraries and Modules
 local awful = require("awful")
 local sfx = require("modules.sfx")
+
 -- -------------------------------------------------------------------------- --
 -- Autostart Applications
 
+-- Function to run a command once
 local function run_once(cmd)
   local findme = cmd
   local firstspace = cmd:find(" ")
@@ -15,6 +18,7 @@ local function run_once(cmd)
     string.format("pgrep -u $USER -x %s > /dev/null || (%s)", findme, cmd)
   )
 end
+
 -- -------------------------------------------------------------------------- --
 -- Add apps to autostart here via terminal commands in subshells (meaning ending with &)
 autostart_apps = {
@@ -25,6 +29,7 @@ autostart_apps = {
 }
 
 -- -------------------------------------------------------------------------- --
+-- Run the autostart applications
 for app = 1, #autostart_apps do
   run_once(autostart_apps[app])
 end

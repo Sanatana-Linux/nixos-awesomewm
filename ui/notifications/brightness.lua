@@ -61,7 +61,7 @@ bright_adjust:setup({
       widget = wibox.container.margin,
     },
   },
-  shape = utilities.widgets.mkroundedrect(),
+  shape = utilities.graphics.mkroundedrect(),
   bg = beautiful.bg_normal .. "66",
   border_width = dpi(2),
   border_color = beautiful.grey .. "cc",

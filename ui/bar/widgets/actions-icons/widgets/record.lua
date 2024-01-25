@@ -51,7 +51,7 @@ local createButton = function(icon, name, fn, col)
     },
 
     bg = beautiful.widget_back,
-    shape = utilities.widgets.mkroundedrect(),
+    shape = utilities.graphics.mkroundedrect(),
     widget = wibox.container.background,
     border_color = beautiful.grey,
     border_width = dpi(1),
@@ -59,14 +59,14 @@ local createButton = function(icon, name, fn, col)
       fn()
     end),
   })
-  utilities.widgets.add_hover(
+  utilities.interaction.add_hover(
     button,
     beautiful.widget_back,
     beautiful.widget_back_focus_tag
   )
 
   local tooltip =
-    utilities.widgets.make_popup_tooltip(name, awful.placement.centered())
+    utilities.interaction.make_popup_tooltip(name, awful.placement.centered())
   tooltip.attach_to_object(button)
   return button
 end
@@ -75,7 +75,7 @@ awful.screen.connect_for_each_screen(function(s)
   local recorder = wibox({
     width = dpi(220),
     height = dpi(100),
-    shape = utilities.widgets.mkroundedrect(),
+    shape = utilities.graphics.mkroundedrect(),
     bg = beautiful.bg_normal .. "66",
     border_width = dpi(1),
     border_color = beautiful.grey .. "cc",

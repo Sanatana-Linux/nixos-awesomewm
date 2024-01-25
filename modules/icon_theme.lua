@@ -1,14 +1,6 @@
---  _______
--- |_     _|.----.-----.-----.
---  _|   |_ |  __|  _  |     |
--- |_______||____|_____|__|__|
---  _______ __
--- |_     _|  |--.-----.--------.-----.
---   |   | |     |  -__|        |  -__|
---   |___| |__|__|_____|__|__|__|_____|
--- -------------------------------------------------------------------------- --
--- shamelessly stolen from the bling library, awesome work they did with this
---
+-- This module provides functionality for retrieving icons based on various criteria such as process ID, icon name, and class.
+-- It utilizes the lgi library to interact with the Gtk.IconTheme and Gio.AppInfo modules.
+
 local lgi = require("lgi")
 local Gio = lgi.Gio
 local Gtk = lgi.require("Gtk", "3.0")
@@ -23,6 +15,7 @@ local name_lookup = {
     ["jetbrains-studio"] = "android-studio",
 }
 
+-- Retrieves the icon path based on the process ID of the client.
 local function get_icon_by_pid_command(self, client, apps)
     local pid = client.pid
     if pid ~= nil then
@@ -39,6 +32,7 @@ local function get_icon_by_pid_command(self, client, apps)
     end
 end
 
+-- Retrieves the icon path based on the icon name of the client.
 local function get_icon_by_icon_name(self, client, apps)
     local icon_name = client.icon_name and client.icon_name:lower() or nil
     if icon_name ~= nil then
@@ -51,6 +45,7 @@ local function get_icon_by_icon_name(self, client, apps)
     end
 end
 
+-- Retrieves the icon path based on the class of the client.
 local function get_icon_by_class(self, client, apps)
     if client.class ~= nil then
         local class = name_lookup[client.class] or client.class:lower()
@@ -78,6 +73,7 @@ local function get_icon_by_class(self, client, apps)
     end
 end
 
+-- Retrieves the icon path for the client based on various criteria.
 function icon_theme:get_client_icon_path(client)
     local apps = Gio.AppInfo.get_all()
 
@@ -93,6 +89,7 @@ function icon_theme:get_client_icon_path(client)
         })
 end
 
+-- Chooses an icon from the provided list of icon names.
 function icon_theme:choose_icon(icons_names)
     local icon_info = self.gtk_theme:choose_icon(icons_names, self.icon_size, 0)
     if icon_info then
@@ -105,6 +102,7 @@ function icon_theme:choose_icon(icons_names)
     return ""
 end
 
+-- Retrieves the icon path for the given GIcon object.
 function icon_theme:get_gicon_path(gicon)
     if gicon == nil then
         return ""
@@ -121,6 +119,7 @@ function icon_theme:get_gicon_path(gicon)
     return ""
 end
 
+-- Retrieves the icon path for the given icon name.
 function icon_theme:get_icon_path(icon_name)
     local icon_info = self.gtk_theme:lookup_icon(icon_name, self.icon_size, 0)
     if icon_info then
@@ -133,6 +132,7 @@ function icon_theme:get_icon_path(icon_name)
     return ""
 end
 
+-- Creates a new instance of the icon_theme module.
 local function new(theme_name, icon_size)
     local ret = gobject({})
     gtable.crush(ret, icon_theme, true)
@@ -150,6 +150,7 @@ local function new(theme_name, icon_size)
     return ret
 end
 
+-- Allows creating a new instance of the icon_theme module using the syntax `icon_theme()`.
 function icon_theme.mt:__call(...)
     return new(...)
 end

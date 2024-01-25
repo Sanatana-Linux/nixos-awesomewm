@@ -23,14 +23,13 @@ end)
 
 require("ui.notifications.brightness")
 require("ui.notifications.volume")
--- require("ui.notifications.osd")
+
 require("ui.notifications.battery")
 
 naughty.config.defaults.ontop = true
 naughty.config.defaults.screen = awful.screen.focused()
 naughty.config.defaults.timeout = 6
 naughty.config.defaults.title = "System Notification"
---naughty.config.defaults.position = "top_right"
 
 -- Timeouts
 naughty.config.presets.low.timeout = 3
@@ -68,7 +67,7 @@ ruled.notification.connect_signal("request::rules", function()
 end)
 
 naughty.connect_signal("added", function()
-  --    modules.sfx.play()
+  modules.sfx.play()
 end)
 
 naughty.connect_signal("request::display", function(n)
@@ -90,12 +89,12 @@ naughty.connect_signal("request::display", function(n)
       right = dpi(6),
       widget = wibox.container.margin,
     },
-    bg = beautiful.bg_contrast,
+    bg = beautiful.bg_contrast .. "dd",
     border_width = dpi(0.5),
     border_color = beautiful.grey,
     forced_height = dpi(25),
     forced_width = dpi(20),
-    shape = utilities.widgets.mkroundedrect(),
+    shape = utilities.graphics.mkroundedrect(),
     widget = wibox.container.background,
   }
 
@@ -126,7 +125,7 @@ naughty.connect_signal("request::display", function(n)
                       {
                         image = appicon,
                         resize = true,
-                        clip_shape = utilities.widgets.mkroundedrect(),
+                        clip_shape = utilities.graphics.mkroundedrect(),
                         widget = wibox.widget.imagebox,
                       },
                       strategy = "max",
@@ -188,7 +187,7 @@ naughty.connect_signal("request::display", function(n)
           {
             {
               {
-                utilities.widgets.vertical_pad(5),
+                utilities.layout.vertical_pad(5),
                 {
                   {
                     step_function = wibox.container.scroll.step_functions.waiting_nonlinear_back_and_forth,
@@ -215,7 +214,7 @@ naughty.connect_signal("request::display", function(n)
                   spacing = 0,
                   layout = wibox.layout.flex.vertical,
                 },
-                utilities.widgets.vertical_pad(5),
+                utilities.layout.vertical_pad(5),
                 layout = wibox.layout.align.vertical,
               },
               left = dpi(20),
@@ -228,11 +227,11 @@ naughty.connect_signal("request::display", function(n)
                   {
                     image = n.icon,
                     resize = true,
-                    clip_shape = utilities.widgets.mkroundedrect(),
+                    clip_shape = utilities.graphics.mkroundedrect(),
                     widget = wibox.widget.imagebox,
                   },
                   strategy = "max",
-                  height = dpi(80),
+                  height = dpi(120),
                   widget = wibox.container.constraint,
                 },
                 valign = "center",
@@ -261,7 +260,7 @@ naughty.connect_signal("request::display", function(n)
       bg = beautiful.bg_normal .. "88",
       border_width = dpi(0.25),
       border_color = beautiful.grey,
-      shape = utilities.widgets.mkroundedrect(),
+      shape = utilities.graphics.mkroundedrect(),
       widget = wibox.container.background,
     },
   })

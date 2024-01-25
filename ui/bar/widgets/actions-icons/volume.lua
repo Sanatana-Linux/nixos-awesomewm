@@ -13,7 +13,7 @@ local volume = wibox.widget({
   valign = "bottom",
 })
 
-local tooltip = utilities.widgets.make_popup_tooltip(
+local tooltip = utilities.interaction.make_popup_tooltip(
   "Press to mute/unmute",
   function(d)
     return awful.placement.bottom_right(d, {

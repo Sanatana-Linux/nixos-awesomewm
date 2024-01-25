@@ -28,7 +28,7 @@ awful.screen.connect_for_each_screen(function(s)
         widget = wibox.container.margin,
       },
       bg = beautiful.widget_back,
-      shape = utilities.widgets.mkroundedrect(),
+      shape = utilities.graphics.mkroundedrect(),
       widget = wibox.container.background,
       border_color = beautiful.grey,
       border_width = dpi(1),
@@ -36,13 +36,13 @@ awful.screen.connect_for_each_screen(function(s)
     -- -------------------------------------------------------------------------- --
     -- add hover effects, onclick listener and tooltips
     --
-    utilities.widgets.add_hover(
+    utilities.interaction.add_hover(
       button,
       beautiful.widget_back,
       beautiful.widget_back_focus_tag
     )
 
-    local tooltip = utilities.widgets.make_popup_tooltip(
+    local tooltip = utilities.interaction.make_popup_tooltip(
       tooltip_opts.txt,
       tooltip_opts.placement
     )
@@ -172,7 +172,7 @@ awful.screen.connect_for_each_screen(function(s)
       margins = dpi(7),
       widget = wibox.container.margin,
     },
-    shape = utilities.widgets.mkroundedrect(),
+    shape = utilities.graphics.mkroundedrect(),
     widget = wibox.container.background,
   })
   -- -------------------------------------------------------------------------- --
@@ -194,7 +194,7 @@ awful.screen.connect_for_each_screen(function(s)
     border_color = beautiful.grey .. "88",
     border_width = dpi(1),
     type = "combo",
-    shape = utilities.widgets.mkroundedrect(),
+    shape = utilities.graphics.mkroundedrect(),
     visible = false,
     screen = s,
     maximum_width = dpi(240),

@@ -61,7 +61,7 @@ awful.screen.connect_for_each_screen(function(s)
         border_color = flag == "focus" and beautiful.lessgrey .. "cc"
           or beautiful.bg_normal .. "00",
         widget = wibox.container.background,
-        shape = utilities.widgets.mkroundedrect(),
+        shape = utilities.graphics.mkroundedrect(),
       })
     end,
   })
@@ -81,7 +81,7 @@ awful.screen.connect_for_each_screen(function(s)
         },
       })
     end,
-    shape = utilities.widgets.mkroundedrect(),
+    shape = utilities.graphics.mkroundedrect(),
     screen = s,
     widget = s.calendar.calendar,
   })

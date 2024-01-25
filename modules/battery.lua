@@ -1,4 +1,26 @@
 -- original author: Aire-One (https://github.com/Aire-One)
+
+-- This module provides a battery widget for the Awesome Window Manager.
+-- It uses the UPowerGlib library to interact with the system's power devices.
+-- The widget displays information about the battery, such as its charge level and remaining time.
+
+-- The battery_widget module exports the following functions:
+--   - list_devices(): Returns a table containing the paths of all connected power devices.
+--   - get_device(path): Returns the device instance corresponding to the given path.
+--   - get_BAT0_device_path(): Returns the default path for the BAT0 device.
+--   - to_clock(seconds): Converts the given number of seconds into a human-readable clock string.
+--   - new(args): Constructs a new battery widget with the specified arguments.
+
+-- Example usage:
+-- local battery_widget = require("battery_widget")
+-- local widget = battery_widget.new({ device_path = "/org/freedesktop/UPower/devices/battery_BAT0" })
+
+-- The battery widget emits the following signals:
+--   - upower::update(device): Triggered when the device's state is updated.
+
+-- Note: This code is based on the original work by Aire-One (https://github.com/Aire-One).
+-- It has been modified and adapted for use in the Awesome Window Manager.
+-- original author: Aire-One (https://github.com/Aire-One)
 local upower = require("lgi").require("UPowerGlib")
 local gtable = require("gears.table")
 local gtimer = require("gears.timer")

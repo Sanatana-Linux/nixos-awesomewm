@@ -113,7 +113,7 @@ gears.timer({
 })
 
 -- return widget
-local battery_button = utilities.widgets.mkbtn({
+local battery_button = utilities.interaction.mkbtn({
   {
     wibox.widget({
       baticon,
@@ -141,7 +141,7 @@ local battery_button = utilities.widgets.mkbtn({
     border_width = dpi(1.25),
     widget = wibox.container.background,
     bg = beautiful.widget_back,
-    shape = utilities.widgets.mkroundedrect(),
+    shape = utilities.graphics.mkroundedrect(),
   },
   left = dpi(3),
   right = dpi(2),
@@ -159,9 +159,9 @@ local battery_tooltip = awful.tooltip({
   align = "right",
   margin_leftright = dpi(18),
   margin_topbottom = dpi(18),
-  shape = utilities.widgets.mkroundedrect(),
-  bg = beautiful.bg_normal .. '88',
-  border_color= beautiful.lesswhite .. '88',
+  shape = utilities.graphics.mkroundedrect(),
+  bg = beautiful.bg_normal .. "88",
+  border_color = beautiful.lesswhite .. "88",
   border_width = dpi(2),
   preferred_positions = { "right", "left", "top", "bottom" },
 })

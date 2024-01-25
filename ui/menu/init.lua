@@ -28,12 +28,11 @@ menu.mainmenu = awful.menu({
     { "Explorer", filemanager, icons.files },
     { "Browser", browser, icons.web_browser },
     { "Editor", editor_cmd, icons.text_editor },
-    { "GUI Editor", visual_editor, icons.text },
     { "AwesomeWM", menu.awesome, icons.awesome },
   },
 })
 
-menu.mainmenu.wibox.shape = utilities.widgets.mkroundedrect()
+menu.mainmenu.wibox.shape = utilities.graphics.mkroundedrect()
 -- menu.mainmenu.wibox.bg = beautiful.bg_normal .. "00"
 menu.mainmenu.wibox:set_widget(wibox.widget({
   {
@@ -45,7 +44,7 @@ menu.mainmenu.wibox:set_widget(wibox.widget({
   --   bg = beautiful.bg_normal .. "bb",
   border_width = dpi(1),
   border_color = beautiful.grey .. "cc",
-  shape = utilities.widgets.mkroundedrect(),
+  shape = utilities.graphics.mkroundedrect(),
   widget = wibox.container.background,
 }))
 
@@ -54,7 +53,7 @@ awful.menu.original_new = awful.menu.new
 function awful.menu.new(...)
   local ret = awful.menu.original_new(...)
 
-  ret.wibox.shape = utilities.widgets.mkroundedrect()
+  ret.wibox.shape = utilities.graphics.mkroundedrect()
   ret.wibox:set_widget(wibox.widget({
     {
       ret.wibox.widget,
@@ -65,7 +64,7 @@ function awful.menu.new(...)
     --  bg = beautiful.bg_normal .. "00",
     border_width = dpi(1),
     border_color = beautiful.grey .. "cc",
-    shape = utilities.widgets.mkroundedrect(),
+    shape = utilities.graphics.mkroundedrect(),
   }))
   return ret
 end

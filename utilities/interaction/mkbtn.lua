@@ -12,8 +12,8 @@
 -- @return button object
 local wibox = require("wibox")
 local beautiful = require("beautiful")
-local mkroundedrect = require("utilities.widgets.mkroundedrect")
-local add_hover = require("utilities.widgets.add_hover")
+local mkroundedrect = require("utilities.graphics.mkroundedrect")
+local add_hover = require("utilities.interaction.add_hover")
 local dpi = beautiful.xresources.apply_dpi
 
 return function(template, bg, hbg, radius)

@@ -1,7 +1,8 @@
 
 
 return {
-
+layout = require(... .. ".layout"),
     textual = require(... .. ".textual"),
-    widgets = require(... .. ".widgets"),
+    interaction = require(... .. ".interaction"),
+    graphics = require(... .. ".graphics"),
 }

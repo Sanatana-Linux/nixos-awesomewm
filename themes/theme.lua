@@ -137,7 +137,7 @@ theme.taglist_bg_focus = theme.widget_back_focus_tag
 theme.taglist_bg_occupied = theme.widget_back
 
 theme.taglist_font = "awesomewm-font Regular 13"
-theme.taglist_shape = require("utilities.widgets.mkroundedrect")()
+theme.taglist_shape = require("utilities.graphics.mkroundedrect")()
 theme.taglist_spacing = dpi(5)
 theme.taglist_shape_border_color = theme.grey .. "cc"
 theme.taglist_shape_border_width = dpi(1)

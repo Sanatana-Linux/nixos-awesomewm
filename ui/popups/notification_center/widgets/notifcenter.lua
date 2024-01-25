@@ -14,7 +14,7 @@ local main_widget
 local entry_template = {
   widget = wibox.container.background,
   bg = beautiful.bg_contrast .. "88",
-  shape = utilities.widgets.mkroundedrect(),
+  shape = utilities.graphics.mkroundedrect(),
   {
     widget = wibox.container.constraint,
     width = dpi(400),
@@ -58,7 +58,7 @@ local entry_template = {
               resize = true,
               forced_width = 0,
               forced_height = 0,
-              clip_shape = utilities.widgets.mkroundedrect(),
+              clip_shape = utilities.graphics.mkroundedrect(),
             },
           },
           {
@@ -93,7 +93,7 @@ main_widget = wibox.widget({
 -- this is basically just a simple header + layout to hold notifs
 local app_revealer_template = {
   widget = wibox.container.background,
-  shape = utilities.widgets.mkroundedrect(),
+  shape = utilities.graphics.mkroundedrect(),
   border_color = beautiful.grey .. "cc",
   border_width = dpi(1.25),
   {
@@ -210,7 +210,7 @@ local function add_notif_widget(n)
         collectgarbage("collect")
       end,
     }))
-    utilities.widgets.pointer_on_focus(
+    utilities.interaction.pointer_on_focus(
       drawer:get_children_by_id("reveal_button")[1]
     )
     drawer:get_children_by_id("clear_button")[1]:add_button(awful.button({
@@ -223,7 +223,7 @@ local function add_notif_widget(n)
         collectgarbage("collect")
       end,
     }))
-    utilities.widgets.pointer_on_focus(
+    utilities.interaction.pointer_on_focus(
       drawer:get_children_by_id("clear_button")[1]
     )
     main_widget:insert(1, drawer)
@@ -297,7 +297,7 @@ notifbox =
       bg = beautiful.black .. "88",
       border_color = beautiful.grey,
       border_width = dpi(1.25),
-      shape = utilities.widgets.mkroundedrect(),
+      shape = utilities.graphics.mkroundedrect(),
       {
         layout = wibox.layout.align.horizontal,
         expand = "inside",
