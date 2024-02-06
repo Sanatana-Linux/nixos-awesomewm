@@ -1,17 +1,29 @@
+-------------------------------------------------------------------
 -- Drop-down applications manager for the awesome window manager
+-------------------------------------------------------------------
+-- Coded  by: * Lucas de Vries <lucas@glacicle.com>
+-- Hacked by: * Adrian C. (anrxc) <anrxc@sysphere.org>
+-- Licensed under the WTFPL version 2
+--   * http://sam.zoy.org/wtfpl/COPYING
+-------------------------------------------------------------------
+-- To use this module add:
+--   local scratchdrop = require("scratchdrop")
+-- to the top of your rc.lua, and call it from a keybinding:
+--   scratchdrop(prog, vert, horiz, width, height, sticky, screen)
+--
 -- Parameters:
---   prog   - Program to run
---   vert   -  "bottom", "center" or "top"
---   horiz  - "left", "right" or "center"
+--   prog   - Program to run; "urxvt", "gmrun", "thunderbird"
+--   vert   - Vertical; "bottom", "center" or "top" (default)
+--   horiz  - Horizontal; "left", "right" or "center" (default)
 --   width  - Width in absolute pixels, or width percentage
+--            when <= 1 (1 (100% of the screen) by default)
 --   height - Height in absolute pixels, or height percentage
---   sticky - Visible on all tags
---   screen - Screen (optional)
--- based largely off of attachdrop, just streamlined to my use case
--- https://github.com/tumurzakov/attachdrop
--- This module provides functionality for creating drop-down windows in the Awesome Window Manager.
--- It allows attaching a window under the cursor to a specific program and toggling between hidden and visible states.
+--            when <= 1 (0.25 (25% of the screen) by default)
+--   sticky - Visible on all tags, false by default
+--   screen - Screen (optional), mouse.screen by default
+-------------------------------------------------------------------
 
+-- Grab environment
 local pairs = pairs
 local awful = require("awful")
 local setmetatable = setmetatable
@@ -21,35 +33,38 @@ local capi = {
   screen = screen,
 }
 
+-- Scratchdrop: drop-down applications manager for the awesome window manager
+
 local dropdown = {}
 
--- Attaches a window under the cursor to the specified program.
--- @param prog The program to attach the window to.
+-- Use Meta + X to run
+--      require('dropdown').showall()
+-- if some of your windows lost in hidden space
+function dropdown.showall()
+  for prog, scrs in pairs(dropdown) do
+    for src, c in pairs(scrs) do
+      awful.client.movetotag(awful.tag.selected(capi.mouse.screen), c)
+      c.hidden = false
+      c:raise()
+      capi.client.focus = c
+    end
+  end
+end
+
+-- Attach window under cursor to prog
 function dropdown.attach(prog)
-  -- Create a table for the program if it doesn't exist
   if not dropdown[prog] then
     dropdown[prog] = {}
   end
 
-  -- Get the current screen and client under the cursor
-  local screen = capi.mouse.screen
-  local c = awful.mouse.client_under_pointer()
-
-  -- Store the client under the program and screen
+  screen = capi.mouse.screen
+  c = awful.mouse.client_under_pointer()
   dropdown[prog][screen] = c
 end
 
--- Creates a new window for the drop-down application when it doesn't exist,
--- or toggles between hidden and visible states when it does.
--- @param prog The program to create the window for or toggle.
--- @param vert (optional) The vertical position of the window ("top", "center", "bottom").
--- @param horiz (optional) The horizontal position of the window ("left", "center", "right").
--- @param width (optional) The width of the window (percentage of the screen width or absolute value).
--- @param height (optional) The height of the window (percentage of the screen height or absolute value).
--- @param sticky (optional) Whether the window should be sticky (always visible).
--- @param screen (optional) The screen to create the window on.
+-- Create a new window for the drop-down application when it doesn't
+-- exist, or toggle between hidden and visible states when it does
 function dropdown.toggle(prog, vert, horiz, width, height, sticky, screen)
-  -- Set default values if not provided
   vert = vert or "top"
   horiz = horiz or "center"
   width = width or 1
@@ -57,15 +72,15 @@ function dropdown.toggle(prog, vert, horiz, width, height, sticky, screen)
   sticky = sticky or false
   screen = screen or capi.mouse.screen
 
-  -- Determine signal usage in this version of Awesome
+  -- Determine signal usage in this version of awesome
   local attach_signal = capi.client.connect_signal or capi.client.add_signal
-  local detach_signal = capi.client.disconnect_signal or capi.client.remove_signal
+  local detach_signal = capi.client.disconnect_signal
+    or capi.client.remove_signal
 
-  -- Create a table for the program if it doesn't exist
   if not dropdown[prog] then
     dropdown[prog] = {}
 
-    -- Add an "unmanage" signal to remove the client from the table when it is unmanaged
+    -- Add unmanage signal for scratchdrop programs
     attach_signal("unmanage", function(c)
       for scr, cl in pairs(dropdown[prog]) do
         if cl == c then
@@ -75,15 +90,14 @@ function dropdown.toggle(prog, vert, horiz, width, height, sticky, screen)
     end)
   end
 
-  -- If the window doesn't exist, create it
   if not dropdown[prog][screen] then
-    local spawnw = function(c)
+    spawnw = function(c)
       dropdown[prog][screen] = c
 
-      -- Set the client as a floater
+      -- Scratchdrop clients are floaters
       awful.client.floating.set(c, true)
 
-      -- Calculate the window geometry and placement
+      -- Client geometry and placement
       local screengeom = capi.screen[screen].workarea
 
       if width <= 1 then
@@ -93,7 +107,6 @@ function dropdown.toggle(prog, vert, horiz, width, height, sticky, screen)
         height = math.ceil(screengeom.height * height)
       end
 
-      local x, y
       if horiz == "left" then
         x = screengeom.x
       elseif horiz == "right" then
@@ -110,38 +123,45 @@ function dropdown.toggle(prog, vert, horiz, width, height, sticky, screen)
         y = screengeom.y
       end
 
-      -- Set the client's geometry and properties
+      -- Client properties
       c:geometry({ x = x, y = y, width = width, height = height })
       c.ontop = true
       c.above = true
+      c.skip_taskbar = true
+      if sticky then
+        c.sticky = true
+      end
+      if c.titlebar then
+        awful.titlebar.remove(c)
+      end
 
       c:raise()
       capi.client.focus = c
       detach_signal("manage", spawnw)
     end
 
-    -- Add a "manage" signal to create the window and spawn the program
+    -- Add manage signal and spawn the program
     attach_signal("manage", spawnw)
-    awful.util.spawn_with_shell(prog, false)
+    awful.util.spawn_with_shell(prog, false) -- original without '_with_shell'
   else
-    -- Get the running client
-    local c = dropdown[prog][screen]
+    -- Get a running client
+    c = dropdown[prog][screen]
 
-    -- Move the client to the current workspace
-    local status, err = pcall(awful.client.movetotag, awful.tag.selected(screen), c)
+    status, err = pcall(awful.client.movetotag, awful.tag.selected(screen), c)
     if err then
       dropdown[prog][screen] = false
       return
     end
 
-    -- Switch the client to the current workspace if it's hidden
-    if not c:isvisible() then
+    -- Switch the client to the current workspace
+    if c:isvisible() == false then
       c.hidden = true
       awful.client.movetotag(awful.tag.selected(screen), c)
     end
 
-    -- Focus and raise the client if it's hidden
+    -- Focus and raise if hidden
     if c.hidden then
+      -- Make sure it is centered
       if vert == "center" then
         awful.placement.center_vertical(c)
       end
@@ -151,8 +171,7 @@ function dropdown.toggle(prog, vert, horiz, width, height, sticky, screen)
       c.hidden = false
       c:raise()
       capi.client.focus = c
-    else
-      -- Hide and detach tags if the client is not hidden
+    else -- Hide and detach tags if not
       c.hidden = true
       local ctags = c:tags()
       for i, t in pairs(ctags) do
