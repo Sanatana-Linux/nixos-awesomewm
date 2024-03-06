@@ -2,7 +2,7 @@
 
 -- Libraries and Modules
 local awful = require("awful")
-local sfx = require("modules.sfx")
+--local sfx = require("modules.sfx")
 
 -- -------------------------------------------------------------------------- --
 -- Autostart Applications
@@ -34,4 +34,6 @@ for app = 1, #autostart_apps do
   run_once(autostart_apps[app])
 end
 
-sfx.startup()
+-- TODO: enable for release
+-- Both the dog and girlfriend hate it, so for now its off
+--sfx.startup()
