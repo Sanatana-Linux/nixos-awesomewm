@@ -1,30 +1,19 @@
 local gears = require("gears")
 
-shape = {}
+local shape = {} -- Create a local table to store shape functions
 
--- Create rounded rectangle shape (in one line)
-
-function shape.rrect(radius)
+-- Function to create a rounded rectangle shape
+function shape.rounded_rect(radius)
     return function(cr, width, height)
         gears.shape.rounded_rect(cr, width, height, radius)
     end
 end
 
--- Create partially rounded rect
-
-function shape.prrect(radius, tl, tr, br, bl)
+-- Function to create a partially rounded rectangle shape
+function shape.partially_rounded_rect(radius, tl, tr, br, bl)
     return function(cr, width, height)
-        gears.shape.partially_rounded_rect(
-            cr,
-            width,
-            height,
-            tl,
-            tr,
-            br,
-            bl,
-            radius
-        )
+        gears.shape.partially_rounded_rect(cr, width, height, tl, tr, br, bl, radius)
     end
 end
 
-return shape
+return shape -- Return the table containing shape functions

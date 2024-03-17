@@ -43,15 +43,9 @@ function _color.lighten(color, amount)
         b = tonumber("0x" .. color:sub(6, 7)),
     }
 
-    c.r = c.r + amount
-    c.r = c.r < 0 and 0 or c.r
-    c.r = c.r > 255 and 255 or c.r
-    c.g = c.g + amount
-    c.g = c.g < 0 and 0 or c.g
-    c.g = c.g > 255 and 255 or c.g
-    c.b = c.b + amount
-    c.b = c.b < 0 and 0 or c.b
-    c.b = c.b > 255 and 255 or c.b
+    c.r = _color.clip(c.r + amount, 0, 255)
+    c.g = _color.clip(c.g + amount, 0, 255)
+    c.b = _color.clip(c.b + amount, 0, 255)
 
     return string.format("#%02x%02x%02x", c.r, c.g, c.b)
 end
@@ -94,7 +88,7 @@ end
 
 -- Converts the given hex color to hsv
 function _color.hex_to_hsv(color)
-    local color = _color.hex2rgb(color)
+    local color = _color.hex_to_rgba(color)
     local C_max = max(color.r, color.g, color.b)
     local C_min = min(color.r, color.g, color.b)
     local delta = C_max - C_min
