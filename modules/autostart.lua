@@ -23,7 +23,6 @@ end
 -- Add apps to autostart here via terminal commands in subshells (meaning ending with &)
 autostart_apps = {
   "picom -b --experimental-backends &", -- picom for compositing
-  ' eval "$(gnome-keyring-daemon -s --components=pkcs11,secrets,ssh,gpg)" &', -- gnome secrets daemon
   "xrdb -merge $HOME/.Xresources &", -- xsettings
   "xss-lock lock &", -- screen locking
 }

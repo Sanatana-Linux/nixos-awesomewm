@@ -1,19 +1,19 @@
 #!/usr/bin/env bash
-# awmtt: awesomewm testing tool
-# https://github.com/mikar/awmtt
+# awmtt-ng: awesomewm testing tool
+# https://github.com/basaran/awmtt-ng
 
 #{{{ Usage
 usage() {
     cat <<EOF
-awmtt start [-B <path>] [-C <path>] [-D <int>] [-S <size>] [-a <opt>]... [-x <opts>]
-awmtt (stop [all] | restart)
-awmtt run [-D <int>] <command>
-awmtt theme (get | set <theme> | list | random) [-N]
+awmtt-ng start [-B <path>] [-C <path>] [-D <int>] [-S <size>] [-a <opt>]... [-x <opts>]
+awmtt-ng (stop [all] | restart)
+awmtt-ng run [-D <int>] <command>
+awmtt-ng theme (get | set <theme> | list | random) [-N]
 
 Arguments:
   start           Spawn nested Awesome via Xephyr
   stop            Stops the last Xephyr process
-    all           Stop all instances of Xephyr 
+    all           Stop all instances of Xephyr
   restart         Restart all instances of Xephyr
   run <cmd>       Run a command inside a Xephyr instance (specify which one with -D)
   theme           Some basic theming control via:
@@ -21,22 +21,23 @@ Arguments:
     set <theme>   Set theme to <theme>
     list          List available themes
     random        Set a random theme
-    
+
 Options:
   -B|--binary <path>  Specify path to awesome binary (for testing custom awesome builds)
   -C|--config <path>  Specify configuration file
   -D|--display <int>  Specify the display to use (e.g. 1)
+  -R|--autoreload     Enable automatic config reloading upon modification . Requires entr.
   -N|--notest         Don't use a testfile but your actual rc.lua (i.e. $HOME/.config/awesome/rc.lua)
                       This happens by default if there is no rc.lua.test file.
   -S|--size <size>    Specify the window size
   -a|--aopt <opt>     Pass option to awesome binary (e.g. --no-argb or --check). Can be repeated.
   -x|--xopts <opts>   Pass options to xephyr binary (e.g. -keybd ephyr,,,xkblayout=de). Needs to be last.
   -h|--help           Show this help text and exit
-  
+
 Examples:
-  awmtt start (uses defaults: -C $HOME/.config/awesome/rc.lua.test -D 1 -S 1024x640)
-  awmtt start -C /etc/xdg/awesome/rc.lua -D 3 -S 1280x800
-  awmtt theme set zenburn -N
+  awmtt-ng start (uses defaults: -C $HOME/.config/awesome/rc.lua.test -D 1 -S 1024x640)
+  awmtt-ng start -C /etc/xdg/awesome/rc.lua -D 3 -S 1280x800
+  awmtt-ng theme set zenburn -N
 EOF
     exit 0
 }
@@ -59,7 +60,7 @@ XEPHYR=$(which Xephyr)
 #{{{ Default Variables
 # Display and window size
 D=1
-SIZE="1024x640"
+SIZE="1200x800"
 AWESOME_OPTIONS=""
 XEPHYR_OPTIONS=""
 # Path to rc.lua
@@ -74,7 +75,7 @@ fi
 #{{{ Hostname Check - this is probably only useful for me. I have the same rc.lua running on two different machines
 HOSTNAME=$(uname -n)
 #}}}
-        
+
 #{{{ Functions
 #{{{ Start function
 start() {
@@ -85,14 +86,20 @@ start() {
             break;
         fi;
     done
-    
+
     "$XEPHYR" :$D -name xephyr_$D -ac -br -noreset -screen "$SIZE" $XEPHYR_OPTIONS >/dev/null 2>&1 &
     sleep 1
-    DISPLAY=:$D.0 "$AWESOME" -c "$RC_FILE" $AWESOME_OPTIONS &
+    if [[ -n "${RELOAD}" ]]; then
+        echo "autoreload enabled"
+        find $(dirname ${RC_FILE}) | $(which entr) -r sh -c "DISPLAY=:${D}.0 ${AWESOME} -c ${RC_FILE} ${AWESOME_OPTIONS}"
+    else
+        DISPLAY=:$D.0 "$AWESOME" -c "$RC_FILE" $AWESOME_OPTIONS &
+    fi
     sleep 1
-    
+
     # print some useful info
-    if [[ "$RC_FILE" =~ .test$ ]]; then
+    # test files are detected by a .test or -testrc.lua endding
+    if [[ "$RC_FILE" =~ .test$ || "$RC_FILE" =~ -testrc.lua$ ]]; then
     echo "Using a test file ($RC_FILE)"
     else
     echo "Caution: NOT using a test file ($RC_FILE)"
@@ -142,13 +149,13 @@ theme() {
         else
             ls /usr/share/awesome/themes "$HOME"/.config/awesome/themes
         fi
-    }    
+    }
     case "$1" in
         l|list) theme_list
                 exit 0
                 ;;
     esac
-    
+
     # Check for Beautiful library
     BEAUTIFUL=$(grep -c 'beautiful.init' "$RC_FILE")
     [[ "$BEAUTIFUL" -ge 1 ]] || errorout 'Could not detect theme library "beautiful". Exiting.'
@@ -160,7 +167,7 @@ theme() {
     else
         curtheme=$(grep -oP "[^\/]+(?=\/theme.lua)" "$RC_FILE")
     fi
-    
+
     # Change theme
     theme_set() {
         if [[ "$HOSTNAME" == laptop ]]; then
@@ -192,7 +199,7 @@ theme() {
         theme_set
         D=11 && start
     }
-  
+
     case "$1" in
         g|get)    theme_get;;
         s|set)    theme_set "${args[@]}";;
@@ -215,9 +222,10 @@ parse_options() {
             -C|--config)    shift; RC_FILE="$1";;
             -D|--display)   shift; D="$1"
                             [[ ! "$D" =~ ^[0-9] ]] && errorout "$D is not a valid display number";;
+            -R|--reload)    RELOAD="true";;
             -N|--notest)    RC_FILE="$HOME"/.config/awesome/rc.lua;;
             -S|--size)      shift; SIZE="$1";;
-            -a|--aopt)      shift; AWESOME_OPTIONS+="$1";;
+            -a|--aopt)      shift; AWESOME_OPTIONS+="$1 ";;
             -x|--xopts)     shift; XEPHYR_OPTIONS="$@";;
             -h|--help)      usage;;
             *)              args+=("$1");;
@@ -228,7 +236,7 @@ parse_options() {
 #}}}
 #}}}
 
-#{{{ Main 
+#{{{ Main
 main() {
     case "$input" in
         start)    start "${args[@]}";;

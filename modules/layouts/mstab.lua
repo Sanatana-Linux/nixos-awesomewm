@@ -1,8 +1,4 @@
---  _______ _______ _______         __
--- |   |   |     __|_     _|.---.-.|  |--.
--- |       |__     | |   |  |  _  ||  _  |
--- |__|_|__|_______| |___|  |___._||_____|
---   +---------------------------------------------------------------+
+
 -- NOTE: thanks again to bling, its like stack but has a tab bar on the top. I removed settings I can configure here, refactored it and commented it all pretty as well.
 --
 local awful = require("awful")

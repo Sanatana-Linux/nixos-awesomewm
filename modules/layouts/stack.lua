@@ -1,8 +1,4 @@
---  _______ __               __
--- |     __|  |_.---.-.----.|  |--.
--- |__     |   _|  _  |  __||    <
--- |_______|____|___._|____||__|__|
--- ------------------------------------------------- --
+-- DEPRECATED: use mstab instead, kept for historical purposes
 -- based on dovetail and bling's mbox, but without all the extra frills
 
 --  Stack right layout:

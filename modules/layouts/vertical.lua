@@ -1,8 +1,4 @@
---     ___ ___              __   __              __
---    |   |   |.-----.----.|  |_|__|.----.---.-.|  |
---    |   |   ||  -__|   _||   _|  ||  __|  _  ||  |
---     \_____/ |_____|__|  |____|__||____|___._||__|
---   +---------------------------------------------------------------+
+
 -- NOTE: This is the opposite arrangement to horizontal, unlike Thrizen which at >3 will split the columns into 2 rows where this will just make more columns indefinitely. Again thanks to bling, with some cleanup, commenting and optimization of my own for my maintaining ease at later dates that is less likely to be needed after doing such.
 --   +---------------------------------------------------------------+
 

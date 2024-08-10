@@ -8,6 +8,7 @@
 --     NOTE I don't like wasting time typing the same statments at the top of every file,
 --     so I have them globally scoped here. This is called early in `rc.lua` and
 --     thus these variables are available in all the files **called after it**.
+--     Normally this is considered a bad practice, but for reasons not relevent to this configuration.
 --   +---------------------------------------------------------------+
 -- requires menubar called first locally or it will fail
 local menubar = require("menubar")
