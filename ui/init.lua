@@ -1,12 +1,13 @@
---      _______ _______
---     |   |   |_     _|
---     |   |   |_|   |_
---     |_______|_______|
---   +---------------------------------------------------------------+
+
 require("ui.bar")
 require("ui.menu")
+require("ui.control")
+require("ui.moment")
+require("ui.dash")
+require("ui.notify")
+require("ui.setup")
+-- require "ui.lock"
+require("ui.exit")
+require("ui.popups")
 require("ui.titlebar")
-require("ui.notifications")
-require("ui.layoutbox")
-require("ui.launcher")
-require("ui.popups.window_switcher")
+require("ui.dropdown")

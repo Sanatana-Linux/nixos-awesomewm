@@ -1,0 +1,13 @@
+{
+    "Lua.diagnostics.globals": [
+        "awesome"
+    ],
+    "cSpell.words": [
+        "hourminutes",
+        "modkey",
+        "systray",
+        "taglist",
+        "titlebar",
+        "wibox"
+    ]
+}

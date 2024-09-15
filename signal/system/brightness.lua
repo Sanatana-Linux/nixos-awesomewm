@@ -1,19 +1,24 @@
-local awful = require("awful")
+local awful = require('awful')
+local gears = require('gears')
 
-local function emit()
-	awful.spawn.easy_async_with_shell("brightnessctl -m | awk -F, '{print substr($4, 0, length($4)-1)}'", function(out)
-		local brightness = tonumber(out) and math.floor(tonumber(out) or 0) or 0
-		awesome.emit_signal("signal::brightness", brightness)
-	end)
+local brightness_script =
+"bash -c 'echo $(($(cat /sys/class/backlight/*/brightness) * 100 / $(cat /sys/class/backlight/*/max_brightness)))'"
+
+local function emit_brightness()
+  awful.spawn.easy_async_with_shell(
+    brightness_script, function(stdout)
+      local level_cur = tonumber(stdout)
+      awesome.emit_signal('signal::brightness', level_cur)
+    end)
 end
 
-emit()
-
-local subscribe = [[ bash -c "while (inotifywait -e modify /sys/class/backlight/?*/brightness -qq) do echo; done" ]]
-
-awful.spawn.easy_async_with_shell("ps x | grep \"inotifywait -e modify /sys/class/backlight\" | grep -v grep | awk '{print $1}' | xargs kill", function ()
-	awful.spawn.with_line_callback(subscribe, {
-		stdout = function() emit() end
-	})
-end)
-
+-- Refreshing
+-------------
+gears.timer {
+  timeout   = 1,
+  call_now  = true,
+  autostart = true,
+  callback  = function()
+    emit_brightness()
+  end
+}
