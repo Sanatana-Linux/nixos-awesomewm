@@ -76,65 +76,98 @@ theme.fg3 = colors.fg4
 -- TODO use a helper function to create slight variants of bg4 and fg4 to fill these in dynamically with color
 -- -------------------------------------------------------------------------- --
 -- general
-theme.bg_gradient = "linear:0,0:180,180:0,"
-    .. theme.bg4
-    .. "aa:0.25,"
-    .. theme.bg3
-    .. "aa:0.4,"
-    .. helpers.color_darken(theme.bg3, 15)
-    .. "aa:0.5,"
-    .. helpers.color_darken(theme.bg4, 25)
-    .. "aa:0.6,"
-    .. helpers.color_darken(theme.bg3, 25)
-    .. "aa:0.75, "
-    .. helpers.color_lighten(theme.bg3, 5)
-    .. "aa:1,"
-    .. helpers.color_lighten(theme.bg4, 10)
-    .. "aa"
+theme.bg_gradient = "linear:0,20:1000,20:0,"
+    .. helpers.color_darken(theme.bg4, 0.15)
+    .. "cc:0.20,"
+    .. helpers.color_darken(theme.bg3, 0.3)
+    .. "cc:0.4,"
+    .. helpers.color_darken(theme.bg3, 0.25)
+    .. "cc:0.5,"
+    .. helpers.color_darken(theme.bg4, 0.25)
+    .. "cc:0.6,"
+    .. helpers.color_darken(theme.bg3, 0.35)
+    .. "cc:0.75,"
+    .. helpers.color_darken(theme.bg3, 0.25)
+    .. "cc:1,"
+    .. helpers.color_darken(theme.bg4, 0.2)
+    .. "cc"
 -- -------------------------------------------------------------------------- --
-theme.bg_gradient2 = "linear:180,0:90,180:0,"
-    .. helpers.color_lighten(theme.mbg, 0.25)
+theme.bg_gradient2 = "linear:180,0:23,180:0,"
+    .. helpers.color_darken(theme.mbg, 0.75)
     .. "aa:0.25,"
-    .. helpers.color_lighten(theme.mbg, 0.45)
+    .. helpers.color_darken(theme.mbg, 0.55)
     .. "aa:0.4,"
-    .. helpers.color_lighten(theme.mbg, 0.45)
+    .. helpers.color_darken(theme.mbg, 0.55)
     .. "aa:0.5,"
-    .. helpers.color_darken(theme.fg3, 0.45)
+    .. helpers.color_darken(theme.fg3, 0.85)
     .. "aa:0.6,"
-    .. helpers.color_darken(theme.fg3, 0.35)
-    .. "aa:0.75, "
-    .. helpers.color_lighten(theme.mbg, 0.35)
+    .. helpers.color_darken(theme.fg3, 0.75)
+    .. "aa:0.75,"
+    .. helpers.color_darken(theme.mbg, 0.65)
     .. "aa:1,"
-    .. helpers.color_lighten(theme.mbg, 0.25)
+    .. helpers.color_darken(theme.mbg, 0.75)
     .. "aa"
+
 -- -------------------------------------------------------------------------- --
 -- titlebar
-theme.bg_gradient_titlebar = "linear:180,32:90,180:0,"
-    .. theme.bg4
+theme.bg_gradient_titlebar = "linear:180,0:32,180:0,"
+    .. helpers.color_darken(theme.bg, 0.45)
     .. "aa:0.25,"
-    .. helpers.color_darken(theme.bg4, 0.15)
+    .. helpers.color_darken(theme.bg, 0.35)
     .. "aa:0.5,"
-    .. helpers.color_lighten(theme.bg3, 0.35)
+    .. helpers.color_darken(theme.bg, 0.25)
     .. "aa:0.75,"
-    .. helpers.color_lighten(theme.mbg, 0.45)
+    .. helpers.color_darken(theme.bg, 0.35)
     .. "aa:1,"
-    .. theme.bg4
+    .. helpers.color_darken(theme.bg, 0.45)
     .. "aa"
+
 -- -------------------------------------------------------------------------- --
-theme.bg_gradient_titlebar2 = "linear:180,32:90,180:0,"
-    .. theme.bg3
+theme.bg_gradient_titlebar2 = "linear:180,0:23,180:0,"
+    .. helpers.color_darken(theme.fg3, 0.8)
     .. "aa:0.25,"
-    .. helpers.color_darken(theme.bg3, 0.15)
+    .. helpers.color_darken(theme.bg, 0.35)
     .. "aa:0.5,"
-    .. helpers.color_lighten(theme.bg4, 0.35)
+    .. helpers.color_darken(theme.bg, 0.25)
     .. "aa:0.75,"
-    .. helpers.color_lighten(theme.bg, 0.45)
+    .. helpers.color_darken(theme.bg, 0.45)
     .. "aa:1,"
-    .. theme.bg3
+    .. helpers.color_darken(theme.bg4, 0.3)
     .. "aa"
+
 -- -------------------------------------------------------------------------- --
 -- tags
-theme.bg_gradient_tag = "radial:0,360:360,360:360,"
+theme.bg_gradient_tag = "radial:0,0:272,272:1,"
+    .. helpers.color_darken(theme.fg3, 0.4)
+    .. "dd:0.25,"
+    .. helpers.color_darken(theme.fg, 0.2)
+    .. "dd:0.4,"
+    .. helpers.color_darken(theme.fg, 0.25)
+    .. "dd:0.5,"
+    .. helpers.color_darken(theme.fg3, 0.5)
+    .. "aa:0.6,"
+    .. helpers.color_darken(theme.fg3, 0.7)
+    .. "dd:0.75,"
+    .. helpers.color_darken(theme.fg3, 0.7)
+    .. "aa:1,"
+    .. helpers.color_darken(theme.bg4, 0.1)
+    .. "aa"
+
+-- -------------------------------------------------------------------------- --
+theme.bg_gradient_tag2 = "radial:0,0:272,272:2,"
+    .. helpers.color_darken(theme.fg, 0.2)
+    .. "dd:0.25,"
+    .. helpers.color_darken(theme.fg3, 0.35)
+    .. "dd:0.5,"
+    .. helpers.color_darken(theme.fg3, 0.4)
+    .. "dd:0.75,"
+    .. helpers.color_darken(theme.fg3, 0.5)
+    .. "dd:1,"
+    .. helpers.color_darken(theme.fg3, 0.7)
+    .. "dd"
+
+-- -------------------------------------------------------------------------- --
+theme.bg_gradient_tag3 = "radial:0,0:272,272:2,"
     .. helpers.color_lighten(theme.mbg, 0.35)
     .. "aa:0.25,"
     .. helpers.color_darken(theme.fg3, 0.15)
@@ -146,31 +179,7 @@ theme.bg_gradient_tag = "radial:0,360:360,360:360,"
     .. helpers.color_lighten(theme.fg2, 0.25)
     .. "AA"
 -- -------------------------------------------------------------------------- --
-theme.bg_gradient_tag2 = "radial:0,360:360,360:360,"
-    .. helpers.color_lighten(theme.mbg, 0.35)
-    .. "aa:0.25,"
-    .. helpers.color_darken(theme.fg3, 0.15)
-    .. "aa:0.5,"
-    .. helpers.color_lighten(theme.mbg, 0.25)
-    .. "aa:0.75,"
-    .. helpers.color_darken(theme.fg3, 0.15)
-    .. "AA:1,"
-    .. helpers.color_lighten(theme.fg2, 0.25)
-    .. "AA"
--- -------------------------------------------------------------------------- --
-theme.bg_gradient_tag3 = "radial:0,360:360,360:360,"
-    .. helpers.color_lighten(theme.mbg, 0.35)
-    .. "aa:0.25,"
-    .. helpers.color_darken(theme.fg3, 0.15)
-    .. "aa:0.5,"
-    .. helpers.color_lighten(theme.mbg, 0.25)
-    .. "aa:0.75,"
-    .. helpers.color_darken(theme.fg3, 0.15)
-    .. "AA:1,"
-    .. helpers.color_lighten(theme.fg2, 0.25)
-    .. "AA"
--- -------------------------------------------------------------------------- --
-theme.bg_gradient_tag4 = "radial:0,360:360,360:360,"
+theme.bg_gradient_tag4 = "radial:0,0:180,180:1,"
     .. helpers.color_lighten(theme.mbg, 0.35)
     .. "aa:0.25,"
     .. helpers.color_darken(theme.fg3, 0.15)
@@ -183,30 +192,31 @@ theme.bg_gradient_tag4 = "radial:0,360:360,360:360,"
     .. "AA"
 -- -------------------------------------------------------------------------- --
 -- buttons
-theme.bg_gradient_button = "radial:180,0,0:360,360,360:0,"
-    .. helpers.color_lighten(theme.bg4, 45)
+-- buttons
+theme.bg_gradient_button = "radial:0,0:196,196:1,"
+    .. helpers.color_darken(theme.fg3, 20)
     .. "aa:0.25,"
-    .. helpers.color_lighten(theme.bg3, 25)
+    .. helpers.color_darken(theme.fg3, 25)
     .. "aa:0.5,"
-    .. helpers.color_lighten(theme.bg4, 15)
+    .. helpers.color_lighten(theme.bg3, 20)
     .. "aa:0.75,"
-    .. helpers.color_lighten(theme.bg4, 15)
+    .. helpers.color_lighten(theme.bg4, 25)
     .. "AA:1,"
-    .. helpers.color_lighten(theme.bg3, 25)
+    .. helpers.color_lighten(theme.bg3, 20)
     .. "AA"
--- -------------------------------------------------------------------------- --
-theme.bg_gradient_button2 = "radial:50,50,10:55,55,30:0,"
-    .. helpers.color_darken(theme.bg4, 15)
-    .. "dd:0.25,"
-    .. helpers.color_lighten(theme.mbg, 15)
-    .. "dd:0.5,"
-    .. helpers.color_darken(theme.fg3, 35)
-    .. "aa:0.75,"
-    .. helpers.color_lighten(theme.bg3, 15)
-    .. "aa:1,"
-    .. helpers.color_lighten(theme.bg4, 15)
-    .. "dd"
 
+-- -------------------------------------------------------------------------- --
+theme.bg_gradient_button2 = "radial:0,0:96,96:2,"
+    .. helpers.color_darken(theme.bg4, 5)
+    .. "aa:0.25,"
+    .. helpers.color_darken(theme.bg3, 10)
+    .. "aa:0.5,"
+    .. helpers.color_darken(theme.bg4, 5)
+    .. "aa:0.75,"
+    .. helpers.color_darken(theme.bg3, 10)
+    .. "AA:1,"
+    .. helpers.color_darken(theme.bg4, 5)
+    .. "AA"
 -- Menu
 
 theme.menu_height = dpi(40)

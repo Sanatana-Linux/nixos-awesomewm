@@ -2,7 +2,7 @@ local wibox = require("wibox")
 local awful = require("awful")
 local helpers = require("helpers")
 local beautiful = require("beautiful")
-local dpi = require("beautiful").xresources.apply_dpi
+
 
 local exit_button = helpers.mkbtn(
 

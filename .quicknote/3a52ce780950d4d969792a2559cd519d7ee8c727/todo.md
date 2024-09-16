@@ -1,19 +1,20 @@
 # TO-DO Items
 
-- [x] DONE add in screen record
-  - [ ] TODO make screen recorder work'
-    - [ ] TODO choose terminal application to use
-    - [ ] TODO set it up in the screen recorder
-    - [ ] TODO change screenshot menu to approximate the AWFUL dotfiles variant
 
-- [ ] TODO lint icons, remove unused, replace for specially chosen bold icons where practical or improves function recognition, etc
 
-- [ ] TODO incorporate all the necessary functionality then remove the plugins entirely, mitigating headaches and much bloat
-- [ ] TODO: Eliminate bling configuration hold-overs from tabbar and mstab
+
+
+
+- [ ] TODO bloat elimination from the rebase and in general 
 - [ ] TODO: Windows appearing bigger than workspace area issue
 
 ## Archived Items
 
+
+- [x] DONE lint icons, remove unused, replace for specially chosen bold icons where practical or improves function recognition, etc
+  - NOTE: Done due to rebasing and removing many, but not all, icons I would otherwise need to maintain
+- [x] DONE: Eliminate bling configuration hold-overs from tabbar and mstab
+  - NOTE: no need to have bling as a submodule any longer, nor are its remants filling variables with strings of `or`s for options not in the theme file
 - [x] DONE: TabBar to single file in modules
   - NOTE: Used `pure` style that conforms to titlebar layout
 - [x] DONE replace taglist to enable buttons/actions on items shown
@@ -32,5 +33,6 @@
 - [x] DONE - `plugins/rubato`, `modules/effects` and `modules/animations/instance` do the same thingx] TODO Main Menu stopped working?
   - long story short, call awful.menu.new() instead of file
   - [x] DONE normalize the various animations to use just one of these
-- [x] TODO Main Menu stopped working?
+- [x] DONE Main Menu stopped working?
   - long story short, call awful.menu.new() instead of file
+- [x] DONE add in screen record
