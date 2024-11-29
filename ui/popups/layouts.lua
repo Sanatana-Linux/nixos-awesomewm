@@ -62,7 +62,7 @@ layout_popup.timer:connect_signal("timeout", function()
     layout_popup.visible = false
     layout_popup.screen = mouse.screen
 end)
-layout_popup.screen = screen.current
+layout_popup.screen = mouse.screen
 -- Connect signals for layout change events
 awesome.connect_signal("layout::changed:next", function()
     awful.layout.inc(1)

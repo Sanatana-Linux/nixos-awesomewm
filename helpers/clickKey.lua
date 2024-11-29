@@ -1,3 +1,4 @@
+-- helpers/clickKey.lua
 local awful = require("awful")
 
 return function(c, key)

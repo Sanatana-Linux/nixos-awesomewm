@@ -26,11 +26,11 @@ local colors = require("theme.colors." .. themeName)
 theme.wallpaper = themes_path .. "walls/" .. colors.name .. ".jpg"
 theme.iconThemePath = settings.iconTheme
 theme.scheme = themeName
-theme.sans = "Liga SF Mono Nerd Font "
-theme.mono = "Liga SF Mono Nerd Font "
+theme.sans = "Rounded Mplus 1c ExtraBold "
+theme.mono = "M+1Code Nerd Font Bold "
 theme.icon = "Font Awesome 6 "
 theme.icon_theme = "Whitesur-dark"
-theme.font = "Rubik 12"
+theme.font = "Rounded Mplus 1c ExtraBold "
 theme.prompt_font = theme.font
 ----- General/default Settings -----
 

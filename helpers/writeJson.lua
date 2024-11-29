@@ -1,4 +1,4 @@
--- helpers/rrect.lua
+-- helpers/writeJson.lua
 local awful = require("awful")
 local beautiful = require("beautiful")
 local gears = require("gears")
@@ -8,9 +8,13 @@ local gmatrix = require("gears.matrix")
 local json = require("mods.json")
 local wibox = require("wibox")
 
-return function(radius)
-    radius = radius or dpi(4)
-    return function(cr, width, height)
-        gears.shape.rounded_rect(cr, width, height, radius)
-    end
+return function(PATH, DATA)
+    local w = assert(io.open(PATH, "w"))
+    w:write(json.encode(DATA, nil, {
+        pretty = true,
+        indent = "	",
+        align_keys = false,
+        array_newline = true,
+    }))
+    w:close()
 end

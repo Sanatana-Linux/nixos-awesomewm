@@ -3,6 +3,8 @@
         "vim",
         "awesome",
         "client",
-        "entry"
+        "entry",
+        "tag",
+        "mouse"
     ]
 }

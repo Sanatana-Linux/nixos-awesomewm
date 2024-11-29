@@ -1,4 +1,3 @@
-
 local helpers = {}
 local awful = require("awful")
 local beautiful = require("beautiful")
@@ -365,7 +364,5 @@ helpers.color_darken = function(color, amount)
     amount = amount or 26
     return helpers.color_lighten(color, -amount)
 end
-
-
 
 return helpers

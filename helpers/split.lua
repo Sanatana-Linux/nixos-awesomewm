@@ -1,4 +1,4 @@
--- helpers/rrect.lua
+-- helpers/split.lua
 local awful = require("awful")
 local beautiful = require("beautiful")
 local gears = require("gears")
@@ -8,9 +8,13 @@ local gmatrix = require("gears.matrix")
 local json = require("mods.json")
 local wibox = require("wibox")
 
-return function(radius)
-    radius = radius or dpi(4)
-    return function(cr, width, height)
-        gears.shape.rounded_rect(cr, width, height, radius)
+return function(inputstr, sep)
+    if sep == nil then
+        sep = "%s"
     end
+    local t = {}
+    for str in string.gmatch(inputstr, "([^" .. sep .. "]+)") do
+        table.insert(t, str)
+    end
+    return t
 end

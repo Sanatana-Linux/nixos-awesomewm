@@ -38,7 +38,7 @@ awful.keyboard.append_global_keybindings({
     awful.key({ modkey }, "x", function(c)
         awesome.emit_signal("toggle::exit")
     end),
-    awful.key({ modkey }, "q", function(c)
+    awful.key({ modkey }, "F4", function(c)
         awesome.emit_signal("toggle::scrotter")
     end),
 })

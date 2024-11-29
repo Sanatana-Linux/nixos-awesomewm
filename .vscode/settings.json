@@ -3,14 +3,21 @@
         "awesome"
     ],
     "cSpell.words": [
+        "ateliercave",
         "awesomewm",
         "elems",
         "gicon",
+        "hasitem",
         "hourminutes",
+        "imagebox",
+        "layoutlist",
         "modkey",
+        "ontop",
+        "rrect",
         "systray",
         "taglist",
         "titlebar",
-        "wibox"
+        "wibox",
+        "xresources"
     ]
 }

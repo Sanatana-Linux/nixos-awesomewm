@@ -1,4 +1,4 @@
--- helpers/rrect.lua
+-- helpers/randomColor.lua
 local awful = require("awful")
 local beautiful = require("beautiful")
 local gears = require("gears")
@@ -8,9 +8,15 @@ local gmatrix = require("gears.matrix")
 local json = require("mods.json")
 local wibox = require("wibox")
 
-return function(radius)
-    radius = radius or dpi(4)
-    return function(cr, width, height)
-        gears.shape.rounded_rect(cr, width, height, radius)
-    end
+return function()
+    local accents = {
+        beautiful.magenta,
+        beautiful.yellow,
+        beautiful.green,
+        beautiful.red,
+        beautiful.blue,
+    }
+
+    local i = math.random(1, #accents)
+    return accents[i]
 end
