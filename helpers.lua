@@ -1,3 +1,4 @@
+---@diagnostic disable: redundant-parameter
 local helpers = {}
 local awful = require("awful")
 local beautiful = require("beautiful")
@@ -5,6 +6,7 @@ local gears = require("gears")
 local dpi = beautiful.xresources.apply_dpi
 local cairo = require("lgi").cairo
 local gmatrix = require("gears.matrix")
+---@diagnostic disable-next-line: different-requires
 local json = require("mods.json")
 local wibox = require("wibox")
 

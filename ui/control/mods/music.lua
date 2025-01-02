@@ -142,7 +142,7 @@ playerctl:connect_signal("metadata", function(_, title, artist, album_path, albu
   art.image = helpers.cropSurface(1.71, gears.surface.load_uncached(album_path))
   helpers.gc(finalwidget, "songname"):set_markup_silently(helpers.colorizeText(title or "NO", beautiful.fg))
   helpers.gc(finalwidget, "artist"):set_markup_silently(helpers.colorizeText(artist or "HM", beautiful.fg))
-  helpers.gc(finalwidget, "player"):set_markup_silently(helpers.colorizeText("Playing Via: " .. player_name or "",
+  helpers.gc(finalwidget, "player"):set_markup_silently(helpers.colorizeText("Playing Via: " .. (player_name or ""),
     beautiful.fg))
 end)
 return finalwidget

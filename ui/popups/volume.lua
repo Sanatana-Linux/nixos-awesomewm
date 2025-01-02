@@ -78,6 +78,7 @@ end)
 
 local function osd_hide()
   osd.visible = false
+---@diagnostic disable-next-line: undefined-global
   osd_timer:stop()
 end
 

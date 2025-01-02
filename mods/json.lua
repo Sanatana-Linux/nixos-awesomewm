@@ -259,6 +259,7 @@ local function parse_string(str, i)
                         j - 1,
                         "invalid unicode escape in string"
                     )
+---@diagnostic disable-next-line: undefined-global
                 res = res .. parse_unicode_escape(hex)
                 j = j + #hex
             else

@@ -32,6 +32,7 @@ local function writeData()
     colorscheme = themer.current
   }
   local w = assert(io.open(gears.filesystem.get_cache_dir() .. "json/settings.json", "w"))
+---@diagnostic disable-next-line: redundant-parameter
   w:write(json.encode(data, nil, { pretty = true, indent = "	", align_keys = false, array_newline = true }))
   w:close()
   awesome.restart()

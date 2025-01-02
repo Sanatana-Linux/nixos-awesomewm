@@ -1,3 +1,4 @@
+---@diagnostic disable: redundant-parameter
 -- helpers/writeJson.lua
 local awful = require("awful")
 local beautiful = require("beautiful")

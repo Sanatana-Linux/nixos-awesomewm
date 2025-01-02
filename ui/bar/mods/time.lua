@@ -8,12 +8,12 @@ local hourminutes = helpers.mkbtn(
 
     {
         {
-            font = beautiful.prompt_font .. " 16",
+            font = beautiful.prompt_font .. " 14",
             format = "%I:%M",
             align = "center",
             valign = "center",
             widget = wibox.widget.textclock,
-            fg = beautiful.fg,
+            fg = beautiful.fg3,
         },
         widget = wibox.container.place,
         valign = "center",

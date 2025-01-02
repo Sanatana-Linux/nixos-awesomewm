@@ -5,6 +5,27 @@
         "client",
         "entry",
         "tag",
-        "mouse"
+        "mouse",
+        "modkey",
+        "ctags",
+        "on",
+        "turn_off",
+        "current_tag",
+        "off",
+        "screen",
+        "c",
+        "spawnw",
+        "x",
+        "y",
+        "status",
+        "err",
+        "index_entry",
+        "index_start",
+        "filtered",
+        "mousegrabber",
+        "regfiltered",
+        "notif_center_remove_notif",
+        "notif_center_reset_notifs_container",
+        "unfiltered"
     ]
 }

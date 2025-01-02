@@ -3,6 +3,8 @@
 --   +---------------------------------------------------------------+
 -- where can be 'left' 'right' 'top' 'bottom' 'center' 'topleft' 'topright' 'bottomleft' 'bottomright' nil
 --
+local awful = require("awful")
+
 return function(c, where, geom)
   local sg = screen[c.screen].geometry --screen geometry
   local sw = screen[c.screen].workarea --screen workarea

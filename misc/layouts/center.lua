@@ -14,6 +14,7 @@
 -- Import necessary modules
 local math = math
 local screen = screen
+local awful = require("awful")
 
 -- Define a custom layout object named 'center'
 local center = {}

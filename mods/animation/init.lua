@@ -123,7 +123,7 @@ function animation:stop()
 end
 
 function animation:abort(reset)
-	animation:stop(reset)
+	self:stop()
 	self:emit_signal("aborted")
 end
 

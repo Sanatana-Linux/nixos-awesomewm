@@ -21,6 +21,7 @@ local tabbar_size = dpi(24)
 local dont_resize_slaves = false
 
 -- Initialize top index for each tag
+---@diagnostic disable-next-line: undefined-global
 for _, tag in ipairs(root.tags()) do
 	tag.top_idx = 1
 end

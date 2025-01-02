@@ -3,6 +3,8 @@ local dropdown = require("ui.dropdown")
 local apps = require("main.apps")
 local hotkeys_popup = require("awful.hotkeys_popup")
 local menubar = require("menubar")
+local beautiful = require("beautiful")
+local dpi = beautiful.xresources.apply_dpi
 
 modkey = "Mod4"
 
@@ -61,17 +63,14 @@ awful.keyboard.append_global_keybindings({
     awful.key({ modkey }, "Tab", function()
         awful.menu.menu_keys.down = { "Down", "Alt_L" }
         awful.menu.menu_keys.up = { "Up", "Alt_R" }
-        awful.menu.clients(
-            {
-                theme = {
-                    width = 450,
-                    bg = beautiful.bg_gradient,
-                    border_color = beautiful.fg3 .. "99",
-                    border_width = dpi(1),
-                },
+        awful.menu.clients({
+            theme = {
+                width = dpi(450),
+                bg = beautiful.bg_gradient,
+                border_color = beautiful.fg3 .. "99",
+                border_width = dpi(1),
             },
-            { keygrabber = true }
-        )
+        }, { keygrabber = true })
     end, { description = "Client Selection Menu", group = "awesome" }),
     -- -------------------------------------------------------------------------- --
     -- Tab Between Applications

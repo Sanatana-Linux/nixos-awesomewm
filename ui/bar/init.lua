@@ -53,7 +53,7 @@ local function init(s)
 
     local wibar = awful.wibar({
         position = "bottom",
-        height = dpi(45),
+        height = dpi(36),
         ontop = true,
         screen = s,
         width = s.geometry.width,

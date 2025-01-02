@@ -1,11 +1,32 @@
 local awful = require("awful")
 
--- Compositor
-awful.spawn.with_shell("picom --config $HOME/.config/picom/picom.conf &")
--- Global theming 
-awful.spawn.with_shell("xrdb -merge ~/.Xresources &")
--- Screen Lock
-awful.spawn.with_shell("xss-lock lock &")
--- Make sure cache file is a-ok
-awful.spawn.with_shell("mkdir -p ~/.cache/awesome/json")
+local autostart = {
+
+"xrdb -merge ~/.Xresources &",
+"xsettingsd",
+    "xfsettingsd &",
+    "picom --config $HOME/.config/picom/picom.conf &",
+    "mkdir -p ~/.cache/awesome/json &"
+}
+
+local function restarted()
+	awesome.register_xproperty("restarted", "boolean")
+	local detected = awesome.get_xproperty("restarted") ~= nil
+	awesome.set_xproperty("restarted", true)
+	return detected
+end
+
+local function autostarter()
+if not restarted() then
+	for _, command in ipairs(autostart) do
+		require("awful").spawn.easy_async({ 'pkill', '--full', '--uid', os.getenv('USER'), '^' .. command }, function()
+			require("awful").spawn.easy_async_with_shell(command, function() end) -- func needed to avoid callback error
+		end)
+	end
+
+end
+
+end
+
+autostarter()
 

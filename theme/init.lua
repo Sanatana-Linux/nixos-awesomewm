@@ -17,6 +17,7 @@ local data =
 ----- User Preferences -----
 
 theme.pfp = data.pfp
+---@diagnostic disable-next-line: param-type-mismatch
 theme.user = string.gsub(os.getenv("USER"), "^%l", string.upper)
 theme.hostname = os.getenv("HOST")
 ----- Font -----
@@ -26,12 +27,12 @@ local colors = require("theme.colors." .. themeName)
 theme.wallpaper = themes_path .. "walls/" .. colors.name .. ".jpg"
 theme.iconThemePath = settings.iconTheme
 theme.scheme = themeName
-theme.sans = "Rounded Mplus 1c ExtraBold "
+theme.sans = "Ubuntu Nerd Font, Bold "
 theme.mono = "M+1Code Nerd Font Bold "
-theme.icon = "Font Awesome 6 "
-theme.icon_theme = "Whitesur-dark"
-theme.font = "Rounded Mplus 1c ExtraBold "
-theme.prompt_font = theme.font
+theme.icon = "Font Awesome 16 "
+theme.icon_theme = "Reversal"
+theme.font = "Ubuntu Nerd Font, Bold  "
+theme.prompt_font = "Pixel Code, Bold"
 ----- General/default Settings -----
 
 theme.bg_normal = colors.bg
@@ -73,150 +74,153 @@ theme.fg2 = colors.fg3
 theme.fg3 = colors.fg4
 
 -- Gradient Colors Using Cairo
--- TODO use a helper function to create slight variants of bg4 and fg4 to fill these in dynamically with color
 -- -------------------------------------------------------------------------- --
 -- general
-theme.bg_gradient = "linear:0,20:1000,20:0,"
-    .. helpers.color_darken(theme.bg4, 0.15)
-    .. "cc:0.20,"
-    .. helpers.color_darken(theme.bg3, 0.3)
-    .. "cc:0.4,"
-    .. helpers.color_darken(theme.bg3, 0.25)
-    .. "cc:0.5,"
-    .. helpers.color_darken(theme.bg4, 0.25)
-    .. "cc:0.6,"
-    .. helpers.color_darken(theme.bg3, 0.35)
-    .. "cc:0.75,"
-    .. helpers.color_darken(theme.bg3, 0.25)
-    .. "cc:1,"
-    .. helpers.color_darken(theme.bg4, 0.2)
-    .. "cc"
+theme.bg_gradient = "linear:0,0:180,0:1800,"
+    .. helpers.color_lighten(theme.mbg, 25)
+    .. "ee:0.25,"
+    .. helpers.color_lighten(theme.bg, 45)
+    .. "ee:0.5,"
+    .. helpers.color_lighten(theme.bg3, 0)
+    .. "ee:0.55,"
+    .. helpers.color_lighten(theme.bg, 35)
+    .. "ee:0.6,"
+    .. helpers.color_lighten(theme.mbg, 10)
+    .. "ee:0.75,"
+    .. helpers.color_lighten(theme.mbg, 25)
+    .. "ee:1,"
+    .. helpers.color_lighten(theme.bg, 30)
+    .. "ee"
 -- -------------------------------------------------------------------------- --
 theme.bg_gradient2 = "linear:180,0:23,180:0,"
-    .. helpers.color_darken(theme.mbg, 0.75)
-    .. "aa:0.25,"
-    .. helpers.color_darken(theme.mbg, 0.55)
-    .. "aa:0.4,"
-    .. helpers.color_darken(theme.mbg, 0.55)
-    .. "aa:0.5,"
-    .. helpers.color_darken(theme.fg3, 0.85)
-    .. "aa:0.6,"
-    .. helpers.color_darken(theme.fg3, 0.75)
-    .. "aa:0.75,"
-    .. helpers.color_darken(theme.mbg, 0.65)
-    .. "aa:1,"
-    .. helpers.color_darken(theme.mbg, 0.75)
-    .. "aa"
+    .. helpers.color_lighten(theme.mbg, 35)
+    .. "ee:0.25,"
+    .. helpers.color_lighten(theme.mbg, 20)
+    .. "ee:0.4,"
+    .. helpers.color_lighten(theme.bg, 50)
+    .. "ee:0.5,"
+    .. helpers.color_lighten(theme.bg3, 10)
+    .. "ee:0.6,"
+    .. helpers.color_lighten(theme.bg3, 5)
+    .. "ee:0.75,"
+    .. helpers.color_lighten(theme.bg3, 5)
+    .. "ee:1,"
+    .. helpers.color_lighten(theme.mbg, 15)
+    .. "ee"
 
 -- -------------------------------------------------------------------------- --
 -- titlebar
 theme.bg_gradient_titlebar = "linear:180,0:32,180:0,"
-    .. helpers.color_darken(theme.bg, 0.45)
-    .. "aa:0.25,"
-    .. helpers.color_darken(theme.bg, 0.35)
-    .. "aa:0.5,"
-    .. helpers.color_darken(theme.bg, 0.25)
-    .. "aa:0.75,"
-    .. helpers.color_darken(theme.bg, 0.35)
-    .. "aa:1,"
-    .. helpers.color_darken(theme.bg, 0.45)
-    .. "aa"
+    .. helpers.color_lighten(theme.mbg, 15)
+    .. "ee:0.25,"
+    .. helpers.color_lighten(theme.mbg, 5)
+    .. "ee:0.5,"
+    .. helpers.color_lighten(theme.bg, 25)
+    .. "ee:0.75,"
+    .. helpers.color_lighten(theme.mbg, 15)
+    .. "ee:1,"
+    .. helpers.color_lighten(theme.mbg, 5)
+    .. "ee"
 
 -- -------------------------------------------------------------------------- --
 theme.bg_gradient_titlebar2 = "linear:180,0:23,180:0,"
-    .. helpers.color_darken(theme.fg3, 0.8)
-    .. "aa:0.25,"
-    .. helpers.color_darken(theme.bg, 0.35)
-    .. "aa:0.5,"
-    .. helpers.color_darken(theme.bg, 0.25)
-    .. "aa:0.75,"
-    .. helpers.color_darken(theme.bg, 0.45)
-    .. "aa:1,"
-    .. helpers.color_darken(theme.bg4, 0.3)
-    .. "aa"
+    .. helpers.color_darken(theme.fg3, 10)
+    .. "ee:0.25,"
+    .. helpers.color_lighten(theme.bg, 35)
+    .. "ee:0.5,"
+    .. helpers.color_lighten(theme.bg, 25)
+    .. "ee:0.75,"
+    .. helpers.color_lighten(theme.bg, 45)
+    .. "ee:1,"
+    .. helpers.color_darken(theme.bg4, 30)
+    .. "ee"
 
 -- -------------------------------------------------------------------------- --
--- tags
-theme.bg_gradient_tag = "radial:0,0:272,272:1,"
-    .. helpers.color_darken(theme.fg3, 0.4)
-    .. "dd:0.25,"
-    .. helpers.color_darken(theme.fg, 0.2)
-    .. "dd:0.4,"
-    .. helpers.color_darken(theme.fg, 0.25)
-    .. "dd:0.5,"
-    .. helpers.color_darken(theme.fg3, 0.5)
-    .. "aa:0.6,"
-    .. helpers.color_darken(theme.fg3, 0.7)
-    .. "dd:0.75,"
-    .. helpers.color_darken(theme.fg3, 0.7)
-    .. "aa:1,"
-    .. helpers.color_darken(theme.bg4, 0.1)
-    .. "aa"
-
--- -------------------------------------------------------------------------- --
-theme.bg_gradient_tag2 = "radial:0,0:272,272:2,"
-    .. helpers.color_darken(theme.fg, 0.2)
-    .. "dd:0.25,"
-    .. helpers.color_darken(theme.fg3, 0.35)
-    .. "dd:0.5,"
-    .. helpers.color_darken(theme.fg3, 0.4)
-    .. "dd:0.75,"
-    .. helpers.color_darken(theme.fg3, 0.5)
-    .. "dd:1,"
-    .. helpers.color_darken(theme.fg3, 0.7)
-    .. "dd"
-
--- -------------------------------------------------------------------------- --
-theme.bg_gradient_tag3 = "radial:0,0:272,272:2,"
-    .. helpers.color_lighten(theme.mbg, 0.35)
-    .. "aa:0.25,"
-    .. helpers.color_darken(theme.fg3, 0.15)
-    .. "aa:0.5,"
-    .. helpers.color_lighten(theme.mbg, 0.25)
-    .. "aa:0.75,"
-    .. helpers.color_darken(theme.fg3, 0.15)
-    .. "AA:1,"
-    .. helpers.color_lighten(theme.fg2, 0.25)
-    .. "AA"
--- -------------------------------------------------------------------------- --
-theme.bg_gradient_tag4 = "radial:0,0:180,180:1,"
-    .. helpers.color_lighten(theme.mbg, 0.35)
-    .. "aa:0.25,"
-    .. helpers.color_darken(theme.fg3, 0.15)
-    .. "aa:0.5,"
-    .. helpers.color_lighten(theme.mbg, 0.25)
-    .. "aa:0.75,"
-    .. helpers.color_darken(theme.fg3, 0.15)
-    .. "AA:1,"
-    .. helpers.color_lighten(theme.fg2, 0.25)
-    .. "AA"
--- -------------------------------------------------------------------------- --
--- buttons
--- buttons
-theme.bg_gradient_button = "radial:0,0:196,196:1,"
-    .. helpers.color_darken(theme.fg3, 20)
-    .. "aa:0.25,"
+-- tags (3D Skeuomorphic)
+theme.bg_gradient_tag = "radial:0.5,0.5:0.5,0.5:0.4," -- Centered, smaller radius for 3d
     .. helpers.color_darken(theme.fg3, 25)
-    .. "aa:0.5,"
-    .. helpers.color_lighten(theme.bg3, 20)
-    .. "aa:0.75,"
-    .. helpers.color_lighten(theme.bg4, 25)
-    .. "AA:1,"
-    .. helpers.color_lighten(theme.bg3, 20)
-    .. "AA"
+    .. "ee:0.25,"
+    .. helpers.color_darken(theme.fg, 10)
+    .. "ee:0.5,"
+    .. helpers.color_lighten(theme.fg, 15)
+    .. "ee:0.75,"
+    .. helpers.color_darken(theme.fg3, 25)
+    .. "ee:1,"
+    .. helpers.color_darken(theme.bg4, 5)
+    .. "ee"
 
 -- -------------------------------------------------------------------------- --
-theme.bg_gradient_button2 = "radial:0,0:96,96:2,"
-    .. helpers.color_darken(theme.bg4, 5)
-    .. "aa:0.25,"
-    .. helpers.color_darken(theme.bg3, 10)
-    .. "aa:0.5,"
-    .. helpers.color_darken(theme.bg4, 5)
-    .. "aa:0.75,"
-    .. helpers.color_darken(theme.bg3, 10)
-    .. "AA:1,"
-    .. helpers.color_darken(theme.bg4, 5)
-    .. "AA"
+-- tags2 (3D Skeuomorphic)
+theme.bg_gradient_tag2 = "radial:0.5,0.5:0.5,0.5:0.4," -- Centered, smaller radius
+    .. helpers.color_darken(theme.fg, 15)
+    .. "ee:0.25,"
+    .. helpers.color_lighten(theme.fg3, 15)
+    .. "ee:0.5,"
+    .. helpers.color_lighten(theme.fg3, 10)
+    .. "ee:0.75,"
+    .. helpers.color_darken(theme.fg3, 15)
+    .. "ee:1,"
+    .. helpers.color_darken(theme.fg3, 30)
+    .. "ee"
+
+-- -------------------------------------------------------------------------- --
+-- tags3 (3D Skeuomorphic)
+theme.bg_gradient_tag3 = "radial:0.5,0.5:0.5,0.5:0.4," -- Centered, smaller radius
+    .. helpers.color_lighten(theme.mbg, 45)
+    .. "ee:0.25,"
+    .. helpers.color_darken(theme.fg3, 5)
+    .. "ee:0.5,"
+    .. helpers.color_lighten(theme.mbg, 35)
+    .. "ee:0.75,"
+    .. helpers.color_darken(theme.fg3, 5)
+    .. "ee:1,"
+    .. helpers.color_lighten(theme.fg2, 20)
+    .. "ee"
+-- -------------------------------------------------------------------------- --
+-- tags4 (3D Skeuomorphic)
+theme.bg_gradient_tag4 = "radial:0.5,0.5:0.5,0.5:0.4," -- Centered, smaller radius
+    .. helpers.color_lighten(theme.mbg, 45)
+    .. "ee:0.25,"
+    .. helpers.color_darken(theme.fg3, 5)
+    .. "ee:0.5,"
+    .. helpers.color_lighten(theme.mbg, 35)
+    .. "ee:0.75,"
+    .. helpers.color_darken(theme.fg3, 5)
+    .. "ee:1,"
+    .. helpers.color_lighten(theme.fg2, 20)
+    .. "ee"
+-- -------------------------------------------------------------------------- --
+-- buttons
+-- buttons
+theme.bg_gradient_button = "radial:0,0:272,272:1,"
+    .. helpers.color_darken(theme.fg3, 40)
+    .. "dd:0.25,"
+    .. helpers.color_darken(theme.fg, 50)
+    .. "dd:0.4,"
+    .. helpers.color_darken(theme.fg, 45)
+    .. "dd:0.5,"
+    .. helpers.color_darken(theme.fg3, 10)
+    .. "ee:0.6,"
+    .. helpers.color_darken(theme.fg3, 20)
+    .. "dd:0.75,"
+    .. helpers.color_darken(theme.fg3, 20)
+    .. "ee:1,"
+    .. helpers.color_darken(theme.fg3, 40)
+    .. "ee"
+
+-- -------------------------------------------------------------------------- --
+theme.bg_gradient_button2 = "linear:180,0:23,180:0,"
+    .. helpers.color_darken(theme.fg3, 80)
+    .. "ee:0.25,"
+    .. helpers.color_lighten(theme.bg, 20)
+    .. "ee:0.5,"
+    .. helpers.color_lighten(theme.bg, 15)
+    .. "ee:0.75,"
+    .. helpers.color_lighten(theme.bg, 5)
+    .. "ee:1,"
+    .. helpers.color_darken(theme.bg4, 40)
+    .. "ee"
+
 -- Menu
 
 theme.menu_height = dpi(40)
@@ -234,7 +238,7 @@ theme.taglist_bg_occupied = theme.bg_gradient_tag3
 theme.taglist_fg_occupied = theme.fg .. "55"
 theme.taglist_bg_empty = theme.bg_gradient_tag4
 theme.taglist_fg_empty = colors.fg
-theme.taglist_font = "awesomewm-font Regular 16"
+theme.taglist_font = "awesomewm-font Regular 11"
 theme.taglist_spacing = dpi(2)
 
 theme.tasklist_bg_normal = theme.bg
@@ -248,41 +252,6 @@ theme.titlebar_bg_focus = theme.bg_gradient_titlebar2
 theme.titlebar_fg_normal = colors.fg3
 theme.titlebar_fg_focus = colors.fg
 
-theme.titlebar_close_button_normal = gears.color.recolor_image(
-    themes_path .. "assets/titlebar/close.svg",
-    theme.bg3
-)
-theme.titlebar_close_button_focus = gears.color.recolor_image(
-    themes_path .. "assets/titlebar/close.svg",
-    theme.red
-)
-
-theme.titlebar_minimize_button_normal = gears.color.recolor_image(
-    themes_path .. "assets/titlebar/minus.svg",
-    theme.bg3
-)
-theme.titlebar_minimize_button_focus = gears.color.recolor_image(
-    themes_path .. "assets/titlebar/minus.svg",
-    theme.green
-)
-
-theme.titlebar_maximized_button_normal_inactive = gears.color.recolor_image(
-    themes_path .. "assets/titlebar/close.svg",
-    theme.bg3
-)
-theme.titlebar_maximized_button_focus_inactive = gears.color.recolor_image(
-    themes_path .. "assets/titlebar/close.svg",
-    theme.yellow
-)
-theme.titlebar_maximized_button_normal_active = gears.color.recolor_image(
-    themes_path .. "assets/titlebar/close.svg",
-    theme.bg3
-)
-theme.titlebar_maximized_button_focus_active = gears.color.recolor_image(
-    themes_path .. "assets/titlebar/close.svg",
-    theme.yellow
-)
-
 theme.icon_theme = "Reversal"
 theme.nixos = themes_path .. "assets/nixos.png"
 
@@ -291,7 +260,7 @@ theme.songdefpicture = themes_path .. "/assets/defsong.jpg"
 rnotification.connect_signal("request::rules", function()
     rnotification.append_rule({
         rule = { urgency = "critical" },
-        properties = { bg = "#ff0000", fg = "#ffffff" },
+        properties = { bg = theme.red, fg = "#ffffff" },
     })
 end)
 
