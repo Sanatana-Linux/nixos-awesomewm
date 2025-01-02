@@ -1,0 +1,45 @@
+name: Format Markdown Files
+on:
+  push:
+    paths:
+      - "**.md"
+  workflow_dispatch:
+
+jobs:
+  format_markdown:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Install Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "14"
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Format Markdown files
+        run: npx prettier --write "**/*.md"
+
+      # Import GPG key for signing commits
+      - name: Import GPG key
+        id: import-gpg
+        uses: crazy-max/ghaction-import-gpg@v6
+        with:
+          gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
+          passphrase: ${{ secrets.PASSPHRASE }}
+          git_user_signingkey: true
+          git_commit_gpgsign: true
+
+      - name: Commit and push changes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "format markdown files"
+          commit_author: "Thomas Leon Highbaugh <thighbaugh@zoho.com>"
+          commit_user_name: "Thomas Leon Highbaugh"
+          commit_user_email: "thighbaugh@zoho.com"
