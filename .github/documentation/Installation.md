@@ -27,4 +27,3 @@ git clone https://github.com/the-Electric-Tantra-Linux/awesomewm-nixos
 
 # restart awesome and it should work
 ```
-

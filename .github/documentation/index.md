@@ -8,9 +8,7 @@ The documentation and working notes related to this project reside within this d
 
 ## Contents
 
-
 - [Additional Resources](./Additional-Resources.md)
 - [Credit Where It is Due](./Credit-Where-It-Is-Due.md)
 - [Installation](./Installation.md)
 - [Why There Is No Widget Sub-Directory](./No-Widgets-Directory.md)
-
