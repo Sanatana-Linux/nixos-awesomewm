@@ -5,6 +5,7 @@ local gears = require("gears")
 local dpi = beautiful.xresources.apply_dpi
 local cairo = require("lgi").cairo
 local gmatrix = require("gears.matrix")
+---@diagnostic disable-next-line: unused-local
 local json = require("mods.json")
 local wibox = require("wibox")
 

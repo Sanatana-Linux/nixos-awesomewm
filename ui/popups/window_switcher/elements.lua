@@ -12,7 +12,7 @@ return function()
     -- Create an empty widget with a horizontal layout and a specific spacing
     local elems = wibox.widget({
         layout = overflow.horizontal(),
-        spacing = 20,
+        spacing = dpi(33),
         id = "switcher",
     })
 
@@ -80,7 +80,7 @@ return function()
                                 widget = wibox.widget.textbox,
                             },
                             widget = wibox.container.constraint,
-                            width = dpi(84),
+                            width = dpi(108),
                             height = dpi(24),
                         },
                         spacing = 5,

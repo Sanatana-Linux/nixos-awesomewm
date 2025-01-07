@@ -33,7 +33,7 @@ local battery = helpers.mkbtn({
     },
     spacing = 2,
     layout = wibox.layout.fixed.horizontal,
-}, beautiful.bg_gradient, beautiful.bg_gradient2, 5, dpi(58), dpi(32))
+}, beautiful.bg_gradient, beautiful.bg_gradient_alt, 5, dpi(58), dpi(32))
 
 awesome.connect_signal("signal::battery", function(value)
     local b = battery:get_children_by_id("prog")[1]

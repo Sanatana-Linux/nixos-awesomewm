@@ -3,7 +3,7 @@ local wibox = require("wibox")
 local beautiful = require("beautiful")
 local dpi = require("beautiful").xresources.apply_dpi
 local helpers = require("helpers")
-
+local tasklist = require("ui.bar.mods.task")
 local profile = require("ui.bar.mods.profile")
 local battery = require("ui.bar.mods.battery")
 local wifi = require("ui.bar.mods.wifi")
@@ -16,69 +16,38 @@ local exit_button = require("ui.bar.mods.exit_button")
 
 local function init(s)
     local get_tags = require("ui.bar.mods.tags")
-    local taglist = get_tags.new({
-        screen = s,
-        taglist = {
-            buttons = {
-                awful.button({}, 1, function(t)
-                    t:view_only()
-                end),
-                awful.button({ modkey }, 1, function(t)
-                    if client.focus then
-                        client.focus:move_to_tag(t)
-                    end
-                end),
-                awful.button({}, 3, awful.tag.viewtoggle),
-            },
-        },
-        tasklist = {
-            buttons = {
-
-                awful.button({}, 1, function(c)
-                    if c ~= nil then
-                        if not c:isvisible() and c.first_tag then
-                            c.first_tag:view_only()
-                        end
-                        c:emit_signal("request::activate")
-                        c:raise()
-                        c.minimized = false
-                    end
-                end),
-                awful.button({}, 3, function(c)
-                    c:activate({ context = "titlebar", action = "mouse_resize" })
-                end),
-            },
-        },
-    })
+    local taglist = get_tags(s)
 
     local wibar = awful.wibar({
         position = "bottom",
-        height = dpi(36),
+        height = dpi(48),
         ontop = true,
         screen = s,
         width = s.geometry.width,
         bg = beautiful.bg_gradient,
-        fg = beautiful.fg1,
+        fg = beautiful.fg,
 
         widget = {
 
             {
                 profile,
-                widget = wibox.container.margin,
-                left = dpi(5),
-                top = dpi(3),
-                bottom = dpi(3),
-                right = dpi(10),
-            },
-            {
                 taglist,
                 widget = wibox.container.margin,
-                left = dpi(10),
-                top = dpi(3),
-                bottom = dpi(3),
-                right = dpi(10),
+                left = dpi(5),
+                top = dpi(5),
+                bottom = dpi(5),
+                right = dpi(5),
             },
 
+            {
+
+                tasklist,
+                widget = wibox.container.margin,
+                left = dpi(5),
+                right = dpi(5),
+                top = dpi(5),
+                bottom = dpi(5),
+            },
             {
                 {
                     {

@@ -24,18 +24,18 @@ local widget = wibox.widget {
           valign = "start",
           align = "center"
         },
-        spacing = 20,
+        spacing = dpi(20),
         layout = wibox.layout.fixed.vertical,
       },
       widget = wibox.container.margin,
-      margins = 30
+      margins = dpi(30)
     },
     widget = wibox.container.background,
     bg = beautiful.mbg,
     shape = helpers.rrect(20),
   },
   widget = wibox.container.margin,
-  top = 20
+  top = dpi(20)
 }
 
 return widget

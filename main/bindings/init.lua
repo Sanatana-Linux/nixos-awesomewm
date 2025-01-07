@@ -2,7 +2,7 @@
 
 local function set_keybindings()
     require("main.bindings.awesome")
-    require("main.bindings.custom_bindings")
+    require("main.bindings.hardware_functions")
     require("main.bindings.client")
     require("main.bindings.focus")
     require("main.bindings.layout")

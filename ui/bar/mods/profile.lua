@@ -17,9 +17,7 @@ local profile = helpers.mkbtn(
     },
     beautiful.bg_gradient_button, -- normal
     beautiful.bg_gradient_button2, -- hover
-    dpi(5), -- radius
-    dpi(32), -- width
-    dpi(32) -- height
+    dpi(5) -- radius
 )
 
 profile:add_button(

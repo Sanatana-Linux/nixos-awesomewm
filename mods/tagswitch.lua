@@ -21,7 +21,7 @@ M:setup({
 	{
 		id = "text",
 		markup = "<b>dev</b>",
-		font = beautiful.prompt_font .. "36",
+		font = beautiful.font .. "36",
 		widget = wibox.widget.textbox,
 	},
 	valign = "center",

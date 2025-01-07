@@ -1,382 +1,352 @@
 local awful = require("awful")
-local dpi = require("beautiful").xresources.apply_dpi
 local wibox = require("wibox")
 local gears = require("gears")
-local Gio = require("lgi").Gio
-local helpers = require("helpers")
 local beautiful = require("beautiful")
-local getIcon = require("mods.getIcon")
+local dpi = beautiful.xresources.apply_dpi
+local lgi = require("lgi")
+local Gtk = lgi.require("Gtk", "3.0")
+local json = require("mods.json") -- Require the json utility
+local helpers = require("helpers")
 
-local layout = wibox.layout.fixed.horizontal
-local flexlayout = wibox.layout.flex.horizontal
+local tasklist
 
-local inspect = require("mods.inspect")
-local M = {
-	metadata = {
-		{
-			count = 0,
-			pinned = true,
-			icon = getIcon(nil, "firefox", "firefox"),
-			id = 1,
-			clients = {},
-			class = "firefox",
-			exec = "firefox",
-			name = "firefox",
-		},
-		{
-			count = 0,
-			pinned = true,
-			icon = getIcon(nil, "org.wezfurlong.wezterm", "org.wezfurlong.wezterm"),
-			id = 2,
-			clients = {},
-			class = "org.wezfurlong.wezterm",
-			exec = "wezterm",
-			name = "wezterm",
-		},
-		{
-			count = 0,
-			pinned = true,
-			icon = getIcon(nil, "discord", "discord"),
-			id = 3,
-			clients = {},
-			class = "discord",
-			exec = "discord",
-			name = "discord",
-		},
-		{
-			count = 0,
-			pinned = true,
-			icon = getIcon(nil, "spotify", "spotify"),
-			id = 4,
-			clients = {},
-			class = "spotify",
-			exec = "spotify",
-			name = "spotify",
-		},
-		{
-			count = 0,
-			pinned = true,
-			icon = getIcon(nil, "steam", "steam"),
-			id = 4,
-			clients = {},
-			class = "steam",
-			exec = "steam",
-			name = "steam",
-		},
-	},
-	entries = {},
-	classes = { "firefox", "org.wezfurlong.wezterm", "discord", "spotify", "steam" },
-}
-
-M.widget = wibox.widget({
-	layout = layout,
-	spacing = 10,
+local pins = wibox.widget({
+    spacing = dpi(5),
+    layout = wibox.layout.fixed.horizontal,
 })
 
-M.popupWidget = wibox.widget({
-	layout = wibox.layout.fixed.vertical,
-	spacing = 10,
+local separator = wibox.widget({
+    orientation = "vertical",
+    thickness = dpi(2),
+    span_ratio = 0.75,
+    forced_width = dpi(5),
+    visible = false,
+    widget = wibox.widget.separator,
+    color = beautiful.bg4,
 })
 
-M.popup = awful.popup({
-	minimum_width = 240,
-	widget = wibox.container.background,
-	visible = false,
-	shape = helpers.rrect(5),
-	ontop = true,
-	bg = beautiful.bg,
+local task_json_path = gears.filesystem.get_cache_dir() .. "json/task.json"
+
+if not gears.filesystem.file_readable(task_json_path) then
+    local w = assert(io.open(task_json_path, "w"))
+    w:write(json.encode({})) -- Write an empty JSON array "{}"
+    w:close()
+end
+
+local pinned = {}
+local r = assert(io.open(task_json_path, "r"))
+local t = r:read("*all")
+r:close()
+
+local ok, decoded = pcall(json.decode, t)
+if ok then
+    pinned = decoded
+else
+    print("Error decoding JSON file, using empty table")
+end
+
+local function pin(class, exec)
+    local theme = Gtk.IconTheme.get_default()
+    local icon = theme:lookup_icon(class:lower(), 64, 0)
+    if icon then
+        icon = icon:get_filename()
+    else
+        icon = require("menubar").utils.lookup_icon_uncached(class:lower())
+        if not icon then
+            icon = theme
+                :lookup_icon("application-default-icon", 64, 0)
+                :get_filename()
+        end
+    end
+    local widget = helpers.mkbtn(wibox.widget({
+        {
+            {
+                {
+                    shape = function(cr, width, height)
+                        gears.shape.rounded_rect(cr, width, height, dpi(8))
+                    end,
+                    id = "background",
+                    bg = beautiful.bg,
+                    widget = wibox.container.background,
+                },
+                bottom = dpi(2),
+                widget = wibox.container.margin,
+            },
+            shape = function(cr, width, height)
+                gears.shape.rounded_rect(cr, width, height, dpi(10))
+            end,
+            id = "foreground",
+            bg = beautiful.fg,
+            widget = wibox.container.background,
+        },
+        {
+            wibox.widget.imagebox(icon),
+            margins = dpi(5),
+            widget = wibox.container.margin,
+        },
+        layout = wibox.layout.stack,
+    }))
+
+    local function check()
+        local present = false
+        local focused = false
+        if client.focus and client.focus.class == class then
+            widget:get_children_by_id("background")[1].bg = beautiful.bgalt
+            widget:get_children_by_id("foreground")[1].bg = beautiful.fg
+            widget.buttons = {
+                awful.button({}, 1, function()
+                    for _, c in ipairs(client.get()) do
+                        if c.class == class then
+                            c.minimized = false
+                            c:raise()
+                        end
+                    end
+                end),
+                awful.button({ "Shift" }, 1, function()
+                    awful.spawn.with_shell(exec)
+                end),
+                awful.button({}, 3, function()
+                    for i, app in ipairs(pinned) do
+                        if app.class == class then
+                            table.remove(pinned, i)
+                        end
+                    end
+                    pins:remove(pins:index(widget))
+                    tasklist._do_tasklist_update_now()
+                    local w = assert(io.open(task_json_path, "w"))
+                    w:write(json.encode(pinned)) -- Use json.encode
+                    w:close()
+                end),
+            }
+            present = true
+            focused = true
+        end
+        if not focused then
+            for _, c in ipairs(client.get()) do
+                if c.class == class then
+                    widget:get_children_by_id("background")[1].bg =
+                        beautiful.mbg
+                    widget:get_children_by_id("foreground")[1].bg = beautiful.fg
+                        .. "64"
+                    widget.buttons = {
+                        awful.button({}, 1, function()
+                            c.first_tag:view_only() -- check current tag first?
+                            for _, c in ipairs(client.get()) do
+                                if c.class == class then
+                                    c.minimized = false
+                                    c:raise()
+                                    c:activate()
+                                end
+                            end
+                        end),
+                        awful.button({ "Shift" }, 1, function()
+                            awful.spawn.with_shell(exec)
+                        end),
+                        awful.button({}, 3, function()
+                            for i, app in ipairs(pinned) do
+                                if app.class == class then
+                                    table.remove(pinned, i)
+                                end
+                            end
+                            pins:remove(pins:index(widget))
+                            tasklist._do_tasklist_update_now()
+                            local w = assert(io.open(task_json_path, "w"))
+                            w:write(json.encode(pinned)) -- Use json.encode
+                            w:close()
+                        end),
+                    }
+                    present = true
+                    return
+                end
+            end
+        end
+        if not present then
+            widget:get_children_by_id("background")[1].bg = beautiful.bg
+            widget:get_children_by_id("foreground")[1].bg = beautiful.bg
+            widget.buttons = {
+                awful.button({}, 1, function()
+                    awful.spawn.with_shell(exec)
+                end),
+                awful.button({}, 3, function()
+                    for i, app in ipairs(pinned) do
+                        if app.class == class then
+                            table.remove(pinned, i)
+                        end
+                    end
+                    pins:remove(pins:index(widget))
+                    tasklist._do_tasklist_update_now()
+                    local w = assert(io.open(task_json_path, "w"))
+                    w:write(json.encode(pinned)) -- Use json.encode
+                    w:close()
+                end),
+            }
+        end
+        widget:emit_signal("widget::redraw_needed")
+    end
+
+    client.connect_signal("request::manage", check)
+    client.connect_signal("request::unmanage", check)
+    client.connect_signal("focus", check)
+    client.connect_signal("unfocus", check)
+
+    check()
+
+    return widget
+end
+
+local function contains(table, name)
+    for _, app in ipairs(table) do
+        if app == name then
+            return true
+        end
+    end
+    return false
+end
+
+tasklist = awful.widget.tasklist({
+    screen = awful.screen.focused(),
+    filter = awful.widget.tasklist.filter.allscreen,
+    source = function()
+        local seen = {}
+        local ret = {}
+
+        for _, c in ipairs(client.get()) do
+            local exclude = false
+            for _, app in ipairs(pinned) do
+                if c.class == app.class then
+                    exclude = true
+                    break
+                end
+            end
+            if
+                not exclude and not contains(seen, c.class)
+                or c.minimized == true
+            then
+                table.insert(seen, c.class)
+                table.insert(ret, c)
+            end
+        end
+
+        if seen[1] and pinned[1] then
+            separator.visible = true
+        else
+            separator.visible = false
+        end
+
+        return ret
+    end,
+    style = {
+        shape = function(cr, width, height)
+            gears.shape.rounded_rect(cr, width, height, dpi(10))
+        end,
+    },
+    layout = {
+        spacing = dpi(5),
+        spacing_widget = wibox.container.background,
+        layout = wibox.layout.fixed.horizontal,
+    },
+    widget_template = {
+        {
+            {
+                {
+                    awful.widget.clienticon,
+                    margins = dpi(5),
+                    widget = wibox.container.margin,
+                },
+                shape = function(cr, width, height)
+                    gears.shape.rounded_rect(cr, width, height, dpi(8))
+                end,
+                id = "background",
+                widget = wibox.widget.background,
+            },
+            bottom = dpi(2),
+            widget = wibox.container.margin,
+        },
+        shape = function(cr, width, height)
+            gears.shape.rounded_rect(cr, width, height, dpi(10))
+        end,
+        id = "foreground",
+        bg = beautiful.fg,
+        widget = wibox.container.background,
+        create_callback = function(self, c)
+            local exec
+            if c.pid then
+                awful.spawn.easy_async(
+                    "readlink -f /proc/" .. c.pid .. "/exe",
+                    function(out)
+                        exec = out:gsub("\n", "")
+                    end
+                )
+            end
+            self.buttons = {
+                awful.button({}, 1, function()
+                    c.first_tag:view_only()
+                    c.minimized = false
+                    c:raise()
+                end),
+                awful.button({}, 3, function()
+                    local seen
+                    for _, app in ipairs(pinned) do
+                        if app.class == c.class then
+                            seen = true
+                            return
+                        end
+                    end
+                    if not seen then
+                        pins:add(pin(c.class, exec))
+                        table.insert(pinned, { class = c.class, exec = exec })
+                        tasklist._do_tasklist_update_now()
+                        local w = assert(io.open(task_json_path, "w"))
+                        w:write(json.encode(pinned)) -- Use json.encode
+                        w:close()
+                    end
+                end),
+            }
+            helpers.addHover(self)
+
+            if client.focus == c then
+                self:get_children_by_id("background")[1].bg = beautiful.bgalt
+                self:get_children_by_id("foreground")[1].bg = beautiful.fg
+            else
+                self:get_children_by_id("background")[1].bg = beautiful.mbg
+                self:get_children_by_id("foreground")[1].bg = beautiful.fg
+                    .. "64"
+            end
+            client.connect_signal("focus", function()
+                if client.focus == c then
+                    self:get_children_by_id("background")[1].bg =
+                        beautiful.bgalt
+                    self:get_children_by_id("foreground")[1].bg = beautiful.fg
+                else
+                    self:get_children_by_id("background")[1].bg =
+                        beautiful.mbg
+                    self:get_children_by_id("foreground")[1].bg = beautiful.fg
+                        .. "64"
+                end
+            end)
+            client.connect_signal("unfocus", function()
+                self:get_children_by_id("background")[1].bg = beautiful.mbg
+                self:get_children_by_id("foreground")[1].bg = beautiful.fg
+                    .. "64"
+            end)
+        end,
+    },
 })
 
-M.popup:setup({
-	widget = wibox.container.margin,
-	margins = 10,
-	M.popupWidget,
+for _, app in ipairs(pinned) do
+    pins:add(pin(app.class, app.exec))
+end
+
+local task = wibox.widget({
+    {
+        pins,
+        separator,
+        tasklist,
+        spacing = dpi(5),
+        layout = wibox.layout.fixed.horizontal,
+    },
+    halign = "center",
+    widget = wibox.container.place,
 })
 
-local removeDup = function(arr)
-	local hash = {}
-	local res = {}
-
-	for _, v in ipairs(arr) do
-		if not hash[v] then
-			res[#res + 1] = v -- you could print here instead of saving to result table if you wanted
-			hash[v] = true
-		end
-	end
-
-	return res
-end
-
-function M:getExecutable(class)
-	local class_1 = class:gsub("[%-]", "")
-	local class_2 = class:gsub("[%-]", ".")
-
-	local class_3 = class:match("(.-)-") or class
-	class_3 = class_3:match("(.-)%.") or class_3
-	class_3 = class_3:match("(.-)%s+") or class_3
-	local apps = Gio.AppInfo.get_all()
-	local possible_icon_names = { class, class_3, class_2, class_1 }
-	for _, app in ipairs(apps) do
-		local id = app:get_id():lower()
-		for _, possible_icon_name in ipairs(possible_icon_names) do
-			if id and id:find(possible_icon_name, 1, true) then
-				return app:get_executable()
-			end
-		end
-	end
-	return class:lower()
-end
-
-function M:showMenu(data)
-	local clients = data.clients
-	self.popup.x = mouse.coords().x - 80
-	self.popup.y = 1080 - 70 - (50 * (#clients + 2))
-	self.popupWidget:reset()
-	for i, j in ipairs(clients) do
-		local widget = wibox.widget({
-			{
-				{
-					{
-						{
-							markup = j.name,
-							font = beautiful.font .. " 12",
-							height = 16,
-							widget = wibox.widget.textbox,
-						},
-						widget = wibox.container.constraint,
-						width = 180,
-						height = 16,
-					},
-					nil,
-					{
-						markup = helpers.colorizeText("󰅖", beautiful.red),
-						font = beautiful.icon .. " 16",
-						widget = wibox.widget.textbox,
-						buttons = {
-							awful.button({}, 1, function()
-								j:kill()
-								self.popup.visible = false
-							end),
-						},
-					},
-					layout = wibox.layout.align.horizontal,
-				},
-				widget = wibox.container.margin,
-				margins = 7,
-			},
-			buttons = {
-				awful.button({}, 1, function()
-					if j.minimized then
-						j.minimized = false
-						client.focus = j
-					else
-						j.minimized = true
-					end
-					self.popup.visible = false
-				end),
-			},
-			widget = wibox.container.background,
-			shape = helpers.rrect(4),
-			bg = j.minimized and beautiful.fg .. "22" or beautiful.mbg,
-		})
-		M.popupWidget:connect_signal("mouse::leave", function()
-			self.popup.visible = false
-		end)
-		self.popupWidget:add(widget)
-	end
-	local addNew = wibox.widget({
-		{
-			{
-				{
-					{
-						markup = "Open New Window",
-						font = beautiful.font .. " 12",
-						widget = wibox.widget.textbox,
-					},
-					widget = wibox.container.constraint,
-					width = 180,
-				},
-				nil,
-				nil,
-				layout = wibox.layout.align.horizontal,
-			},
-			widget = wibox.container.margin,
-			margins = 7,
-		},
-		buttons = {
-			awful.button({}, 1, function()
-				awful.spawn.with_shell(data.exec)
-			end),
-		},
-		widget = wibox.container.background,
-		shape = helpers.rrect(4),
-		bg = beautiful.mbg,
-	})
-	local closeAll = wibox.widget({
-		{
-			{
-				{
-					{
-						markup = "Close All",
-						font = beautiful.font .. " 12",
-						widget = wibox.widget.textbox,
-					},
-					widget = wibox.container.constraint,
-					width = 180,
-				},
-				nil,
-				nil,
-				layout = wibox.layout.align.horizontal,
-			},
-			widget = wibox.container.margin,
-			margins = 7,
-		},
-		buttons = {
-			awful.button({}, 1, function()
-				for i, j in ipairs(clients) do
-					j:kill()
-				end
-			end),
-		},
-		widget = wibox.container.background,
-		shape = helpers.rrect(4),
-		bg = beautiful.mbg,
-	})
-	self.popupWidget:add(addNew)
-	self.popupWidget:add(closeAll)
-	self.popup.visible = true
-end
-
-function M:genMetadata()
-	local clients = mouse.screen.selected_tag and mouse.screen.selected_tag:clients() or {}
-
-	for _, j in pairs(self.metadata) do
-		j.count = 0
-		j.clients = {}
-	end
-	for _, c in ipairs(clients) do
-		local icon = getIcon(c, c.class, c.class)
-		local class = string.lower(c.class or "default")
-		local exe = self:getExecutable(c.class)
-		if helpers.inTable(self.classes, class) then
-			for _, j in pairs(self.metadata) do
-				if j.class:lower() == class:lower() then
-					table.insert(j.clients, c)
-					j.count = j.count + 1
-				end
-			end
-		else
-			table.insert(self.classes, class)
-			local toInsert = {
-				count = 1,
-				pinned = false,
-				icon = icon,
-				id = #self.classes + 1,
-				clients = { c },
-				class = class,
-				exec = exe,
-				name = c.name,
-			}
-			table.insert(self.metadata, toInsert)
-		end
-		for _, j in pairs(self.metadata) do
-			j.clients = removeDup(j.clients)
-		end
-	end
-	table.sort(self.metadata, function(a, b)
-		return a.id < b.id
-	end)
-end
-
-local function getMinimized(clients)
-	local a = 0
-	for i, j in ipairs(clients) do
-		if j.minimized then
-			a = a + 1
-		end
-	end
-	return a
-end
-
-function M:genIcons()
-	self:genMetadata()
-	self.widget:reset()
-	print(inspect(self.metadata))
-	for i, j in ipairs(self.metadata) do
-		if j.pinned == true or j.count > 0 then
-			local minimized = getMinimized(j.clients)
-			local bg = beautiful.bg
-			if client.focus then
-				if client.focus.class:lower() == j.class then
-					bg = beautiful.fg .. "22"
-				elseif j.count > 0 then
-					bg = beautiful.fg .. "33"
-				end
-			elseif minimized > 0 then
-				bg = beautiful.fg .. "33"
-			end
-			local widget = wibox.widget({
-				{
-					{
-						widget = wibox.widget.imagebox,
-						image = j.icon,
-						forced_height = 35,
-						forced_width = 35,
-						clip_shape = helpers.rrect(100),
-						resize = true,
-					},
-					widget = wibox.container.margin,
-					margins = 3,
-				},
-				shape = helpers.rrect(10),
-				widget = wibox.container.background,
-				bg = bg,
-			})
-			widget:buttons(gears.table.join(
-				awful.button({}, 1, function()
-					if j.count == 0 then
-						awful.spawn.with_shell(j.exec)
-					elseif j.count == 1 then
-						if j.clients[j.count].minimized then
-							j.clients[j.count].minimized = false
-							client.focus = j.clients[j.count]
-						else
-							j.clients[j.count].minimized = true
-						end
-					else
-						self:showMenu(j)
-					end
-				end),
-				awful.button({}, 3, function()
-					self:showMenu(j)
-				end)
-			))
-			self.widget:add(widget)
-		end
-	end
-end
-
-client.connect_signal("focus", function()
-	M:genIcons()
-end)
-client.connect_signal("property::minimized", function()
-	M:genIcons()
-end)
-client.connect_signal("property::maximized", function()
-	M:genIcons()
-end)
-client.connect_signal("manage", function()
-	M:genIcons()
-	M.popup.visible = false
-end)
-client.connect_signal("unmanage", function()
-	M:genIcons()
-	M.popup.visible = false
-end)
-tag.connect_signal("property::selected", function()
-	M:genIcons()
-	M.popup.visible = false
-end)
-M:genIcons()
-
-return M
+return task

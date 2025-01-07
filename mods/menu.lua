@@ -207,7 +207,7 @@ function menu.sub_menu_button(args)
 
   local icon = args.icon ~= nil
       and wibox.widget {
-        font = args.icon.font .. " " .. args.icon_size,
+        font = (args.icon.font or beautiful.icon_font) .. " " .. args.icon_size,
         markup = helpers.colorizeText(args.icon.icon, helpers.randomColor()),
         widget = wibox.widget.textbox,
         halign = "start",

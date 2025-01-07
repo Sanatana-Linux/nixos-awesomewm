@@ -92,7 +92,7 @@ theme.bg_gradient = "linear:0,0:180,0:1800,"
     .. helpers.color_lighten(theme.bg, 30)
     .. "ee"
 -- -------------------------------------------------------------------------- --
-theme.bg_gradient2 = "linear:180,0:23,180:0,"
+theme.bg_gradient_alt = "linear:180,0:23,180:0,"
     .. helpers.color_lighten(theme.mbg, 35)
     .. "ee:0.25,"
     .. helpers.color_lighten(theme.mbg, 20)
@@ -123,7 +123,7 @@ theme.bg_gradient_titlebar = "linear:180,0:32,180:0,"
     .. "ee"
 
 -- -------------------------------------------------------------------------- --
-theme.bg_gradient_titlebar2 = "linear:180,0:23,180:0,"
+theme.bg_gradient_titlebar_alt = "linear:180,0:23,180:0,"
     .. helpers.color_darken(theme.fg3, 10)
     .. "ee:0.25,"
     .. helpers.color_lighten(theme.bg, 35)
@@ -151,7 +151,7 @@ theme.bg_gradient_tag = "radial:0.5,0.5:0.5,0.5:0.4," -- Centered, smaller radiu
 
 -- -------------------------------------------------------------------------- --
 -- tags2 (3D Skeuomorphic)
-theme.bg_gradient_tag2 = "radial:0.5,0.5:0.5,0.5:0.4," -- Centered, smaller radius
+theme.bg_gradient_tag_alt = "radial:0.5,0.5:0.5,0.5:0.4," -- Centered, smaller radius
     .. helpers.color_darken(theme.fg, 15)
     .. "ee:0.25,"
     .. helpers.color_lighten(theme.fg3, 15)
@@ -165,7 +165,7 @@ theme.bg_gradient_tag2 = "radial:0.5,0.5:0.5,0.5:0.4," -- Centered, smaller radi
 
 -- -------------------------------------------------------------------------- --
 -- tags3 (3D Skeuomorphic)
-theme.bg_gradient_tag3 = "radial:0.5,0.5:0.5,0.5:0.4," -- Centered, smaller radius
+theme.bg_gradient_tag_alt_variant = "radial:0.5,0.5:0.5,0.5:0.4," -- Centered, smaller radius
     .. helpers.color_lighten(theme.mbg, 45)
     .. "ee:0.25,"
     .. helpers.color_darken(theme.fg3, 5)
@@ -178,7 +178,7 @@ theme.bg_gradient_tag3 = "radial:0.5,0.5:0.5,0.5:0.4," -- Centered, smaller radi
     .. "ee"
 -- -------------------------------------------------------------------------- --
 -- tags4 (3D Skeuomorphic)
-theme.bg_gradient_tag4 = "radial:0.5,0.5:0.5,0.5:0.4," -- Centered, smaller radius
+theme.bg_gradient_tag_alt_variant_alt = "radial:0.5,0.5:0.5,0.5:0.4," -- Centered, smaller radius
     .. helpers.color_lighten(theme.mbg, 45)
     .. "ee:0.25,"
     .. helpers.color_darken(theme.fg3, 5)
@@ -209,7 +209,7 @@ theme.bg_gradient_button = "radial:0,0:272,272:1,"
     .. "ee"
 
 -- -------------------------------------------------------------------------- --
-theme.bg_gradient_button2 = "linear:180,0:23,180:0,"
+theme.bg_gradient_button_alt = "linear:180,0:23,180:0,"
     .. helpers.color_darken(theme.fg3, 80)
     .. "ee:0.25,"
     .. helpers.color_lighten(theme.bg, 20)
@@ -234,9 +234,9 @@ theme.taglist_bg_focus = theme.bg_gradient_tag2
 theme.taglist_fg_focus = theme.fg .. "aa"
 theme.taglist_bg_urgent = theme.red
 theme.taglist_fg_urgent = theme.fg
-theme.taglist_bg_occupied = theme.bg_gradient_tag3
+theme.taglist_bg_occupied = theme.bg_gradient_tag_alt_variant
 theme.taglist_fg_occupied = theme.fg .. "55"
-theme.taglist_bg_empty = theme.bg_gradient_tag4
+theme.taglist_bg_empty = theme.bg_gradient_tag_alt_variant_alt
 theme.taglist_fg_empty = colors.fg
 theme.taglist_font = "awesomewm-font Regular 11"
 theme.taglist_spacing = dpi(2)
@@ -248,7 +248,7 @@ theme.tasklist_bg_minimize = theme.bg3
 -- titlebar
 
 theme.titlebar_bg_normal = theme.bg_gradient_titlebar
-theme.titlebar_bg_focus = theme.bg_gradient_titlebar2
+theme.titlebar_bg_focus = theme.bg_gradient_titlebar_alt
 theme.titlebar_fg_normal = colors.fg3
 theme.titlebar_fg_focus = colors.fg
 

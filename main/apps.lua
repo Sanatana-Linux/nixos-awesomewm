@@ -1,8 +1,7 @@
 local apps = {
-	terminal = "ghostty",
-	launcher = "rofi -show drun",
-	browser = "firefox",
-	fileManager = "thunar",
+    terminal = "kitty",
+    browser = "firefox",
+    fileManager = "nemo",
 }
 
 return apps

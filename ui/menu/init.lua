@@ -389,7 +389,7 @@ awful.screen.connect_for_each_screen(function(s)
         local fade_animation = require("mods.animation.fade")
 
         -- Animation setup
-        local animation_duration = 2.2 -- Duration of the animation in seconds
+        local animation_duration = 1.2 -- Duration of the animation in seconds
 
         local function get_target_x()
             local s = awful.screen.focused()
@@ -426,7 +426,7 @@ awful.screen.connect_for_each_screen(function(s)
         else
             menu_animation:set({
                 target = {
-                    x = initial_x,
+                    x = target_x - launcherdisplay.width,
                     opacity = 1,
                 },
                 signals = {
