@@ -3,9 +3,7 @@ local awful = require("awful")
 local autostart = {
 
     "xrdb -merge ~/.Xresources &",
-    #"xsettingsd",
-    #"xfsettingsd --replace  --disable-wm-check --daemon &",
-    #"picom  &",
+    "doas pkill picom && picom &",
     "mkdir -p ~/.cache/awesome/json &",
 }
 

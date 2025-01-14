@@ -32,7 +32,7 @@ function timer:new()
   self.widget = wibox.widget {
     {
       id = "image",
-      image = helpers.cropSurface(1.42, gears.surface.load_uncached(gears.filesystem.get_configuration_dir() .. "/theme/assets/pomo.jpg")),
+      image = helpers.crop_surface(1.42, gears.surface.load_uncached(gears.filesystem.get_configuration_dir() .. "/theme/assets/pomo.jpg")),
       widget = wibox.widget.imagebox,
       clip_shape = helpers.rrect(20),
       opacity = 0.9,
@@ -75,7 +75,7 @@ function timer:new()
                     {
                       id = "reset",
                       font = beautiful.icon .. " 20",
-                      markup = helpers.colorizeText("󰍴", beautiful.fg),
+                      markup = helpers.colorize_text("󰍴", beautiful.fg),
                       valign = "center",
                       align = "start",
                       widget = wibox.widget.textbox,
@@ -104,7 +104,7 @@ function timer:new()
                     {
                       id = "resume",
                       font = beautiful.icon .. " 20",
-                      markup = helpers.colorizeText("󰐎", beautiful.blue),
+                      markup = helpers.colorize_text("󰐎", beautiful.blue),
                       valign = "center",
                       align = "start",
                       widget = wibox.widget.textbox,
@@ -130,7 +130,7 @@ function timer:new()
                     {
                       id = "reset",
                       font = beautiful.icon .. " 20",
-                      markup = helpers.colorizeText("󰦛", beautiful.red),
+                      markup = helpers.colorize_text("󰦛", beautiful.red),
                       valign = "center",
                       align = "start",
                       widget = wibox.widget.textbox,
@@ -156,7 +156,7 @@ function timer:new()
                     {
                       id = "increasetime",
                       font = beautiful.icon .. " 20",
-                      markup = helpers.colorizeText("󰐕", beautiful.fg),
+                      markup = helpers.colorize_text("󰐕", beautiful.fg),
                       valign = "center",
                       align = "start",
                       widget = wibox.widget.textbox,

@@ -19,7 +19,7 @@ local hourminutes = helpers.mkbtn(
         valign = "center",
     },
     beautiful.bg_gradient_button,
-    beautiful.bg_gradient_button2,
+    beautiful.bg_gradient_button_alt,
     dpi(5),
     dpi(84),
     dpi(32)

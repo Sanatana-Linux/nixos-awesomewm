@@ -302,7 +302,7 @@ tasklist = awful.widget.tasklist({
                     end
                 end),
             }
-            helpers.addHover(self)
+            helpers.add_hover(self)
 
             if client.focus == c then
                 self:get_children_by_id("background")[1].bg = beautiful.bgalt

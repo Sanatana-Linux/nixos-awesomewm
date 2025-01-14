@@ -8,11 +8,11 @@ local M = {}
 M.defaultData = {
     colorscheme = "monokaiprospectrum",
     gaps = dpi(10),
-    iconTheme = "~/.local/share/icons/hicolor/",
+    iconTheme = "/run/current-system/sw/share/icons/Reversal-dark",
     openWeatherApi = "KEY_HERE",
     showDesktopIcons = true,
     pfp = "/home/"
----@diagnostic disable-next-line: param-type-mismatch
+        ---@diagnostic disable-next-line: param-type-mismatch
         .. string.gsub(os.getenv("USER"), "^%l", string.lower)
         .. "/.config/awesome/theme/assets/nixos.svg",
     wallpaper = "colorful",

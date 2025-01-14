@@ -37,7 +37,7 @@ local widget = wibox.widget {
   },
   {
     font = beautiful.sans .. " 12",
-    markup = helpers.colorizeText("25%", beautiful.fg),
+    markup = helpers.colorize_text("25%", beautiful.fg),
     valign = "center",
     id = "batvalue",
     widget = wibox.widget.textbox,
@@ -48,7 +48,7 @@ local widget = wibox.widget {
 awesome.connect_signal("signal::battery", function(value)
   local b = widget:get_children_by_id("prog")[1]
   local v = widget:get_children_by_id("batvalue")[1]
-  v.markup = helpers.colorizeText(value .. "%", beautiful.fg)
+  v.markup = helpers.colorize_text(value .. "%", beautiful.fg)
   b.value = value
   if value > 80 then
     b.color = beautiful.green

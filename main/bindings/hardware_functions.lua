@@ -32,13 +32,14 @@ awful.keyboard.append_global_keybindings({
         brightness.decrease()
         awesome.emit_signal("open::osdb")
     end),
-    awful.key({ modkey }, "a", function(c)
-        awesome.emit_signal("toggle::launcher")
-    end),
+    -- -------------------------------------------------------------------------- --
+-- Exit
     awful.key({ modkey }, "x", function(c)
         awesome.emit_signal("toggle::exit")
     end),
-    awful.key({ modkey }, "F4", function(c)
+    -- -------------------------------------------------------------------------- --
+    -- Screenshot
+    awful.key({ modkey }, "Print", function(c)
         awesome.emit_signal("toggle::screenshot_popup")
     end),
 })

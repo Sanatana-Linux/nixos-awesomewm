@@ -47,7 +47,8 @@
   "[lua]": {
     "editor": {
       "defaultFormatter": "johnnymorganz.stylua"
-    }
+    },
+    "editor.defaultFormatter": "sumneko.lua"
   },
   "[nix]": {
     "editor": {

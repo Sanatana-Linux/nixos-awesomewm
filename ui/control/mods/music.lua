@@ -7,7 +7,7 @@ local pctl      = require("mods.playerctl")
 local helpers   = require("helpers")
 local playerctl = pctl.lib()
 local art       = wibox.widget {
-  image = helpers.cropSurface(1.71, gears.surface.load_uncached(beautiful.songdefpicture)),
+  image = helpers.crop_surface(1.71, gears.surface.load_uncached(beautiful.songdefpicture)),
   opacity = 0.3,
   resize = true,
   clip_shape = helpers.rrect(12),
@@ -39,7 +39,7 @@ local prev      = wibox.widget {
 local play      = wibox.widget {
   align = 'center',
   font = beautiful.icon .. " 22",
-  markup = helpers.colorizeText('󰐍', beautiful.fg),
+  markup = helpers.colorize_text('󰐍', beautiful.fg),
   widget = wibox.widget.textbox,
   buttons = {
     awful.button({}, 1, function()
@@ -48,7 +48,7 @@ local play      = wibox.widget {
   },
 }
 playerctl:connect_signal("playback_status", function(_, playing, player_name)
-  play.markup = playing and helpers.colorizeText("󰏦", beautiful.fg) or helpers.colorizeText("󰐍", beautiful.fg)
+  play.markup = playing and helpers.colorize_text("󰏦", beautiful.fg) or helpers.colorize_text("󰐍", beautiful.fg)
 end)
 local finalwidget = wibox.widget {
 
@@ -75,13 +75,13 @@ local finalwidget = wibox.widget {
             {
               id = "songname",
               font = beautiful.sans .. " 14",
-              markup = helpers.colorizeText('Song Name', beautiful.fg),
+              markup = helpers.colorize_text('Song Name', beautiful.fg),
               widget = wibox.widget.textbox,
             },
             {
               id = "artist",
               font = beautiful.sans .. " 12",
-              markup = helpers.colorizeText('Artist Name', beautiful.fg),
+              markup = helpers.colorize_text('Artist Name', beautiful.fg),
               widget = wibox.widget.textbox,
             },
             spacing = 8,
@@ -91,7 +91,7 @@ local finalwidget = wibox.widget {
           {
             id = "player",
             font = beautiful.sans .. " 12",
-            markup = helpers.colorizeText('Playing Via Spotify', beautiful.fg),
+            markup = helpers.colorize_text('Playing Via Spotify', beautiful.fg),
             widget = wibox.widget.textbox,
           },
           layout = wibox.layout.align.vertical
@@ -139,10 +139,10 @@ playerctl:connect_signal("metadata", function(_, title, artist, album_path, albu
   if string.len(artist) > 22 then
     artist = string.sub(artist, 0, 22) .. "..."
   end
-  art.image = helpers.cropSurface(1.71, gears.surface.load_uncached(album_path))
-  helpers.gc(finalwidget, "songname"):set_markup_silently(helpers.colorizeText(title or "NO", beautiful.fg))
-  helpers.gc(finalwidget, "artist"):set_markup_silently(helpers.colorizeText(artist or "HM", beautiful.fg))
-  helpers.gc(finalwidget, "player"):set_markup_silently(helpers.colorizeText("Playing Via: " .. (player_name or ""),
+  art.image = helpers.crop_surface(1.71, gears.surface.load_uncached(album_path))
+  helpers.gc(finalwidget, "songname"):set_markup_silently(helpers.colorize_text(title or "NO", beautiful.fg))
+  helpers.gc(finalwidget, "artist"):set_markup_silently(helpers.colorize_text(artist or "HM", beautiful.fg))
+  helpers.gc(finalwidget, "player"):set_markup_silently(helpers.colorize_text("Playing Via: " .. (player_name or ""),
     beautiful.fg))
 end)
 return finalwidget

@@ -233,6 +233,12 @@ local function codepoint_to_utf8(n)
     error(string.format("invalid unicode codepoint '%x'", n))
 end
 
+local function parse_unicode_escape(hex)
+    local codepoint = tonumber(hex, 16)
+    return codepoint_to_utf8(codepoint)
+end
+
+
 -- Parses a JSON string.
 -- @param str string The JSON string.
 -- @param i number The starting index.
@@ -253,13 +259,12 @@ local function parse_string(str, i)
             local c = str:sub(j, j)
             if c == "u" then
                 local hex = str:match("^[dD][89aAbB]%x%x\\u%x%x%x%x", j + 1)
-                    or str:match("^%x%x%x%x", j + 1)
+                        or str:match("^u%x%x%x%x", j + 1)
                     or decode_error(
                         str,
                         j - 1,
                         "invalid unicode escape in string"
                     )
----@diagnostic disable-next-line: undefined-global
                 res = res .. parse_unicode_escape(hex)
                 j = j + #hex
             else

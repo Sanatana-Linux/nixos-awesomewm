@@ -89,9 +89,9 @@ return function()
                     widget = wibox.container.margin,
                     margins = dpi(20),
                 },
-                -- forced_height = dpi(96),
-                -- forced_width = dpi(108),
-                shape = helpers.rrect(),
+                forced_height = dpi(96),
+                forced_width = dpi(108),
+                shape = helpers.rrect(beautiful.border_radius),
                 widget = wibox.container.background,
                 bg = beautiful.bg3 .. "66",
             })
@@ -113,7 +113,7 @@ return function()
                     element.bg = beautiful.bg3 .. "00"
                 end
             end
-        -- If "raise", bring the currently selected client to the front and reset the selection
+            -- If "raise", bring the currently selected client to the front and reset the selection
         elseif fn == "raise" then
             local c = sortedClients[curr]
             if c ~= nil then

@@ -51,7 +51,7 @@ local image_map = {
   ["50n"] = "weather-fog",
 }
 
-local api_key = helpers.readJson(gears.filesystem.get_cache_dir() .. "json/settings.json").openWeatherApi
+local api_key = helpers.read_json(gears.filesystem.get_cache_dir() .. "json/settings.json").openWeatherApi
 local coordinates = { "37.6901201", "-121.9008158" }
 
 local show_hourly_forecast = true

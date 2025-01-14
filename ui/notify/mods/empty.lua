@@ -10,7 +10,7 @@ return wibox.widget {
     {
       {
         widget = wibox.widget.textbox,
-        markup = helpers.colorizeText("No Notifications", beautiful.fg),
+        markup = helpers.colorize_text("No Notifications", beautiful.fg),
         font = beautiful.sans .. " 14",
         valign = "center",
         align = "center"

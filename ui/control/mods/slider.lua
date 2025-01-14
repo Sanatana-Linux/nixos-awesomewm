@@ -49,7 +49,7 @@ local createSlider = function(icon, signal, command)
   local slidIcon = wibox.widget {
     {
       font = beautiful.icon .. " 15",
-      markup = helpers.colorizeText(icon, beautiful.fg),
+      markup = helpers.colorize_text(icon, beautiful.fg),
       valign = "center",
       widget = wibox.widget.textbox,
     },

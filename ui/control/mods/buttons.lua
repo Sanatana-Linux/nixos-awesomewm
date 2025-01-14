@@ -59,16 +59,16 @@ local createButton = function(cmd, icon, name, labelConnected, labelDisconnected
   awesome.connect_signal('signal::' .. signal, function(status)
     if status then
       widget:get_children_by_id("back")[1].bg = beautiful.blue
-      widget:get_children_by_id("arr")[1].markup = helpers.colorizeText("󰅂", beautiful.bg)
-      widget:get_children_by_id("name")[1].markup = helpers.colorizeText(name, beautiful.bg)
-      widget:get_children_by_id("icon")[1].markup = helpers.colorizeText(icon, beautiful.bg)
-      widget:get_children_by_id("label")[1].markup = helpers.colorizeText(labelConnected, beautiful.bg)
+      widget:get_children_by_id("arr")[1].markup = helpers.colorize_text("󰅂", beautiful.bg)
+      widget:get_children_by_id("name")[1].markup = helpers.colorize_text(name, beautiful.bg)
+      widget:get_children_by_id("icon")[1].markup = helpers.colorize_text(icon, beautiful.bg)
+      widget:get_children_by_id("label")[1].markup = helpers.colorize_text(labelConnected, beautiful.bg)
     else
       widget:get_children_by_id("back")[1].bg = beautiful.mbg .. 'aa'
-      widget:get_children_by_id("arr")[1].markup = helpers.colorizeText("󰅂", beautiful.fg .. 'cc')
-      widget:get_children_by_id("name")[1].markup = helpers.colorizeText(name, beautiful.fg .. 'cc')
-      widget:get_children_by_id("icon")[1].markup = helpers.colorizeText(icon, beautiful.fg .. 'cc')
-      widget:get_children_by_id("label")[1].markup = helpers.colorizeText(labelDisconnected, beautiful.fg .. 'cc')
+      widget:get_children_by_id("arr")[1].markup = helpers.colorize_text("󰅂", beautiful.fg .. 'cc')
+      widget:get_children_by_id("name")[1].markup = helpers.colorize_text(name, beautiful.fg .. 'cc')
+      widget:get_children_by_id("icon")[1].markup = helpers.colorize_text(icon, beautiful.fg .. 'cc')
+      widget:get_children_by_id("label")[1].markup = helpers.colorize_text(labelDisconnected, beautiful.fg .. 'cc')
     end
   end)
   return widget

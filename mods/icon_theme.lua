@@ -51,8 +51,10 @@ local function get_icon_by_pid_command(self, client, apps)
     end
 
     local handle = io.popen(string.format("ps -p %d -o comm=", pid))
-    local pid_command = handle:read("*a"):gsub("^%s*(.-)%s*$", "%1")
-    handle:close()
+    local pid_command = handle and handle:read("*a"):gsub("^%s*(.-)%s*$", "%1") or ""
+    if handle then
+        handle:close()
+    end
 
     for _, app in ipairs(apps) do
         local executable = app:get_executable()

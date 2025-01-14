@@ -8,7 +8,7 @@ local helpers   = require("helpers")
 local playerctl = pctl.lib()
 
 local art       = wibox.widget {
-  image = helpers.cropSurface(1.71, gears.surface.load_uncached(beautiful.songdefpicture)),
+  image = helpers.crop_surface(1.71, gears.surface.load_uncached(beautiful.songdefpicture)),
   opacity = 0.3,
   resize = true,
   height = 300,
@@ -37,19 +37,19 @@ local widget    = wibox.widget {
         {
           {
             font = beautiful.sans .. " 12",
-            markup = helpers.colorizeText('Now Playing', beautiful.fg),
+            markup = helpers.colorize_text('Now Playing', beautiful.fg),
             widget = wibox.widget.textbox,
           },
           {
             id = "songname",
             font = beautiful.sans .. " SemiBold 16",
-            markup = helpers.colorizeText('Song Name', beautiful.fg),
+            markup = helpers.colorize_text('Song Name', beautiful.fg),
             widget = wibox.widget.textbox,
           },
           {
             id = "artist",
             font = beautiful.sans .. " 14",
-            markup = helpers.colorizeText('Artist Name', beautiful.fg),
+            markup = helpers.colorize_text('Artist Name', beautiful.fg),
             widget = wibox.widget.textbox,
           },
           spacing = 8,
@@ -78,8 +78,8 @@ playerctl:connect_signal("metadata", function(_, title, artist, album_path, albu
   if string.len(artist) > 22 then
     artist = string.sub(artist, 0, 22) .. "..."
   end
-  art.image = helpers.cropSurface(1.71, gears.surface.load_uncached(album_path))
-  helpers.gc(widget, "songname"):set_markup_silently(helpers.colorizeText(title or "NO", beautiful.fg))
-  helpers.gc(widget, "artist"):set_markup_silently(helpers.colorizeText(artist or "HM", beautiful.fg))
+  art.image = helpers.crop_surface(1.71, gears.surface.load_uncached(album_path))
+  helpers.gc(widget, "songname"):set_markup_silently(helpers.colorize_text(title or "NO", beautiful.fg))
+  helpers.gc(widget, "artist"):set_markup_silently(helpers.colorize_text(artist or "HM", beautiful.fg))
 end)
 return widget

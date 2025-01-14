@@ -4,7 +4,7 @@ local helpeers = require "helpers"
 
 
 local function set_wall(s)
-  local d = helpeers.readJson(gears.filesystem.get_cache_dir() .. 'json/settings.json')
+  local d = helpeers.read_json(gears.filesystem.get_cache_dir() .. 'json/settings.json')
   if d.wallpaper == "colorful" then
     gears.wallpaper.maximized(beautiful.wallpaper, s, beautiful.mbg)
   else

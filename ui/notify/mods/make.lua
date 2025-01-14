@@ -16,7 +16,7 @@ return function(icon, n)
       margins = 20,
       {
         widget = wibox.widget.imagebox,
-        image = helpers.cropSurface(1, gears.surface.load_uncached(icon)),
+        image = helpers.crop_surface(1, gears.surface.load_uncached(icon)),
         resize = true,
         clip_shape = gears.shape.circle,
         halign = "center",

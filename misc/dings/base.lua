@@ -89,7 +89,7 @@ naughty.connect_signal("request::display", function(n)
     {
       {
         opacity = 0.9,
-        image = n.icon and helpers.cropSurface(1, gears.surface.load_uncached(n.icon)) or
+        image = n.icon and helpers.crop_surface(1, gears.surface.load_uncached(n.icon)) or
             gears.filesystem.get_configuration_dir() .. "theme/assets/" .. "bell.png",
         resize = true,
         halign = "center",
@@ -151,7 +151,7 @@ naughty.connect_signal("request::display", function(n)
   local message_n = wibox.widget {
     {
       {
-        markup = helpers.colorizeText("<span weight='normal'>" .. n.message .. "</span>", beautiful.fg .. "BF"),
+        markup = helpers.colorize_text("<span weight='normal'>" .. n.message .. "</span>", beautiful.fg .. "BF"),
         font   = beautiful.sans .. " 12",
         align  = "left",
         valign = "center",
@@ -174,7 +174,7 @@ naughty.connect_signal("request::display", function(n)
     aname = 'naughty'
   end
   local app_name_n = wibox.widget {
-    markup = helpers.colorizeText(aname, beautiful.fg .. "BF"),
+    markup = helpers.colorize_text(aname, beautiful.fg .. "BF"),
     font   = beautiful.sans .. " 10",
     align  = "left",
     valign = "center",
@@ -183,7 +183,7 @@ naughty.connect_signal("request::display", function(n)
 
   local time_n = wibox.widget {
     {
-      markup = helpers.colorizeText("now", beautiful.fg .. "BF"),
+      markup = helpers.colorize_text("now", beautiful.fg .. "BF"),
       font   = beautiful.sans .. " 10",
       align  = "right",
       valign = "center",
@@ -194,7 +194,7 @@ naughty.connect_signal("request::display", function(n)
   }
 
   local close = wibox.widget {
-    markup = helpers.colorizeText('󰝥', beautiful.red),
+    markup = helpers.colorize_text('󰝥', beautiful.red),
     font   = beautiful.icon .. " 12",
     align  = "ceneter",
     valign = "center",

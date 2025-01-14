@@ -15,29 +15,37 @@ local notifications_button = require("ui.bar.mods.notifications_button")
 local exit_button = require("ui.bar.mods.exit_button")
 
 local function init(s)
-    local get_tags = require("ui.bar.mods.tags")
-    local taglist = get_tags(s)
-
     local wibar = awful.wibar({
         position = "bottom",
         height = dpi(48),
         ontop = true,
-        screen = s,
-        width = s.geometry.width,
-        bg = beautiful.bg_gradient,
+        screen = s or awful.screen.focused(),
+        width = (s or awful.screen.focused()).geometry.width,
+        bg = beautiful.bg .. '99',
         fg = beautiful.fg,
 
         widget = {
-
             {
-                profile,
-                taglist,
-                widget = wibox.container.margin,
-                left = dpi(5),
-                top = dpi(5),
-                bottom = dpi(5),
-                right = dpi(5),
+                {
+                    profile,
+                    widget = wibox.container.margin,
+                    left = dpi(5),
+                    top = dpi(7),
+                    bottom = dpi(7),
+                    right = dpi(15),
+                },
+                {
+                    require("ui.bar.mods.tags")(s),
+                    widget = wibox.container.margin,
+                    left = dpi(5),
+                    top = dpi(7),
+                    bottom = dpi(7),
+                    right = dpi(5),
+                },
+                layout = wibox.layout.fixed.horizontal,
+
             },
+
 
             {
 
@@ -52,11 +60,12 @@ local function init(s)
                 {
                     {
                         systray,
-                        battery,
+
                         {
                             layout = wibox.layout.fixed.horizontal,
                             wifi,
                             bluetooth,
+                            spacing = dpi(10),
                             widget = wibox.container.background,
                             buttons = {
                                 awful.button({}, 1, function()
@@ -64,9 +73,12 @@ local function init(s)
                                 end),
                             },
                         },
-                        hourminutes,
+
+
                         layout,
                         notifications_button,
+                        battery,
+                        hourminutes,
                         exit_button,
                         widget = wibox.container.margin,
                         top = dpi(10),

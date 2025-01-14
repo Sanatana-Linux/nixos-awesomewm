@@ -11,7 +11,7 @@ local widget = wibox.widget {
       {
         {
           font = beautiful.sans .. " 16",
-          markup = helpers.colorizeText("All our dreams can come true if we have the courage to pursue them", beautiful.fg),
+          markup = helpers.colorize_text("All our dreams can come true if we have the courage to pursue them", beautiful.fg),
           widget = wibox.widget.textbox,
           valign = "start",
           align = "center"
@@ -19,7 +19,7 @@ local widget = wibox.widget {
         {
 
           font = beautiful.sans .. " Bold 12",
-          markup = helpers.colorizeText("Walt Disney", beautiful.magenta),
+          markup = helpers.colorize_text("Walt Disney", beautiful.magenta),
           widget = wibox.widget.textbox,
           valign = "start",
           align = "center"

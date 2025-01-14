@@ -43,15 +43,15 @@ local function make_button(txt, onclick)
 
         btn:connect_signal("mouse::enter", function()
             btn.bg =
-                beautiful.bg_gradient_button2,
----@diagnostic disable-next-line: redundant-value
+                beautiful.bg_gradient_button_alt,
+                ---@diagnostic disable-next-line: redundant-value
                 btn:emit_signal("widget::redraw_needed")
         end)
 
         btn:connect_signal("mouse::leave", function()
             btn.bg =
                 beautiful.bg_gradient_button,
----@diagnostic disable-next-line: redundant-value
+                ---@diagnostic disable-next-line: redundant-value
                 btn:emit_signal("widget::redraw_needed")
         end)
 

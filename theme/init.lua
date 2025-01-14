@@ -12,11 +12,12 @@ local assets_path = gfs.get_configuration_dir() .. "theme/assets/"
 local theme = {}
 
 local data =
-    helpers.readJson(gears.filesystem.get_cache_dir() .. "json/settings.json")
+    helpers.read_json(gears.filesystem.get_cache_dir() .. "json/settings.json")
 
 ----- User Preferences -----
 
-theme.pfp = data.pfp
+theme.pfp = gfs.get_configuration_dir() .. "theme/assets/awesome.svg"
+theme.logo = gfs.get_configuration_dir() .. "theme/assets/nixos.svg"
 ---@diagnostic disable-next-line: param-type-mismatch
 theme.user = string.gsub(os.getenv("USER"), "^%l", string.upper)
 theme.hostname = os.getenv("HOST")
@@ -27,11 +28,11 @@ local colors = require("theme.colors." .. themeName)
 theme.wallpaper = themes_path .. "walls/" .. colors.name .. ".jpg"
 theme.iconThemePath = settings.iconTheme
 theme.scheme = themeName
-theme.sans = "Ubuntu Nerd Font, Bold "
-theme.mono = "M+1Code Nerd Font Bold "
+theme.sans = "SFRounded Nerd Font, Bold "
+theme.mono = "SFMono Nerd Font, Bold "
 theme.icon = "Font Awesome 16 "
-theme.icon_theme = "Reversal"
-theme.font = "Ubuntu Nerd Font, Bold  "
+theme.icon_theme = "/run/current-system/sw/share/icons/Reversal-dark"
+theme.font = "SFProText Nerd Font,  Bold  "
 theme.prompt_font = "Pixel Code, Bold"
 ----- General/default Settings -----
 
@@ -76,150 +77,34 @@ theme.fg3 = colors.fg4
 -- Gradient Colors Using Cairo
 -- -------------------------------------------------------------------------- --
 -- general
-theme.bg_gradient = "linear:0,0:180,0:1800,"
-    .. helpers.color_lighten(theme.mbg, 25)
-    .. "ee:0.25,"
-    .. helpers.color_lighten(theme.bg, 45)
-    .. "ee:0.5,"
-    .. helpers.color_lighten(theme.bg3, 0)
-    .. "ee:0.55,"
-    .. helpers.color_lighten(theme.bg, 35)
-    .. "ee:0.6,"
-    .. helpers.color_lighten(theme.mbg, 10)
-    .. "ee:0.75,"
-    .. helpers.color_lighten(theme.mbg, 25)
-    .. "ee:1,"
-    .. helpers.color_lighten(theme.bg, 30)
-    .. "ee"
+theme.bg_gradient = 'radial:0,21:0,56:0,' ..    '#2a2a2abb' ..    ':1,' .. '#111111cc'
+
 -- -------------------------------------------------------------------------- --
-theme.bg_gradient_alt = "linear:180,0:23,180:0,"
-    .. helpers.color_lighten(theme.mbg, 35)
-    .. "ee:0.25,"
-    .. helpers.color_lighten(theme.mbg, 20)
-    .. "ee:0.4,"
-    .. helpers.color_lighten(theme.bg, 50)
-    .. "ee:0.5,"
-    .. helpers.color_lighten(theme.bg3, 10)
-    .. "ee:0.6,"
-    .. helpers.color_lighten(theme.bg3, 5)
-    .. "ee:0.75,"
-    .. helpers.color_lighten(theme.bg3, 5)
-    .. "ee:1,"
-    .. helpers.color_lighten(theme.mbg, 15)
-    .. "ee"
+theme.bg_gradient_alt =     'radial:0,510:0,16:0,' ..'#202020bb'  ..':1,' .. '#0c0c0ccc'
 
 -- -------------------------------------------------------------------------- --
 -- titlebar
-theme.bg_gradient_titlebar = "linear:180,0:32,180:0,"
-    .. helpers.color_lighten(theme.mbg, 15)
-    .. "ee:0.25,"
-    .. helpers.color_lighten(theme.mbg, 5)
-    .. "ee:0.5,"
-    .. helpers.color_lighten(theme.bg, 25)
-    .. "ee:0.75,"
-    .. helpers.color_lighten(theme.mbg, 15)
-    .. "ee:1,"
-    .. helpers.color_lighten(theme.mbg, 5)
-    .. "ee"
+theme.bg_gradient_titlebar =    'radial:0,510:0,16:0,' ..'#202020bb'  ..':1,' .. '#0c0c0ccc'
+-- -------------------------------------------------------------------------- --
+theme.bg_gradient_titlebar_alt =     'linear:0,0:0,21:0,' ..'#262626bb'..':1,' ..  '#111111bb'
 
 -- -------------------------------------------------------------------------- --
-theme.bg_gradient_titlebar_alt = "linear:180,0:23,180:0,"
-    .. helpers.color_darken(theme.fg3, 10)
-    .. "ee:0.25,"
-    .. helpers.color_lighten(theme.bg, 35)
-    .. "ee:0.5,"
-    .. helpers.color_lighten(theme.bg, 25)
-    .. "ee:0.75,"
-    .. helpers.color_lighten(theme.bg, 45)
-    .. "ee:1,"
-    .. helpers.color_darken(theme.bg4, 30)
-    .. "ee"
+-- Raised Button (Normal State) - from the first response
+theme.bg_gradient_button = 'linear:0,0:0,32:0,' .. '#525252cc' .. ':1,' .. '#292929' .. 'cc'
 
 -- -------------------------------------------------------------------------- --
--- tags (3D Skeuomorphic)
-theme.bg_gradient_tag = "radial:0.5,0.5:0.5,0.5:0.4," -- Centered, smaller radius for 3d
-    .. helpers.color_darken(theme.fg3, 25)
-    .. "ee:0.25,"
-    .. helpers.color_darken(theme.fg, 10)
-    .. "ee:0.5,"
-    .. helpers.color_lighten(theme.fg, 15)
-    .. "ee:0.75,"
-    .. helpers.color_darken(theme.fg3, 25)
-    .. "ee:1,"
-    .. helpers.color_darken(theme.bg4, 5)
-    .. "ee"
+-- Depressed Button (Pressed State) - Inverted Radial Gradient
+theme.bg_gradient_button_alt = 'linear:0,0:0,21:0,' .. "#292929cc" .. ':1,' .. "#3b3b3bcc"
 
 -- -------------------------------------------------------------------------- --
--- tags2 (3D Skeuomorphic)
-theme.bg_gradient_tag_alt = "radial:0.5,0.5:0.5,0.5:0.4," -- Centered, smaller radius
-    .. helpers.color_darken(theme.fg, 15)
-    .. "ee:0.25,"
-    .. helpers.color_lighten(theme.fg3, 15)
-    .. "ee:0.5,"
-    .. helpers.color_lighten(theme.fg3, 10)
-    .. "ee:0.75,"
-    .. helpers.color_darken(theme.fg3, 15)
-    .. "ee:1,"
-    .. helpers.color_darken(theme.fg3, 30)
-    .. "ee"
+-- Background Gradients (Skeuomorphic Panel/Container Look)
+-- -------------------------------------------------------------------------- --
 
--- -------------------------------------------------------------------------- --
--- tags3 (3D Skeuomorphic)
-theme.bg_gradient_tag_alt_variant = "radial:0.5,0.5:0.5,0.5:0.4," -- Centered, smaller radius
-    .. helpers.color_lighten(theme.mbg, 45)
-    .. "ee:0.25,"
-    .. helpers.color_darken(theme.fg3, 5)
-    .. "ee:0.5,"
-    .. helpers.color_lighten(theme.mbg, 35)
-    .. "ee:0.75,"
-    .. helpers.color_darken(theme.fg3, 5)
-    .. "ee:1,"
-    .. helpers.color_lighten(theme.fg2, 20)
-    .. "ee"
--- -------------------------------------------------------------------------- --
--- tags4 (3D Skeuomorphic)
-theme.bg_gradient_tag_alt_variant_alt = "radial:0.5,0.5:0.5,0.5:0.4," -- Centered, smaller radius
-    .. helpers.color_lighten(theme.mbg, 45)
-    .. "ee:0.25,"
-    .. helpers.color_darken(theme.fg3, 5)
-    .. "ee:0.5,"
-    .. helpers.color_lighten(theme.mbg, 35)
-    .. "ee:0.75,"
-    .. helpers.color_darken(theme.fg3, 5)
-    .. "ee:1,"
-    .. helpers.color_lighten(theme.fg2, 20)
-    .. "ee"
--- -------------------------------------------------------------------------- --
--- buttons
--- buttons
-theme.bg_gradient_button = "radial:0,0:272,272:1,"
-    .. helpers.color_darken(theme.fg3, 40)
-    .. "dd:0.25,"
-    .. helpers.color_darken(theme.fg, 50)
-    .. "dd:0.4,"
-    .. helpers.color_darken(theme.fg, 45)
-    .. "dd:0.5,"
-    .. helpers.color_darken(theme.fg3, 10)
-    .. "ee:0.6,"
-    .. helpers.color_darken(theme.fg3, 20)
-    .. "dd:0.75,"
-    .. helpers.color_darken(theme.fg3, 20)
-    .. "ee:1,"
-    .. helpers.color_darken(theme.fg3, 40)
-    .. "ee"
+-- Subtle Raised Panel
+theme.bg_gradient_panel =     'linear:0,0:0,21:0,' ..'#323232cc'..':1,' .. '#222222cc'
 
--- -------------------------------------------------------------------------- --
-theme.bg_gradient_button_alt = "linear:180,0:23,180:0,"
-    .. helpers.color_darken(theme.fg3, 80)
-    .. "ee:0.25,"
-    .. helpers.color_lighten(theme.bg, 20)
-    .. "ee:0.5,"
-    .. helpers.color_lighten(theme.bg, 15)
-    .. "ee:0.75,"
-    .. helpers.color_lighten(theme.bg, 5)
-    .. "ee:1,"
-    .. helpers.color_darken(theme.bg4, 40)
-    .. "ee"
+-- Recessed/Sunken Area
+theme.bg_gradient_recessed =  'radial:0,56:0,21:0,' ..'#292929cc'.. ':1,' ..  '#111111cc'
 
 -- Menu
 
@@ -229,17 +114,8 @@ theme.menu_bg_focus = theme.mbg
 theme.menu_bg_normal = theme.bg
 theme.submenu = ">"
 
-theme.taglist_bg = theme.bg_gradient_tag
-theme.taglist_bg_focus = theme.bg_gradient_tag2
-theme.taglist_fg_focus = theme.fg .. "aa"
-theme.taglist_bg_urgent = theme.red
-theme.taglist_fg_urgent = theme.fg
-theme.taglist_bg_occupied = theme.bg_gradient_tag_alt_variant
-theme.taglist_fg_occupied = theme.fg .. "55"
-theme.taglist_bg_empty = theme.bg_gradient_tag_alt_variant_alt
-theme.taglist_fg_empty = colors.fg
-theme.taglist_font = "awesomewm-font Regular 11"
-theme.taglist_spacing = dpi(2)
+
+
 
 theme.tasklist_bg_normal = theme.bg
 theme.tasklist_bg_focus = theme.bg2

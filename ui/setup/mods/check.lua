@@ -63,7 +63,7 @@ local O = function(label, tv, fv, var)
     },
     {
       font = beautiful.sans .. " Light 11",
-      markup = helpers.colorizeText(M.label, beautiful.fg),
+      markup = helpers.colorize_text(M.label, beautiful.fg),
       widget = wibox.widget.textbox,
       valign = "start",
       align = "start"

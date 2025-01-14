@@ -26,6 +26,7 @@
         "regfiltered",
         "notif_center_remove_notif",
         "notif_center_reset_notifs_container",
-        "unfiltered"
+        "unfiltered",
+        "beautiful"
     ]
 }

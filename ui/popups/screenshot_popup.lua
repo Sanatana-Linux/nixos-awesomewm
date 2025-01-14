@@ -37,7 +37,7 @@ local createButton = function(icon, name, fn, col)
                     {
                         {
                             font = beautiful.icon .. " 38",
-                            markup = helpers.colorizeText(icon, col),
+                            markup = helpers.colorize_text(icon, col),
                             valign = "center",
                             align = "center",
                             widget = wibox.widget.textbox,
@@ -53,7 +53,7 @@ local createButton = function(icon, name, fn, col)
                 {
                     font = beautiful.font .. " 10",
 
-                    markup = helpers.colorizeText(name, beautiful.fg),
+                    markup = helpers.colorize_text(name, beautiful.fg),
                     valign = "center",
                     align = "center",
                     widget = wibox.widget.textbox,
@@ -104,7 +104,7 @@ awful.screen.connect_for_each_screen(function(s)
         })
     end, beautiful.green)
 
-    helpers.addHover(
+    helpers.add_hover(
         fullscreen,
         beautiful.bg_gradient_button,
         beautiful.bg_gradient_button_alt
@@ -124,7 +124,7 @@ awful.screen.connect_for_each_screen(function(s)
         })
     end, beautiful.blue)
 
-    helpers.addHover(
+    helpers.add_hover(
         selection,
         beautiful.bg_gradient,
         beautiful.bg_gradient_alt
@@ -148,7 +148,7 @@ awful.screen.connect_for_each_screen(function(s)
         })
     end, beautiful.red)
 
-    helpers.addHover(window, beautiful.bg_gradient, beautiful.bg_gradient_alt)
+    helpers.add_hover(window, beautiful.bg_gradient, beautiful.bg_gradient_alt)
 
     local close_button = wibox.widget({
 
@@ -156,7 +156,7 @@ awful.screen.connect_for_each_screen(function(s)
             {
                 {
                     font = beautiful.icon .. " 12",
-                    markup = helpers.colorizeText("󰅖", beautiful.fg),
+                    markup = helpers.colorize_text("󰅖", beautiful.fg),
                     valign = "center",
                     align = "center",
                     widget = wibox.widget.textbox,

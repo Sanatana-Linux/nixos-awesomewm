@@ -10,7 +10,7 @@ local O = function(label, isPath, var)
 
   M.textbox = wibox.widget {
     font = beautiful.sans .. " 12",
-    markup = helpers.colorizeText(M.value, beautiful.fg),
+    markup = helpers.colorize_text(M.value, beautiful.fg),
     widget = wibox.widget.textbox,
     valign = "center",
     align = "start"
@@ -24,18 +24,18 @@ local O = function(label, isPath, var)
       exe_callback = function(input)
         -- If no input is present, display old contents.
         if not input or #input == 0 then
-          M.textbox.markup = helpers.colorizeText(M.def, beautiful.fg)
+          M.textbox.markup = helpers.colorize_text(M.def, beautiful.fg)
           M.textbox.font = beautiful.sans .. " 12"
           return
         end
         -- else update textbox and variable.
         if input:match("~/") and self.isPath then
           M.value = input:gsub("~/", "/home/" .. beautiful.user:lower() .. "/")
-          M.textbox.markup = helpers.colorizeText(input:gsub("~/", "/home/" .. beautiful.user:lower() .. "/"), beautiful
+          M.textbox.markup = helpers.colorize_text(input:gsub("~/", "/home/" .. beautiful.user:lower() .. "/"), beautiful
             .fg)
         else
           M.value = input
-          M.textbox.markup = helpers.colorizeText(input, beautiful.fg)
+          M.textbox.markup = helpers.colorize_text(input, beautiful.fg)
         end
       end
     })
@@ -44,7 +44,7 @@ local O = function(label, isPath, var)
   M.widget = wibox.widget {
     {
       font = beautiful.sans .. " Light 11",
-      markup = helpers.colorizeText(M.label, beautiful.fg),
+      markup = helpers.colorize_text(M.label, beautiful.fg),
       widget = wibox.widget.textbox,
       valign = "start",
       align = "start"

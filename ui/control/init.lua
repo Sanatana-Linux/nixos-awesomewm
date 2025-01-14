@@ -47,7 +47,7 @@ awful.screen.connect_for_each_screen(function(s)
                                     forced_height = 50,
                                     opacity = 0.7,
                                     forced_width = 50,
-                                    clip_shape = helpers.rrect(8),
+                                    clip_shape = helpers.rrect(2),
                                     resize = true,
                                 },
                                 {
@@ -73,7 +73,7 @@ awful.screen.connect_for_each_screen(function(s)
                                 {
                                     {
                                         font = beautiful.icon .. " 14",
-                                        markup = helpers.colorizeText(
+                                        markup = helpers.colorize_text(
                                             "󰐱",
                                             beautiful.fg
                                         ),

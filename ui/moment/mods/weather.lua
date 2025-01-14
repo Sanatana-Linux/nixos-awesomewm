@@ -57,7 +57,7 @@ local dayWeather = function()
           },
           {
             halign = 'center',
-            markup = helpers.colorizeText("/", beautiful.blue),
+            markup = helpers.colorize_text("/", beautiful.blue),
             widget = wibox.widget.textbox,
             font = beautiful.sans .. " 10",
           },
@@ -110,7 +110,7 @@ local widget = wibox.widget {
     id = "image",
     forced_height = 300,
     forced_width = 460,
-    image = helpers.cropSurface(1.53, gears.surface.load_uncached(beautiful.songdefpicture)),
+    image = helpers.crop_surface(1.53, gears.surface.load_uncached(beautiful.songdefpicture)),
     widget = wibox.widget.imagebox,
     clip_shape = helpers.rrect(12),
     opacity = 0.9,
@@ -212,7 +212,7 @@ local widget = wibox.widget {
 }
 
 awesome.connect_signal("signal::weather", function(out)
-  helpers.gc(widget, "image").image = helpers.cropSurface(1.53, gears.surface.load_uncached(out.thumb))
+  helpers.gc(widget, "image").image = helpers.crop_surface(1.53, gears.surface.load_uncached(out.thumb))
   helpers.gc(widget, "icon").image = out.image
   helpers.gc(widget, "temp").markup = out.temp .. "°C"
   helpers.gc(widget, "desc").markup = out.desc

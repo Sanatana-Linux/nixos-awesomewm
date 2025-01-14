@@ -15,15 +15,15 @@ client.connect_signal("request::default_keybindings", function()
 
         awful.key({ modkey }, "w", function(c)
             c:kill()
-        end, { description = "close", group = "client" }),
+        end, { description = "close focused window", group = "client" }),
 
         -- -------------------------------------------------------------------------- --
 
         awful.key(
             { modkey, "Control" },
-            "space",
+            "z",
             awful.client.floating.toggle,
-            { description = "toggle floating", group = "client" }
+            { description = "toggle floating window", group = "client" }
         ),
 
         -- -------------------------------------------------------------------------- --
@@ -42,7 +42,7 @@ client.connect_signal("request::default_keybindings", function()
 
         awful.key({ modkey }, "t", function(c)
             c.ontop = not c.ontop
-        end, { description = "toggle keep on top", group = "client" }),
+        end, { description = "toggle keep window on top", group = "client" }),
 
         -- -------------------------------------------------------------------------- --
 

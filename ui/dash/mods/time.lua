@@ -11,14 +11,14 @@ local widget = wibox.widget {
       {
         {
           font = beautiful.sans .. " SemiBold 42",
-          format = helpers.colorizeText("%I : %M", beautiful.fg),
+          format = helpers.colorize_text("%I : %M", beautiful.fg),
           align = "center",
           valign = "center",
           widget = wibox.widget.textclock
         },
         {
           font = beautiful.sans .. " 16",
-          format = helpers.colorizeText("%A, %d %B", beautiful.fg2 .. '99'),
+          format = helpers.colorize_text("%A, %d %B", beautiful.fg2 .. '99'),
           align = "center",
           valign = "center",
           widget = wibox.widget.textclock

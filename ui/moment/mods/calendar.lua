@@ -9,14 +9,14 @@ local datewidget = function(date, weekend, notIn)
   weekend = weekend or false
   if notIn then
     return wibox.widget {
-      markup = helpers.colorizeText(date, beautiful.fg3),
+      markup = helpers.colorize_text(date, beautiful.fg3),
       halign = 'center',
       font   = beautiful.sans .. " 14",
       widget = wibox.widget.textbox
     }
   else
     return wibox.widget {
-      markup = weekend and helpers.colorizeText(date, beautiful.fg) or date,
+      markup = weekend and helpers.colorize_text(date, beautiful.fg) or date,
       halign = 'center',
       font   = beautiful.sans .. " 14",
       widget = wibox.widget.textbox
@@ -27,7 +27,7 @@ end
 local daywidget = function(day, weekend, notIn)
   weekend = weekend or false
   return wibox.widget {
-    markup = weekend and helpers.colorizeText(day, beautiful.red) or day,
+    markup = weekend and helpers.colorize_text(day, beautiful.red) or day,
     halign = 'center',
     font   = beautiful.sans .. " 14",
     widget = wibox.widget.textbox
@@ -35,7 +35,7 @@ local daywidget = function(day, weekend, notIn)
 end
 local currwidget = function(day)
   return wibox.widget {
-    markup = helpers.colorizeText(day, beautiful.blue),
+    markup = helpers.colorize_text(day, beautiful.blue),
     halign = 'center',
     font   = beautiful.prompt_font .. " 14",
     widget = wibox.widget.textbox

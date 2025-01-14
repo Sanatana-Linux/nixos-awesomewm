@@ -12,7 +12,7 @@ local check = require("ui.setup.mods.check")
 local intin = require("ui.setup.mods.intin")
 local themer = require("ui.setup.mods.themer")
 
-local data = helpers.readJson(gears.filesystem.get_cache_dir() .. "json/settings.json")
+local data = helpers.read_json(gears.filesystem.get_cache_dir() .. "json/settings.json")
 local a1 = input("Profile Picture", true, data.pfp)
 local a2 = input("Icon Theme Path", true, data.iconTheme)
 local a3 = pass("OpenWeather API Key", data.openWeatherApi)
@@ -59,7 +59,7 @@ awful.screen.connect_for_each_screen(function(s)
       {
         {
           font = beautiful.sans .. " 14",
-          markup = helpers.colorizeText("Configure", beautiful.fg),
+          markup = helpers.colorize_text("Configure", beautiful.fg),
           widget = wibox.widget.textbox,
           valign = "center",
           align = "center"
@@ -70,7 +70,7 @@ awful.screen.connect_for_each_screen(function(s)
             {
               {
                 font = beautiful.sans .. " 10",
-                markup = helpers.colorizeText("Apply In Nix", beautiful.blue),
+                markup = helpers.colorize_text("Apply In Nix", beautiful.blue),
                 widget = wibox.widget.textbox,
                 valign = "center",
                 align = "center"
@@ -92,7 +92,7 @@ awful.screen.connect_for_each_screen(function(s)
             {
               {
                 font = beautiful.icon .. " 12",
-                markup = helpers.colorizeText("󰄬", beautiful.green),
+                markup = helpers.colorize_text("󰄬", beautiful.green),
                 widget = wibox.widget.textbox,
                 valign = "center",
                 align = "center"
@@ -114,7 +114,7 @@ awful.screen.connect_for_each_screen(function(s)
             {
               {
                 font = beautiful.icon .. " 12",
-                markup = helpers.colorizeText("󰅖", beautiful.red),
+                markup = helpers.colorize_text("󰅖", beautiful.red),
                 widget = wibox.widget.textbox,
                 valign = "center",
                 align = "center"

@@ -1,5 +1,5 @@
 local awful = require("awful")
 
 screen.connect_signal("request::desktop_decoration", function(s)
-	awful.tag({ "A", "W", "E", "S", "O", "M", "E" }, s, awful.layout.layouts[1])
+	awful.tag({ "1", "2", "3", "4" }, s, awful.layout.layouts[1])
 end)

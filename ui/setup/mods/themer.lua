@@ -279,7 +279,7 @@ local themes = {
     "zenburn",
 }
 
-local index = helpers.indexOf(themes, beautiful.scheme)
+local index = helpers.index_of(themes, beautiful.scheme)
 
 local M = {
     current = beautiful.scheme,

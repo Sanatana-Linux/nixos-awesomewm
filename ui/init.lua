@@ -1,6 +1,6 @@
 
 require("ui.bar")
-require("ui.menu")
+require("ui.launcher")
 require("ui.control")
 require("ui.moment")
 require("ui.dash")

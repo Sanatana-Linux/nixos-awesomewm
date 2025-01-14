@@ -163,7 +163,7 @@ local function makeElement(i, n)
         {
           {
             font = beautiful.icon .. " 16",
-            markup = helpers.colorizeText("󰸞", beautiful.green),
+            markup = helpers.colorize_text("󰸞", beautiful.green),
             valign = "center",
             align = "center",
             widget = wibox.widget.textbox,
@@ -186,7 +186,7 @@ local function makeElement(i, n)
           },
           {
             font = beautiful.icon .. " 16",
-            markup = helpers.colorizeText("󰩹", beautiful.red),
+            markup = helpers.colorize_text("󰩹", beautiful.red),
             valign = "center",
             align = "center",
             widget = wibox.widget.textbox,
@@ -268,7 +268,7 @@ local finalwidget = wibox.widget {
         {
           {
             font = beautiful.icon .. " 20",
-            markup = helpers.colorizeText("󰐕", beautiful.blue),
+            markup = helpers.colorize_text("󰐕", beautiful.blue),
             valign = "center",
             align = "center",
             widget = wibox.widget.textbox,
@@ -285,7 +285,7 @@ local finalwidget = wibox.widget {
           },
           {
             font = beautiful.icon .. " 20",
-            markup = helpers.colorizeText("󰅖", beautiful.red),
+            markup = helpers.colorize_text("󰅖", beautiful.red),
             valign = "center",
             align = "center",
             widget = wibox.widget.textbox,

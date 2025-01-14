@@ -14,7 +14,7 @@ local widget = wibox.widget {
             {
               {
                 font = beautiful.mono .. " 14",
-                markup = helpers.colorizeText('>', beautiful.bg),
+                markup = helpers.colorize_text('>', beautiful.bg),
                 widget = wibox.widget.textbox,
               },
               widget = wibox.container.margin,
@@ -29,7 +29,7 @@ local widget = wibox.widget {
           {
             {
               font = beautiful.mono .. " 14",
-              markup = helpers.colorizeText('fetch.sh', beautiful.fg),
+              markup = helpers.colorize_text('fetch.sh', beautiful.fg),
               widget = wibox.widget.textbox,
             },
             widget = wibox.container.place,
@@ -53,22 +53,22 @@ local widget = wibox.widget {
         {
           {
             font = beautiful.mono .. " 14",
-            markup = helpers.colorizeText('OS  : NixOS 24.05', beautiful.fg),
+            markup = helpers.colorize_text('OS  : NixOS 24.05', beautiful.fg),
             widget = wibox.widget.textbox,
           },
           {
             font = beautiful.mono .. " 14",
-            markup = helpers.colorizeText('WM  : Awesome', beautiful.fg),
+            markup = helpers.colorize_text('WM  : Awesome', beautiful.fg),
             widget = wibox.widget.textbox,
           },
           {
             font = beautiful.mono .. " 14",
-            markup = helpers.colorizeText('USER: ' .. beautiful.user, beautiful.fg),
+            markup = helpers.colorize_text('USER: ' .. beautiful.user, beautiful.fg),
             widget = wibox.widget.textbox,
           },
           {
             font = beautiful.mono .. " 14",
-            markup = helpers.colorizeText('SH  : ZSH', beautiful.fg),
+            markup = helpers.colorize_text('SH  : ZSH', beautiful.fg),
             widget = wibox.widget.textbox,
           },
           spacing = 8,

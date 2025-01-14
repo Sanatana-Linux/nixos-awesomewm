@@ -9,7 +9,7 @@ local playerctl  = require("mods.playerctl").lib()
 local dpi        = beautiful.xresources.apply_dpi
 
 local art        = wibox.widget {
-  image = helpers.cropSurface(1, gears.surface.load_uncached(beautiful.songdefpicture)),
+  image = helpers.crop_surface(1, gears.surface.load_uncached(beautiful.songdefpicture)),
   clip_shape = helpers.rrect(10),
   opacity = 0.75,
   resize = true,
@@ -31,7 +31,7 @@ local leftart    = wibox.widget {
 local prev       = wibox.widget {
   align = 'center',
   font = beautiful.icon .. " 24",
-  markup = helpers.colorizeText('󰒮', beautiful.fg),
+  markup = helpers.colorize_text('󰒮', beautiful.fg),
   widget = wibox.widget.textbox,
   buttons = {
     awful.button({}, 1, function()
@@ -42,7 +42,7 @@ local prev       = wibox.widget {
 local next       = wibox.widget {
   align = 'center',
   font = beautiful.icon .. " 24",
-  markup = helpers.colorizeText('󰒭', beautiful.fg),
+  markup = helpers.colorize_text('󰒭', beautiful.fg),
   widget = wibox.widget.textbox,
   buttons = {
     awful.button({}, 1, function()
@@ -54,7 +54,7 @@ local next       = wibox.widget {
 local play       = wibox.widget {
   align = 'center',
   font = beautiful.icon .. " 24",
-  markup = helpers.colorizeText('󰐊', beautiful.blue),
+  markup = helpers.colorize_text('󰐊', beautiful.blue),
   widget = wibox.widget.textbox,
   buttons = {
     awful.button({}, 1, function()
@@ -65,7 +65,7 @@ local play       = wibox.widget {
 local shufflebtn = wibox.widget {
   align = 'center',
   font = beautiful.icon .. " 13",
-  markup = helpers.colorizeText('󰒝', beautiful.fg),
+  markup = helpers.colorize_text('󰒝', beautiful.fg),
   widget = wibox.widget.textbox,
   buttons = {
     awful.button({}, 1, function()
@@ -74,13 +74,13 @@ local shufflebtn = wibox.widget {
   }
 }
 playerctl:connect_signal("shuffle", function(_, shuffle)
-  shufflebtn.markup = shuffle and helpers.colorizeText('󰒝', beautiful.blue) or helpers.colorizeText('󰒝',
+  shufflebtn.markup = shuffle and helpers.colorize_text('󰒝', beautiful.blue) or helpers.colorize_text('󰒝',
     beautiful.fg)
 end)
 local repeatt = wibox.widget {
   align = 'center',
   font = beautiful.icon .. " 13",
-  markup = helpers.colorizeText('󰑖', beautiful.fg),
+  markup = helpers.colorize_text('󰑖', beautiful.fg),
   widget = wibox.widget.textbox,
   buttons = {
     awful.button({}, 1, function()
@@ -90,11 +90,11 @@ local repeatt = wibox.widget {
 }
 playerctl:connect_signal("loop_status", function(_, loop_status)
   if loop_status:match('none') then
-    repeatt.markup = helpers.colorizeText('󰑖', beautiful.fg)
+    repeatt.markup = helpers.colorize_text('󰑖', beautiful.fg)
   elseif loop_status:match('track') then
-    repeatt.markup = helpers.colorizeText('󰑘', beautiful.magenta)
+    repeatt.markup = helpers.colorize_text('󰑘', beautiful.magenta)
   else
-    repeatt.markup = helpers.colorizeText('󰑖', beautiful.magenta)
+    repeatt.markup = helpers.colorize_text('󰑖', beautiful.magenta)
   end
 end)
 
@@ -118,7 +118,7 @@ local slider = wibox.widget {
 }
 
 local songname = wibox.widget {
-  markup = helpers.colorizeText('Nothing Playing', beautiful.fg),
+  markup = helpers.colorize_text('Nothing Playing', beautiful.fg),
   align = 'left',
   valign = 'center',
   forced_width = dpi(40),
@@ -126,14 +126,14 @@ local songname = wibox.widget {
   widget = wibox.widget.textbox
 }
 local leftname = wibox.widget {
-  markup = helpers.colorizeText('Nothing Playing', beautiful.fg),
+  markup = helpers.colorize_text('Nothing Playing', beautiful.fg),
   valign = 'center',
   align = 'center',
   font = beautiful.sans .. " 16",
   widget = wibox.widget.textbox
 }
 local artistname = wibox.widget {
-  markup = helpers.colorizeText('None', beautiful.fg),
+  markup = helpers.colorize_text('None', beautiful.fg),
   align = 'left',
   valign = 'center',
   forced_height = dpi(20),
@@ -141,7 +141,7 @@ local artistname = wibox.widget {
   widget = wibox.widget.textbox
 }
 local leftartist = wibox.widget {
-  markup = helpers.colorizeText('None', beautiful.fg),
+  markup = helpers.colorize_text('None', beautiful.fg),
   align = 'center',
   valign = 'center',
   forced_height = dpi(20),
@@ -176,10 +176,10 @@ playerctl:connect_signal("metadata", function(_, title, artist, album_path, albu
     if string.len(artist) > 22 then
       artist = string.sub(artist, 0, 22) .. "..."
     end
-    songname:set_markup_silently(helpers.colorizeText(title or "NO", beautiful.fg))
-    leftname:set_markup_silently(helpers.colorizeText(title or "NO", beautiful.fg))
-    leftartist:set_markup_silently(helpers.colorizeText(' ' .. artist or "WT" .. ' ', beautiful.fg))
-    artistname:set_markup_silently(helpers.colorizeText(artist or "HM", beautiful.fg))
+    songname:set_markup_silently(helpers.colorize_text(title or "NO", beautiful.fg))
+    leftname:set_markup_silently(helpers.colorize_text(title or "NO", beautiful.fg))
+    leftartist:set_markup_silently(helpers.colorize_text(' ' .. artist or "WT" .. ' ', beautiful.fg))
+    artistname:set_markup_silently(helpers.colorize_text(artist or "HM", beautiful.fg))
     art:set_image(gears.surface.load_uncached(album_path))
     leftart:set_image(gears.surface.load_uncached(album_path))
   end
@@ -187,13 +187,13 @@ end)
 
 
 playerctl:connect_signal("playback_status", function(_, playing)
-  play.markup = playing and helpers.colorizeText("󰏤", beautiful.blue) or helpers.colorizeText("󰐊", beautiful.blue)
+  play.markup = playing and helpers.colorize_text("󰏤", beautiful.blue) or helpers.colorize_text("󰐊", beautiful.blue)
 end)
 local createTopButton = function(c, icon, click, color)
   local widget = wibox.widget {
     {
       {
-        markup = helpers.colorizeText(icon, color),
+        markup = helpers.colorize_text(icon, color),
         valign = 'center',
         forced_height = dpi(20),
         font = beautiful.icon .. " 18",
@@ -206,7 +206,7 @@ local createTopButton = function(c, icon, click, color)
       widget = wibox.container.margin,
     },
     buttons = awful.button({}, 1, function()
-      helpers.clickKey(c, click)
+      helpers.click_key(c, click)
     end),
     bg = beautiful.mbg,
     widget = wibox.container.background
@@ -218,7 +218,7 @@ local bottom          = function(c)
   local playtab = createTopButton(c, '󰲸', '1', beautiful.blue)
   local vistab = createTopButton(c, '󰐰', '8', beautiful.blue)
   vistab:add_button(awful.button({}, 3, function()
-    helpers.clickKey(c, '8 ')
+    helpers.click_key(c, '8 ')
   end))
   awful.titlebar(c, { position = "bottom", size = dpi(100), bg = beautiful.mbg }):setup {
     slider,

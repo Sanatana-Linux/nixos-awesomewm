@@ -10,7 +10,7 @@ local O = function(label, var)
 
   M.textbox = wibox.widget {
     font = beautiful.sans .. " 12",
-    markup = helpers.colorizeText(M.hidden and string.rep("*", #M.value) or M.value, beautiful.fg),
+    markup = helpers.colorize_text(M.hidden and string.rep("*", #M.value) or M.value, beautiful.fg),
     widget = wibox.widget.textbox,
     valign = "center",
     align = "start"
@@ -24,16 +24,16 @@ local O = function(label, var)
       exe_callback = function(input)
         -- If no input is present, display old contents.
         if not input or #input == 0 then
-          M.textbox.markup = helpers.colorizeText(M.def, beautiful.fg)
+          M.textbox.markup = helpers.colorize_text(M.def, beautiful.fg)
           M.textbox.font = beautiful.sans .. " 12"
           return
         end
         -- else update textbox and variable.
         M.value = input
         if self.hidden then
-          M.textbox.markup = helpers.colorizeText(string.rep("*", #M.value), beautiful.fg)
+          M.textbox.markup = helpers.colorize_text(string.rep("*", #M.value), beautiful.fg)
         else
-          M.textbox.markup = helpers.colorizeText(input, beautiful.fg)
+          M.textbox.markup = helpers.colorize_text(input, beautiful.fg)
         end
       end
     })
@@ -42,7 +42,7 @@ local O = function(label, var)
   M.widget = wibox.widget {
     {
       font = beautiful.sans .. " Light 11",
-      markup = helpers.colorizeText(M.label, beautiful.fg),
+      markup = helpers.colorize_text(M.label, beautiful.fg),
       widget = wibox.widget.textbox,
       valign = "start",
       align = "start"
@@ -72,7 +72,7 @@ local O = function(label, var)
           {
             {
               font = beautiful.icon .. " 14",
-              markup = helpers.colorizeText("󰈈", beautiful.fg),
+              markup = helpers.colorize_text("󰈈", beautiful.fg),
               widget = wibox.widget.textbox,
               valign = "center",
               align = "start"
@@ -87,9 +87,9 @@ local O = function(label, var)
             awful.button(nil, 1, function()
               M.hidden = not M.hidden
               if M.hidden then
-                M.textbox.markup = helpers.colorizeText(string.rep("*", #M.value), beautiful.fg)
+                M.textbox.markup = helpers.colorize_text(string.rep("*", #M.value), beautiful.fg)
               else
-                M.textbox.markup = helpers.colorizeText(M.value, beautiful.fg)
+                M.textbox.markup = helpers.colorize_text(M.value, beautiful.fg)
               end
             end)
           },
