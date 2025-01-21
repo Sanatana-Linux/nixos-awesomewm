@@ -17,7 +17,7 @@ local client_bg = beautiful.bg .. "99"
 local client_border_color = beautiful.fg
 local client_border_width = dpi(3)
 local widget_bg = beautiful.mbg
-local widget_border_color = beautiful.fg .. '66'
+local widget_border_color = beautiful.fg .. "66"
 local widget_border_width = dpi(2)
 local screen_radius = dpi(0)
 local client_radius = dpi(0)
@@ -37,20 +37,21 @@ return function(s)
     local current_tag_index = 1
     local is_mouse_over_preview = false
 
-    tag_preview_box = tag_preview_box or awful.popup({
-        type = "dropdown_menu",
-        visible = false,
-        ontop = true,
-        placement = function(c)
-            local screen = awful.screen.focused()
-            local screen_geo = screen.geometry
-            c.x = screen_geo.x + margin
-            c.y = screen_geo.height - c.height - dpi(50)
-        end,
-        widget = wibox.container.background,
-        input_passthrough = false,
-        bg = "#00000000",
-    })
+    tag_preview_box = tag_preview_box
+        or awful.popup({
+            type = "dropdown_menu",
+            visible = false,
+            ontop = true,
+            placement = function(c)
+                local screen = awful.screen.focused()
+                local screen_geo = screen.geometry
+                c.x = screen_geo.x + margin
+                c.y = screen_geo.height - c.height - dpi(50)
+            end,
+            widget = wibox.container.background,
+            input_passthrough = false,
+            bg = "#00000000",
+        })
 
     taglist = awful.widget.taglist({
         layout = {
@@ -65,18 +66,17 @@ return function(s)
                 {
                     {
                         {
-                            id     = 'text_role',
+                            id = "text_role",
                             widget = wibox.widget.textbox,
-                            font   = beautiful.prompt_font .. '16',
-
+                            font = beautiful.prompt_font .. "16",
                         },
                         -- Force the textbox to fit its content
                         fit = true,
                         strategy = "fit",
                         -- Center the content within the textbox
                         widget = wibox.container.place,
-                        halign = 'center',
-                        valign = 'center',
+                        halign = "center",
+                        valign = "center",
                     },
                     -- Wrap in a margin container to add padding
                     widget = wibox.container.margin,
@@ -88,7 +88,7 @@ return function(s)
                 valign = "center",
                 halign = "center",
             },
-            bg = beautiful.bg_gradient_button,
+            bg = beautiful.bg_gradient_button_alt,
             forced_width = dpi(40),
             widget = wibox.container.background,
             shape = helpers.rrect(beautiful.border_radius),
@@ -102,12 +102,11 @@ return function(s)
         bottom = dpi(5),
     })
 
-
     taglist.full_preview_showing = false
     taglist.hover_preview_showing = false
 
     taglist:connect_signal("mouse::enter", function()
-        taglist.bg = beautiful.bg_gradient_button_alt
+        taglist.bg = beautiful.bg_gradient_button
         taglist.hover_preview_showing = true
         if hide_preview_timer then
             hide_preview_timer:stop()
@@ -122,13 +121,13 @@ return function(s)
             x = 0,
             y = 0,
             width = screen_geo.width * scale,
-            height = screen_geo.height * scale
+            height = screen_geo.height * scale,
         }
 
-        local widget_to_display = wibox.widget {
+        local widget_to_display = wibox.widget({
             layout = wibox.layout.fixed.horizontal,
-            spacing = tag_spacing
-        }
+            spacing = tag_spacing,
+        })
 
         local tags = awful.screen.focused().tags
         for i, t in ipairs(tags) do
@@ -172,18 +171,18 @@ return function(s)
     end)
 
     taglist:connect_signal("mouse::leave", function()
-        taglist.bg = beautiful.bg_gradient_button
+        taglist.bg = beautiful.bg_gradient_button_alt
         taglist.hover_preview_showing = false
         if not is_mouse_over_preview then
             if hide_preview_timer then
                 hide_preview_timer:stop()
             end
-            hide_preview_timer = gears.timer {
+            hide_preview_timer = gears.timer({
                 timeout = 3,
                 autostart = true,
                 single_shot = true,
-                callback = hide_tag_preview
-            }
+                callback = hide_tag_preview,
+            })
         end
     end)
 
@@ -200,12 +199,12 @@ return function(s)
         if hide_preview_timer then
             hide_preview_timer:stop()
         end
-        hide_preview_timer = gears.timer {
+        hide_preview_timer = gears.timer({
             timeout = 3,
             autostart = true,
             single_shot = true,
-            callback = hide_tag_preview
-        }
+            callback = hide_tag_preview,
+        })
     end)
 
     return taglist

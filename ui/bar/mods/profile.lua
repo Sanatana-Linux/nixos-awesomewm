@@ -9,14 +9,14 @@ local profile = helpers.mkbtn(
     {
         {
             widget = wibox.widget.imagebox,
-            image = gears.color.recolor_image(beautiful.pfp, beautiful.fg),
+            image = gears.color.recolor_image(beautiful.logo, beautiful.fg),
             resize = true,
         },
         widget = wibox.container.margin,
-        margins = dpi(1),
+        margins = dpi(4),
     },
     beautiful.bg_gradient_button, -- normal
-    beautiful.bg_gradient_button2, -- hover
+    beautiful.bg_gradient_button_alt, -- hover
     dpi(5) -- radius
 )
 

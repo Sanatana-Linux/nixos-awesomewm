@@ -3,26 +3,26 @@ local helpers   = require("helpers")
 local awful     = require("awful")
 local beautiful = require("beautiful")
 local gears     = require("gears")
+local dpi       = require("beautiful.xresources").apply_dpi
 
 awful.screen.connect_for_each_screen(function(s)
   local exit = wibox({
     screen = s,
-    width = 1920,
-    height = 1080,
+    width = dpi(2560),
+    height = dpi(1600),
     bg = beautiful.bg .. "00",
     ontop = true,
     visible = false,
   })
 
-
   local back = wibox.widget {
     id = "bg",
     image = beautiful.wallpaper,
     widget = wibox.widget.imagebox,
-    forced_height = 1080,
+    forced_height = dpi(1600),
     horizontal_fit_policy = "fit",
     vertical_fit_policy = "fit",
-    forced_width = 1920,
+    forced_width = dpi(2560),
   }
 
   local overlay = wibox.widget {
@@ -42,13 +42,13 @@ awful.screen.connect_for_each_screen(function(s)
 
   makeImage()
 
-  local createButton = function(icon, name, cmd, color)
+  local createButton = function(icon, name, cmd)
     local widget = wibox.widget {
       {
         {
           {
             id     = "icon",
-            markup = helpers.colorize_text(icon, color),
+            markup = helpers.colorize_text(icon, beautiful.fg3), -- Initially fg3
             font   = beautiful.icon .. " 40",
             align  = "center",
             widget = wibox.widget.textbox,
@@ -60,7 +60,7 @@ awful.screen.connect_for_each_screen(function(s)
         widget = wibox.container.background,
         bg = beautiful.bg,
         id = "bg",
-        shape_border_color = color,
+        shape_border_color = beautiful.fg3, -- Border color also fg3
         shape_border_width = 2,
       },
       buttons = {
@@ -72,27 +72,29 @@ awful.screen.connect_for_each_screen(function(s)
       spacing = 15,
       layout = wibox.layout.fixed.vertical,
     }
+
+    -- Mouse hover effects
     widget:connect_signal("mouse::enter", function()
       helpers.gc(widget, "bg").bg = beautiful.mbg
+      helpers.gc(widget, "icon").markup = helpers.colorize_text(icon, beautiful.fg) -- Change to fg on hover
+      widget:get_children_by_id("bg")[1].shape_border_color = beautiful.fg          -- Change border to fg on hover
     end)
     widget:connect_signal("mouse::leave", function()
       helpers.gc(widget, "bg").bg = beautiful.bg
+      helpers.gc(widget, "icon").markup = helpers.colorize_text(icon, beautiful.fg3) -- Revert to fg3 on leave
+      widget:get_children_by_id("bg")[1].shape_border_color = beautiful.fg3          -- Revert border to fg3 on leave
     end)
+
     return widget
   end
 
-
-
-
-
   local buttons = wibox.widget {
-
     {
-      createButton("󰐥", "Power", "poweroff", beautiful.red),
-      createButton("󰦛", "Reboot", "reboot", beautiful.green),
-      createButton("󰌾", "Lock", "lock", beautiful.blue),
-      createButton("󰖔", "Sleep", "systemctl suspend", beautiful.yellow),
-      createButton("󰈆", "Log Out", "loginctl kill-user $USER", beautiful.magenta),
+      createButton("󰐥", "Power", "poweroff"),
+      createButton("󰦛", "Reboot", "reboot"),
+      createButton("󰌾", "Lock", "screenlocked"),
+      createButton("󰖔", "Sleep", "systemctl suspend"),
+      createButton("󰈆", "Log Out", "loginctl kill-user $USER"),
       layout = wibox.layout.fixed.horizontal,
       spacing = 20,
     },
@@ -103,7 +105,6 @@ awful.screen.connect_for_each_screen(function(s)
 
   exit:setup {
     back,
-
     overlay,
     buttons,
     widget = wibox.layout.stack
@@ -111,5 +112,17 @@ awful.screen.connect_for_each_screen(function(s)
   awful.placement.centered(exit)
   awesome.connect_signal("toggle::exit", function()
     exit.visible = not exit.visible
+    if exit.visible then
+      -- Grab keyboard when the exit screen is visible
+      awful.keygrabber.run(function(_, key, event)
+        if event == "press" and (key == "Escape" or key == "q") then
+          awesome.emit_signal("toggle::exit") -- Toggle off the exit screen
+        end
+        return true
+      end)
+    else
+      -- Stop grabbing keyboard when the exit screen is hidden
+      awful.keygrabber.stop()
+    end
   end)
 end)

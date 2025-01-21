@@ -1,5 +1,5 @@
 local apps = {
-    terminal = "kitty",
+    terminal = "ghostty",
     browser = "firefox",
     fileManager = "nemo",
 }

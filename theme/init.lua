@@ -117,9 +117,10 @@ theme.submenu = ">"
 
 
 
-theme.tasklist_bg_normal = theme.bg
-theme.tasklist_bg_focus = theme.bg2
-theme.tasklist_bg_minimize = theme.bg3
+theme.tasklist_bg_normal = theme.bg_gradient
+theme.tasklist_bg_focus = theme.bg_gradient_alt
+
+theme.tasklist_bg_minimize = theme.bg_gradient_titlebar_alt
 
 -- titlebar
 
