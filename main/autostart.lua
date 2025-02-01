@@ -1,5 +1,7 @@
 local awful = require("awful")
-
+local beautiful = require("beautiful")
+local mods = require("mods")
+mods.icon_theme(beautiful.icon_theme)
 local autostart = {
 
     "xrdb -merge ~/.Xresources &",

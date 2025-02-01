@@ -91,8 +91,8 @@ local function pin(class, exec)
         local present = false
         local focused = false
         if client.focus and client.focus.class == class then
-            widget:get_children_by_id("background")[1].bg = beautiful.bgalt
-            widget:get_children_by_id("foreground")[1].bg = beautiful.fg
+            widget:get_children_by_id("background")[1].bg = beautiful.bg_gradient_button
+            widget:get_children_by_id("foreground")[1].bg = beautiful.mbg .. '66'
             widget.buttons = {
                 awful.button({}, 1, function()
                     for _, c in ipairs(client.get()) do
@@ -125,9 +125,9 @@ local function pin(class, exec)
             for _, c in ipairs(client.get()) do
                 if c.class == class then
                     widget:get_children_by_id("background")[1].bg =
-                        beautiful.mbg
-                    widget:get_children_by_id("foreground")[1].bg = beautiful.fg
-                        .. "64"
+                        beautiful.bg_gradient_button_alt
+                    widget:get_children_by_id("foreground")[1].bg = beautiful.bg .. '66'
+
                     widget.buttons = {
                         awful.button({}, 1, function()
                             c.first_tag:view_only() -- check current tag first?
@@ -161,8 +161,8 @@ local function pin(class, exec)
             end
         end
         if not present then
-            widget:get_children_by_id("background")[1].bg = beautiful.bg
-            widget:get_children_by_id("foreground")[1].bg = beautiful.bg
+            widget:get_children_by_id("background")[1].bg = beautiful.bg_gradient_button_alt
+            widget:get_children_by_id("foreground")[1].bg = beautiful.bg .. '66'
             widget.buttons = {
                 awful.button({}, 1, function()
                     awful.spawn.with_shell(exec)
@@ -241,7 +241,7 @@ tasklist = awful.widget.tasklist({
         end,
     },
     layout = {
-        spacing = dpi(5),
+        spacing = dpi(8),
         spacing_widget = wibox.container.background,
         layout = wibox.layout.fixed.horizontal,
     },
@@ -254,19 +254,22 @@ tasklist = awful.widget.tasklist({
                     widget = wibox.container.margin,
                 },
                 shape = function(cr, width, height)
-                    gears.shape.rounded_rect(cr, width, height, dpi(8))
+                    gears.shape.rounded_rect(cr, width, height, dpi(6))
                 end,
                 id = "background",
                 widget = wibox.widget.background,
             },
-            bottom = dpi(2),
+            bottom = dpi(4),
+            right = dpi(4),
             widget = wibox.container.margin,
         },
         shape = function(cr, width, height)
             gears.shape.rounded_rect(cr, width, height, dpi(10))
         end,
+
         id = "foreground",
-        bg = beautiful.fg,
+
+        bg = beautiful.bg_gradient_button_alt,
         widget = wibox.container.background,
         create_callback = function(self, c)
             local exec
@@ -305,29 +308,29 @@ tasklist = awful.widget.tasklist({
             helpers.add_hover(self)
 
             if client.focus == c then
-                self:get_children_by_id("background")[1].bg = beautiful.bgalt
-                self:get_children_by_id("foreground")[1].bg = beautiful.fg
+                self:get_children_by_id("background")[1].bg = beautiful.bg_gradient_button
+                self:get_children_by_id("foreground")[1].bg =  beautiful.mbg .. "66"
             else
-                self:get_children_by_id("background")[1].bg = beautiful.mbg
-                self:get_children_by_id("foreground")[1].bg = beautiful.fg
-                    .. "64"
+                self:get_children_by_id("background")[1].bg = beautiful.bg_gradient_button_alt
+                self:get_children_by_id("foreground")[1].bg =  beautiful.bg .. '66'
+
             end
             client.connect_signal("focus", function()
                 if client.focus == c then
                     self:get_children_by_id("background")[1].bg =
-                        beautiful.bgalt
-                    self:get_children_by_id("foreground")[1].bg = beautiful.fg
+                        beautiful.bg_gradient_button
+                    self:get_children_by_id("foreground")[1].bg =  beautiful.mbg .. '66'
                 else
                     self:get_children_by_id("background")[1].bg =
-                        beautiful.mbg
-                    self:get_children_by_id("foreground")[1].bg = beautiful.fg
-                        .. "64"
+                        beautiful.bg_gradient_button_alt
+                    self:get_children_by_id("foreground")[1].bg =  beautiful.bg .. '66'
+
                 end
             end)
             client.connect_signal("unfocus", function()
-                self:get_children_by_id("background")[1].bg = beautiful.mbg
-                self:get_children_by_id("foreground")[1].bg = beautiful.fg
-                    .. "64"
+                self:get_children_by_id("background")[1].bg = beautiful.bg_gradient_button_alt
+                self:get_children_by_id("foreground")[1].bg = beautiful.bg .. '66'
+
             end)
         end,
     },
