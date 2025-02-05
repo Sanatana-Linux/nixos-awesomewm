@@ -126,7 +126,7 @@ function dropdown.toggle(prog, vert, horiz, width, height, sticky, screen)
 			c:geometry({ x = x, y = y, width = width, height = height })
 			c.ontop = true
 			c.above = true
-			c.skip_taskbar = true
+			c.skip_taskbar = false
 			if sticky then
 				c.sticky = true
 			end

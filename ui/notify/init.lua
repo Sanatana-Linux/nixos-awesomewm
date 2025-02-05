@@ -8,6 +8,7 @@ local gears = require("gears")
 local empty = require("ui.notify.mods.empty")
 local make = require("ui.notify.mods.make")
 local progs = require("ui.notify.mods.progs")
+local hotkeys_popup = require("awful.hotkeys_popup").widget
 
 awful.screen.connect_for_each_screen(function(s)
   local notify = wibox({
@@ -20,11 +21,47 @@ awful.screen.connect_for_each_screen(function(s)
     visible = false,
   })
 
+  local function close_notify()
+    notify.visible = false
+    awful.keygrabber.stop() -- Stop the keygrabber when closing the popup.
+  end
+
+  -- Keygrabber to close the notification popup
+  local keygrabber = function(mod, key, event)
+    if notify.visible then
+      if key == "q" or key == "Escape" then
+        close_notify()
+        return true -- Stop propagation
+      end
+    end
+  end
+
+  local start_keygrabber = function()
+    awful.keygrabber.run(keygrabber)
+  end
+
+  -- Add a click away handler.
+  --  The `mouse` object to be in a scope that will last for
+  --  the lifetime of the popup
+
+  local function add_click_away()
+    local mouse = awful.mouse.client_under_pointer()
+    if mouse then
+        mouse.buttons = gears.table.join(mouse.buttons, {
+        awful.button({ }, 3, function ()
+          if notify.visible then
+            close_notify()
+          end
+        end)
+      })
+    end
+  end
+  add_click_away()
 
   local finalcontent = wibox.widget {
     layout = require('mods.overflow').vertical,
     scrollbar_enabled = false,
-    spacing = 20,
+    spacing = dpi(10),
   }
   finalcontent:insert(1, empty)
 
@@ -47,7 +84,7 @@ awful.screen.connect_for_each_screen(function(s)
 
   local clearButton = wibox.widget {
     font = beautiful.icon .. " 26",
-    markup = helpers.colorize_text("󰎟", beautiful.red),
+    markup = helpers.colorize_text("󰎟", beautiful.fg),
     widget = wibox.widget.textbox,
     valign = "center",
     align = "center",
@@ -77,7 +114,7 @@ awful.screen.connect_for_each_screen(function(s)
             {
               markup = helpers.colorize_text("Notifications", beautiful.fg),
               halign = 'center',
-              font   = beautiful.sans .. " 14",
+              font   = beautiful.prompt_font .. " 18",
               widget = wibox.widget.textbox
             },
             nil,
@@ -85,7 +122,7 @@ awful.screen.connect_for_each_screen(function(s)
             widget = wibox.layout.align.horizontal,
           },
           widget = wibox.container.margin,
-          margins = 20,
+          margins = dpi(20),
         },
         widget = wibox.container.background,
         bg = beautiful.mbg
@@ -94,19 +131,24 @@ awful.screen.connect_for_each_screen(function(s)
         {
           finalcontent,
           widget = wibox.container.margin,
-          margins = 20,
+          margins = dpi(20),
         },
         widget = wibox.container.background,
       },
       progs,
       layout = wibox.layout.align.vertical,
-      spacing = 20,
+      spacing = dpi(20),
     },
     widget = wibox.container.margin,
     margins = 0,
   }
-  awful.placement.bottom_right(notify, { honor_workarea = true, margins = 20 })
+  awful.placement.bottom_right(notify, { honor_workarea = true, margins = dpi(20) })
   awesome.connect_signal("toggle::notify", function()
     notify.visible = not notify.visible
+    if notify.visible then
+      start_keygrabber() -- Start the keygrabber only when popup is visible.
+    else
+      awful.keygrabber.stop() -- Ensure keygrabber is stopped when popup is hidden.
+    end
   end)
 end)

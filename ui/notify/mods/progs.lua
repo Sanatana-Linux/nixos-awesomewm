@@ -10,7 +10,7 @@ local createProgress = function(col, label, signal)
     {
       {
         {
-          font = beautiful.sans .. " Light 11",
+          font = beautiful.sans .. "  11",
           markup = helpers.colorize_text(label, beautiful.fg),
           widget = wibox.widget.textbox,
           valign = "start",

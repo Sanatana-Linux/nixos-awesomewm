@@ -33,14 +33,15 @@ naughty.config.defaults.position = "top_right"
 
 
 -- Timeouts
-naughty.config.presets.low.timeout      = 10
+naughty.config.presets.low.timeout      = 3
+naughty.config.presets.normal.timeout   = 3
 naughty.config.presets.critical.timeout = 0
 
 -- ruled notification
 ruled.notification.connect_signal("request::rules", function()
   ruled.notification.append_rule {
     rule = {},
-    properties = { screen = awful.screen.preferred, implicit_timeout = 6 }
+    properties = { screen = awful.screen.preferred, implicit_timeout = 3 }
   }
 end)
 

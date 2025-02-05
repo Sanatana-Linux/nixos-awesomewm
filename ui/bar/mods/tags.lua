@@ -114,8 +114,8 @@ return function(s)
         end
 
         local screen_geo = s:get_bounding_geometry({
-            honor_padding = false,
-            honor_workarea = false,
+            honor_padding = true,
+            honor_workarea = true,
         })
         local geo = {
             x = 0,
@@ -178,7 +178,7 @@ return function(s)
                 hide_preview_timer:stop()
             end
             hide_preview_timer = gears.timer({
-                timeout = 3,
+                timeout = 1.5,
                 autostart = true,
                 single_shot = true,
                 callback = hide_tag_preview,

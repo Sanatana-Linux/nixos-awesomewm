@@ -1,4 +1,3 @@
-
 require("ui.bar")
 require("ui.launcher")
 require("ui.control")

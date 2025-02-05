@@ -11,7 +11,7 @@ local function emit_mem_status()
 end
 
 gears.timer {
-  timeout   = 60,
+  timeout   = 30,
   call_now  = true,
   autostart = true,
   callback  = function()

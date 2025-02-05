@@ -10,7 +10,7 @@ ruled.client.connect_signal("request::rules", function()
 			focus = awful.client.focus.filter,
 			raise = true,
 			screen = awful.screen.preferred,
-			placement = awful.placement.no_overlap + awful.placement.no_offscreen,
+			placement = awful.placement.no_overlap + awful.placement.no_offscreen  +awful.placement.honor_workarea + awful.placement.honor_padding,
 		},
 	})
 
@@ -23,4 +23,32 @@ ruled.client.connect_signal("request::rules", function()
 			titlebars_enabled = true,
 		},
 	})
+
+	ruled.client.append_rule({
+		id = "floating",
+		rule_any = {
+			instance = { "copyq", "pinentry" },
+			class = {
+				"Arandr",
+				"Blueman-manager",
+				"Gpick",
+				"Kruler",
+				"Sxiv",
+				"Tor Browser",
+				"Vlc",
+				"xtightvncviewer",
+				"nvidia-settings",
+				"ark",
+				"org.gnome.FileRoller"
+			},
+			name = {
+				"Event Tester", -- xev.
+			},
+			role = {
+				"AlarmWindow", -- thunderbird's calendar.
+				"ConfigManager", -- thunderbird's about:config.
+				"pop-up", -- e.g. Google Chrome's (detached) Developer Tools.
+				}
+			}
+		})
 end)

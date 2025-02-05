@@ -18,7 +18,7 @@ local function init(s)
     local wibar = awful.wibar({
         position = "bottom",
         height = dpi(48),
-        ontop = true,
+        -- ontop = true,
         screen = s or awful.screen.focused(),
         width = (s or awful.screen.focused()).geometry.width,
         bg = beautiful.bg .. '99',

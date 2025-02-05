@@ -20,9 +20,8 @@ local widget = helpers.mkbtn({
 widget:add_button(
     awful.button({}, 1, function()
         awesome.emit_signal("layout::changed:next")
-    end),
-    awful.button({}, 1, function()
-        awesome.emit_signal("layout::changed:next")
-    end)
-)
+    end))
+    widget:add_button( awful.button({}, 3, function()
+        awesome.emit_signal("layout::changed:prev") 
+    end))
 return widget

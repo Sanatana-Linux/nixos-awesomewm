@@ -18,6 +18,8 @@ local data =
 
 theme.pfp = gfs.get_configuration_dir() .. "theme/assets/awesome.svg"
 theme.logo = gfs.get_configuration_dir() .. "theme/assets/nixos.svg"
+theme.shroom = gfs.get_configuration_dir() .. "theme/assets/mushroom.png"
+theme.awesomewm_nixos = gfs.get_configuration_dir() .. "theme/assets/awesomewm-nixos.png"
 ---@diagnostic disable-next-line: param-type-mismatch
 theme.user = string.gsub(os.getenv("USER"), "^%l", string.upper)
 theme.hostname = os.getenv("HOST")
@@ -263,6 +265,11 @@ theme.layout_mstab = gears.color.recolor_image(
     assets_path .. "/layouts/mstab.png",
     theme.fg_normal
 )
+theme.layout_treetile = gears.color.recolor_image(
+    assets_path .. "/layouts/treetile.png",
+    theme.fg_normal
+)
+
 
 theme.layout_floating =
     gears.color.recolor_image(themes_path .. "assets/floating.png", theme.fg)

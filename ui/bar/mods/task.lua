@@ -194,20 +194,19 @@ local function pin(class, exec)
     return widget
 end
 
-local function contains(table, name)
-    for _, app in ipairs(table) do
-        if app == name then
-            return true
-        end
-    end
-    return false
-end
+-- local function contains(table, name)
+--     for _, app in ipairs(table) do
+--         if app == name then
+--             return true
+--         end
+--     end
+--     return false
+-- end
 
 tasklist = awful.widget.tasklist({
     screen = awful.screen.focused(),
     filter = awful.widget.tasklist.filter.allscreen,
     source = function()
-        local seen = {}
         local ret = {}
 
         for _, c in ipairs(client.get()) do
@@ -218,16 +217,12 @@ tasklist = awful.widget.tasklist({
                     break
                 end
             end
-            if
-                not exclude and not contains(seen, c.class)
-                or c.minimized == true
-            then
-                table.insert(seen, c.class)
+            if not exclude then
                 table.insert(ret, c)
             end
         end
 
-        if seen[1] and pinned[1] then
+        if #ret > 0 and #pinned > 0 then
             separator.visible = true
         else
             separator.visible = false
@@ -253,19 +248,19 @@ tasklist = awful.widget.tasklist({
                     margins = dpi(5),
                     widget = wibox.container.margin,
                 },
-                shape = function(cr, width, height)
-                    gears.shape.rounded_rect(cr, width, height, dpi(6))
-                end,
+                shape = helpers.rrect(dpi(6)),
                 id = "background",
                 widget = wibox.widget.background,
+                border_color = beautiful.fg3,
+                border_width = dpi(1),
             },
+            top=dpi(1),
+            left= dpi(1),
             bottom = dpi(4),
             right = dpi(4),
             widget = wibox.container.margin,
         },
-        shape = function(cr, width, height)
-            gears.shape.rounded_rect(cr, width, height, dpi(10))
-        end,
+        shape = helpers.rrect(dpi(4)),
 
         id = "foreground",
 
@@ -309,27 +304,27 @@ tasklist = awful.widget.tasklist({
 
             if client.focus == c then
                 self:get_children_by_id("background")[1].bg = beautiful.bg_gradient_button
-                self:get_children_by_id("foreground")[1].bg =  beautiful.mbg .. "66"
+                self:get_children_by_id("foreground")[1].bg =  beautiful.bg .. "dd"
             else
                 self:get_children_by_id("background")[1].bg = beautiful.bg_gradient_button_alt
-                self:get_children_by_id("foreground")[1].bg =  beautiful.bg .. '66'
+                self:get_children_by_id("foreground")[1].bg =  beautiful.bg .. 'aa'
 
             end
             client.connect_signal("focus", function()
                 if client.focus == c then
                     self:get_children_by_id("background")[1].bg =
                         beautiful.bg_gradient_button
-                    self:get_children_by_id("foreground")[1].bg =  beautiful.mbg .. '66'
+                    self:get_children_by_id("foreground")[1].bg =  beautiful.bg .. 'dd'
                 else
                     self:get_children_by_id("background")[1].bg =
                         beautiful.bg_gradient_button_alt
-                    self:get_children_by_id("foreground")[1].bg =  beautiful.bg .. '66'
+                    self:get_children_by_id("foreground")[1].bg =  beautiful.bg .. 'aa'
 
                 end
             end)
             client.connect_signal("unfocus", function()
                 self:get_children_by_id("background")[1].bg = beautiful.bg_gradient_button_alt
-                self:get_children_by_id("foreground")[1].bg = beautiful.bg .. '66'
+                self:get_children_by_id("foreground")[1].bg = beautiful.bg .. 'aa'
 
             end)
         end,

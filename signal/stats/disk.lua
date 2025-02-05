@@ -12,7 +12,7 @@ local function emit_disk_status()
 end
 
 gears.timer {
-  timeout   = 600,
+  timeout   = 300, -- 5 minutes
   call_now  = true,
   autostart = true,
   callback  = function()

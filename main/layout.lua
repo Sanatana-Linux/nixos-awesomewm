@@ -5,6 +5,7 @@ local horizon = require("misc.layouts.horizon")
 local equalarea = require("misc.layouts.equalarea")
 local deck = require("misc.layouts.deck")
 local mstab = require("misc.layouts.mstab")
+local treetile = require("misc.layouts.treetile")
 
 local cascade = require("misc.layouts.cascade")
 local beautiful = require("beautiful")
@@ -14,6 +15,7 @@ tag.connect_signal("request::default_layouts", function(s)
     awful.layout.append_default_layouts({
 
         mstab,
+        treetile,
         cascade.tile,
         deck, -- while similar to cascade, this one has different padding and margin settings that nakes having both useful to a variable degree
         cascade,
@@ -49,5 +51,6 @@ end)
 client.connect_signal("manage", function(c)
     if awesome.startup then
         awful.client.setslave(c)
+
     end
 end)

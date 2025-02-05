@@ -11,14 +11,14 @@ return wibox.widget {
       {
         widget = wibox.widget.textbox,
         markup = helpers.colorize_text("No Notifications", beautiful.fg),
-        font = beautiful.sans .. " 14",
+        font = beautiful.prompt_font .. " 32",
         valign = "center",
         align = "center"
       },
       {
-        image = gears.filesystem.get_configuration_dir() .. "/theme/assets/wedding-bells.png",
+        image = gears.filesystem.get_configuration_dir() .. "/theme/assets/no-bell.png",
         resize = true,
-        forced_height = 250,
+        forced_height = 200,
         halign = "center",
         valign = "center",
         widget = wibox.widget.imagebox,

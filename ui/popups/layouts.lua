@@ -8,8 +8,8 @@ local helpers = require("helpers")
 
 -- Create the base layout
 local base_layout = wibox.widget({
-    spacing = dpi(32),
-    forced_num_cols = 6,
+    spacing = dpi(72),
+    forced_num_cols = 4,
     layout = wibox.layout.grid.vertical,
 })
 -- Define the widget template
@@ -17,8 +17,8 @@ local widget_template = {
     {
         {
             id = "icon_role",
-            forced_height = dpi(48),
-            forced_width = dpi(48),
+            forced_height = dpi(96),
+            forced_width = dpi(96),
             widget = wibox.widget.imagebox,
             shape = helpers.rrect(5),
         },
@@ -27,8 +27,8 @@ local widget_template = {
         shape = helpers.rrect(5),
     },
     id = "background_role",
-    forced_width = dpi(64),
-    forced_height = dpi(64),
+    forced_width = dpi(108),
+    forced_height = dpi(108),
     bg = beautiful.fg2 .. "44",
     shape = helpers.rrect(5),
     widget = wibox.container.background,
@@ -57,7 +57,7 @@ local layout_popup = awful.popup({
     visible = false,
 })
 -- Timer for layout popup
-layout_popup.timer = gears.timer({ timeout = 3 })
+layout_popup.timer = gears.timer({ timeout = 1.5 })
 layout_popup.timer:connect_signal("timeout", function()
     layout_popup.visible = false
     layout_popup.screen = mouse.screen

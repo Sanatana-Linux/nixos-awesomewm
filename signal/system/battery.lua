@@ -25,7 +25,7 @@ end
 -- Refreshing
 -------------
 gears.timer {
-  timeout   = 20,
+  timeout   = 5,
   call_now  = true,
   autostart = true,
   callback  = function()
