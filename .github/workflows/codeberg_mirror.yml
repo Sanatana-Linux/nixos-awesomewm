@@ -3,7 +3,7 @@ name: Mirror Repository to Codeberg
 on:
   workflow_dispatch: # Run workflow via GitHub website
   schedule:
-    - cron: '30 3 * * ' # Run workflow automatically at 03:30 daily
+    - cron: '30 3 * * *' # Run workflow automatically at 03:30 daily
 jobs:
   codeberg:
     runs-on: ubuntu-latest
