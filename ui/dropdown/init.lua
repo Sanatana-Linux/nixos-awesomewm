@@ -7,9 +7,9 @@
 --   * http://sam.zoy.org/wtfpl/COPYING
 -------------------------------------------------------------------
 -- To use this module add:
---   local scratchdrop = require("scratchdrop")
+--   local Dropdown = require("Dropdown")
 -- to the top of your rc.lua, and call it from a keybinding:
---   scratchdrop(prog, vert, horiz, width, height, sticky, screen)
+--   Dropdown(prog, vert, horiz, width, height, sticky, screen)
 --
 -- Parameters:
 --   prog   - Program to run; "urxvt", "gmrun", "thunderbird"
@@ -33,7 +33,7 @@ local capi = {
 	screen = screen,
 }
 
--- Scratchdrop: drop-down applications manager for the awesome window manager
+-- Dropdown: drop-down applications manager for the awesome window manager
 
 local dropdown = {}
 
@@ -79,7 +79,7 @@ function dropdown.toggle(prog, vert, horiz, width, height, sticky, screen)
 	if not dropdown[prog] then
 		dropdown[prog] = {}
 
-		-- Add unmanage signal for scratchdrop programs
+		-- Add unmanage signal for Dropdown programs
 		attach_signal("unmanage", function(c)
 			for scr, cl in pairs(dropdown[prog]) do
 				if cl == c then
@@ -93,9 +93,8 @@ function dropdown.toggle(prog, vert, horiz, width, height, sticky, screen)
 		spawnw = function(c)
 			dropdown[prog][screen] = c
 
-			-- Scratchdrop clients are floaters
-			awful.client.floating.set(c, true)
-
+			-- Dropdown clients are floaters
+			 c.floating = true
 			-- Client geometry and placement
 			local screengeom = capi.screen[screen].workarea
 

@@ -248,9 +248,9 @@ tasklist = awful.widget.tasklist({
                     margins = dpi(5),
                     widget = wibox.container.margin,
                 },
-                shape = helpers.rrect(dpi(6)),
+                shape = helpers.rrect(dpi(8)),
                 id = "background",
-                widget = wibox.widget.background,
+                widget = wibox.container.background,
                 border_color = beautiful.fg3,
                 border_width = dpi(1),
             },
@@ -260,7 +260,7 @@ tasklist = awful.widget.tasklist({
             right = dpi(4),
             widget = wibox.container.margin,
         },
-        shape = helpers.rrect(dpi(4)),
+        shape = helpers.rrect(dpi(6)),
 
         id = "foreground",
 

@@ -25,6 +25,15 @@ awful.keyboard.append_global_keybindings({
         { description = "reload awesome", group = "awesome" }
     ),
 
+
+    awful.key(
+        { modkey },
+        "d",
+        awesome.emit_signal("toggle::dash"),
+        { description = "toggle dashboard", group = "awesome" }
+    ),
+
+
     -- -------------------------------------------------------------------------- --
 
     awful.key(

@@ -27,7 +27,7 @@ ruled.client.connect_signal("request::rules", function()
 	ruled.client.append_rule({
 		id = "floating",
 		rule_any = {
-			instance = { "copyq", "pinentry" },
+			instance = { "copyq", "pinentry", "Xephyr" },
 			class = {
 				"Arandr",
 				"Blueman-manager",
@@ -39,7 +39,9 @@ ruled.client.connect_signal("request::rules", function()
 				"xtightvncviewer",
 				"nvidia-settings",
 				"ark",
-				"org.gnome.FileRoller"
+				"org.gnome.FileRoller",
+				"xephyr_1",
+				"Xephyr"
 			},
 			name = {
 				"Event Tester", -- xev.
@@ -49,6 +51,13 @@ ruled.client.connect_signal("request::rules", function()
 				"ConfigManager", -- thunderbird's about:config.
 				"pop-up", -- e.g. Google Chrome's (detached) Developer Tools.
 				}
-			}
+			}, 
+			properties = {
+				titlebars_enabled = true,
+				floating = true,
+				raise = true,
+				screen = awful.screen.preferred,
+				placement = awful.placement.centered + awful.placement.no_offscreen  +awful.placement.honor_workarea + awful.placement.honor_padding,
+			},
 		})
 end)

@@ -89,19 +89,47 @@ awful.screen.connect_for_each_screen(function(s)
     local close = function()
         screenshot_popup.visible = not screenshot_popup.visible
     end
+    local show_notification = function(name)
+        naughty.notify({
+            title   = "Screenshot Saved",
+            text    = "Your screenshot was saved as " .. name,
+            timeout = 6,
+            actions = {
+                {
+                    "󰍖 Delete",
+                    function()
+                        awful.spawn.with_shell("rm \"" .. name .. "\"")
+                        naughty.notify({
+                            title = "Screenshot Deleted",
+                            text  = "Deleted: " .. name,
+                            timeout = 3,
+                        })
+                    end
+                },
+                {
+                    "󰈟 Open",
+                    function()
+                        awful.spawn.with_shell("feh \"" .. name .. "\"")
+                    end
+                }
+            }
+        })
+    end
+    local take_screenshot = function(cmd, copy_to_clipboard)
+      close()
+      local name = getName()
+      local full_cmd = cmd .. name
+      awful.spawn.easy_async_with_shell(full_cmd, function()
+        if copy_to_clipboard then
+          copyScrot(name)
+        end
+        -- show_notification(name)
+      end)
+    end
+
 
     local fullscreen = createButton("󰍹", "Fullscreen", function()
-        close()
-        local name = getName()
-        local cmd = defCommand .. name
-        awful.spawn.easy_async_with_shell(cmd, function()
-            copyScrot(name)
-        end)
-        naughty.notify({
-            title = "Screenshot Saved",
-            text = "Your screenshot was saved as " .. name,
-            timeout = 6,
-        })
+      take_screenshot(defCommand, true)
     end, beautiful.green)
 
     helpers.add_hover(
@@ -110,18 +138,7 @@ awful.screen.connect_for_each_screen(function(s)
         beautiful.bg_gradient_button_alt
     )
     local selection = createButton("󰩭", "Selection", function()
-        close()
-        local name = getName()
-        local cmd = "maim" .. " -s " .. name
-        awful.spawn.easy_async_with_shell(cmd, function()
-            copyScrot(name)
-        end)
-
-        naughty.notify({
-            title = "Screenshot Saved",
-            text = "Your screenshot was saved as " .. name,
-            timeout = 6,
-        })
+      take_screenshot("maim" .. " -s ", true)
     end, beautiful.blue)
 
     helpers.add_hover(
@@ -131,21 +148,11 @@ awful.screen.connect_for_each_screen(function(s)
     )
 
     local window = createButton("󰘔", "Window", function()
-        close()
         local name = getName()
         local cmd = "maim"
             .. " --window $(xdotool getactivewindow) "
-            .. " "
-            .. name
-        awful.spawn.with_shell(cmd)
-        awful.spawn.easy_async_with_shell(cmd, function()
-            copyScrot(name)
-        end)
-        naughty.notify({
-            title = "Screenshot Saved",
-            text = "Your screenshot was saved as " .. name,
-            timeout = 6,
-        })
+            -- .. " " removed as name gets concatenated to the existing string with no space, and is also not used by the previous impl
+        take_screenshot(cmd, true)
     end, beautiful.red)
 
     helpers.add_hover(window, beautiful.bg_gradient, beautiful.bg_gradient_alt)

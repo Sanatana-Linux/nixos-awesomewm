@@ -1,6 +1,3 @@
--- Copyleft © 2022 Saimoomedits
---most stuff copied from guy above
-
 
 local naughty = require("naughty")
 local beautiful = require("beautiful")
@@ -23,12 +20,14 @@ naughty.connect_signal("request::icon", function(n, context, hints)
   if path then n.icon = path end
 end)
 
-
+naughty.connect_signal("request::action_icon", function(a, context, hints)
+  a.icon = require('menubar').utils.lookup_icon(hints.id)
+end)
 -- naughty config
 naughty.config.defaults.ontop    = true
 naughty.config.defaults.screen   = awful.screen.focused()
 naughty.config.defaults.timeout  = 10
-naughty.config.defaults.title    = "Ding!"
+naughty.config.defaults.title    = "Attention"
 naughty.config.defaults.position = "top_right"
 
 
@@ -99,8 +98,8 @@ naughty.connect_signal("request::display", function(n)
         widget = wibox.widget.imagebox,
       },
       strategy = "exact",
-      height = dpi(50),
-      width = dpi(50),
+      height = dpi(32),
+      width = dpi(32),
       widget = wibox.container.constraint,
     },
     id = "arc",
@@ -120,21 +119,21 @@ naughty.connect_signal("request::display", function(n)
     duration = 6,
     target = 100,
     reset_on_stop = false,
-    easing = animation.easing.linear,
+    easing = animation.easing.inElastic,
     update = function(_, pos)
       image_n:get_children_by_id('arc')[1].value = pos
     end,
   }
-  anim:connect_signal("ended", function()
-    n:destroy()
-  end)
+  -- anim:connect_signal("ended", function()
+  --   n:destroy()
+  -- end)
 
   -- title
   local title_n = wibox.widget {
     {
       {
         markup = n.title,
-        font   = beautiful.sans .. " 12",
+        font   = beautiful.prompt_font .. " 11",
         align  = "right",
         valign = "center",
         widget = wibox.widget.textbox

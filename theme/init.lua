@@ -131,7 +131,7 @@ theme.titlebar_bg_focus = theme.bg_gradient_titlebar_alt
 theme.titlebar_fg_normal = colors.fg3
 theme.titlebar_fg_focus = colors.fg
 
-theme.icon_theme = "Reversal"
+
 theme.nixos = themes_path .. "assets/nixos.png"
 
 theme.songdefpicture = themes_path .. "/assets/defsong.jpg"
