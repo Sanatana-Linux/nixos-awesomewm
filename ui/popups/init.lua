@@ -1,5 +1,0 @@
-require("ui.popups.window_switcher")
-require("ui.popups.screenshot_popup")
-require("ui.popups.brightness")
-require("ui.popups.volume")
-require("ui.popups.layouts")

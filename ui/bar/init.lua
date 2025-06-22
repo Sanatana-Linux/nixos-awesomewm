@@ -1,105 +1,134 @@
+-- ui/bar/init.lua
+-- This module defines and assembles the main status bar (wibar) for AwesomeWM.
+-- It now loads its components from the `ui/bar/modules/` directory,
+-- improving modularity and maintainability.
+
 local awful = require("awful")
 local wibox = require("wibox")
 local beautiful = require("beautiful")
-local dpi = require("beautiful").xresources.apply_dpi
-local helpers = require("helpers")
-local tasklist = require("ui.bar.mods.task")
-local profile = require("ui.bar.mods.profile")
-local battery = require("ui.bar.mods.battery")
-local wifi = require("ui.bar.mods.wifi")
-local bluetooth = require("ui.bar.mods.bluetooth")
-local hourminutes = require("ui.bar.mods.time")
-local layout = require("ui.bar.mods.layout")
-local systray = require("ui.bar.mods.systray")
-local notifications_button = require("ui.bar.mods.notifications_button")
-local exit_button = require("ui.bar.mods.exit_button")
+local dpi = beautiful.xresources.apply_dpi
 
-local function init(s)
-    local wibar = awful.wibar({
-        position = "bottom",
-        height = dpi(48),
-        -- ontop = true,
-        screen = s or awful.screen.focused(),
-        width = (s or awful.screen.focused()).geometry.width,
-        bg = beautiful.bg .. '99',
-        fg = beautiful.fg,
+-- Load wibar component modules
+local launcher_button = require("ui.bar.modules.launcher_button")
+local control_panel_button = require("ui.bar.modules.control_panel_button")
+local time_widget = require("ui.bar.modules.time_widget")
+local tray_widget = require("ui.bar.modules.tray_widget")
+local layoutbox_widget = require("ui.bar.modules.layoutbox_widget")
+local taglist_widget = require("ui.bar.modules.taglist_widget")
+local tasklist_widget = require("ui.bar.modules.tasklist_widget")
 
-        widget = {
-            {
-                {
-                    profile,
-                    widget = wibox.container.margin,
-                    left = dpi(5),
-                    top = dpi(7),
-                    bottom = dpi(7),
-                    right = dpi(15),
-                },
-                {
-                    require("ui.bar.mods.tags")(s),
-                    widget = wibox.container.margin,
-                    left = dpi(5),
-                    top = dpi(7),
-                    bottom = dpi(7),
-                    right = dpi(5),
-                },
-                layout = wibox.layout.fixed.horizontal,
+local bar = {}
 
-            },
-
-
-            {
-
-                tasklist,
-                widget = wibox.container.margin,
-                left = dpi(5),
-                right = dpi(5),
-                top = dpi(5),
-                bottom = dpi(5),
-            },
-            {
-                {
-                    {
-                        systray,
-
-                        {
-                            layout = wibox.layout.fixed.horizontal,
-                            wifi,
-                            bluetooth,
-                            spacing = dpi(10),
-                            widget = wibox.container.background,
-                            buttons = {
-                                awful.button({}, 1, function()
-                                    awesome.emit_signal("toggle::control")
-                                end),
-                            },
-                        },
-
-
-                        layout,
-                        notifications_button,
-                        battery,
-                        hourminutes,
-                        exit_button,
-                        widget = wibox.container.margin,
-                        top = dpi(10),
-                        bottom = dpi(10),
-                        left = dpi(10),
-                        right = dpi(10),
-                        layout = wibox.layout.fixed.horizontal,
-                        spacing = dpi(10),
-                    },
-                    widget = wibox.container.place,
-                    valign = "center",
-                },
-                widget = wibox.container.margin,
-                right = 5,
-            },
-            layout = wibox.layout.align.horizontal,
-        },
-    })
-    return wibar
+-- Creates the wibar for secondary screens.
+-- Contains only taglist and tasklist for a minimal setup.
+-- @param s screen The screen object.
+-- @return wibar The wibar for the secondary screen.
+function bar.create_secondary(s)
+	local wibar = awful.wibar({
+		position = "bottom",
+		ontop = true,
+		screen = s,
+		height = dpi(45),
+		border_width = beautiful.border_width,
+		border_color = beautiful.fg_alt .. '99',
+		bg = beautiful.bg .. '99',
+		margins = {
+			left = -beautiful.border_width,
+			right = -beautiful.border_width,
+			top = 0,
+			bottom = -beautiful.border_width,
+		},
+		widget = {
+			layout = wibox.layout.align.horizontal,
+			-- Left
+			{
+				widget = wibox.container.margin,
+				margins = dpi(7),
+				{
+					layout = wibox.layout.fixed.horizontal,
+					spacing = dpi(5),
+					taglist_widget(s),
+				},
+			},
+			-- Center
+			{
+				widget = wibox.container.margin,
+				margins = dpi(7),
+				{
+					layout = wibox.layout.fixed.horizontal,
+					spacing = dpi(12),
+					tasklist_widget(s),
+				},
+			},
+			-- Right
+			{
+				-- Empty placeholder
+			},
+		},
+	})
+	return wibar
 end
 
-screen.connect_signal("request::desktop_decoration", function(s)
-    s.wibox = init(s)
-end)
+-- Creates the wibar for the primary screen.
+-- Contains a full set of widgets: launcher, taglist, tasklist, tray, layoutbox, time, and control panel.
+-- @param s screen The screen object.
+-- @return wibar The wibar for the primary screen.
+function bar.create_primary(s)
+	local wibar = awful.wibar({
+		position = "bottom",
+		ontop = true,
+		screen = s,
+		height = dpi(48),
+		border_width = dpi(0),
+		border_color = beautiful.bg .. '66',
+		bg = beautiful.bg .. '99',
+		margins = {
+			left = -beautiful.border_width,
+			right = -beautiful.border_width,
+			top = 0,
+			bottom = -beautiful.border_width,
+		},
+		widget = {
+			layout = wibox.layout.align.horizontal,
+			{ -- Left widgets
+				widget = wibox.container.margin,
+				margins = dpi(7),
+				{
+					layout = wibox.layout.fixed.horizontal,
+					spacing = dpi(8),
+					launcher_button(),
+					taglist_widget(s),
+				},
+			},
+			{ -- Center widgets (tasklist)
+				widget = wibox.container.margin,
+				margins = dpi(7),
+				{
+					layout = wibox.layout.fixed.horizontal,
+					spacing = dpi(8),
+					tasklist_widget(s),
+				},
+			},
+			{ -- Right widgets
+				widget = wibox.container.margin,
+				margins = {
+					top = dpi(7),
+					bottom = dpi(7),
+					left = 0,
+					right = dpi(7),
+				},
+				{
+					layout = wibox.layout.fixed.horizontal,
+					spacing = dpi(8),
+					tray_widget(),
+					layoutbox_widget(s),
+					time_widget(),
+					control_panel_button(),
+				},
+			},
+		},
+	})
+	return wibar
+end
+
+return bar

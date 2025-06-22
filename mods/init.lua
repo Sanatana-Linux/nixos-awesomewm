@@ -1,5 +1,0 @@
-return{
-
-    
-    require("mods.preview")
-}

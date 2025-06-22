@@ -1,32 +1,15 @@
 {
-    "diagnostics.globals": [
-        "vim",
-        "awesome",
-        "client",
-        "entry",
-        "tag",
-        "mouse",
-        "modkey",
-        "ctags",
-        "on",
-        "turn_off",
-        "current_tag",
-        "off",
-        "screen",
-        "c",
-        "spawnw",
-        "x",
-        "y",
-        "status",
-        "err",
-        "index_entry",
-        "index_start",
-        "filtered",
-        "mousegrabber",
-        "regfiltered",
-        "notif_center_remove_notif",
-        "notif_center_reset_notifs_container",
-        "unfiltered",
-        "beautiful"
-    ]
+  "diagnostics": {
+    "enable": true
+  },
+  "workspace": {
+    "library": [
+      "/usr/share/awesome/lib/",
+      "/run/current-system/sw/lib/lua5.1/"
+    ],
+    "maxPreload": 2000,
+    "preloadFileSize": 1000
+  },
+  "telemetry.enable": false,
+  "diagnostics.globals": ["awesome"]
 }

@@ -1,442 +1,453 @@
-local wibox = require("wibox")
-local client = client
+
+local Gio = require("lgi").require("Gio")
 local awful = require("awful")
-local gears = require("gears")
-local Gio = require("lgi").Gio
-local iconTheme = require("lgi").require("Gtk", "3.0").IconTheme.get_default()
+local wibox = require("wibox")
 local beautiful = require("beautiful")
-local helpers = require("helpers")
-local animation = require("mods.animation")
+local gtable = require("gears.table")
+local gfs = require("gears.filesystem")
+local modules = require("modules")
+local user = require("user")
+local text_icons = beautiful.text_icons
 local dpi = beautiful.xresources.apply_dpi
+local lua_escape = require("lib").lua_escape
+local is_supported = require("lib").is_supported
+local table_to_file = require("lib").table_to_file
+local capi = { screen = screen }
+local powermenu = require("ui.powermenu").get_default()
 
-awful.screen.connect_for_each_screen(function(s)
-    local launcherdisplay = wibox({
-        width = dpi(505),
-        shape = helpers.rrect(12),
-        height = dpi(580),
-        bg = beautiful.bg .. "99",
-        ontop = true,
-        visible = false,
-    })
-    local prompt = wibox.widget({
-        {
-            image = helpers.crop_surface(
-                3.42,
-                gears.surface.load_uncached(beautiful.wallpaper)
-            ),
-            opacity = 0.9,
-            forced_height = dpi(140),
-            clip_shape = helpers.rrect(10),
-            forced_width = dpi(440),
-            widget = wibox.widget.imagebox,
-        },
-        {
-            {
-                {
-                    {
-                        {
-                            markup = "",
-                            forced_height = 15,
-                            id = "txt",
-                            font = beautiful.font .. " 14",
-                            widget = wibox.widget.textbox,
-                        },
-                        {
-                            markup = "Search...",
-                            forced_height = dpi(15),
-                            id = "placeholder",
-                            font = beautiful.font .. ' 13',
-                            widget = wibox.widget.textbox,
-                        },
-                        layout = wibox.layout.stack,
-                    },
-                    widget = wibox.container.margin,
-                    margins = dpi(20),
-                },
-                forced_width = dpi(300),
-                shape = helpers.rrect(8),
-                widget = wibox.container.background,
-                bg = beautiful.mbg,
-            },
-            widget = wibox.container.place,
-            halign = "center",
-            valgn = "center",
-        },
-        layout = wibox.layout.stack,
-    })
+local launcher = {}
 
-    local entries = wibox.widget({
-        homogeneous = false,
-        expand = false,
-        forced_num_cols = 1,
-        spacing = 4,
-        layout = wibox.layout.grid,
-    })
-    local createPowerButton = function(icon, command)
-        return helpers.mkbtn({
-            {
+local function launch_app(app)
+	if not app then return end
+	local desktop_app_info = Gio.DesktopAppInfo.new(Gio.AppInfo.get_id(app))
+	local term_needed = Gio.DesktopAppInfo.get_string(desktop_app_info, "Terminal") == "true" and true or false
+	local term = Gio.AppInfo.get_default_for_uri_scheme('terminal')
 
-                {
-                    markup = icon,
-                    align = "center",
-                    font = beautiful.icon .. " 20",
-                    widget = wibox.widget.textbox,
-                },
-                margins = dpi(8),
-                widget = wibox.container.margin,
-            },
+	awful.spawn(
+		term_needed and
+			term and string.format("%s -e %s", term:get_executable(), app:get_executable())
+		or
+			string.match(app:get_executable(), "^env") and
+				string.gsub(app:get_commandline(), "%%%a", "")
+			or
+				app:get_executable()
+	)
+end
 
-            widget = wibox.container.place,
-            halign = "center",
-            buttons = {
-                awful.button({}, 1, function()
-                    awesome.emit_signal("quit::search")
-                    awesome.emit_signal("quit::launcher")
-                    awful.spawn.with_shell(command)
-                end),
-            },
-        }, beautiful.bg_gradient_button, beautiful.bg_gradient_button_alt, dpi(4))
-    end
-    launcherdisplay:setup({
-        {
-            {
-                {
-                    {
-                        {
-                            widget = wibox.widget.imagebox,
-                            image = beautiful.logo,
-                            forced_height = dpi(60),
-                            forced_width =dpi(60),
-                            resize = true,
-                        },
-                        widget = wibox.container.place,
-                        halign = "center",
-                    },
-                    widget = wibox.container.margin,
-                    top = 15,
-                },
-                nil,
-                {
-                    {
-                        createPowerButton("󰐥", "poweroff"),
-                        createPowerButton("󰌾", "lock"),
-                        createPowerButton("󰦛", "reboot"),
-                        spacing = dpi(10),
-                        layout = wibox.layout.fixed.vertical,
-                        widget = wibox.container.background,
-                        bg = beautiful.bg .. "99",
-                    },
-                    widget = wibox.container.margin,
-                    margins = dpi(10),
-                },
-                layout = wibox.layout.align.vertical,
-            },
-            widget = wibox.container.background,
-            bg = beautiful.bg_gradient_titlebar,
-        },
-        {
-            {
-                prompt,
-                spacing = dpi(10),
-                entries,
-                layout = wibox.layout.fixed.vertical,
-            },
-            left = dpi(10),
-            right = dpi(10),
-            bottom = dpi(10),
-            top = dpi(10),
-            widget = wibox.container.margin,
-        },
-        nil,
-        spacing = 0,
-        layout = wibox.layout.align.horizontal,
-    })
-    -- Functions
+local function filter_apps(apps, query)
+	query = lua_escape(query)
+	local filtered = {}
+	local filtered_any = {}
 
-    local function next(entries)
-        if index_entry ~= #filtered then
-            index_entry = index_entry + 1
-            if index_entry > index_start + 5 then
-                index_start = index_start + 1
-            end
-        end
-    end
+	for _, app in ipairs(apps) do
+		if app:should_show() then
+			local name_match = string.lower(string.sub(app:get_name(), 1, string.len(query))) == string.lower(query)
+			local name_match_any = string.match(string.lower(app:get_name()), string.lower(query))
+			local exec_match_any = string.match(string.lower(app:get_executable()), string.lower(query))
 
-    local function back(entries)
-        if index_entry ~= 1 then
-            index_entry = index_entry - 1
-            if index_entry < index_start then
-                index_start = index_start - 1
-            end
-        end
-    end
+			if name_match then
+				table.insert(filtered, app)
+			elseif name_match_any or exec_match_any then
+				table.insert(filtered_any, app)
+			end
+		end
+	end
 
-    local function gen()
-        local entries = {}
-        for _, entry in ipairs(Gio.AppInfo.get_all()) do
-            if entry:should_show() then
-                local name = entry
-                    :get_name()
-                    :gsub("&", "&amp;")
-                    :gsub("<", "&lt;")
-                    :gsub("'", "&#39;")
-                local icon = entry:get_icon()
-                local path
-                if icon then
-                    path = icon:to_string()
-                    if not path:find("/") then
-                        local icon_info =
-                            iconTheme:lookup_icon(path, dpi(48), 0)
-                        local p = icon_info and icon_info:get_filename()
-                        path = p
-                    end
-                end
-                table.insert(
-                    entries,
-                    { name = name, appinfo = entry, icon = path or "" }
-                )
-            end
-        end
-        return entries
-    end
+	table.sort(filtered, function(a, b)
+		return string.lower(a:get_name()) < string.lower(b:get_name())
+	end)
 
-    local function filter(cmd)
-        filtered = {}
-        regfiltered = {}
+	table.sort(filtered_any, function(a, b)
+		return string.lower(a:get_name()) < string.lower(b:get_name())
+	end)
 
-        -- Filter entries
+	for i = 1, #filtered_any do
+		filtered[#filtered + 1] = filtered_any[i]
+	end
 
-        for _, entry in ipairs(unfiltered) do
-            if entry.name:lower():sub(1, cmd:len()) == cmd:lower() then
-                table.insert(filtered, entry)
-            elseif entry.name:lower():match(cmd:lower()) then
-                table.insert(regfiltered, entry)
-            end
-        end
+	return filtered
+end
 
-        -- Sort entries
+function launcher:next()
+	local wp = self._private
+	if #wp.filtered > 1 and wp.select_index ~= #wp.filtered then
+		wp.select_index = wp.select_index + 1
+		if wp.select_index > wp.start_index + wp.rows - 1 then
+			wp.start_index = wp.start_index + 1
+		end
+	else
+		wp.select_index = 1
+		wp.start_index = 1
+	end
+end
 
-        table.sort(filtered, function(a, b)
-            return a.name:lower() < b.name:lower()
-        end)
-        table.sort(regfiltered, function(a, b)
-            return a.name:lower() < b.name:lower()
-        end)
+function launcher:back()
+	local wp = self._private
+	if #wp.filtered > 1 and wp.select_index ~= 1 then
+		wp.select_index = wp.select_index - 1
+		if wp.select_index < wp.start_index then
+			wp.start_index = wp.start_index - 1
+		end
+	else
+		wp.select_index = #wp.filtered
+		if #wp.filtered < wp.rows then
+			wp.start_index = 1
+		else
+			wp.start_index = #wp.filtered - wp.rows + 1
+		end
+	end
+end
 
-        -- Merge entries
+function launcher:update_entries()
+	local wp = self._private
+	local entries_container = self.widget:get_children_by_id("entries-container")[1]
+	entries_container:reset()
 
-        for i = 1, #regfiltered do
-            filtered[#filtered + 1] = regfiltered[i]
-        end
+	if #wp.filtered > 0 then
+		for i, app in ipairs(wp.filtered) do
+			if i >= wp.start_index and i <= wp.start_index + wp.rows - 1 then
+				local entry_widget = wibox.widget {
+					widget = wibox.container.background,
+					forced_height = dpi(60),
+					shape = beautiful.rrect(dpi(10)),
+					{
+						widget = wibox.container.margin,
+						margins = { left = dpi(15), right = dpi(15) },
+						{
+							widget = wibox.container.place,
+							halign = "left",
+							valign = "center",
+							{
+								layout = wibox.layout.fixed.vertical,
+								{
+									widget = wibox.container.constraint,
+									strategy = "max",
+									height = 25,
+									{
+										widget = wibox.widget.textbox,
+										markup = app:get_name()
+									}
+								},
+								app:get_description() and {
+									widget = wibox.container.constraint,
+									strategy = "max",
+									height = 25,
+									{
+										widget = wibox.widget.textbox,
+										font = beautiful.font_h0,
+										markup = app:get_description()
+									}
+								}
+							}
+						}
+					}
+				}
 
-        -- Clear entries
+				entry_widget:buttons {
+					awful.button({}, 1, function()
+						if wp.select_index == i then
+							launch_app(app)
+							self:hide()
+						else
+							wp.select_index = i
+							self:update_entries()
+						end
+					end)
+				}
 
-        entries:reset()
+				if i == wp.select_index then
+					entry_widget:set_bg(beautiful.ac)
+					entry_widget:set_fg(beautiful.bg)
+				else
+					entry_widget:connect_signal("mouse::enter", function(w)
+						w:set_bg(beautiful.bg_urg)
+					end)
 
-        -- Add filtered entries
+					entry_widget:connect_signal("mouse::leave", function(w)
+						w:set_bg(nil)
+					end)
+				end
 
-        for i, entry in ipairs(filtered) do
-            local widget = wibox.widget({
-                {
-                    {
-                        {
-                            image = entry.icon,
-                            clip_shape = helpers.rrect(10),
-                            forced_height = dpi(48),
-                            forced_width = dpi(48),
-                            valign = "center",
-                            widget = wibox.widget.imagebox,
-                        },
-                        {
-                            markup = entry.name,
-                            id = "name",
-                            font = beautiful.sans .. " 12",
-                            widget = wibox.widget.textbox,
-                        },
-                        spacing = 20,
-                        layout = wibox.layout.fixed.horizontal,
-                    },
-                    margins = dpi(15),
-                    widget = wibox.container.margin,
-                },
-                forced_width = 420,
-                forced_height = 72,
-                widget = wibox.container.background,
-            })
+				entries_container:add(entry_widget)
+			end
+		end
+	else
+		entries_container:add(wibox.widget {
+			widget = wibox.container.background,
+			forced_height = dpi(200),
+			fg = beautiful.fg_alt,
+			{
+				widget = wibox.widget.textbox,
+				font = beautiful.font_h2,
+				align = "center",
+				markup = "No match found"
+			}
+		})
+	end
+end
 
-            if index_start <= i and i <= index_start + 5 then
-                entries:add(widget)
-            end
+function launcher:show()
+	local wp = self._private
+	if wp.shown then return end
+	wp.shown = true
+	self.visible = true
+	self:emit_signal("property::shown", wp.shown)
+	wp.unfiltered = Gio.AppInfo.get_all()
+	wp.filtered = filter_apps(wp.unfiltered, "")
+	wp.start_index, wp.select_index = 1, 1
+	self:update_entries()
+	self.widget:get_children_by_id("text-input")[1]:focus()
+end
 
-            if i == index_entry then
-                widget.bg = beautiful.blue .. "09"
-                widget:get_children_by_id("name")[1].markup =
-                    helpers.colorize_text(entry.name, beautiful.blue)
-            end
-        end
+function launcher:hide()
+	local wp = self._private
+	if not wp.shown then return end
+	wp.shown = false
+	wp.unfiltered = {}
+	wp.filtered = {}
+	wp.select_index, wp.select_index = 1, 1
+	self.widget:get_children_by_id("text-input")[1]:unfocus()
+	self.visible = false
+	self:emit_signal("property::shown", wp.shown)
+end
 
-        -- Fix position
+function launcher:toggle()
+	if not self.visible then
+		self:show()
+	else
+		self:hide()
+	end
+end
 
-        if index_entry > #filtered then
-            index_entry, index_start = 1, 1
-        elseif index_entry < 1 then
-            index_entry = 1
-        end
+local function new()
+	local ret = awful.popup {
+		ontop = true,
+		visible = false,
+		screen = capi.screen.primary,
+		bg = "#00000000",
+		placement = function(d)
+			awful.placement.bottom_left(d, {
+				honor_workarea = true,
+				margins = beautiful.useless_gap
+			})
+		end,
+		widget = {
+			widget = wibox.container.background,
+			bg = beautiful.bg,
+			border_width = beautiful.border_width,
+			border_color = beautiful.border_color_normal,
+			shape = beautiful.rrect(dpi(18)),
+			{
+				widget = wibox.container.margin,
+				margins = dpi(10),
+				{
+					layout = wibox.layout.fixed.horizontal,
+					spacing = dpi(6),
+					fill_space = true,
+					{
+						widget = wibox.container.background,
+						forced_width = dpi(50),
+						bg = beautiful.bg_alt,
+						shape = beautiful.rrect(dpi(10)),
+						{
+							layout = wibox.layout.align.vertical,
+							{
+								id = "powermenu-button",
+								widget = modules.hover_button {
+									label = text_icons.poweroff,
+									forced_width = dpi(50),
+									forced_height = dpi(50),
+									fg_normal = beautiful.red,
+									bg_hover = beautiful.red,
+									shape = beautiful.rrect(dpi(10))
+								}
+							},
+							nil,
+							{
+								layout = wibox.layout.fixed.vertical,
+								spacing = beautiful.separator_thickness + dpi(2),
+								spacing_widget = {
+									widget = wibox.container.margin,
+									margins = { left = dpi(12), right = dpi(12) },
+									{
+										widget = wibox.widget.separator,
+										orientation = "horizontal"
+									}
+								},
+								{
+									id = "wallpaper-button",
+									widget = modules.hover_button {
+										label = text_icons.image,
+										forced_width = dpi(50),
+										forced_height = dpi(50),
+										shape = beautiful.rrect(dpi(10))
+									}
+								},
+								{
+									id = "home-button",
+									widget = modules.hover_button {
+										label = text_icons.home,
+										forced_width = dpi(50),
+										forced_height = dpi(50),
+										shape = beautiful.rrect(dpi(10))
+									}
+								}
+							}
+						}
+					},
+					{
+						layout = wibox.layout.fixed.vertical,
+						spacing = dpi(3),
+						{
+							layout = wibox.layout.fixed.vertical,
+							{
+								widget = wibox.container.margin,
+								forced_width = 1,
+								forced_height = dpi(50),
+								margins = { left = dpi(10), right = dpi(10) },
+								{
+									widget = wibox.container.place,
+									halign = "left",
+									valign = "center",
+									{
+										widget = wibox.container.constraint,
+										strategy = "max",
+										height = dpi(25),
+										{
+											id = "text-input",
+											widget = modules.text_input {
+												placeholder = "Search...",
+												cursor_bg = beautiful.fg,
+												cursor_fg = beautiful.bg,
+												placeholder_fg = beautiful.fg_alt,
+											}
+										}
+									}
+								}
+							},
+							{
+								widget = wibox.container.background,
+								forced_width = 1,
+								forced_height = beautiful.separator_thickness,
+								{
+									widget = wibox.widget.separator,
+									orientation = "horizontal"
+								}
+							}
+						},
+						{
+							id = "entries-container",
+							layout = wibox.layout.fixed.vertical,
+							spacing = dpi(3),
+							forced_width = dpi(300)
+						}
+					}
+				}
+			}
+		}
+	}
 
-        collectgarbage("collect")
-    end
+	gtable.crush(ret, launcher, true)
+	local wp = ret._private
 
-    local exclude = {
-        "Shift_R",
-        "Shift_L",
-        "Super_R",
-        "Delete",
-        "BackSpace",
-        "Super_L",
-        "Tab",
-        "Alt_R",
-        "Alt_L",
-        "Ctrl_L",
-        "Ctrl_R",
-        "CapsLock",
-        "Home",
-        "Down",
-        "Up",
-        "Left",
-        "Right",
-    }
-    local function has_value(tab, val)
-        for _, value in ipairs(tab) do
-            if value == val then
-                return true
-            end
-        end
+	wp.rows = 6
 
-        return false
-    end
-    local prompt_grabber = awful.keygrabber({
-        auto_start = true,
-        stop_event = "release",
-        keypressed_callback = function(self, mod, key, command)
-            local addition = ""
-            if key == "Escape" then
-                awesome.emit_signal("quit::search")
-                awesome.emit_signal("quit::launcher")
-            elseif key == "BackSpace" then
-                prompt:get_children_by_id("txt")[1].markup =
-                    prompt:get_children_by_id("txt")[1].markup:sub(1, -2)
-                filter(prompt:get_children_by_id("txt")[1].markup)
-            elseif key == "Return" then
-                local entry = filtered[index_entry]
-                if entry then
-                    entry.appinfo:launch()
-                else
-                    awful.spawn.with_shell(
-                        prompt:get_children_by_id("txt")[1].markup
-                    )
-                end
-                awesome.emit_signal("quit::search")
-                awesome.emit_signal("quit::launcher")
-            elseif key == "Up" then
-                back(entries)
-            elseif key == "Down" then
-                next(entries)
-            elseif has_value(exclude, key) then
-                addition = ""
-            else
-                addition = key
-            end
-            prompt:get_children_by_id("txt")[1].markup = prompt:get_children_by_id(
-                "txt"
-            )[1].markup .. addition
-            filter(prompt:get_children_by_id("txt")[1].markup)
-            if string.len(prompt:get_children_by_id("txt")[1].markup) > 0 then
-                prompt:get_children_by_id("placeholder")[1].markup = ""
-            else
-                prompt:get_children_by_id("placeholder")[1].markup = "Search..."
-            end
-        end,
-    })
-    awesome.connect_signal("toggle::search", function()
-        prompt_grabber:start()
-    end)
+	local powermenu_button = ret.widget:get_children_by_id("powermenu-button")[1]
+	powermenu_button:buttons {
+		awful.button({}, 1, function()
+			powermenu:show()
+		end)
+	}
 
-    awesome.connect_signal("quit::search", function()
-        prompt_grabber:stop()
-        prompt:get_children_by_id("txt")[1].markup = ""
-    end)
-    local function open()
-        -- Reset index and page
+	local wallpaper_button = ret.widget:get_children_by_id("wallpaper-button")[1]
+	wallpaper_button:buttons {
+		awful.button({}, 1, function()
+			awful.spawn.easy_async("zenity --file-selection", function(stdout)
+				stdout = string.gsub(stdout, "\n", "")
+				local formats = { "png", "jpg", "jpeg" }
+				if stdout ~= nil and stdout ~= "" and is_supported(stdout, formats) then
+					for s in capi.screen do
+						s.wallpaper:set_image(stdout)
+					end
+					user.wallpaper = stdout
+					table_to_file(user, gfs.get_configuration_dir() .. "/user.lua")
+				end
+			end)
+			ret:hide()
+		end)
+	}
 
-        index_start, index_entry = 1, 1
+	local home_button = ret.widget:get_children_by_id("home-button")[1]
+	home_button:buttons {
+		awful.button({}, 1, function()
+			local app = Gio.AppInfo.get_default_for_type("inode/directory")
+			if app then
+				awful.spawn(string.format(
+					"%s %s",
+					app:get_executable(),
+					os.getenv("HOME")
+				))
+				ret:hide()
+			end
+		end)
+	}
 
-        -- Get entries
+	local entries_container = ret.widget:get_children_by_id("entries-container")[1]
+	entries_container:set_forced_height(dpi(60) * wp.rows + dpi(3) * (wp.rows - 1))
 
-        unfiltered = gen()
-        filter("")
+	entries_container:buttons {
+		awful.button({}, 4, function()
+			ret:back()
+			ret:update_entries()
+		end),
+		awful.button({}, 5, function()
+			ret:next()
+			ret:update_entries()
+		end)
+	}
 
-        -- Prompt
+	local text_input = ret.widget:get_children_by_id("text-input")[1]
+	text_input:on_focused(function()
+		text_input:set_input("")
+		text_input:set_cursor_index(1)
+	end)
 
-        prompt_grabber:start()
-    end
+	text_input:on_unfocused(function()
+		ret:hide()
+	end)
 
-    awesome.connect_signal("quit::launcher", function()
-        launcherdisplay.visible = false
-    end)
-    awesome.connect_signal("toggle::launcher", function()
-        local animation_manager = require("mods.animation")
-        local fade_animation = require("mods.animation.fade")
+	text_input:on_input_changed(function(_, input)
+		wp.filtered = filter_apps(wp.unfiltered, input)
+		wp.start_index, wp.select_index = 1, 1
+		ret:update_entries()
+	end)
 
-        -- Animation setup
-        local animation_duration = 1.2 -- Duration of the animation in seconds
+	text_input:on_executed(function()
+		local app = wp.filtered[wp.select_index]
+		if app then launch_app(app) end
+	end)
 
-        local function get_target_x()
-            local s = awful.screen.focused()
-            local w = launcherdisplay.width
-            local margin = dpi(20)
-            return s.geometry.x + margin
-        end
+	text_input:on_key_pressed(function(_, _, key)
+		if key == "Down" then
+			ret:next()
+			ret:update_entries()
+		elseif key == "Up" then
+			ret:back()
+			ret:update_entries()
+		end
+	end)
 
-        local initial_x = get_target_x() - launcherdisplay.width
-        local target_x = get_target_x()
+	return ret
+end
 
-        local menu_animation = animation_manager:new({
-            duration = animation_duration,
-            subject = launcherdisplay,
-            easing = animation_manager.easing.outQuad,
-        })
+local instance = nil
+local function get_default()
+	if not instance then
+		instance = new()
+	end
+	return instance
+end
 
-        if not launcherdisplay.visible then
-            launcherdisplay.visible = true
-            launcherdisplay.opacity = 1
-            launcherdisplay.x = initial_x -- initial position to slide from
-            awful.placement.bottom_left(
-                launcherdisplay,
-                { honor_workarea = true, margins = { bottom = 20, left = 20 } }
-            )
-
-            menu_animation:set({
-                target = {
-                    x = target_x,
-                    opacity = 1,
-                },
-            })
-            open()
-        else
-            menu_animation:set({
-                target = {
-                    x = target_x - launcherdisplay.width,
-                    opacity = 1,
-                },
-                signals = {
-                    ended = function()
-                        launcherdisplay.visible = false
-                        launcherdisplay.opacity = 1
-                    end,
-                },
-            })
-            launcherdisplay.visible = false
-            awesome.emit_signal("quit::search")
-        end
-    end)
-end)
+return {
+	get_default = get_default
+}

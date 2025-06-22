@@ -1,28 +1,9 @@
-local gears = require("gears")
-local beautiful = require("beautiful")
+pcall(require, "luarocks.loader")
 
--- ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫
---
+-- Start garbage collection service
+local gc_service = require("service.garbage_collection")
+gc_service.start()
 
-require("helpers")
--- run autostart script
-require("main.autostart")
-
--- ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫
---
--- run setup
-require("setup"):generate()
-
--- ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫
---
--- initialize the theme
-beautiful.init(gears.filesystem.get_configuration_dir() .. "theme/init.lua")
-require("main")
-require("awful.autofocus")
-
--- ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫
---
--- init widget
-require("misc")
+-- Load core functionality and UI
+require("core")
 require("ui")
-require("signal")
