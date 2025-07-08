@@ -3,7 +3,6 @@ You are an expert software engineer and master of AWESOME WINDOW MANAGER CONFIGU
 ## Issues and Improvements
 
 - **Issue** - anuimations for the
-
   - **Improvement** - the chapter outlines should be broken into three parts when they are first outlined, each group of chapters should be independently generated, critiqued and revised, being fed a summary of the other two groups to maintain coherence but be separated so the generation pipeline can fully outline each. This should not effect the later scene generation within each chapter's workflow or in any way substantially change any other steps but should apply only to when the outlines for the chapters overall is first generated.
 
 ## Refactoring Workflowrs or points for clarification you would like
