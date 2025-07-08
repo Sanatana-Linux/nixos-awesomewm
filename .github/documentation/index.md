@@ -10,4 +10,5 @@ The documentation and working notes related to this project reside within this d
 
 - [Additional Resources](./Additional-Resources.md)
 - [Credit Where It is Due](./Credit-Where-It-Is-Due.md)
-- [Installation](./Installation.md)
+- [Keybindings Reference](./Keybindings.md)
+- [Project To-Do](./rc.lua.md) - also may contain notes specific to the rc.lua file as it is technically a project specific note for that file.

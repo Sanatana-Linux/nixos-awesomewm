@@ -8,7 +8,6 @@ local gfs = require("gears.filesystem")
 local gsurface = require("gears.surface")
 local modules = require("modules")
 local anim = require("modules.animations")
-local user = require("user")
 local text_icons = beautiful.text_icons
 local dpi = beautiful.xresources.apply_dpi
 local lua_escape = require("lib").lua_escape

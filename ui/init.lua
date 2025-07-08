@@ -3,7 +3,6 @@ local awful = require("awful")
 local naughty = require("naughty")
 local gtimer = require("gears.timer")
 local beautiful = require("beautiful")
-local user = require("user")
 local has_common = require("lib").has_common
 local capi = { screen = screen, client = client }
 
@@ -14,7 +13,6 @@ local notification = require("ui.notification").get_default()
 local launcher = require("ui.launcher").get_default()
 local powermenu = require("ui.powermenu").get_default()
 local control_panel = require("ui.control_panel").get_default()
-local day_info_panel = require("ui.day_info_panel").get_default()
 
 -- Explicitly load the screenshot notification handler to ensure it's ready
 require("ui.notification.screenshots")
@@ -71,15 +69,6 @@ capi.screen.connect_signal("request::desktop_decoration", function(s)
                 end)
             end
 
-            if day_info_panel.visible == true then
-                gtimer.delayed_call(function()
-                    awful.placement.bottom_right(day_info_panel, {
-                        honor_workarea = true,
-                        margins = beautiful.useless_gap,
-                    })
-                end)
-            end
-
             if launcher.visible == true then
                 gtimer.delayed_call(function()
                     awful.placement.bottom_left(launcher, {
@@ -110,7 +99,6 @@ powermenu:connect_signal("property::shown", function(_, shown)
     if shown == true then
         launcher:hide()
         control_panel:hide()
-        day_info_panel:hide()
         menu:hide()
     end
 end)
@@ -125,15 +113,6 @@ end)
 control_panel:connect_signal("property::shown", function(_, shown)
     if shown == true then
         powermenu:hide()
-        day_info_panel:hide()
-        menu:hide()
-    end
-end)
-
-day_info_panel:connect_signal("property::shown", function(_, shown)
-    if shown == true then
-        powermenu:hide()
-        control_panel:hide()
         menu:hide()
     end
 end)
@@ -143,7 +122,6 @@ local function click_hideaway()
     launcher:hide()
     powermenu:hide()
     control_panel:hide()
-    day_info_panel:hide()
 end
 
 awful.mouse.append_global_mousebinding(awful.button({}, 1, click_hideaway))
