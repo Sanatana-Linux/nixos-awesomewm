@@ -8,6 +8,7 @@ local modules = require("modules")
 local user = require("user")
 local is_supported = require("lib").is_supported
 local table_to_file = require("lib").table_to_file
+---@diagnostic disable-next-line: undefined-global
 local capi = { awesome = awesome, screen = screen, client = client }
 local screenshot = require("service.screenshot").get_default()
 local powermenu = require("ui.powermenu").get_default()

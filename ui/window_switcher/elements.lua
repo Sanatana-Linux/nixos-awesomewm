@@ -1,3 +1,4 @@
+---@diagnostic disable: undefined-global
 -- Import necessary modules and set up an icon theme
 local beautiful = require("beautiful")
 local wibox = require("wibox")

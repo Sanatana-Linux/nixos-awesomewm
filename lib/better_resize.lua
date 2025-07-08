@@ -59,10 +59,13 @@ local function mouse_resize_handler(m, c)
 	end
 
 	if idx_above and move_mwfact then
+---@diagnostic disable-next-line: lowercase-global
 		cursor = "cross"
 	elseif idx_above then
+---@diagnostic disable-next-line: lowercase-global
 		cursor = m({ y = "sb_v_double_arrow", x = "sb_h_double_arrow" }).y
 	elseif move_mwfact then
+---@diagnostic disable-next-line: lowercase-global
 		cursor = m({ y = "sb_v_double_arrow", x = "sb_h_double_arrow" }).x
 	else
 		return false

@@ -1,3 +1,4 @@
+---@diagnostic disable: undefined-global
 -------------------------------------------------------------------
 -- Drop-down applications manager for the awesome window manager
 -------------------------------------------------------------------

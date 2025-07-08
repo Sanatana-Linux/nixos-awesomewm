@@ -211,15 +211,20 @@ end
 function notifications.display(n)
 	if not n then return end
 	local notification_popup = create_notification_popup(n)
-	local display_timer = gtimer {
-		timeout = beautiful.notification_timeout or 5,
-		callback = function()
-			remove_popup(notification_popup, n.screen)
-		end
-	}
+	local display_timer
+
+	-- Only create a timer if the notification has a timeout > 0
+	if n.timeout > 0 then
+		display_timer = gtimer {
+			timeout = n.timeout,
+			callback = function()
+				remove_popup(notification_popup, n.screen)
+			end
+		}
+	end
 
 	n:connect_signal("destroyed", function()
-		display_timer:stop()
+		if display_timer then display_timer:stop() end
 		display_timer = nil
 		remove_popup(notification_popup, n.screen)
 	end)
@@ -239,7 +244,6 @@ local function new()
 		s.notifications = {}
 	end)
 
-	require("ui.notification.screenshots")
 	return ret
 end
 

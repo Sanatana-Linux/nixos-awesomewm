@@ -5,11 +5,15 @@
   "workspace": {
     "library": [
       "/usr/share/awesome/lib/",
-      "/run/current-system/sw/lib/lua5.1/"
+      "/run/current-system/sw/lib/lua5.1/",
+      "/run/current-system/sw/lib/lua5.2/"
     ],
     "maxPreload": 2000,
     "preloadFileSize": 1000
   },
   "telemetry.enable": false,
-  "diagnostics.globals": ["awesome"]
+  "diagnostics.globals": ["awesome"],
+    "diagnostics.disable": [
+        "deprecated"
+    ]
 }

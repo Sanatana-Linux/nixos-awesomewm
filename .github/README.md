@@ -6,6 +6,8 @@
 
 # Sanatana Linux Awesome Window Manager Configuration
 
+    <img src ="https://img.shields.io/badge/Awesomewm-6c5d87.svg?&style=for-the-badge&logo=Lua&logoColor=white"/>
+
 Serving as the centerpiece of my NixOS configuration, `Sanatana Linux`, this configuration builds from the AwesomeWM framework a highly personalized and comprehensive GUI front end for my systems that provides all of my expectations for a desktop environment while being incredibly light and responsive.
 
 ## Documentation

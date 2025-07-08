@@ -1,5 +1,5 @@
 ---@diagnostic disable: undefined-global
-local capi = {client = client} -- Shorthand for client object
+local capi = { client = client } -- Shorthand for client object
 local awful = require("awful") -- AwesomeWM utility library
 local snap_edge = require("modules.snap_edge") -- Window snapping helper
 local numpad_map = { 87, 88, 89, 83, 84, 85, 79, 80, 81 } -- Keycodes for numpad keys
@@ -23,7 +23,7 @@ capi.client.connect_signal("request::default_keybindings", function()
 
         -- Toggle floating mode for the focused window
         awful.key(
-            { modkey, "Control" },
+            { modkey },
             "z",
             awful.client.floating.toggle,
             { description = "toggle floating window", group = "Client" }
@@ -42,7 +42,10 @@ capi.client.connect_signal("request::default_keybindings", function()
         -- Toggle "always on top" for the focused window
         awful.key({ modkey }, "t", function(c)
             c.ontop = not c.ontop
-        end, { description = "toggle keep window on top", group = "Client" }),
+        end, {
+            description = "toggle keep window on top",
+            group = "Client",
+        }),
 
         -- Minimize the focused window
         awful.key({ modkey }, "n", function(c)
@@ -93,7 +96,7 @@ capi.client.connect_signal("request::default_keybindings", function()
             group = "Client",
         }),
         -- Decrease floating client width
-    	awful.key({ modkey, "Control" }, "Left", function()
+        awful.key({ modkey, "Control" }, "Left", function()
             awful.client.moveresize(0, 0, -20, 0)
         end, {
             description = "Decrease floating client width",
@@ -184,7 +187,7 @@ capi.client.connect_signal("request::default_keybindings", function()
             snap_edge(c, "right")
         end, {
             description = "snap to right",
-            group = "Client"
+            group = "Client",
         }),
 
         -- Snap to top left
@@ -192,7 +195,7 @@ capi.client.connect_signal("request::default_keybindings", function()
             snap_edge(c, "topleft")
         end, {
             description = "snap to top left",
-            group = "Client"
+            group = "Client",
         }),
 
         -- Snap to top
@@ -200,7 +203,7 @@ capi.client.connect_signal("request::default_keybindings", function()
             snap_edge(c, "top")
         end, {
             description = "snap to top",
-            group = "Client"
+            group = "Client",
         }),
 
         -- Snap to top right
@@ -208,7 +211,7 @@ capi.client.connect_signal("request::default_keybindings", function()
             snap_edge(c, "topright")
         end, {
             description = "snap to top right",
-            group = "Client"
+            group = "Client",
         }),
     })
 end)

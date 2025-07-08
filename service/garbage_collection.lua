@@ -7,10 +7,10 @@ local gc_service = {}
 
 -- Configuration parameters
 local config = {
-    memory_growth_factor = 1.1,        -- Trigger collection when memory grows 10% over last check
+    memory_growth_factor = 1.05, -- Trigger collection when memory grows 5% over last check
     memory_long_collection_time = 300, -- Force collection after 5 minutes regardless of growth
-    check_interval = 5,                -- Check memory usage every 5 seconds
-    initial_gc_params = { 110, 1000 }  -- Initial garbage collection parameters
+    check_interval = 60, -- Check memory usage every 5 seconds
+    initial_gc_params = { 105, 300 }, -- Initial garbage collection parameters
 }
 
 -- Private state variables
@@ -21,7 +21,11 @@ local timer = nil
 -- Initialize garbage collection service
 function gc_service.start()
     -- Perform initial garbage collection with specified parameters
-    collectgarbage("collect", config.initial_gc_params[1], config.initial_gc_params[2])
+    collectgarbage(
+        "collect",
+        config.initial_gc_params[1],
+        config.initial_gc_params[2]
+    )
 
     -- Initialize tracking variables
     memory_last_check_count = collectgarbage("count")
@@ -34,7 +38,8 @@ function gc_service.start()
         -- Calculate time elapsed since last collection
         local elapsed = os.time() - memory_last_run_time
         local waited_long = elapsed >= config.memory_long_collection_time
-        local grew_enough = cur_memory > (memory_last_check_count * config.memory_growth_factor)
+        local grew_enough = cur_memory
+            > (memory_last_check_count * config.memory_growth_factor)
 
         -- Trigger garbage collection if conditions are met
         if grew_enough or waited_long then
@@ -66,7 +71,7 @@ function gc_service.get_stats()
         current_memory = collectgarbage("count"),
         last_check_memory = memory_last_check_count,
         last_collection_time = memory_last_run_time,
-        time_since_last_collection = os.time() - memory_last_run_time
+        time_since_last_collection = os.time() - memory_last_run_time,
     }
 end
 
@@ -84,6 +89,24 @@ function gc_service.configure(new_config)
         if config[key] ~= nil then
             config[key] = value
         end
+    end
+    -- Restart timer if check_interval is changed and service is running
+    if timer and new_config.check_interval then
+        timer:stop()
+        timer = gtimer.start_new(config.check_interval, function()
+            local cur_memory = collectgarbage("count")
+            local elapsed = os.time() - memory_last_run_time
+            local waited_long = elapsed >= config.memory_long_collection_time
+            local grew_enough = cur_memory
+                > (memory_last_check_count * config.memory_growth_factor)
+            if grew_enough or waited_long then
+                collectgarbage("collect")
+                collectgarbage("collect")
+                memory_last_run_time = os.time()
+            end
+            memory_last_check_count = collectgarbage("count")
+            return true
+        end)
     end
 end
 

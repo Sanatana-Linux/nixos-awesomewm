@@ -1,3 +1,4 @@
+---@diagnostic disable: undefined-global
 ---------------------------------------------------------------------------
 -- A layout that allows its children to take more space than what's available
 -- in the surrounding container. If the content does exceed the available

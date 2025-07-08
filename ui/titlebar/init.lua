@@ -1,167 +1,189 @@
-local awful = require("awful")
+---@diagnostic disable: undefined-global
+local gfs = require("gears.filesystem")
+local gears = require("gears")
+local theme_path = gfs.get_configuration_dir() .. "/theme/"
 local wibox = require("wibox")
-local gtimer = require("gears.timer")
 local beautiful = require("beautiful")
-local text_icons = beautiful.text_icons
 local dpi = beautiful.xresources.apply_dpi
-local capi = { client = client }
-local menu = require("ui.menu").get_default()
-awful.titlebar.enable_tooltip = true
+local awful = require("awful")
 
-local function new(c)
-	if c.requests_no_titlebar then return end
+local client = client
 
-	local ret = awful.titlebar(c, {
-		size = dpi(35),
-		position = "top"
-	})
+local function make_button(txt, onclick)
+    return function(c)
+        local btn = wibox.widget({
+            {
+                {
+                    {
+                        image = gears.color.recolor_image(txt, beautiful.fg),
+                        resize = true,
+                        align = "center",
+                        valign = "center",
+                        widget = wibox.widget.imagebox,
+                    },
+                    left = dpi(3),
+                    right = dpi(3),
+                    top = dpi(3),
+                    bottom = dpi(3),
+                    widget = wibox.container.margin,
+                },
+                layout = wibox.layout.fixed.horizontal,
+            },
+            shape = beautiful.rrect(2),
+            border_width = dpi(1),
+            border_color = beautiful.fg_alt .. "aa",
+            bg = beautiful.bg_gradient_button,
+            widget = wibox.container.background,
+        })
 
-	local buttons = {
-		awful.button({}, 1, function()
-			capi.client.focus = c
-			c:raise()
-			awful.mouse.client.move(c)
-		end),
-		awful.button({}, 2, function()
-			menu:toggle_client_menu(c)
-		end),
-		awful.button({}, 3, function()
-			capi.client.focus = c
-			c:raise()
-			awful.mouse.client.resize(c)
-		end)
-	}
+        btn:connect_signal("mouse::enter", function()
+            btn.bg =
+                beautiful.bg_gradient_button_alt,
+                ---@diagnostic disable-next-line: redundant-value
+                btn:emit_signal("widget::redraw_needed")
+        end)
 
-	local close_button = wibox.widget {
-		widget = wibox.container.background,
-		buttons = {
-			awful.button({}, 1, function()
-				c:kill()
-			end)
-		},
-		bg = c.active and beautiful.bg_gradient_button or beautiful.bg_urg,
-		fg = beautiful.fg,
-		shape = beautiful.rrect(3),
-		{
-			widget = wibox.container.margin,
-			margins = dpi(3),
-			{
-				id = "icon",
-				widget = wibox.widget.textbox,
-				font = beautiful.font_h0,
-				markup = text_icons.cross
-			}
-		}
-	}
+        btn:connect_signal("mouse::leave", function()
+            btn.bg =
+                beautiful.bg_gradient_button,
+                ---@diagnostic disable-next-line: redundant-value
+                btn:emit_signal("widget::redraw_needed")
+        end)
 
-	local max_button = wibox.widget {
-		widget = wibox.container.background,
-		buttons = {
-			awful.button({}, 1, function()
-				c.maximized = not c.maximized
-				c:raise()
-			end)
-		},
-		bg = c.active and beautiful.bg_gradient_button or beautiful.bg_urg,
-		fg = beautiful.fg,
-		shape = beautiful.rrect(3),
-		{
-			widget = wibox.container.margin,
-			margins = dpi(3),
-			{
-				id = "icon",
-				widget = wibox.widget.textbox,
-				font = beautiful.font_h0,
-				markup = c.maximized and text_icons.shrink or text_icons.stretch
-			}
-		}
-	}
+        btn:add_button(awful.button({}, 1, function()
+            if onclick then
+                onclick(c)
+            end
+        end))
 
-	local min_button = wibox.widget {
-		widget = wibox.container.background,
-		buttons = {
-			awful.button({}, 1, function()
-				gtimer.delayed_call(function()
-					c.minimized = true
-				end)
-			end)
-		},
-		bg = c.active and beautiful.bg_gradient_button or beautiful.bg_urg,
-		fg = beautiful.fg,
-		shape = beautiful.rrect(3),
-		{
-			widget = wibox.container.margin,
-			margins = dpi(3),
-			{
-				id = "icon",
-				widget = wibox.widget.textbox,
-				font = beautiful.font_h0,
-				markup = text_icons.dash
-			}
-		}
-	}
-
-	c:connect_signal("property::maximized", function()
-		local max_icon = max_button:get_children_by_id("icon")[1]
-		if c.maximized then
-			max_icon:set_markup(text_icons.shrink)
-		else
-			max_icon:set_markup(text_icons.stretch)
-		end
-	end)
-
-	c:connect_signal("property::active", function()
-		if c.active then
-			close_button:set_bg(beautiful.bg_gradient_button)
-			max_button:set_bg(beautiful.bg_gradient_button)
-			min_button:set_bg(beautiful.bg_gradient_button)
-		else
-			close_button:set_bg(beautiful.bg_urg)
-			max_button:set_bg(beautiful.bg_urg)
-			min_button:set_bg(beautiful.bg_urg)
-		end
-	end)
-
-	ret:setup {
-		layout = wibox.layout.align.horizontal,
-		{
-			widget = wibox.container.background,
-			wibox.widget.base.make_widget(
-				awful.titlebar.widget.iconwidget(c)
-			),
-				buttons = buttons
-		},
-	
-
-			{
-				widget = wibox.container.background,
-				buttons = buttons,
-
-				wibox.widget.base.make_widget(
-					awful.titlebar.widget.titlewidget(c)
-				),
-
-			},
-		{
-			widget = wibox.container.margin,
-			margins = dpi(9),
-			{
-				layout = wibox.layout.fixed.horizontal,
-				spacing = dpi(9),
-				min_button,
-				max_button,
-				close_button
-			}
-		}
-	}
-
-	return ret
+        return btn
+    end
 end
 
-return setmetatable({
-	new = new
-}, {
-	__call = function(_, ...)
-		return new(...)
-	end
-})
+local close_button = make_button(beautiful.titlebar_icons.close, function(c)
+    c:kill()
+end)
+
+local maximize_button = make_button(
+    beautiful.titlebar_icons.maximize,
+    function(c)
+        c.maximized = not c.maximized
+    end
+)
+
+local minimize_button = make_button(
+    beautiful.titlebar_icons.minimize,
+    function(c)
+        gears.timer.delayed_call(function()
+            c.minimized = true
+        end)
+    end
+)
+
+client.connect_signal("request::titlebars", function(c)
+    -- Create the titlebar with a transparent background initially,
+    -- as we will manage the background color dynamically.
+    local titlebar = awful.titlebar(c, {
+        position = "top",
+        size = dpi(35),
+        bg = "#00000000",
+    })
+
+    local titlebars_buttons = {
+        awful.button({}, 1, function()
+            c:activate({ context = "titlebar", action = "mouse_move" })
+        end),
+        awful.button({}, 3, function()
+            c:activate({ context = "titlebar", action = "mouse_resize" })
+        end),
+    }
+
+    -- Define the main widget for the titlebar layout
+    local titlebar_widget = {
+        {
+            { -- Left
+                {
+                    {
+                        {
+
+                            wibox.widget.base.make_widget(
+                                awful.titlebar.widget.iconwidget(c)
+                            ),
+                            buttons = titlebars_buttons,
+                            layout = wibox.layout.fixed.horizontal,
+                            clip_shape = beautiful.rrect(6),
+                        },
+                        widget = wibox.container.margin,
+                        right = dpi(2),
+                        left = dpi(2),
+                        top = dpi(2),
+                        bottom = dpi(2),
+                    },
+                    widget = wibox.container.background,
+                    bg = beautiful.bg .. "00",
+                    shape = beautiful.rrect(6),
+                },
+                widget = wibox.container.margin,
+                right = dpi(2),
+                left = dpi(12),
+                top = dpi(2),
+                bottom = dpi(2),
+            },
+            { -- Title
+                wibox.widget.base.make_widget(
+                    awful.titlebar.widget.titlewidget(c)
+                ),
+                buttons = titlebars_buttons,
+                widget = wibox.container.place,
+            },
+            { -- Right
+                {
+                    {
+                        {
+                            minimize_button(c),
+                            maximize_button(c),
+                            close_button(c),
+                            layout = wibox.layout.fixed.horizontal,
+                            spacing = dpi(8),
+                        },
+                        widget = wibox.container.margin,
+                        top = dpi(6),
+                        bottom = dpi(6),
+                        left = dpi(10),
+                        right = dpi(10),
+                    },
+                    widget = wibox.container.background,
+                    bg = beautiful.bg .. "00",
+                    shape = beautiful.rrect(6),
+                },
+                widget = wibox.container.margin,
+                left = dpi(6),
+                right = dpi(8),
+                top = dpi(2),
+                bottom = dpi(2),
+            },
+            layout = wibox.layout.align.horizontal,
+        },
+        widget = wibox.container.background,
+        -- The 'bg' property will be set dynamically below
+    }
+
+    -- Set the titlebar's layout
+    titlebar:setup(titlebar_widget)
+
+    -- Function to update the background based on focus state
+    local function update_background()
+        if c.focused then
+            titlebar.widget.bg = beautiful.bg_gradient_titlebar
+        else
+            -- Use a different background when the window is not focused
+            titlebar.widget.bg = beautiful.bg_titlebar_alt or beautiful.bg_alt
+        end
+    end
+
+    -- Connect signals to update the background on focus change
+    c:connect_signal("focus", update_background)
+    c:connect_signal("unfocus", update_background)
+    -- Also set the initial background color correctly
+    update_background()
+end)

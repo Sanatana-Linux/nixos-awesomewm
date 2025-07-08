@@ -11,7 +11,18 @@ rnotification.connect_signal("request::rules", function()
         id = "global",        -- Unique identifier for this rule
         rule = {},            -- Empty rule matches all notifications
         properties = {
-            timeout = 0       -- Set timeout to 0 (notifications persist until manually dismissed)
+            timeout = 5       -- Set a default timeout of 5 seconds for most notifications
+        }
+    }
+
+    -- Create a specific rule for screenshot notifications to make them persistent
+    rnotification.append_rule {
+        id = "screenshot_rule",
+        rule = {
+            app_name = "Screenshot" -- Match notifications from our screenshot service
+        },
+        properties = {
+            timeout = 0 -- A timeout of 0 means the notification will not automatically close
         }
     }
 end)
