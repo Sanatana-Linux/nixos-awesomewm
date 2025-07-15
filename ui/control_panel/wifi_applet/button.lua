@@ -29,15 +29,17 @@ local function new()
         bg = beautiful.bg_alt,
         fg = beautiful.fg,
         shape = beautiful.rrect(dpi(10)),
+        border_width = dpi(1),
+        border_color = beautiful.border_color,
         {
             widget = wibox.container.margin,
-            margins = { left = dpi(15) },
+            margins = { left = dpi(15), right = dpi(15) }, -- Added right margin for symmetry
             {
                 layout = wibox.layout.align.horizontal,
                 {
                     id = "label-background",
                     widget = wibox.container.background,
-                    forced_width = dpi(150),
+                    -- REMOVED: forced_width = dpi(150),
                     {
                         layout = wibox.layout.fixed.horizontal,
                         spacing = dpi(15),

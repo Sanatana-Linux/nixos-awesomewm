@@ -1,6 +1,6 @@
 -- ui/bar/modules/tray_widget.lua
 -- Encapsulates the wibar widget for the system tray.
--- Updated to correctly use icon surfaces from the theme.
+-- Updated to correctly use icon surfaces from the theme and center the icon.
 
 local awful = require("awful")
 local wibox = require("wibox")
@@ -23,34 +23,28 @@ return function()
 
     local widget = wibox.widget({
         widget = wibox.container.background,
-        bg = beautiful.bg_alt,
+        bg = beautiful.bg_gradient_button,
         shape = beautiful.rrect(dpi(8)),
         {
             widget = wibox.container.margin,
-            margins = { left = dpi(8), right = dpi(8) },
+            margins = { left = dpi(4), right = dpi(4) },
             {
                 id = "items-layout",
                 layout = wibox.layout.fixed.horizontal,
                 spacing = dpi(8),
                 {
-
-                    widget = wibox.container.constraint,
-                    height = dpi(40),
-                    strategy = "exact",
-
+                    widget = wibox.container.margin,
+                    margins = { top = dpi(8), bottom = dpi(8) },
                     {
-
                         widget = wibox.container.place,
-                        halign = "center",
                         valign = "center",
-
                         {
                             id = "reveal-button",
-                            font = beautiful.font_name .. " 32",
-                            widget = wibox.widget.textbox,
-                            markup = beautiful.text_icons.arrow_left,
-                            align = "center",
-                            valign = "center",
+                            widget = wibox.widget.imagebox,
+                            image = beautiful.tray_arrow_left,
+                            resize = true,
+                            forced_width = beautiful.systray_icon_size,
+                            forced_height = beautiful.systray_icon_size,
                         },
                     },
                 },
@@ -66,11 +60,11 @@ return function()
             if not visibility then
                 visibility = true
                 items_layout:insert(2, systray)
-                reveal_button:set_markup(beautiful.text_icons.arrow_right)
+                reveal_button:set_image(beautiful.tray_arrow_right)
             else
                 visibility = false
                 items_layout:remove(2)
-                reveal_button:set_markup(beautiful.text_icons.arrow_left)
+                reveal_button:set_image(beautiful.tray_arrow_left)
             end
         end),
     })

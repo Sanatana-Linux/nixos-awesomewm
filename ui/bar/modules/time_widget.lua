@@ -1,22 +1,28 @@
 -- ui/bar/modules/time_widget.lua
--- Encapsulates the wibar widget for displaying the time and date.
+-- This module defines the wibar widget for displaying the time.
+-- It is now interactive, toggling the day_info_panel on click.
 
 local awful = require("awful")
 local wibox = require("wibox")
 local beautiful = require("beautiful")
 local dpi = beautiful.xresources.apply_dpi
+local day_info_panel = require("ui.day_info_panel").get_default()
 
 -- Creates a widget to display the current time and date.
--- Uses theme gradients for background styling.
 -- @return widget The time/date widget.
 return function()
     local widget = wibox.widget({
         widget = wibox.container.background,
         bg = beautiful.bg_gradient_button,
         shape = beautiful.rrect(dpi(8)),
+        buttons = {
+            awful.button({}, 1, function()
+                day_info_panel:toggle()
+            end),
+        },
         {
             widget = wibox.container.margin,
-            margins = { left = dpi(4), right = dpi(4), top = dpi(2) },
+            margins = { left = dpi(12), right = dpi(12), top = dpi(2) }, -- Increased margins for better spacing
             {
                 layout = wibox.layout.fixed.horizontal,
                 spacing = dpi(8),

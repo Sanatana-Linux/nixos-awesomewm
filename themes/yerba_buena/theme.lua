@@ -75,6 +75,8 @@ theme.text_icons = {
 }
 -- Add the launcher icon path
 theme.launcher_icon = icons_path .. "nix.svg"
+theme.tray_arrow_left = icons_path .. "arrow-left.svg"
+theme.tray_arrow_right = icons_path .. "arrow-right.svg"
 
 theme.titlebar_icons = {
     close = gcolor.recolor_image(icons_path .. "titlebar/close.svg", theme.fg),
@@ -95,7 +97,7 @@ theme.red = "#ED5D86"
 theme.green = "#54a48d"
 theme.yellow = "#FFE089"
 theme.blue = "#0f88ff"
-theme.magenta = "#4b287d"
+theme.magenta = "#9051ff"
 theme.cyan = "#01fbff"
 theme.orange = "#df8559"
 
@@ -137,9 +139,9 @@ theme.bg_gradient_button = "linear:0,0:0,32:0,"
     .. ":1,"
     .. "#2c2c2ccc"
 theme.bg_gradient_button_alt = "linear:0,0:0,21:0,"
-    .. "#2c2c2ccc"
+    .. "#4c4c4ccc"
     .. ":1,"
-    .. "#5f5f5fcc"
+    .. "#6a6a6acc"
 theme.bg_gradient_panel = "linear:0,0:0,21:0,"
     .. "#323232cc"
     .. ":1,"

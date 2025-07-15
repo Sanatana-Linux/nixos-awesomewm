@@ -1,6 +1,6 @@
+---@diagnostic disable: undefined-global
 -- https://gist.github.com/JustAPerson/f2aadb7150c852734421aa0662dcc345
 
-local awful = require("awful")
 local capi = {
     client = client,
     mouse = mouse,
@@ -8,32 +8,33 @@ local capi = {
 local memory = {}
 
 local function client_focus(c)
-    -- do nothing if focusing client under cursor
+    -- Return if focusing client under cursor
     if capi.mouse.current_client == c then
         return
     end
 
-    -- move mouse either to memory or centered over window
-    local coords = memory[c] or { x = c.width / 2, y = c.height / 2 }
+    -- Use remembered or default (center) coordinates
+    local coords = memory[c]
+    if not coords then
+        coords = { x = c.width / 2, y = c.height / 2 }
+    end
     coords.x = coords.x + c.x
     coords.y = coords.y + c.y
     capi.mouse.coords(coords)
 end
-
 local function client_unfocus(c)
-    -- are we leaving the client under the mouse
+    -- If leaving client under mouse, remember relative coords
     if capi.mouse.current_client == c then
-        -- yes then remember the relative coords
-        mcoords = capi.mouse.coords()
+        local mcoords = capi.mouse.coords()
         memory[c] = {
             x = mcoords.x - c.x,
             y = mcoords.y - c.y,
         }
-    else
-        -- no then we've already moved the mouse off this window so
-        -- we should clear memory
-        memory[c] = nil
+        return
     end
+    -- Otherwise, clear memory
+    memory[c] = nil
 end
+
 capi.client.connect_signal("focus", client_focus)
 capi.client.connect_signal("unfocus", client_unfocus)

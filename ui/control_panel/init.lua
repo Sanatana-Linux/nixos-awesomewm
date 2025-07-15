@@ -7,6 +7,7 @@ local dpi = beautiful.xresources.apply_dpi
 local capi = { screen = screen }
 local notification_list = require("ui.control_panel.notification_list")
 local audio_sliders = require("ui.control_panel.audio_sliders")
+local brightness_slider = require("ui.control_panel.brightness_slider")
 local wifi_button = require("ui.control_panel.wifi_applet.button")
 local wifi_page = require("ui.control_panel.wifi_applet.page")
 local bluetooth_button = require("ui.control_panel.bluetooth_applet.button")
@@ -24,7 +25,9 @@ local keys = {
 local function run_keygrabber(self)
     local wp = self._private
     wp.keygrabber = awful.keygrabber.run(function(_, key, event)
-        if event ~= "press" then return end
+        if event ~= "press" then
+            return
+        end
         if gtable.hasitem(keys.close, key) then
             self:hide()
         end
@@ -61,8 +64,9 @@ function control_panel:setup_main_page()
             },
         }),
         wp.audio_sliders,
+        wp.brightness_slider,
         wibox.widget({
-            layout = wibox.layout.fixed.horizontal,
+            layout = wibox.layout.flex.horizontal,
             spacing = dpi(6),
             wp.wifi_button,
             wp.bluetooth_button,
@@ -72,7 +76,9 @@ end
 
 function control_panel:show()
     local wp = self._private
-    if wp.shown then return end
+    if wp.shown then
+        return
+    end
     wp.shown = true
 
     audio:get_default_sink_data()
@@ -85,7 +91,9 @@ end
 
 function control_panel:hide()
     local wp = self._private
-    if not wp.shown then return end
+    if not wp.shown then
+        return
+    end
     wp.shown = false
 
     -- Stop the keygrabber when the panel is hidden
@@ -118,7 +126,7 @@ local function new()
             gtimer.delayed_call(function()
                 awful.placement.bottom_right(d, {
                     honor_workarea = true,
-                    margins = { bottom = beautiful.useless_gap }
+                    margins = { bottom = beautiful.useless_gap },
                 })
             end)
         end,
@@ -145,6 +153,7 @@ local function new()
 
     wp.notification_list = notification_list()
     wp.audio_sliders = audio_sliders()
+    wp.brightness_slider = brightness_slider()
     wp.wifi_button = wifi_button()
     wp.wifi_page = wifi_page()
     wp.bluetooth_button = bluetooth_button()
@@ -188,3 +197,4 @@ end
 return {
     get_default = get_default,
 }
+

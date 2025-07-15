@@ -3,10 +3,13 @@
 -- Import required AwesomeWM libraries
 local awful = require("awful")
 local rclient = require("ruled.client")
-local capi = { client = client, tag = tag }
+local capi = { client = client, tag = tag, mouse = mouse }
 local awesome = awesome
 require("awful.autofocus")
-require("core.client.cursor_position_memory")
+-- require("core.client.cursor_position_memory")
+require("core.client.backdrop")
+require("core.client.better_resize")
+require("core.client.save_floating_clients")
 
 -- Handle pop up (transient) and fullscreen + maximized clients
 capi.client.connect_signal("request::manage", function(c)
@@ -159,4 +162,3 @@ capi.client.connect_signal("unmanage", focus_back)
 capi.tag.connect_signal("property::selected", focus_back)
 --|ensure there is always a selected client during tag
 --|switching or logins
-

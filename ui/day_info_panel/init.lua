@@ -1,3 +1,7 @@
+-- ui/day_info_panel/init.lua
+-- This module defines the calendar popup (day info panel).
+-- It is toggled by the time widget and includes refined placement logic.
+
 local awful = require("awful")
 local wibox = require("wibox")
 local beautiful = require("beautiful")
@@ -15,6 +19,7 @@ function day_info:show()
     end
     wp.shown = true
     self.visible = true
+    -- Ensure the calendar is showing the current date when opened
     self.widget:get_children_by_id("calendar")[1]:set_current_date()
     self:emit_signal("property::shown", wp.shown)
 end
@@ -30,10 +35,10 @@ function day_info:hide()
 end
 
 function day_info:toggle()
-    if not self.visible then
-        self:show()
-    else
+    if self.visible then
         self:hide()
+    else
+        self:show()
     end
 end
 
@@ -44,9 +49,10 @@ local function new()
         screen = capi.screen.primary,
         bg = "#00000000",
         placement = function(d)
+            -- Position the panel above the wibar on the right side.
             awful.placement.bottom_right(d, {
                 honor_workarea = true,
-                margins = beautiful.useless_gap,
+                margins = { bottom = dpi(50) }, -- Adjust margin to clear the bar
             })
         end,
         widget = wibox.widget({
@@ -75,6 +81,7 @@ local function new()
     })
 
     gtable.crush(ret, day_info, true)
+    ret._private = {} -- Ensure private table exists
     return ret
 end
 

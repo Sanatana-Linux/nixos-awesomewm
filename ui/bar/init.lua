@@ -1,6 +1,6 @@
 -- ui/bar/init.lua
 -- This module defines and assembles the main status bar (wibar) for AwesomeWM.
--- It now uses the new combined taglist/tasklist widget, correctly placed in the center.
+-- This version corrects the layout to remove the duplicated time widget.
 
 local awful = require("awful")
 local wibox = require("wibox")
@@ -15,7 +15,7 @@ local time_widget = require("ui.bar.modules.time_widget")
 local tray_widget = require("ui.bar.modules.tray_widget")
 local layoutbox_widget = require("ui.bar.modules.layoutbox_widget")
 local new_tags_widget = require("ui/bar/modules/taglist_and_tasklist_buttons")
-local control_panel = require("ui.control_panel").get_default()
+local battery_widget = require("ui.bar.modules.battery")
 
 local bar = {}
 
@@ -39,11 +39,9 @@ local taglist_buttons = awful.util.table.join(
 
 -- Define the correct behavior for tasklist (client icon) clicks
 local tasklist_buttons = awful.util.table.join(
-    -- Left-click: Jump to the client, raising it and switching to its tag.
     awful.button({}, 1, function(c)
         awful.client.jumpto(c)
     end),
-    -- Right-click: Show the context menu for the client.
     awful.button({}, 3, function(c)
         menu:toggle_client_menu(c)
     end)
@@ -76,7 +74,7 @@ function bar.create_primary(s)
                     launcher_button(),
                 },
             },
-            { -- Center widgets, now wrapped in a place container for true centering
+            { -- Center widgets
                 widget = wibox.container.place,
                 halign = "center",
                 valign = "center",
@@ -108,7 +106,8 @@ function bar.create_primary(s)
                     spacing = dpi(8),
                     tray_widget(),
                     layoutbox_widget(s),
-                    time_widget(),
+                    battery_widget(),
+                    time_widget(), -- Correctly placed exactly once
                     control_panel_button(),
                 },
             },
@@ -117,7 +116,7 @@ function bar.create_primary(s)
     return wibar
 end
 
--- Wibar for secondary screens, also with a centered widget.
+-- Wibar for secondary screens.
 function bar.create_secondary(s)
     local wibar = awful.wibar({
         position = "bottom",
@@ -135,9 +134,7 @@ function bar.create_secondary(s)
         },
         widget = {
             layout = wibox.layout.align.horizontal,
-            -- Left (empty)
             {},
-            -- Center
             {
                 widget = wibox.container.place,
                 halign = "center",
@@ -157,7 +154,6 @@ function bar.create_secondary(s)
                     },
                 },
             },
-            -- Right (empty)
             {},
         },
     })
