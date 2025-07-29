@@ -10,6 +10,10 @@ local modules = require("modules")
 local dpi = beautiful.xresources.apply_dpi
 local capi = { screen = screen }
 
+local rrect = beautiful.rrect or function(radius)
+    return nil
+end
+
 local day_info = {}
 
 function day_info:show()
@@ -18,9 +22,35 @@ function day_info:show()
         return
     end
     wp.shown = true
-    self.visible = true
+
     -- Ensure the calendar is showing the current date when opened
-    self.widget:get_children_by_id("calendar")[1]:set_current_date()
+    if wp.calendar_widget and wp.calendar_widget.set_current_date then
+        wp.calendar_widget:set_current_date()
+    end
+
+    -- Explicitly set position to bottom right
+    local s = self.screen
+    local screen_geometry = s.geometry
+    local margin_bottom = dpi(60) -- Adjust margin to clear the bar
+
+    -- Calculate x and y for bottom-right placement
+    -- We need the popup's width and height to calculate its top-left corner
+    -- For now, let's assume a fixed size or let wibox calculate it and then adjust
+    -- A better approach is to use awful.placement.bottom_right with honor_workarea = false
+    -- but since that's not working, we'll try manual calculation.
+
+    -- First, make it visible briefly to get its dimensions, then hide and reposition
+    self.visible = true
+    local popup_width = self.width
+    local popup_height = self.height
+    self.visible = false -- Hide it again
+
+    self.x = screen_geometry.x + screen_geometry.width - popup_width
+    self.y = screen_geometry.y + screen_geometry.height - popup_height - margin_bottom
+
+    
+
+    self.visible = true
     self:emit_signal("property::shown", wp.shown)
 end
 
@@ -43,45 +73,38 @@ function day_info:toggle()
 end
 
 local function new()
+    local calendar_widget = modules.calendar({
+        sun_start = false,
+        shape = rrect(dpi(10)),
+        day_shape = rrect(dpi(8)),
+    })
+
     local ret = awful.popup({
         visible = false,
         ontop = true,
-        screen = capi.screen.primary,
+        screen = capi.screen.primary or capi.screen[1],
         bg = "#00000000",
-        placement = function(d)
-            -- Position the panel above the wibar on the right side.
-            awful.placement.bottom_right(d, {
-                honor_workarea = true,
-                margins = { bottom = dpi(50) }, -- Adjust margin to clear the bar
-            })
-        end,
-        widget = wibox.widget({
+        placement = awful.placement.bottom_right,
+
+        widget = {
             widget = wibox.container.background,
             bg = beautiful.bg,
             border_width = beautiful.border_width,
             border_color = beautiful.border_color_normal,
-            shape = beautiful.rrect(dpi(20)),
+            shape = rrect(dpi(20)),
             {
                 widget = wibox.container.margin,
                 margins = dpi(12),
-                {
-                    layout = wibox.layout.fixed.vertical,
-                    spacing = dpi(6),
-                    {
-                        id = "calendar",
-                        widget = modules.calendar({
-                            sun_start = false,
-                            shape = beautiful.rrect(dpi(10)),
-                            day_shape = beautiful.rrect(dpi(8)),
-                        }),
-                    },
-                },
+                calendar_widget,
             },
-        }),
+        },
     })
 
     gtable.crush(ret, day_info, true)
-    ret._private = {} -- Ensure private table exists
+    ret._private = {
+        calendar_widget = calendar_widget,
+        shown = false,
+    }
     return ret
 end
 

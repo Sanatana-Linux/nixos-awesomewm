@@ -13,22 +13,16 @@ local modules = require("modules")
 local text_icons = beautiful.text_icons
 
 return function()
-    -- Define a custom preset for the tooltip to ensure correct theming
-    local tooltip_preset = {
-        bg = beautiful.bg_alt,
-        fg = beautiful.fg,
-        shape = beautiful.rrect(dpi(8)),
-        border_width = beautiful.border_width,
-        border_color = beautiful.border_color,
-        font = beautiful.font,
-    }
-
-    -- Tooltip to show detailed battery status on hover
     local battery_tooltip = awful.tooltip({
         align = "left",
         mode = "outside",
         preferred_positions = { "top" },
-        preset = tooltip_preset, -- Apply the custom themed preset
+        bg = beautiful.bg_normal,
+        fg = beautiful.fg_normal,
+        shape = beautiful.rrect(dpi(8)),
+        border_width = beautiful.border_width,
+        border_color = beautiful.border_color,
+        font = beautiful.font,
     })
 
     -- The progressbar that acts as the battery body

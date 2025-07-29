@@ -75,23 +75,13 @@ function bar.create_primary(s)
                 },
             },
             { -- Center widgets
-                widget = wibox.container.place,
-                halign = "center",
-                valign = "center",
-                align = "center",
-                {
-                    widget = wibox.container.margin,
-                    margins = dpi(7),
-                    {
-                        layout = wibox.layout.fixed.horizontal,
-                        spacing = dpi(8),
-                        new_tags_widget.new({
-                            screen = s,
-                            taglist_buttons = taglist_buttons,
-                            tasklist_buttons = tasklist_buttons,
-                        }),
-                    },
-                },
+                widget = wibox.container.margin,
+                margins = dpi(7),
+                new_tags_widget.new({
+                    screen = s,
+                    taglist_buttons = taglist_buttons,
+                    tasklist_buttons = tasklist_buttons,
+                }),
             },
             { -- Right widgets
                 widget = wibox.container.margin,

@@ -4,7 +4,7 @@ local dpi = beautiful.xresources.apply_dpi
 local wibox = require("wibox")
 local awful = require("awful")
 local size = dpi(28) -- Set the size
-local position = beautiful.tabbar_position or "top" -- Set the position to default to "top" if not s
+local position = "top" -- Set the position to default to "top" if not s
 
 --------------------------------------------------------------------> signal ;
 

@@ -5,9 +5,7 @@
 local awful = require("awful")
 local wibox = require("wibox")
 local beautiful = require("beautiful")
-local gears = require("gears")
 local dpi = beautiful.xresources.apply_dpi
-local client = client
 local menu = require("ui.menu").get_default() -- Client menu module
 local fancy_taglist = {}
 
@@ -60,9 +58,8 @@ local function create_single_tag(tag, s)
     })
     content_layout:add(tag_label)
     content_layout:add(clients_layout)
-
-    -- The main container for the tag, handling background and borders.
-    local container = wibox.widget({
+    -- The inner container for the tag, handling background and borders.
+    local inner_container = wibox.widget({
         {
             content_layout,
             top = dpi(4),
@@ -72,8 +69,28 @@ local function create_single_tag(tag, s)
             widget = wibox.container.margin,
         },
         shape = beautiful.rrect(beautiful.border_radius or dpi(8)),
-        border_width = beautiful.border_width or dpi(1),
+        border_width = dpi(0),
         border_color = beautiful.border_color_active,
+        widget = wibox.container.place,
+        halign = "center",
+        valign = "center",
+
+        bg = beautiful.bg_gradient_button,
+    })
+
+    -- Outer margin and background for transparent border effect
+    local container = wibox.widget({
+        {
+            inner_container,
+            top = dpi(1),
+            bottom = dpi(1),
+            left = dpi(1),
+            right = dpi(1),
+            widget = wibox.container.margin,
+        },
+        shape = beautiful.rrect(beautiful.border_radius or dpi(8)),
+        border_width = dpi(1),
+        border_color = "transparent",
         widget = wibox.container.background,
         bg = beautiful.bg_gradient_button,
     })
@@ -81,13 +98,17 @@ local function create_single_tag(tag, s)
     -- This function updates the tag's appearance based on its state.
     local function update_tag_status()
         if tag.selected then
-            container.bg = beautiful.bg_gradient_button_alt
-            container.border_color = beautiful.border_color_active
+            inner_container.bg = beautiful.bg_gradient_button_alt
+            inner_container.border_color = beautiful.border_color_active
                 or beautiful.fg_alt
+            container.bg = beautiful.bg_gradient_button_alt
+            container.border_color = beautiful.fg .. "66"
         else
-            container.bg = beautiful.bg_gradient_button
-            container.border_color = beautiful.border_color_normal
+            inner_container.bg = beautiful.bg_gradient_button
+            inner_container.border_color = beautiful.border_color_normal
                 or beautiful.bg_urg
+            container.bg = beautiful.bg_gradient_button
+            container.border_color = "transparent"
         end
     end
 
@@ -114,10 +135,11 @@ local function create_single_tag(tag, s)
     client.connect_signal("unfocus", update_clients)
 
     -- Connect hover signals for visual feedback.
-    container:connect_signal("mouse::enter", function(c)
-        c:set_bg(beautiful.bg_gradient_button_alt)
+    container:connect_signal("mouse::enter", function()
+        inner_container.bg = beautiful.bg_gradient_recessed
+        container.bg = beautiful.bg_gradient_recessed
     end)
-    container:connect_signal("mouse::leave", function(c)
+    container:connect_signal("mouse::leave", function()
         update_tag_status() -- Revert to selected/unselected state
     end)
 
@@ -146,7 +168,19 @@ function fancy_taglist.new(cfg)
         taglist_layout:add(create_single_tag(t, s))
     end
 
-    return taglist_layout
+    -- Wrap the taglist in a background container for the gradient
+    local bar_container = wibox.widget({
+        taglist_layout,
+        widget = wibox.container.place,
+        fill_horizontal = true,
+        fill_vertical = true,
+        halign = "center",
+        valign = "center",
+
+        bg = "#00000000",
+    })
+
+    return bar_container
 end
 
 return fancy_taglist
