@@ -52,6 +52,7 @@ function day_info:show()
 
     self.visible = true
     self:emit_signal("property::shown", wp.shown)
+    run_keygrabber(self) -- Start listening for close keys
 end
 
 function day_info:hide()
@@ -60,6 +61,13 @@ function day_info:hide()
         return
     end
     wp.shown = false
+
+    -- Stop the keygrabber when the panel is hidden
+    if wp.keygrabber then
+        awful.keygrabber.stop(wp.keygrabber)
+        wp.keygrabber = nil
+    end
+
     self.visible = false
     self:emit_signal("property::shown", wp.shown)
 end
@@ -70,6 +78,24 @@ function day_info:toggle()
     else
         self:show()
     end
+end
+
+-- Keys to close the day info panel
+local keys = {
+    close = { "Escape", "q" },
+}
+
+-- Starts the keygrabber to listen for close keys
+local function run_keygrabber(self)
+    local wp = self._private
+    wp.keygrabber = awful.keygrabber.run(function(_, key, event)
+        if event ~= "press" then
+            return
+        end
+        if gtable.hasitem(keys.close, key) then
+            self:hide()
+        end
+    end)
 end
 
 local function new()
@@ -85,6 +111,7 @@ local function new()
         screen = capi.screen.primary or capi.screen[1],
         bg = "#00000000",
         placement = awful.placement.bottom_right,
+        hide_on_unfocus = true, -- Hide when focus is lost (e.g., click outside)
 
         widget = {
             widget = wibox.container.background,
@@ -101,10 +128,9 @@ local function new()
     })
 
     gtable.crush(ret, day_info, true)
-    ret._private = {
-        calendar_widget = calendar_widget,
-        shown = false,
-    }
+    local wp = ret._private
+    wp.calendar_widget = calendar_widget
+    wp.shown = false
     return ret
 end
 
