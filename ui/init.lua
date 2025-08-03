@@ -17,43 +17,54 @@ local control_panel = require("ui.control_panel").get_default()
 -- Explicitly load the screenshot notification handler to ensure it's ready
 require("ui.notification.screenshots")
 
-local function set_wibar_hideaway(wibar)
-    if not wibar then
+local function set_wibar_hideaway(wibar, s)
+    if not wibar or not s then
         return
     end
 
-    local function on_client_manage(client)
-        local focused_screen = awful.screen.focused({ client = true })
+    local hide_timer
+    wibar.visible = false
 
-        if
-            wibar.screen == focused_screen
-            and has_common(client:tags(), focused_screen.selected_tags)
-        then
-            if client.fullscreen then
+    -- Timer to check mouse position and show/hide the wibar
+    gtimer.start_new(0.2, function()
+        local coords = mouse.coords()
+        if not coords then return true end -- Prevent crash if coords are nil
+
+        local on_edge = coords.y >= s.geometry.y + s.geometry.height - 1
+        local mouse_on_bar = coords.x >= wibar.x and coords.x < wibar.x + wibar.width and
+                             coords.y >= wibar.y and coords.y < wibar.y + wibar.height
+
+        if on_edge or mouse_on_bar then
+            -- Show the bar if the mouse is at the bottom edge or on the bar itself
+            wibar.visible = true
+            if hide_timer then
+                hide_timer:stop()
+                hide_timer = nil
+            end
+        else
+            -- If the mouse is not on the bar or the edge, start a timer to hide it
+            if wibar.visible and not hide_timer then
+                hide_timer = gtimer.start_new(0.5, function()
+                    wibar.visible = false
+                    hide_timer = nil
+                    return false -- Run only once
+                end)
+            end
+        end
+        return true -- Keep the timer running
+    end)
+
+    -- Fullscreen handling
+    local function on_client_fullscreen_change(c)
+        local focused_screen = awful.screen.focused({ client = c })
+        if wibar.screen == focused_screen and has_common(c:tags(), focused_screen.selected_tags) then
+            if c.fullscreen then
                 wibar.visible = false
-            else
-                wibar.visible = true
             end
         end
     end
 
-    local function on_client_unmanage(client)
-        local focused_screen = awful.screen.focused({ client = true })
-
-        if wibar.screen == focused_screen then
-            if client.fullscreen then
-                wibar.visible = true
-            end
-        end
-    end
-
-    capi.client.connect_signal("request::manage", on_client_manage)
-    capi.client.connect_signal("focus", on_client_manage)
-    capi.client.connect_signal("property::fullscreen", on_client_manage)
-
-    capi.client.connect_signal("request::unmanage", on_client_unmanage)
-    capi.client.connect_signal("unfocus", on_client_unmanage)
-    capi.client.connect_signal("property::minimized", on_client_unmanage)
+    capi.client.connect_signal("property::fullscreen", on_client_fullscreen_change)
 end
 
 capi.screen.connect_signal("request::desktop_decoration", function(s)
@@ -82,7 +93,7 @@ capi.screen.connect_signal("request::desktop_decoration", function(s)
         s.bar = bar.create_secondary(s)
     end
 
-    set_wibar_hideaway(s.bar)
+    set_wibar_hideaway(s.bar, s)
 end)
 
 capi.screen.connect_signal("request::wallpaper", function(s)

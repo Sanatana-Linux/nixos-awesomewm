@@ -417,29 +417,34 @@ local function new()
                                 },
 
                                 {
-                                    widget = wibox.container.margin,
-                                    forced_width = 1,
-                                    forced_height = dpi(50),
-                                    margins = {
-                                        left = dpi(10),
-                                        right = dpi(10),
-                                    },
+                                    widget = wibox.container.background,
+                                    bg = beautiful.bg .. "99",
+                                    shape = beautiful.rrect(dpi(8)),
                                     {
-                                        widget = wibox.container.place,
-                                        halign = "left",
-                                        valign = "center",
+                                        widget = wibox.container.margin,
+                                        forced_width = 1,
+                                        forced_height = dpi(50),
+                                        margins = {
+                                            left = dpi(10),
+                                            right = dpi(10),
+                                        },
                                         {
-                                            widget = wibox.container.constraint,
-                                            strategy = "max",
-                                            height = dpi(25),
+                                            widget = wibox.container.place,
+                                            halign = "left",
+                                            valign = "center",
                                             {
-                                                id = "text-input",
-                                                widget = modules.text_input({
-                                                    placeholder = "Search...",
-                                                    cursor_bg = beautiful.fg,
-                                                    cursor_fg = beautiful.bg,
-                                                    placeholder_fg = beautiful.fg_alt,
-                                                }),
+                                                widget = wibox.container.constraint,
+                                                strategy = "max",
+                                                height = dpi(25),
+                                                {
+                                                    id = "text-input",
+                                                    widget = modules.text_input({
+                                                        placeholder = "Search...",
+                                                        cursor_bg = beautiful.fg,
+                                                        cursor_fg = beautiful.bg,
+                                                        placeholder_fg = beautiful.fg_alt,
+                                                    }),
+                                                },
                                             },
                                         },
                                     },
@@ -481,9 +486,9 @@ local function new()
     })
 
     local lock_button = ret.widget:get_children_by_id("lock-button")[1]
-    powermenu_button:buttons({
+    lock_button:buttons({
         awful.button({}, 1, function()
-            awful.spawn("betterlockscreen --lock")
+            awful.spawn.with_shell("awesome-client 'require(\"ui.lockscreen\").get_default():show()'")
         end),
     })
 

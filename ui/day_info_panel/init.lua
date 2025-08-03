@@ -16,6 +16,24 @@ end
 
 local day_info = {}
 
+-- Keys to close the day info panel
+local keys = {
+    close = { "Escape", "q" },
+}
+
+-- Starts the keygrabber to listen for close keys
+local function run_keygrabber(self)
+    local wp = self._private
+    wp.keygrabber = awful.keygrabber.run(function(_, key, event)
+        if event ~= "press" then
+            return
+        end
+        if gtable.hasitem(keys.close, key) then
+            self:hide()
+        end
+    end)
+end
+
 function day_info:show()
     local wp = self._private
     if wp.shown then
@@ -72,14 +90,6 @@ function day_info:hide()
     self:emit_signal("property::shown", wp.shown)
 end
 
-function day_info:toggle()
-    if self.visible then
-        self:hide()
-    else
-        self:show()
-    end
-end
-
 -- Keys to close the day info panel
 local keys = {
     close = { "Escape", "q" },
@@ -98,6 +108,14 @@ local function run_keygrabber(self)
     end)
 end
 
+function day_info:toggle()
+    if self.visible then
+        self:hide()
+    else
+        self:show()
+    end
+end
+
 local function new()
     local calendar_widget = modules.calendar({
         sun_start = false,
@@ -110,7 +128,13 @@ local function new()
         ontop = true,
         screen = capi.screen.primary or capi.screen[1],
         bg = "#00000000",
-        placement = awful.placement.bottom_right,
+        placement = function(c)
+            -- Position the panel above the wibar on the right side.
+            awful.placement.bottom_right(c, {
+                honor_workarea = false,
+                margins = { bottom = dpi(60) }, -- Adjust margin to clear the bar
+            })
+        end,
         hide_on_unfocus = true, -- Hide when focus is lost (e.g., click outside)
 
         widget = {

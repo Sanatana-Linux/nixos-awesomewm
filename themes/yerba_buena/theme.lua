@@ -74,9 +74,10 @@ theme.text_icons = {
     wind = "",
 }
 -- Add the launcher icon path
-theme.launcher_icon = icons_path .. "nix.svg"
+theme.launcher_icon = icons_path .. "awesome_icon.svg"
 theme.tray_arrow_left = icons_path .. "arrow-left.svg"
 theme.tray_arrow_right = icons_path .. "arrow-right.svg"
+theme.awesome_icon = icons_path .. "awesome_icon.svg"
 
 theme.titlebar_icons = {
     close = gcolor.recolor_image(icons_path .. "titlebar/close.svg", theme.fg),
@@ -126,14 +127,8 @@ theme.bg_gradient_alt = "radial:0,510:0,16:0,"
     .. "#2c2c2ccc"
     .. ":1,"
     .. "#0c0c0ccc"
-theme.bg_gradient_titlebar = "radial:0,510:0,16:0,"
-    .. "#2c2c2ccc"
-    .. ":1,"
-    .. "#0c0c0ccc"
-theme.bg_gradient_titlebar_alt = "radial:0,510:0,16:0,"
-    .. "#0c0c0ccc"
-    .. ":1,"
-    .. "#2c2c2cee"
+theme.bg_gradient_titlebar = theme.bg .. "99"
+theme.bg_gradient_titlebar_alt = theme.bg .. "99"
 theme.bg_gradient_button = "linear:0,0:0,32:0,"
     .. "#5f5f5fcc"
     .. ":1,"
@@ -162,17 +157,12 @@ theme.tasklist_bg_minimize = theme.bg_gradient_titlebar_alt
 -- -------------------------------------------------------------------------- --
 -- titlebar
 
-theme.titlebar_bg_normal = theme.bg_gradient_titlebar
-theme.titlebar_bg_focus = theme.bg_gradient_titlebar_alt
-theme.titlebar_fg_normal = theme.fg_alt
-theme.titlebar_fg_focus = theme.fg
+theme.border_color_normal = theme.fg_alt .. "77"
+theme.border_color_active = theme.fg .. "77"
 
-theme.border_color_normal = theme.bg_urg
-theme.border_color_active = theme.fg_alt .. "77"
-
-theme.titlebar_bg_normal = theme.bg_gradient_titlebar
-theme.titlebar_bg_focus = theme.bg_gradient_titlebar_alt
-theme.titlebar_bg_urgent = theme.bg_gradient_titlebar_alt
+theme.titlebar_bg_normal = theme.bg_alt .. "99"
+theme.titlebar_bg_focus = theme.bg .. "99"
+theme.titlebar_bg_urgent = theme.bg_urg .. "99"
 theme.titlebar_fg_normal = theme.fg_alt
 theme.titlebar_fg_focus = theme.fg
 theme.titlebar_fg_urgent = theme.red
