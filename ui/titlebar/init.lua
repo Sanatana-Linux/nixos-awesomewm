@@ -6,6 +6,7 @@ local wibox = require("wibox")
 local beautiful = require("beautiful")
 local dpi = beautiful.xresources.apply_dpi
 local awful = require("awful")
+local shapes = require('modules.shapes')
 
 local client = client
 
@@ -29,7 +30,7 @@ local function make_button(txt, onclick)
                 },
                 layout = wibox.layout.fixed.horizontal,
             },
-            shape = beautiful.rrect(2),
+            shape = shapes.rrect(2),
             border_width = dpi(1),
             border_color = beautiful.fg_alt .. "aa",
             bg = beautiful.bg_gradient_button,
@@ -111,7 +112,7 @@ client.connect_signal("request::titlebars", function(c)
                             ),
                             buttons = titlebars_buttons,
                             layout = wibox.layout.fixed.horizontal,
-                            clip_shape = beautiful.rrect(6),
+                            clip_shape = shapes.rrect_6,
                         },
                         widget = wibox.container.margin,
                         right = dpi(2),
@@ -121,7 +122,7 @@ client.connect_signal("request::titlebars", function(c)
                     },
                     widget = wibox.container.background,
                     bg = beautiful.bg .. "00",
-                    shape = beautiful.rrect(6),
+                    shape = shapes.rrect_6,
                 },
                 widget = wibox.container.margin,
                 right = dpi(2),
@@ -154,7 +155,7 @@ client.connect_signal("request::titlebars", function(c)
                     },
                     widget = wibox.container.background,
                     bg = beautiful.bg .. "00",
-                    shape = beautiful.rrect(6),
+                    shape = shapes.rrect_6,
                 },
                 widget = wibox.container.margin,
                 left = dpi(6),

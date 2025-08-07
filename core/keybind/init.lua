@@ -5,7 +5,7 @@ local awful = require("awful")              -- AwesomeWM's core functionality li
 local capi = { awesome = awesome, client = client }  -- Capture global awesome and client APIs
 
 -- Import the default menu component
-local menu = require("ui.menu").get_default()
+local menu = require("ui.popups.menu").get_default()
 
 -- Define the modifier key for keybindings (Mod4 is typically the Super/Windows key)
 local modkey = "Mod4"

@@ -2,14 +2,14 @@
 local awful = require("awful")
 local capi = { awesome = awesome, client = client }
 local dropdown = require("modules.dropdown")
-local launcher = require("ui.launcher").get_default()
+local launcher = require("ui.popups.launcher").get_default()
 local hotkeys_popup = require("awful.hotkeys_popup")
 local menubar = require("menubar")
 local beautiful = require("beautiful")
 local dpi = beautiful.xresources.apply_dpi
-local day_info_panel = require("ui.day_info_panel").get_default()
+local day_info_panel = require("ui.popups.day_info_panel").get_default()
 local modkey = "Mod4"
-local control_panel = require("ui.control_panel").get_default()
+local control_panel = require("ui.popups.control_panel").get_default()
 
 awful.keyboard.append_global_keybindings({
 	awful.key({ modkey }, "F1", hotkeys_popup.show_help, { description = "show keybindings table", group = "awesome" }),
@@ -30,6 +30,8 @@ awful.keyboard.append_global_keybindings({
 		function() control_panel:toggle() end, -- Wrapped in a function
 		{ description = "toggle control panel", group = "awesome" } -- Updated description
 	),
+
+	
 
 	-- -------------------------------------------------------------------------- --
 
@@ -77,13 +79,13 @@ awful.keyboard.append_global_keybindings({
 	-- Tab Between Applications
 	awful.keygrabber({
 		keybindings = {
-			awful.key({
-				modifiers = { "Mod1" },
-				key = "Tab",
-				on_press = function()
-					awesome.emit_signal("window_switcher::next")
-				end,
-			}),
+			--		awful.key({
+--				modifiers = { "Mod1" },
+--				key = "Tab",
+--				on_press = function()
+--					awesome.emit_signal("window_switcher::next")
+--				end,
+--			}),
 		},
 		root_keybindings = {
 			awful.key({

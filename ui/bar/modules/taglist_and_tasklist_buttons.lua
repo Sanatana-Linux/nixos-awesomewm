@@ -6,16 +6,17 @@ local awful = require("awful")
 local wibox = require("wibox")
 local beautiful = require("beautiful")
 local dpi = beautiful.xresources.apply_dpi
-local menu = require("ui.menu").get_default()
+local menu = require("ui.popups.menu").get_default()
 local gears = require("gears") -- Required for filesystem checks
 local naughty = require("naughty") -- Required for notifications
 local fancy_taglist = {}
+local shapes = require('modules.shapes')
 
 -- Creates a single, fully-functional tag widget.
 local function create_single_tag(tag, s)
     -- This layout will hold the icons of the clients on the tag.
     local clients_layout = wibox.layout.fixed.horizontal()
-    clients_layout.spacing = dpi(6)
+    clients_layout.spacing = dpi(4)
 
     -- This function clears and repopulates the client icon list for this tag.
     local function update_clients()
@@ -44,15 +45,16 @@ local function create_single_tag(tag, s)
                 local icon_widget
                 if c.icon then
                     icon_widget = awful.widget.clienticon(c, {
-                        forced_height = dpi(14),
-                        forced_width = dpi(14),
+                        forced_height = dpi(18),
+                        forced_width = dpi(18),
                     })
                 else
                     -- Use a fallback icon for clients without a specific icon
                     icon_widget = wibox.widget.imagebox()
-                    icon_widget.image = "/home/tlh/.config/awesome/themes/yerba_buena/icons/fallback_icon.svg"
-                    icon_widget.forced_height = dpi(14)
-                    icon_widget.forced_width = dpi(14)
+                    icon_widget.image =
+                        "/home/tlh/.config/awesome/themes/yerba_buena/icons/fallback_icon.svg"
+                    icon_widget.forced_height = dpi(18)
+                    icon_widget.forced_width = dpi(18)
                 end
                 icon_widget:buttons(client_buttons)
 
@@ -66,8 +68,12 @@ local function create_single_tag(tag, s)
     local content_layout = wibox.layout.fixed.horizontal()
     content_layout.spacing = dpi(8)
     local tag_label = wibox.widget.imagebox()
-    local tag_icon_path = string.format("/home/tlh/.config/awesome/themes/yerba_buena/icons/tags/%s.svg", string.lower(tag.name))
-    local fallback_icon_path = "/home/tlh/.config/awesome/themes/yerba_buena/icons/fallback_icon.svg"
+    local tag_icon_path = string.format(
+        "/home/tlh/.config/awesome/themes/yerba_buena/icons/tags/%s.svg",
+        string.lower(tag.name)
+    )
+    local fallback_icon_path =
+        "/home/tlh/.config/awesome/themes/yerba_buena/icons/fallback_icon.svg"
 
     -- Check if the specific tag icon exists, otherwise use a fallback
     if gears.filesystem.file_readable(tag_icon_path) then
@@ -75,21 +81,21 @@ local function create_single_tag(tag, s)
     else
         tag_label.image = fallback_icon_path
     end
-    tag_label.forced_height = dpi(16) -- Adjust size as needed
-    tag_label.forced_width = dpi(16) -- Adjust size as needed
+    tag_label.forced_height = dpi(18) -- Adjust size as needed
+    tag_label.forced_width = dpi(18) -- Adjust size as needed
 
     -- Create a fixed-size container for the tag label to prevent resizing
-    local tag_label_container = wibox.widget {
+    local tag_label_container = wibox.widget({
         {
             tag_label,
             widget = wibox.container.place,
             halign = "center",
             valign = "center",
         },
-        width = dpi(24), -- Fixed width for the icon area
-        height = dpi(24), -- Fixed height for the icon area
+        width = dpi(26), -- Fixed width for the icon area
+        height = dpi(26), -- Fixed height for the icon area
         widget = wibox.container.constraint,
-    }
+    })
 
     content_layout:add(tag_label_container)
     content_layout:add(clients_layout)
@@ -97,13 +103,13 @@ local function create_single_tag(tag, s)
     local inner_container = wibox.widget({
         {
             content_layout,
-            top = dpi(4),
-            bottom = dpi(4),
-            left = dpi(16),
-            right = dpi(16),
+            top = dpi(2), -- Adjusted margin for height
+            bottom = dpi(2), -- Adjusted margin for height
+            left = dpi(12),
+            right = dpi(12),
             widget = wibox.container.margin,
         },
-        shape = beautiful.rrect(beautiful.border_radius or dpi(8)),
+        shape = shapes.rrect(beautiful.border_radius or dpi(8)),
         border_width = dpi(0),
         border_color = beautiful.border_color_active,
         widget = wibox.container.background,
@@ -121,7 +127,7 @@ local function create_single_tag(tag, s)
             right = dpi(1),
             widget = wibox.container.margin,
         },
-        shape = beautiful.rrect(beautiful.border_radius or dpi(8)),
+        shape = shapes.rrect(beautiful.border_radius or dpi(8)),
         border_width = dpi(1),
         border_color = "transparent",
         widget = wibox.container.background,
@@ -205,7 +211,7 @@ function fancy_taglist.new(cfg)
     local bar_container = wibox.widget({
         taglist_layout,
         widget = wibox.container.place,
-        fill_vertical = true,
+        fill_vertical = true, -- This ensures the taglist expands vertically
         halign = "center",
         valign = "center",
 

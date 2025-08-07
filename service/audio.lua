@@ -4,24 +4,32 @@ local gtable = require("gears.table")
 
 local audio = {}
 
-function audio:get_default_sink_data()
-	awful.spawn.easy_async_with_shell("LANG=C pactl get-sink-volume @DEFAULT_SINK@", function(stdout)
-		self.default_sink_volume = tonumber(stdout:match("/%s+(%d+)%%"))
-		self:emit_signal("default-sink::volume", self.default_sink_volume)
-	end)
+function audio:get_default_sink_data(callback)
+    awful.spawn.easy_async_with_shell("LANG=C pactl get-sink-volume @DEFAULT_SINK@", function(stdout)
+        self.default_sink_volume = tonumber(stdout:match("/%s+(%d+)%%"))
+        self:emit_signal("default-sink::volume", self.default_sink_volume)
+        if callback then
+            callback(self.default_sink_volume, self.default_sink_mute)
+        end
+    end)
 
-	awful.spawn.easy_async_with_shell("LANG=C pactl get-sink-mute @DEFAULT_SINK@", function(stdout)
-		self.default_sink_mute = stdout:match("%s+(%w+)") == "yes"
-		self:emit_signal("default-sink::mute", self.default_sink_mute)
-	end)
+    awful.spawn.easy_async_with_shell("LANG=C pactl get-sink-mute @DEFAULT_SINK@", function(stdout)
+        self.default_sink_mute = stdout:match("%s+(%w+)") == "yes"
+        self:emit_signal("default-sink::mute", self.default_sink_mute)
+        if callback then
+            callback(self.default_sink_volume, self.default_sink_mute)
+        end
+    end)
 end
 
-function audio:set_default_sink_volume(value)
-	awful.spawn("pactl set-sink-volume @DEFAULT_SINK@ " .. tostring(value) .. "%", false)
+function audio:set_default_sink_volume(value, callback)
+    awful.spawn("pactl set-sink-volume @DEFAULT_SINK@ " .. tostring(value) .. "%", false)
+    self:get_default_sink_data(callback)
 end
 
-function audio:toggle_default_sink_mute()
-	awful.spawn("pactl set-sink-mute @DEFAULT_SINK@ toggle", false)
+function audio:toggle_default_sink_mute(callback)
+    awful.spawn("pactl set-sink-mute @DEFAULT_SINK@ toggle", false)
+    self:get_default_sink_data(callback)
 end
 
 function audio:get_default_source_data()

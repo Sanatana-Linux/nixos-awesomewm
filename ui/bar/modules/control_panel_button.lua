@@ -4,8 +4,10 @@
 local awful = require("awful")
 local beautiful = require("beautiful")
 local modules = require("modules")
-local control_panel = require("ui.control_panel").get_default()
+local wibox = require("wibox")
+local control_panel = require("ui.popups.control_panel").get_default()
 local dpi = beautiful.xresources.apply_dpi
+local shapes = require('modules.shapes')
 
 -- Creates a button to toggle the control panel.
 -- @return widget The control panel button widget.
@@ -16,14 +18,22 @@ return function()
 				control_panel:toggle()
 			end),
 		},
-		forced_width = dpi(31),
 		-- Use theme gradients for background
 		bg_normal = beautiful.bg_gradient_button,
 		bg_hover = beautiful.bg_gradient_button_alt,
 		fg_normal = beautiful.fg,
 		fg_hover = beautiful.fg,
-		shape = beautiful.rrect(dpi(8)),
+		shape = shapes.rrect(8),
 		-- Pass the normal and hover icon surfaces from the theme
-		label = beautiful.text_icons.sliders,
+		child_widget = {
+			widget = wibox.container.margin,
+			margins = dpi(2),
+			{
+				widget = wibox.widget.imagebox,
+				image = beautiful.settings_icon,
+				forced_width = dpi(22),
+				forced_height = dpi(22),
+			},
+		},
 	})
 end

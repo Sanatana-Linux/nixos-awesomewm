@@ -14,7 +14,7 @@ local brightness_service = {} -- Renamed for clarity to avoid conflict with file
 
 -- Fetches the current brightness percentage using brightnessctl.
 -- Emits "brightness::updated" or "brightness::error".
-function brightness_service:get()
+function brightness_service:get(callback)
     -- Use async to avoid blocking the UI
     awful.spawn.easy_async_with_shell("brightnessctl g", function(stdout, stderr, reason, exit_code)
         if exit_code == 0 then
@@ -30,6 +30,9 @@ function brightness_service:get()
                     local percentage = math.floor((current_brightness / max_brightness) * 100)
                     self._private.current_brightness = percentage
                     self:emit_signal("brightness::updated", percentage)
+                    if callback then
+                        callback(percentage)
+                    end
                 else
                     gdebug.print_error("Brightness service: Failed to parse brightness output. Current: " ..
                     tostring(current_brightness_raw) .. " Max: " .. tostring(current_max_brightness_raw))
@@ -58,17 +61,19 @@ function brightness_service:set(value)
 end
 
 -- Increases the brightness by a default step (e.g., 5%).
-function brightness_service:increase()
-    -- brightnessctl handles incrementing directly
-    awful.spawn.with_shell("brightnessctl s 5%+", false)
-    gtimer.delayed_call(function() self:get() end) -- Update internal state after a short delay
+function brightness_service:increase(callback)
+    awful.spawn.with_shell("brightnessctl s 5%+")
+    gtimer.delayed_call(function()
+        self:get(callback)
+    end)
 end
 
 -- Decreases the brightness by a default step (e.g., 5%).
-function brightness_service:decrease()
-    -- brightnessctl handles decrementing directly
-    awful.spawn.with_shell("brightnessctl s 5%-", false)
-    gtimer.delayed_call(function() self:get() end) -- Update internal state after a short delay
+function brightness_service:decrease(callback)
+    awful.spawn.with_shell("brightnessctl s 5%-")
+    gtimer.delayed_call(function()
+        self:get(callback)
+    end)
 end
 
 -- Creates a new brightness service instance.

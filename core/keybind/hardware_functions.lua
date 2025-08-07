@@ -5,48 +5,58 @@
 -- new brightness service.
 
 local awful = require("awful") -- AwesomeWM utility library
--- local volume = require("lib.volume") -- Volume service (commented out, not used here)
+local audio_service_module = require("service.audio") -- Import audio service module
+local audio_service = audio_service_module.get_default() -- Get default audio service instance
+local volume_osd = require("ui.on_screen_display.volume").get_default() -- Import volume OSD
 local brightness_service_module = require("service.brightness") -- Import brightness service module
 local brightness_service = brightness_service_module.get_default() -- Get default brightness service instance
+local brightness_osd = require("ui.on_screen_display.brightness").get_default() -- Import brightness OSD
 local screenshot = require("service.screenshot").get_default() -- Screenshot service instance
-local powermenu = require("ui.powermenu").get_default() -- Power menu UI instance
+local powermenu = require("ui.popups.powermenu").get_default() -- Power menu UI instance
 -- modkey is defined globally in core/keybind/init.lua
 local modkey = "Mod4" -- Set modkey (usually the Super/Windows key)
 
 awful.keyboard.append_global_keybindings({
     -- -------------------------------------------------------------------------- --
-    -- Volume keybindings (commented out, assumed handled elsewhere)
-    --[[
+    -- Volume keybindings
     awful.key({}, "XF86AudioRaiseVolume", function()
-        volume.increase()
-        awesome.emit_signal("open::osd") -- Show OSD if available
+        if audio_service and audio_service.set_default_sink_volume then
+            audio_service:set_default_sink_volume("+5", function(volume, is_muted)
+                volume_osd:show(volume, is_muted)
+            end)
+        end
     end, { description = "increase volume", group = "hardware" }),
     awful.key({}, "XF86AudioLowerVolume", function()
-        volume.decrease()
-        awesome.emit_signal("open::osd")
+        if audio_service and audio_service.set_default_sink_volume then
+            audio_service:set_default_sink_volume("-5", function(volume, is_muted)
+                volume_osd:show(volume, is_muted)
+            end)
+        end
     end, { description = "decrease volume", group = "hardware" }),
     awful.key({}, "XF86AudioMute", function()
-        volume.mute()
-        awesome.emit_signal("open::osd")
+        if audio_service and audio_service.toggle_default_sink_mute then
+            audio_service:toggle_default_sink_mute(function(volume, is_muted)
+                volume_osd:show(volume, is_muted)
+            end)
+        end
     end, { description = "toggle mute", group = "hardware" }),
-    ]]
 
     -- -------------------------------------------------------------------------- --
     -- Brightness control keybindings
     awful.key({}, "XF86MonBrightnessUp", function()
         if brightness_service and brightness_service.increase then
-            brightness_service:increase() -- Increase brightness using service
+            brightness_service:increase(function(value)
+                brightness_osd:show(value)
+            end)
         end
-        -- Optionally emit a signal for OSD feedback
-        -- awesome.emit_signal("osd::brightness::show")
     end, { description = "increase brightness", group = "hardware" }),
 
     awful.key({}, "XF86MonBrightnessDown", function()
         if brightness_service and brightness_service.decrease then
-            brightness_service:decrease() -- Decrease brightness using service
+            brightness_service:decrease(function(value)
+                brightness_osd:show(value)
+            end)
         end
-        -- Optionally emit a signal for OSD feedback
-        -- awesome.emit_signal("osd::brightness::show")
     end, { description = "decrease brightness", group = "hardware" }),
 
     -- -------------------------------------------------------------------------- --

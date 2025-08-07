@@ -6,6 +6,7 @@ local gtimer = require("gears.timer")
 local gears = require("gears")
 local modules = require("modules")
 local beautiful = require("beautiful")
+local shapes = require('modules.shapes')
 local ncr = naughty.notification_closed_reason
 local dpi = beautiful.xresources.apply_dpi
 local create_markup = require("lib").create_markup
@@ -74,7 +75,7 @@ local function create_actions_widget(n)
                         top = dpi(8),
                         bottom = dpi(8),
                     },
-                    shape = beautiful.rrect(dpi(8)),
+                    shape = shapes.rrect_8,
                     buttons = {
                         awful.button({}, 1, function()
                             action:invoke()
@@ -111,7 +112,7 @@ local function create_notification_popup(n)
             fg = beautiful.fg,
             border_color = beautiful.border_color_normal,
             border_width = beautiful.border_width,
-            shape = beautiful.rrect(dpi(20)),
+            shape = shapes.rrect_20,
             {
                 widget = wibox.container.margin,
                 margins = dpi(15),
@@ -189,7 +190,7 @@ local function create_notification_popup(n)
                                 resize = true,
                                 halign = "center",
                                 valign = "top",
-                                clip_shape = beautiful.rrect(dpi(5)),
+                                clip_shape = shapes.rrect(dpi(5)),
                                 image = n.icon,
                             },
                         },

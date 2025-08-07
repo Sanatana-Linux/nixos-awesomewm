@@ -11,6 +11,7 @@ local dpi = beautiful.xresources.apply_dpi
 local battery_service = require("service.battery").get_default()
 local modules = require("modules")
 local text_icons = beautiful.text_icons
+local shapes = require('modules.shapes')
 
 return function()
     local battery_tooltip = awful.tooltip({
@@ -19,7 +20,7 @@ return function()
         preferred_positions = { "top" },
         bg = beautiful.bg_normal,
         fg = beautiful.fg_normal,
-        shape = beautiful.rrect(dpi(8)),
+        shape = shapes.rrect(8),
         border_width = beautiful.border_width,
         border_color = beautiful.border_color,
         font = beautiful.font,
@@ -32,8 +33,8 @@ return function()
         max_value = 100,
         paddings = dpi(3),
         border_width = dpi(1.25),
-        shape = beautiful.rrect(dpi(5)),
-        bar_shape = beautiful.rrect(dpi(2)),
+        shape = shapes.rrect(5),
+        bar_shape = shapes.rrect(2),
         border_color = beautiful.fg .. "99",
         background_color = beautiful.bg_alt,
         color = beautiful.blue, -- Default color
@@ -63,8 +64,8 @@ return function()
     -- Use a stack layout to overlay the text and charging icon on the progressbar
     local stacked_layout = wibox.widget({
         layout = wibox.layout.stack,
-        forced_height = dpi(20),
-        forced_width = dpi(40),
+        forced_height = dpi(22),
+        forced_width = dpi(30),
         progressbar,
         percentage_label,
         charging_icon,
@@ -76,9 +77,9 @@ return function()
         valign = "center",
         {
             bg = beautiful.fg .. "99",
-            forced_height = dpi(10),
-            forced_width = dpi(2),
-            shape = beautiful.rrect(dpi(10)),
+            forced_height = dpi(7),
+            forced_width = dpi(1),
+            shape = shapes.rrect(10),
             widget = wibox.container.background,
         },
     })
@@ -87,10 +88,10 @@ return function()
     local widget = modules.hover_button({
         bg_normal = beautiful.bg_gradient_button,
         bg_hover = beautiful.bg_gradient_button_alt,
-        shape = beautiful.rrect(dpi(8)),
+        shape = shapes.rrect(8),
         child_widget = {
             widget = wibox.container.margin,
-            margins = dpi(5),
+            margins = { top = dpi(4), bottom = dpi(4), left = dpi(4), right = dpi(4) },
             {
                 layout = wibox.layout.fixed.horizontal,
                 spacing = dpi(3),

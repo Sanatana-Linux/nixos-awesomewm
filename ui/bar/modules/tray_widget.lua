@@ -6,6 +6,7 @@ local awful = require("awful")
 local wibox = require("wibox")
 local beautiful = require("beautiful")
 local dpi = beautiful.xresources.apply_dpi
+local shapes = require('modules.shapes')
 
 -- Creates a system tray widget.
 -- It's initially hidden and can be revealed by clicking a button.
@@ -15,7 +16,7 @@ return function()
 
     local systray = wibox.widget({
         widget = wibox.container.margin,
-        margins = { top = dpi(4), bottom = dpi(4) },
+        margins = { top = dpi(2), bottom = dpi(2) },
         {
             widget = wibox.widget.systray,
         },
@@ -24,7 +25,7 @@ return function()
     local widget = wibox.widget({
         widget = wibox.container.background,
         bg = beautiful.bg_gradient_button,
-        shape = beautiful.rrect(dpi(8)),
+        shape = shapes.rrect(8),
         {
             widget = wibox.container.margin,
             margins = { left = dpi(4), right = dpi(4) },
@@ -34,7 +35,7 @@ return function()
                 spacing = dpi(8),
                 {
                     widget = wibox.container.margin,
-                    margins = { top = dpi(8), bottom = dpi(8) },
+                    margins = { top = dpi(2), bottom = dpi(2) },
                     {
                         widget = wibox.container.place,
                         valign = "center",

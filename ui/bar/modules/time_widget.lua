@@ -6,7 +6,8 @@ local awful = require("awful")
 local wibox = require("wibox")
 local beautiful = require("beautiful")
 local dpi = beautiful.xresources.apply_dpi
-local day_info_panel = require("ui.day_info_panel").get_default()
+local day_info_panel = require("ui.popups.day_info_panel").get_default()
+local shapes = require('modules.shapes')
 
 -- Creates a widget to display the current time and date.
 -- @return widget The time/date widget.
@@ -14,7 +15,7 @@ return function()
     local widget = wibox.widget({
         widget = wibox.container.background,
         bg = beautiful.bg_gradient_button,
-        shape = beautiful.rrect(dpi(8)),
+        shape = shapes.rrect(8),
         buttons = {
             awful.button({}, 1, function()
                 day_info_panel:toggle()
@@ -22,13 +23,13 @@ return function()
         },
         {
             widget = wibox.container.margin,
-            margins = { left = dpi(12), right = dpi(12), top = dpi(2) }, -- Increased margins for better spacing
+            margins = { left = dpi(5), right = dpi(5), top = dpi(4), bottom = dpi(4) },
             {
                 layout = wibox.layout.fixed.horizontal,
-                spacing = dpi(8),
+                spacing = dpi(5),
                 {
                     widget = wibox.widget.textclock,
-                    font = beautiful.font_name .. " 20",
+                    font = beautiful.font_name .. " 16",
                     format = "%H:%M", -- Time format
                 },
             },

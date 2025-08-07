@@ -17,6 +17,7 @@ local beautiful = require("beautiful")
 local wibox = require("wibox")
 local gdebug = require("gears.debug")
 local gtable = require("gears.table")
+local dpi = beautiful.xresources.apply_dpi
 
 local function get_screen(s)
 	return s and capi.screen[s]
@@ -88,17 +89,22 @@ function layoutbox.new(args)
 	-- Do we already have a layoutbox for this screen?
 	local w = boxes[screen]
 	if not w then
+		local imagebox = wibox.widget.imagebox()
+		local textbox = wibox.widget.textbox()
+
 		w = wibox.widget {
 			{
-				id	 = "imagebox",
-				widget = wibox.widget.imagebox
+				widget = wibox.container.margin,
+				margins = dpi(4),
+				imagebox
 			},
-			{
-				id	 = "textbox",
-				widget = wibox.widget.textbox
-			},
+			textbox,
 			layout = wibox.layout.fixed.horizontal
 		}
+
+		-- Store references to the actual widgets for direct access in update function
+		w.imagebox = imagebox
+		w.textbox = textbox
 
 		-- Apply the buttons, visible, forced_width and so on
 		gtable.crush(w, args)

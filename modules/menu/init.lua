@@ -6,6 +6,7 @@ local gtable = require("gears.table")
 local capi = { mouse = mouse }
 local dpi = beautiful.xresources.apply_dpi
 local text_icons = beautiful.text_icons
+local shapes = require('modules.shapes')
 
 local menu = {}
 
@@ -304,7 +305,7 @@ function menu.new(args, parent)
             fg = beautiful.fg,
             border_color = beautiful.border_color_normal,
             border_width = beautiful.border_width,
-            shape = beautiful.rrect(dpi(10)),
+            shape = shapes.rrect_10,
             margins = dpi(5),
             item_bg = beautiful.bg,
             item_fg = beautiful.fg,
@@ -313,7 +314,7 @@ function menu.new(args, parent)
             item_hover_fg = beautiful.fg,
             item_width = dpi(150),
             item_height = dpi(25),
-            item_shape = beautiful.rrect(dpi(6)),
+            item_shape = shapes.rrect_6,
             item_margins = { left = dpi(7), right = dpi(7) },
             item_spacing = dpi(2),
             item_font = beautiful.font,

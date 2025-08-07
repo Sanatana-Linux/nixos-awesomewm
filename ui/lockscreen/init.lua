@@ -2,12 +2,22 @@ local wibox = require("wibox")
 local awful = require("awful")
 local beautiful = require("beautiful")
 local dpi = beautiful.xresources.apply_dpi
-local pam = require("lib.liblua_pam")
+local shapes = require('modules.shapes')
+ local pam = require("lib.liblua_pam")
 local gears = require("gears")
 
 local lockscreen = {}
 
 local function new()
+    -- Placeholder functions to fix loading error
+    local function getRandom()
+        return math.random() * 2 * math.pi
+    end
+    local function reset(success)
+        -- This function likely resets the UI state.
+        -- You may need to implement its contents.
+    end
+
     local auth = function(password)
         return pam.auth_current_user(password)
     end
@@ -16,7 +26,7 @@ local function new()
         {
             {
                 image = beautiful.awesome_icon,
-                clip_shape = beautiful.rrect(8),
+                clip_shape = shapes.rrect_8,
                 forced_height = dpi(180),
                 opacity = 1,
                 forced_width = dpi(180),
@@ -66,7 +76,7 @@ local function new()
         visible = false,
         screen = awful.screen.primary or awful.screen[1],
         bg = beautiful.bg .. "00",
-        shape = beautiful.rrect(0),
+        shape = shapes.rrect(0),
     })
 
     local background = wibox({
@@ -195,7 +205,7 @@ local function new()
     promptbox:setup({
         widget = wibox.widget({
             widget = wibox.container.background,
-            shape = beautiful.rrect(20),
+            shape = shapes.rrect_20,
             bg = beautiful.bg .. "c1",
             {
                 widget = wibox.container.margin,

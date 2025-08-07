@@ -74,11 +74,26 @@ rclient.connect_signal("request::rules", function()
         },
     })
 
+    -- Rule for fixed-size Xephyr windows
+    rclient.append_rule({
+        id = "xephyr_fixed_size",
+        rule_any = {
+            class = { "xephyr_1", "Xephyr" },
+        },
+        properties = {
+            floating = true,
+            min_width = 1200,
+            max_width = 1200,
+            min_height = 800,
+            max_height = 800,
+        },
+    })
+
     -- Floating rules for specific clients
     rclient.append_rule({
         id = "floating",
         rule_any = {
-            instance = { "copyq", "pinentry", "Xephyr" },
+            instance = { "copyq", "pinentry" },
             class = {
                 "Arandr",
                 "Blueman-manager",
@@ -91,8 +106,6 @@ rclient.connect_signal("request::rules", function()
                 "nvidia-settings",
                 "ark",
                 "org.gnome.FileRoller",
-                "xephyr_1",
-                "Xephyr",
             },
             name = {
                 "Event Tester", -- xev.

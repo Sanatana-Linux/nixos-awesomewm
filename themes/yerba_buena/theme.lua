@@ -14,10 +14,10 @@ local icons_path = theme_path .. "icons/"
 local theme = {}
 
 theme.font_name = "Agave Nerd Font Propo Bold "
-theme.taglist_font = "awesomewm-font 16"
+theme.taglist_font = "awesomewm-font 10"
 theme.font_h0 = theme.font_name .. " " .. tostring(dpi(9))
 theme.font_h1 = theme.font_name .. " " .. tostring(dpi(13))
-theme.font_h2 = theme.font_name .. " " .. tostring(dpi(19))
+theme.font_h2 = theme.font_name .. " " .. tostring(dpi(12))
 theme.font_h3 = theme.font_name .. " " .. tostring(dpi(26))
 theme.font = theme.font_h1
 
@@ -74,10 +74,11 @@ theme.text_icons = {
     wind = "",
 }
 -- Add the launcher icon path
-theme.launcher_icon = icons_path .. "awesome_icon.svg"
-theme.tray_arrow_left = icons_path .. "arrow-left.svg"
-theme.tray_arrow_right = icons_path .. "arrow-right.svg"
+theme.launcher_icon = icons_path .. "wibar/nix.svg"
+theme.tray_arrow_left = icons_path .. "wibar/arrow-left.svg"
+theme.tray_arrow_right = icons_path .. "wibar/arrow-right.svg"
 theme.awesome_icon = icons_path .. "awesome_icon.svg"
+theme.settings_icon = icons_path .. "wibar/settings.svg"
 
 theme.titlebar_icons = {
     close = gcolor.recolor_image(icons_path .. "titlebar/close.svg", theme.fg),
@@ -181,7 +182,8 @@ theme.menu_border_color = theme.border_color
 
 theme.systray_icon_spacing = dpi(6)
 theme.bg_systray = theme.bg_gradient_panel
-theme.systray_icon_size = dpi(24)
+theme.systray_icon_size = dpi(22)
+theme.systray_icon_margin = dpi(4)
 
 function theme.rrect(rad)
     return theme.rounded

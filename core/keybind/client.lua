@@ -4,7 +4,7 @@ local awful = require("awful") -- AwesomeWM utility library
 local snap_edge = require("modules.snap_edge") -- Window snapping helper
 local numpad_map = { 87, 88, 89, 83, 84, 85, 79, 80, 81 } -- Keycodes for numpad keys
 
-local menu = require("ui.menu").get_default() -- Client menu module
+local menu = require("ui.popups.menu").get_default() -- Client menu module
 local modkey = "Mod4" -- Set modkey (usually the Super/Windows key)
 
 -- Connect to the signal to set up default client keybindings

@@ -5,18 +5,19 @@
 local awful = require("awful")
 local beautiful = require("beautiful")
 local wibox = require("wibox")
-local launcher = require("ui.launcher").get_default()
+local launcher = require("ui.popups.launcher").get_default()
 local dpi = beautiful.xresources.apply_dpi
+local shapes = require('modules.shapes')
 
 -- Creates a button to toggle the application launcher using the SVG icon.
 -- @return widget The launcher button widget.
 return function()
     local widget = wibox.widget({
         widget = wibox.container.background,
-        forced_width = dpi(36),
-        forced_height = dpi(36),
+        forced_width = dpi(32),
+        forced_height = dpi(32),
         bg = beautiful.bg_gradient_button,
-        shape = beautiful.rrect(dpi(8)),
+        shape = shapes.rrect(8),
         buttons = {
             awful.button({}, 1, function()
                 launcher:toggle()
@@ -24,7 +25,7 @@ return function()
         },
         {
             widget = wibox.container.margin,
-            margins = dpi(4),
+            margins = dpi(2),
             {
                 id = "icon",
                 widget = wibox.widget.imagebox,

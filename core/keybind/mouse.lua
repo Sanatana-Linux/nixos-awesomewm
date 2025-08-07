@@ -4,7 +4,7 @@
 -- Import required libraries
 local awful = require("awful")                                       -- AwesomeWM core functionality
 local capi = { awesome = awesome, client = client, screen = screen } -- Global API references
-local menu = require("ui.menu").get_default()                        -- Desktop context menu
+local menu = require("ui.popups.menu").get_default()                        -- Desktop context menu
 local modkey = "Mod4"                                                -- Super/Windows key modifier
 
 -- GLOBAL MOUSE BINDINGS (work anywhere on desktop) --
