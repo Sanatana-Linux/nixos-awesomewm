@@ -2,7 +2,6 @@
 
 ## Pending
 
-- [ ] TODO Move shapes called in beautiful.rrect ...prrect etc to a separate file in modules
 - [ ] TODO implement a startup/autostart component
 - [ ] TODO replace font dependent icons with local svg icons
 - [ ] Change font to SF Rounded
@@ -19,3 +18,4 @@
 - [x] DONE restore old wibar size
 - [x] DONE implement popup layout menu
 - [x] DONE control panel transparency & button hover effects
+- [x] DONE Move shapes called in beautiful.rrect ...prrect etc to a separate file in modules
