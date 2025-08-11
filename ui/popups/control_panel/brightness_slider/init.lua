@@ -8,7 +8,7 @@ local beautiful = require("beautiful")
 local text_icons = beautiful.text_icons
 local dpi = beautiful.xresources.apply_dpi
 local brightness_service = require("service.brightness").get_default()
-local shapes = require('modules.shapes')
+local shapes = require('modules.shapes.init')
 
 -- Creates a new brightness slider widget.
 -- @return widget The brightness slider widget.

@@ -1,7 +1,7 @@
 ---@diagnostic disable: undefined-global
 -- Import AwesomeWM's core functionality library
 local awful = require("awful")
-local layouts_osd = require("ui.on_screen_display.layouts").get_default()
+local layouts_osd = require("ui.popups.on_screen_display.layouts").get_default()
 -- Capture global APIs for awesome, client, and screen management
 local capi = { awesome = awesome, client = client, screen = screen }
 -- Define modifier key (Super/Windows key)
@@ -76,13 +76,11 @@ awful.keyboard.append_global_keybindings({
     -- LAYOUT SWITCHING CONTROLS --
     -- Mod4 + Space: Switch to next layout in rotation
     awful.key({ modkey }, "space", function()
-        awful.layout.inc(1)
-        layouts_osd:show()
+        awesome.emit_signal("layout::changed:next")
     end, { description = "select next layout", group = "layout" }),
 
     -- Mod4 + Shift + Space: Switch to previous layout in rotation
     awful.key({ modkey, "Shift" }, "space", function()
-        awful.layout.inc(-1)
-        layouts_osd:show()
+        awesome.emit_signal("layout::changed:prev")
     end, { description = "select previous layout", group = "layout" }),
 })

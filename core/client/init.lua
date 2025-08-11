@@ -6,7 +6,6 @@ local rclient = require("ruled.client")
 local capi = { client = client, tag = tag, mouse = mouse }
 local awesome = awesome
 require("awful.autofocus")
--- require("core.client.cursor_position_memory")
 require("core.client.backdrop")
 require("core.client.better_resize")
 require("core.client.save_floating_clients")
@@ -81,11 +80,24 @@ rclient.connect_signal("request::rules", function()
             class = { "xephyr_1", "Xephyr" },
         },
         properties = {
-            floating = true,
             min_width = 1200,
             max_width = 1200,
             min_height = 800,
             max_height = 800,
+            size_hints_honor = true,
+            titlebars_enabled = false, -- Enable titlebars
+            floating = true, -- Set as floating
+            raise = true, -- Raise on focus
+            centered = true, -- Center on screen
+            screen = awful.screen.preferred, -- Use preferred screen
+            placement = function(c)
+                --  Center and keep client on screen, honoring workarea and padding
+                awful.placement.centered(
+                    c,
+                    { honor_workarea = true, honor_padding = true }
+                )
+                awful.placement.no_offscreen(c)
+            end,
         },
     })
 
@@ -120,6 +132,7 @@ rclient.connect_signal("request::rules", function()
             titlebars_enabled = true, -- Enable titlebars
             floating = true, -- Set as floating
             raise = true, -- Raise on focus
+            size_hints_honor = true,
             centered = true, -- Center on screen
             screen = awful.screen.preferred, -- Use preferred screen
             placement = function(c)

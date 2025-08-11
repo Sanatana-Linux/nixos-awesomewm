@@ -18,7 +18,8 @@ local powermenu = require("ui.popups.powermenu").get_default()
 local menubar = require("menubar")
 local crop_surface = require("modules.crop_surface")
 local launcher = {}
-local shapes = require('modules.shapes')
+local shapes = require('modules.shapes.init')
+local backdrop = require("modules.backdrop")
 
 local function launch_app(app)
     if not app then
@@ -242,6 +243,9 @@ function launcher:show()
         return
     end
     wp.shown = true
+
+    backdrop.show(self)
+
     wp.unfiltered = Gio.AppInfo.get_all()
     wp.filtered = filter_apps(wp.unfiltered, "")
     wp.start_index, wp.select_index = 1, 1
@@ -277,6 +281,9 @@ function launcher:hide()
         return
     end
     wp.shown = false
+
+    backdrop.hide()
+
     wp.unfiltered = {}
     wp.filtered = {}
     wp.select_index, wp.select_index = 1, 1
@@ -323,7 +330,7 @@ local function new()
         end,
         widget = {
             widget = wibox.container.background,
-            bg = beautiful.bg .. "99",
+            bg = beautiful.bg .. "cc",
             border_width = beautiful.border_width,
             border_color = beautiful.border_color_normal,
             shape = shapes.rrect(18),
@@ -412,7 +419,7 @@ local function new()
                                     ),
                                     opacity = 0.75,
                                     forced_height = dpi(140),
-                                    clip_shape = shapes.rrect_10,
+                                    clip_shape = shapes.rrect(10),
                                     forced_width = dpi(440),
                                     widget = wibox.widget.imagebox,
                                 },

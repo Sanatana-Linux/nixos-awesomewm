@@ -6,7 +6,7 @@ local gtimer = require("gears.timer")
 local dpi = beautiful.xresources.apply_dpi
 local anim = require("modules.animations")
 local capi = { screen = screen }
-local shapes = require('modules.shapes')
+local shapes = require("modules.shapes")
 local notification_list = require("ui.popups.control_panel.notification_list")
 local audio_sliders = require("ui.popups.control_panel.audio_sliders")
 local brightness_slider = require("ui.popups.control_panel.brightness_slider")

@@ -7,7 +7,7 @@ local beautiful = require("beautiful")
 local wibox = require("wibox")
 local launcher = require("ui.popups.launcher").get_default()
 local dpi = beautiful.xresources.apply_dpi
-local shapes = require('modules.shapes')
+local shapes = require('modules.shapes.init')
 
 -- Creates a button to toggle the application launcher using the SVG icon.
 -- @return widget The launcher button widget.

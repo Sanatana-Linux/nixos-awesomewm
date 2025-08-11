@@ -7,10 +7,10 @@
 local awful = require("awful") -- AwesomeWM utility library
 local audio_service_module = require("service.audio") -- Import audio service module
 local audio_service = audio_service_module.get_default() -- Get default audio service instance
-local volume_osd = require("ui.on_screen_display.volume").get_default() -- Import volume OSD
+local volume_osd = require("ui.popups.on_screen_display.volume").get_default() -- Import volume OSD
 local brightness_service_module = require("service.brightness") -- Import brightness service module
 local brightness_service = brightness_service_module.get_default() -- Get default brightness service instance
-local brightness_osd = require("ui.on_screen_display.brightness").get_default() -- Import brightness OSD
+local brightness_osd = require("ui.popups.on_screen_display.brightness").get_default() -- Import brightness OSD
 local screenshot = require("service.screenshot").get_default() -- Screenshot service instance
 local powermenu = require("ui.popups.powermenu").get_default() -- Power menu UI instance
 -- modkey is defined globally in core/keybind/init.lua

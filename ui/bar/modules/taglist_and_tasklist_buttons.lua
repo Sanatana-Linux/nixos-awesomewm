@@ -98,7 +98,11 @@ local function create_single_tag(tag, s)
     })
 
     content_layout:add(tag_label_container)
-    content_layout:add(clients_layout)
+    if clients_layout == nil then
+        content_layout.forced_width = 0 
+    else 
+         content_layout:add(clients_layout)
+    end
     -- The inner container for the tag, handling background and borders.
     local inner_container = wibox.widget({
         {

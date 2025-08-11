@@ -78,6 +78,8 @@ theme.launcher_icon = icons_path .. "wibar/nix.svg"
 theme.tray_arrow_left = icons_path .. "wibar/arrow-left.svg"
 theme.tray_arrow_right = icons_path .. "wibar/arrow-right.svg"
 theme.awesome_icon = icons_path .. "awesome_icon.svg"
+theme.icon_bluetooth = icons_path .. "wibar/bluetooth.svg"
+theme.wifi_icon = icons_path .. "wibar/wifi.svg"
 theme.settings_icon = icons_path .. "wibar/settings.svg"
 
 theme.titlebar_icons = {
@@ -92,7 +94,7 @@ theme.titlebar_icons = {
     ),
 }
 theme.fallback_icon =
-    gcolor.recolor_image(icons_path .. "fallback_icon.svg", theme.fg)
+    gcolor.recolor_image(icons_path .. "desktop/fallback_icon.svg", theme.fg)
 
 -- Colors
 theme.red = "#ED5D86"
@@ -184,34 +186,6 @@ theme.systray_icon_spacing = dpi(6)
 theme.bg_systray = theme.bg_gradient_panel
 theme.systray_icon_size = dpi(22)
 theme.systray_icon_margin = dpi(4)
-
-function theme.rrect(rad)
-    return theme.rounded
-        and function(cr, w, h)
-            gshape.rounded_rect(cr, w, h, rad)
-        end
-end
-
-function theme.rbar()
-    return theme.rounded
-        and function(cr, w, h)
-            gshape.rounded_bar(cr, w, h)
-        end
-end
-
-function theme.prrect(tl, tr, br, bl, rad)
-    return theme.rounded
-        and function(cr, w, h)
-            gshape.partially_rounded_rect(cr, w, h, tl, tr, br, bl, rad)
-        end
-end
-
-function theme.crcl(rad)
-    return theme.rounded
-        and function(cr, w, h)
-            gshape.circle(cr, w, h, rad)
-        end
-end
 
 theme.wallpaper = theme_path .. "wallpaper/wallpaper.png"
 

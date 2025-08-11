@@ -2,7 +2,6 @@
 
 ## Pending
 
-- [ ] TODO implement a startup/autostart component
 - [ ] TODO replace font dependent icons with local svg icons
 - [ ] Change font to SF Rounded
 
@@ -19,3 +18,5 @@
 - [x] DONE implement popup layout menu
 - [x] DONE control panel transparency & button hover effects
 - [x] DONE Move shapes called in beautiful.rrect ...prrect etc to a separate file in modules
+- [x] DONE implement a startup/autostart component
+- [x] DONE backdrop integration

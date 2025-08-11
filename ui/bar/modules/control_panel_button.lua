@@ -7,7 +7,7 @@ local modules = require("modules")
 local wibox = require("wibox")
 local control_panel = require("ui.popups.control_panel").get_default()
 local dpi = beautiful.xresources.apply_dpi
-local shapes = require('modules.shapes')
+local shapes = require('modules.shapes.init')
 
 -- Creates a button to toggle the control panel.
 -- @return widget The control panel button widget.

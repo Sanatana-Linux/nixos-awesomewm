@@ -47,7 +47,7 @@ local function new()
                     forced_width = dpi(380),
                     forced_height = dpi(10),
                     background_color = beautiful.bg_normal,
-                    color = beautiful.fg_urgent,
+                    color = beautiful.fg,
                 },
             },
         },

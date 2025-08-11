@@ -27,7 +27,7 @@ awful.keyboard.append_global_keybindings({
 	awful.key(
 		{ modkey },
 		"e",
-		function() control_panel:toggle() end, -- Wrapped in a function
+		function() require("ui.popups.control_panel").get_default():toggle() end, -- Wrapped in a function
 		{ description = "toggle control panel", group = "awesome" } -- Updated description
 	),
 

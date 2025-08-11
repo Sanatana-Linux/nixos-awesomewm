@@ -1,4 +1,5 @@
 local awful = require("awful")
+local gcolor = require("gears.color")
 local wibox = require("wibox")
 local beautiful = require("beautiful")
 local text_icons = beautiful.text_icons
@@ -46,8 +47,15 @@ local function new()
                         layout = wibox.layout.fixed.horizontal,
                         spacing = dpi(15),
                         {
-                            widget = wibox.widget.textbox,
-                            markup = text_icons.wifi,
+                            widget = wibox.container.place,
+                            valign = "center",
+                            {
+                                widget = wibox.widget.imagebox,
+                                image = gcolor.recolor_image(beautiful.wifi_icon, beautiful.fg),
+                                forced_height = dpi(24),
+                                forced_width = dpi(24),
+                                resize = true,
+                            },
                         },
                         {
                             widget = wibox.container.place,
@@ -87,9 +95,8 @@ local function new()
                         widget = wibox.container.background,
                         forced_width = dpi(45),
                         {
-                            widget = wibox.widget.textbox,
-                            align = "center",
-                            markup = text_icons.arrow_right,
+                            widget = wibox.widget.imagebox,
+                            image = gcolor.recolor_image(beautiful.tray_arrow_right, beautiful.fg),
                         },
                     },
                 },

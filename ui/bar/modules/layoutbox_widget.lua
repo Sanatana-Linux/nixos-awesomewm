@@ -5,8 +5,8 @@ local awful = require("awful")
 local wibox = require("wibox")
 local beautiful = require("beautiful")
 local dpi = beautiful.xresources.apply_dpi
-local layouts_osd = require("ui.on_screen_display.layouts").get_default()
-local shapes = require('modules.shapes')
+local layouts_osd = require("ui.popups.on_screen_display.layouts").get_default()
+local shapes = require('modules.shapes.init')
 
 -- Creates a layout box widget to display and change the current layout.
 -- @param s screen The screen object.

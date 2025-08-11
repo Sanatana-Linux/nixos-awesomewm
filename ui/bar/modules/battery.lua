@@ -11,7 +11,7 @@ local dpi = beautiful.xresources.apply_dpi
 local battery_service = require("service.battery").get_default()
 local modules = require("modules")
 local text_icons = beautiful.text_icons
-local shapes = require('modules.shapes')
+local shapes = require('modules.shapes.init')
 
 return function()
     local battery_tooltip = awful.tooltip({
