@@ -19,7 +19,7 @@ local function create_ap_widget(self, ap)
 	local ap_widget = wibox.widget {
 		active = ap_is_active,
 		widget = wibox.container.background,
-		shape = shapes.rrect_10,
+		shape = shapes.rrect(10),
 		{
 			widget = wibox.container.margin,
 			forced_height = dpi(50),
@@ -268,7 +268,7 @@ local function new()
 				widget = wibox.container.background,
 				forced_height = dpi(50),
 				bg = beautiful.bg_alt,
-				shape = shapes.rrect_10,
+				shape = shapes.rrect(10),
 				{
 					layout = wibox.layout.align.horizontal,
 					{
@@ -287,7 +287,7 @@ local function new()
 							widget = modules.hover_button {
 								forced_width = dpi(50),
 								forced_height = dpi(50),
-								shape = shapes.rrect_10
+								shape = shapes.rrect(10)
 							}
 						},
 						{
@@ -296,7 +296,7 @@ local function new()
 								label = text_icons.reboot,
 								forced_width = dpi(50),
 								forced_height = dpi(50),
-								shape = shapes.rrect_10
+								shape = shapes.rrect(10)
 							}
 						}
 					},
@@ -307,7 +307,7 @@ local function new()
 							label = text_icons.arrow_left,
 							forced_width = dpi(50),
 							forced_height = dpi(50),
-							shape = shapes.rrect_10
+							shape = shapes.rrect(10)
 						}
 					}
 				}
@@ -347,7 +347,7 @@ local function new()
 				id = "password-widget",
 				widget = wibox.container.background,
 				bg = beautiful.bg_alt,
-				shape = shapes.rrect_10,
+				shape = shapes.rrect(10),
 				{
 					widget = wibox.container.margin,
 					margins = dpi(15),
@@ -414,7 +414,7 @@ local function new()
 				id = "connect-disconnect-button",
 				widget = modules.hover_button {
 					margins = dpi(10),
-					shape = shapes.rrect_10
+					shape = shapes.rrect(10)
 				}
 			}
 		}

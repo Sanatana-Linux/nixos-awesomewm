@@ -88,7 +88,7 @@ function control_panel:show()
     audio:get_default_source_data()
     self:setup_main_page()
 
-    self.opacity = 0
+    self.opacity = 1 -- Set opacity to 1 immediately
     self.visible = true
 
     gtimer.delayed_call(function()
@@ -105,7 +105,7 @@ function control_panel:show()
             duration = 0.3,
             easing = anim.easing.quadratic,
             update = function(progress)
-                self.opacity = progress
+                -- self.opacity = progress -- Keep opacity at 1
                 self.y = start_y + (final_y - start_y) * progress
             end,
             complete = function()

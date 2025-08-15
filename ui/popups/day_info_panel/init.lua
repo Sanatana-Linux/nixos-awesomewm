@@ -108,7 +108,7 @@ end
 local function new()
     local calendar_widget = modules.calendar({
         sun_start = false,
-        shape = shapes.rrect_10,
+        shape = shapes.rrect(10),
         day_shape = shapes.rrect_8,
     })
 

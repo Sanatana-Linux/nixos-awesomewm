@@ -39,7 +39,7 @@ if #n.actions == 0 then return nil end
 						top = dpi(5), bottom = dpi(5)
 					},
 					bg_normal = beautiful.bg_urg,
-					shape = shapes.rrect_8,
+					shape = shapes.rrect(10),
 					buttons = {
 						awful.button({}, 1, function()
 							action:invoke()
@@ -62,7 +62,7 @@ local function create_notification_widget(n)
 		{
 			widget = wibox.container.background,
 			bg = beautiful.bg_alt,
-			shape = shapes.rrect_10,
+			shape = shapes.rrect(10),
 			{
 				widget = wibox.container.margin,
 				margins = dpi(15),
@@ -285,7 +285,7 @@ local function new()
 								label = text_icons.bell_on,
 								bg_normal = beautiful.bg,
 								margins = { right = dpi(11), left = dpi(11) },
-								shape = shapes.rrect_10
+								shape = shapes.rrect(10)
 							}
 						},
 						{
@@ -296,7 +296,7 @@ local function new()
 								bg_normal = beautiful.bg,
 								bg_hover = beautiful.red,
 								margins = { right = dpi(11), left = dpi(11) },
-								shape = shapes.rrect_10
+								shape = shapes.rrect(10)
 							}
 						}
 					}

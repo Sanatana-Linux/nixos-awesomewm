@@ -39,6 +39,7 @@ rclient.connect_signal("request::rules", function()
             screen = awful.screen.preferred, -- Place on preferred screen
             focus = awful.client.focus.filter, -- Use default focus filter
             raise = true, -- Raise client on focus
+
             size_hints_honor = false, -- Ignore size hints
             placement = function(d)
                 -- Center and keep client on screen

@@ -176,7 +176,7 @@ end
 
 function client:enable(state)
 	if self._private.client_proxy.EnableAsync then
-		self._private.client_proxy:EnableAsync(nil, {}, state)
+		self._private.client_proxy:EnableAsync(function() end, {}, state)
 	end
 end
 

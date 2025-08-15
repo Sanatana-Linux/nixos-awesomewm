@@ -33,7 +33,7 @@ local capi = {
 	client = client,
 	screen = screen,
 }
-local backdrop = require("modules.backdrop")
+	-- local backdrop = require("modules.backdrop")
 
 -- Dropdown: drop-down applications manager for the awesome window manager
 
@@ -94,7 +94,7 @@ function dropdown.toggle(prog, vert, horiz, width, height, sticky, screen)
 	if not dropdown[prog][screen] then
 		spawnw = function(c)
 			dropdown[prog][screen] = c
-            backdrop.show()
+            -- backdrop.show()
 
 			-- Dropdown clients are floaters
 			 c.floating = true
@@ -172,7 +172,7 @@ function dropdown.toggle(prog, vert, horiz, width, height, sticky, screen)
 			c.hidden = false
 			c:raise()
 			capi.client.focus = c
-            backdrop.show()
+            -- backdrop.show()
 		else -- Hide and detach tags if not
 			c.hidden = true
 			local ctags = c:tags()
@@ -180,7 +180,7 @@ function dropdown.toggle(prog, vert, horiz, width, height, sticky, screen)
 				ctags[i] = nil
 			end
 			c:tags(ctags)
-            backdrop.hide()
+            -- backdrop.hide()
 		end
 	end
 end

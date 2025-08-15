@@ -96,8 +96,17 @@ local function new()
                         widget = wibox.container.background,
                         forced_width = dpi(45),
                         {
-                            widget = wibox.widget.imagebox,
-                            image = gcolor.recolor_image(beautiful.tray_arrow_right, beautiful.fg),
+                            widget = wibox.container.place,
+                            valign = "center",
+                            halign = "center",
+                            {
+                                widget = wibox.container.margin,
+                                margins = dpi(6),
+                                {
+                                    widget = wibox.widget.imagebox,
+                                    image = gcolor.recolor_image(beautiful.tray_arrow_right, beautiful.fg),
+                                },
+                            },
                         },
                     },
                 },

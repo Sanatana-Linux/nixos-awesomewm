@@ -31,7 +31,7 @@ local function new()
         forced_height = dpi(60),
         bg = beautiful.bg_alt,
         fg = beautiful.fg,
-        shape = shapes.rrect_10,
+        shape = shapes.rrect(10),
         border_width = dpi(1),
         border_color = beautiful.border_color,
         {
@@ -95,8 +95,17 @@ local function new()
                         widget = wibox.container.background,
                         forced_width = dpi(45),
                         {
-                            widget = wibox.widget.imagebox,
-                            image = gcolor.recolor_image(beautiful.tray_arrow_right, beautiful.fg),
+                            widget = wibox.container.place,
+                            valign = "center",
+                            halign = "center",
+                            {
+                                widget = wibox.container.margin,
+                                margins = dpi(6),
+                                {
+                                    widget = wibox.widget.imagebox,
+                                    image = gcolor.recolor_image(beautiful.tray_arrow_right, beautiful.fg),
+                                },
+                            },
                         },
                     },
                 },

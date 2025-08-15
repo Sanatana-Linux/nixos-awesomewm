@@ -305,7 +305,7 @@ function menu.new(args, parent)
             fg = beautiful.fg,
             border_color = beautiful.border_color_normal,
             border_width = beautiful.border_width,
-            shape = shapes.rrect_10,
+            shape = shapes.rrect(10),
             margins = dpi(5),
             item_bg = beautiful.bg,
             item_fg = beautiful.fg,
