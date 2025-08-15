@@ -53,5 +53,9 @@ end)
 -- Create tags (workspaces) for each screen
 awful.screen.connect_for_each_screen(function(s)
     -- Create 5 numbered tags per screen, using the first layout as default
-    awful.tag({ "A", "W", "E", "S", "O", "M", "E" }, s, awful.layout.layouts[1])
+    awful.tag(
+        { "A", "W", "E", "S", "O", "M", "E", "W", "M" },
+        s,
+        awful.layout.layouts[1]
+    )
 end)

@@ -10,7 +10,7 @@ local menu = require("ui.popups.menu").get_default()
 local gears = require("gears") -- Required for filesystem checks
 local naughty = require("naughty") -- Required for notifications
 local fancy_taglist = {}
-local shapes = require('modules.shapes')
+local shapes = require("modules.shapes")
 
 -- Creates a single, fully-functional tag widget.
 local function create_single_tag(tag, s)
@@ -52,7 +52,7 @@ local function create_single_tag(tag, s)
                     -- Use a fallback icon for clients without a specific icon
                     icon_widget = wibox.widget.imagebox()
                     icon_widget.image =
-                        "/home/tlh/.config/awesome/themes/yerba_buena/icons/fallback_icon.svg"
+                        "/home/tlh/.config/awesome/themes/yerba_buena/icons/desktop/fallback_icon.svg"
                     icon_widget.forced_height = dpi(18)
                     icon_widget.forced_width = dpi(18)
                 end
@@ -99,9 +99,9 @@ local function create_single_tag(tag, s)
 
     content_layout:add(tag_label_container)
     if clients_layout == nil then
-        content_layout.forced_width = 0 
-    else 
-         content_layout:add(clients_layout)
+        content_layout.forced_width = 0
+    else
+        content_layout:add(clients_layout)
     end
     -- The inner container for the tag, handling background and borders.
     local inner_container = wibox.widget({

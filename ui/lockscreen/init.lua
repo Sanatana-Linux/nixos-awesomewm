@@ -1,9 +1,10 @@
+print("DEBUG: ui.lockscreen init.lua is being loaded")
 local wibox = require("wibox")
 local awful = require("awful")
 local beautiful = require("beautiful")
 local dpi = beautiful.xresources.apply_dpi
-local shapes = require('modules.shapes')
- local pam = require("lib.liblua_pam")
+local shapes = require("modules.shapes")
+local pam = require("lib.liblua_pam").pam
 local gears = require("gears")
 
 local lockscreen = {}
@@ -124,14 +125,18 @@ local function new()
                 -- Accept only the single charactered key
                 -- Ignore 'Shift', 'Control', 'Return', 'F1', 'F2', etc., etc.
                 if #key == 1 then
-                    header:get_children_by_id("arc")[1].colors = { beautiful.blue }
+                    header:get_children_by_id("arc")[1].colors =
+                        { beautiful.blue }
                     header:get_children_by_id("arc")[1].value = 20
-                    header:get_children_by_id("arc")[1].start_angle = getRandom()
+                    header:get_children_by_id("arc")[1].start_angle =
+                        getRandom()
                     input = input .. key
                 elseif key == "BackSpace" then
-                    header:get_children_by_id("arc")[1].colors = { beautiful.blue }
+                    header:get_children_by_id("arc")[1].colors =
+                        { beautiful.blue }
                     header:get_children_by_id("arc")[1].value = 20
-                    header:get_children_by_id("arc")[1].start_angle = getRandom()
+                    header:get_children_by_id("arc")[1].start_angle =
+                        getRandom()
                     input = input:sub(1, -2)
                     if #input == 0 then
                         header:get_children_by_id("arc")[1].colors =

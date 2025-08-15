@@ -14,12 +14,8 @@ local launcher = require("ui.popups.launcher").get_default()
 local powermenu = require("ui.popups.powermenu").get_default()
 local control_panel = require("ui.popups.control_panel").get_default()
 
-
-
 -- Explicitly load the screenshot notification handler to ensure it's ready
 require("ui.notification.screenshots")
-
-
 
 capi.screen.connect_signal("request::desktop_decoration", function(s)
     if s == capi.screen.primary then
@@ -50,7 +46,7 @@ capi.screen.connect_signal("request::desktop_decoration", function(s)
     s.bar.visible = true
     awful.placement.bottom(s.bar, {
         honor_workarea = false,
-        margins = { bottom = 0 }
+        margins = { bottom = 0 },
     })
 end)
 
