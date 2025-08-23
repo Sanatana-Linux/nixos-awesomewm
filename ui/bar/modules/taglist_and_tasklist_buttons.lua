@@ -18,9 +18,19 @@ local function create_single_tag(tag, s)
     local clients_layout = wibox.layout.fixed.horizontal()
     clients_layout.spacing = dpi(4)
 
+    -- This layout holds the tag name and the client icons.
+    local content_layout = wibox.layout.fixed.horizontal()
+    content_layout.spacing = dpi(8)
+
     -- This function clears and repopulates the client icon list for this tag.
     local function update_clients()
         clients_layout:reset()
+        
+        -- Remove clients_layout from content_layout if it exists
+        local content_children = content_layout:get_children()
+        if #content_children > 1 then
+            content_layout:remove(2) -- Remove the clients_layout
+        end
 
         local cls = tag:clients()
         if #cls > 0 then
@@ -61,12 +71,11 @@ local function create_single_tag(tag, s)
                 -- Add the icon to the layout
                 clients_layout:add(icon_widget)
             end
+            
+            -- Only add the clients_layout to content_layout if there are clients
+            content_layout:add(clients_layout)
         end
     end
-
-    -- This layout holds the tag name and the client icons.
-    local content_layout = wibox.layout.fixed.horizontal()
-    content_layout.spacing = dpi(8)
     local tag_label = wibox.widget.imagebox()
     local tag_icon_path = string.format(
         "/home/tlh/.config/awesome/themes/yerba_buena/icons/tags/%s.svg",
@@ -98,11 +107,7 @@ local function create_single_tag(tag, s)
     })
 
     content_layout:add(tag_label_container)
-    if clients_layout == nil then
-        content_layout.forced_width = 0
-    else
-        content_layout:add(clients_layout)
-    end
+    -- Note: clients_layout is now added conditionally in update_clients()
     -- The inner container for the tag, handling background and borders.
     local inner_container = wibox.widget({
         {
