@@ -34,7 +34,7 @@ local function new()
     local icon = wibox.widget({
         id = "brightness_icon",
         widget = wibox.widget.textbox,
-        markup = text_icons.sun, -- Using a sun icon for brightness
+        markup = "󰃟", -- Default brightness icon
         align = "center",
     })
 
@@ -61,6 +61,20 @@ local function new()
     brightness_service:connect_signal("brightness::updated", function(_, value)
         slider:set_value(value)
         value_label:set_markup(string.format("%d%%", value))
+        -- Update icon based on brightness level
+        local brightness_icon
+        if value > 90 then
+            brightness_icon = "󰃠"
+        elseif value > 60 then
+            brightness_icon = "󰃟"
+        elseif value > 30 then
+            brightness_icon = "󰃝"
+        elseif value > 10 then
+            brightness_icon = "󰃞"
+        else
+            brightness_icon = "󰃞"
+        end
+        icon:set_markup(brightness_icon)
     end)
 
     -- Set initial state from the service
@@ -68,6 +82,20 @@ local function new()
     if initial_brightness then
         slider:set_value(initial_brightness)
         value_label:set_markup(string.format("%d%%", initial_brightness))
+        -- Set initial icon
+        local brightness_icon
+        if initial_brightness > 90 then
+            brightness_icon = "󰃠"
+        elseif initial_brightness > 60 then
+            brightness_icon = "󰃟"
+        elseif initial_brightness > 30 then
+            brightness_icon = "󰃝"
+        elseif initial_brightness > 10 then
+            brightness_icon = "󰃞"
+        else
+            brightness_icon = "󰃞"
+        end
+        icon:set_markup(brightness_icon)
     end
 
     return wibox.widget({

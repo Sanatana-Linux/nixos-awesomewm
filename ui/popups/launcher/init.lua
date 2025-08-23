@@ -17,8 +17,9 @@ local capi = { screen = screen }
 local powermenu = require("ui.popups.powermenu").get_default()
 local menubar = require("menubar")
 local crop_surface = require("modules.crop_surface")
+local lockscreen = require("ui.lockscreen")
 local launcher = {}
-local shapes = require('modules.shapes.init')
+local shapes = require("modules.shapes.init")
 local backdrop = require("modules.backdrop")
 
 local function launch_app(app)
@@ -491,9 +492,7 @@ local function new()
     local lock_button = ret.widget:get_children_by_id("lock-button")[1]
     lock_button:buttons({
         awful.button({}, 1, function()
-            awful.spawn.with_shell(
-                "awesome-client 'require(\"ui.lockscreen\").get_default():show()'"
-            )
+            awful.spawn("bin/glitchlock.sh")
         end),
     })
 

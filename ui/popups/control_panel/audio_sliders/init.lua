@@ -109,15 +109,39 @@ local function new()
     audio_service:connect_signal("default-sink::volume", function(_, val)
         speaker_slider:set_value(tonumber(val))
         speaker_value:set_markup(val .. "%")
+        -- Update icon based on volume level
+        local volume = tonumber(val)
+        local icon
+        if volume > 80 then
+            icon = "󰕾"
+        elseif volume > 50 then
+            icon = "󰖀"
+        elseif volume > 10 then
+            icon = "󰕿"
+        else
+            icon = "󰕿"
+        end
+        speaker_icon:set_markup(icon)
     end)
 
     audio_service:connect_signal("default-sink::mute", function(_, mute)
         if mute then
-            speaker_icon:set_markup(text_icons.vol_off)
+            speaker_icon:set_markup("󰖁")
             speaker_slider:set_bar_active_color(beautiful.fg_alt)
             speaker_slider:set_handle_border_color(beautiful.fg_alt)
         else
-            speaker_icon:set_markup(text_icons.vol_on)
+            local volume = tonumber(speaker_slider.value) or 50
+            local icon
+            if volume > 80 then
+                icon = "󰕾"
+            elseif volume > 50 then
+                icon = "󰖀"
+            elseif volume > 10 then
+                icon = "󰕿"
+            else
+                icon = "󰕿"
+            end
+            speaker_icon:set_markup(icon)
             speaker_slider:set_bar_active_color(beautiful.ac)
             speaker_slider:set_handle_border_color(beautiful.ac)
         end

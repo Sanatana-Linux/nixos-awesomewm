@@ -13,7 +13,7 @@ local window_switcher = function(s)
     -- Create a widget for the window list with a specific margin
     local winlist = wibox.widget({
         widget = wibox.container.margin,
-        margins = dpi(14),
+        margins = dpi(32),
         elems(),
     })
 
@@ -24,11 +24,11 @@ local window_switcher = function(s)
         visible = false,
         stretch = false,
         screen = s,
-        shape = shapes.rrect(beautiful.border_radius),
+        shape = shapes.rrect(12),
         placement = awful.placement.centered,
-        bg = beautiful.bg_gradient,
-        border_width = dpi(1),
-        border_color = beautiful.fg_alt .. "33",
+        bg = beautiful.bg .. "cc",
+        border_width = dpi(2.25),
+        border_color = beautiful.bg_normal .. "44",
     })
 
     -- Set up the container with the window list and a vertical layout
