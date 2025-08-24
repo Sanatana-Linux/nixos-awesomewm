@@ -23,6 +23,7 @@ local awesome = awesome
 require("awful.autofocus")
 require("core.client.backdrop")
 require("core.client.better_resize")
+require("core.client.center_in_parent")
 require("core.client.restore_clients")
 
 --[[
@@ -33,9 +34,9 @@ require("core.client.restore_clients")
 local function center_and_keep_on_screen(c, opts)
     local default_opts = { honor_workarea = true, honor_padding = true }
     local placement_opts = opts or default_opts
-    
+
     awful.placement.centered(c, placement_opts)
-    
+
     -- For no_offscreen, we need to ensure we don't pass parent option
     local offscreen_opts = {}
     if opts then
@@ -44,7 +45,7 @@ local function center_and_keep_on_screen(c, opts)
     else
         offscreen_opts = default_opts
     end
-    
+
     awful.placement.no_offscreen(c, offscreen_opts)
 end
 
