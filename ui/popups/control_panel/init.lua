@@ -16,26 +16,9 @@ local bluetooth_button =
     require("ui.popups.control_panel.bluetooth_applet.button")
 local bluetooth_page = require("ui.popups.control_panel.bluetooth_applet.page")
 local audio = require("service.audio").get_default()
+local click_to_hide = require("modules.click_to_hide")
 
 local control_panel = {}
-
--- Keys to close the control panel
-local keys = {
-    close = { "Escape", "q" },
-}
-
--- Starts the keygrabber to listen for close keys
-local function run_keygrabber(self)
-    local wp = self._private
-    wp.keygrabber = awful.keygrabber.run(function(_, key, event)
-        if event ~= "press" then
-            return
-        end
-        if gtable.hasitem(keys.close, key) then
-            self:hide()
-        end
-    end)
-end
 
 function control_panel:setup_wifi_page()
     local wp = self._private
@@ -113,8 +96,6 @@ function control_panel:show()
             end,
         })
     end)
-
-    run_keygrabber(self) -- Start listening for close keys
 end
 
 function control_panel:hide()
@@ -123,12 +104,6 @@ function control_panel:hide()
         return
     end
     wp.shown = false
-
-    -- Stop the keygrabber when the panel is hidden
-    if wp.keygrabber then
-        awful.keygrabber.stop(wp.keygrabber)
-        wp.keygrabber = nil
-    end
 
     wp.wifi_page:close_ap_menu()
 
@@ -226,6 +201,11 @@ local function new()
             ret:setup_main_page()
         end),
     })
+
+    -- Setup centralized click-to-hide behavior
+    click_to_hide.popup(ret, function()
+        ret:hide()
+    end, { outside_only = true, exclusive = true })
 
     return ret
 end

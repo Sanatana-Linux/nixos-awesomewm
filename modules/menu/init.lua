@@ -1,4 +1,25 @@
 ---@diagnostic disable: undefined-global
+--[[
+    AwesomeWM Custom Menu Module
+
+    This module provides a hierarchical popup menu implementation for AwesomeWM.
+    Features:
+      - Keyboard and mouse navigation
+      - Customizable appearance via theme
+      - Supports nested submenus
+      - Executes actions on selection
+
+    Usage:
+      local menu = require("modules.menu")
+      local my_menu = menu({
+        items = {
+          { label = "Item 1", exec = function() ... end },
+          { label = "Submenu", items = { ... } },
+        }
+      })
+      my_menu:show()
+]]
+
 local awful = require("awful")
 local wibox = require("wibox")
 local beautiful = require("beautiful")
@@ -6,19 +27,23 @@ local gtable = require("gears.table")
 local capi = { mouse = mouse }
 local dpi = beautiful.xresources.apply_dpi
 local text_icons = beautiful.text_icons
-local shapes = require('modules.shapes')
+local shapes = require("modules.shapes")
+local click_to_hide = require("modules.click_to_hide")
 
+--- Menu object table
 local menu = {}
 
+--- Key bindings for menu navigation
 local keys = {
     up = { "Up" },
     down = { "Down" },
     left = { "Left" },
     right = { "Right" },
     exec = { "Return" },
-    close = { "Escape" },
 }
 
+--- Update visual state of menu items based on selection
+-- @param self menu instance
 local function update_items(self)
     local wp = self._private
     local theme = wp.theme
@@ -35,6 +60,11 @@ local function update_items(self)
     end
 end
 
+--- Handle mouse or key entry into a menu item
+-- @param self menu instance
+-- @param index item index
+-- @param args item arguments
+-- @param type "mouse" or "key"
 local function on_enter(self, index, args, type)
     if not index or not args then
         return
@@ -70,6 +100,8 @@ local function on_enter(self, index, args, type)
     end
 end
 
+--- Start keygrabber for keyboard navigation
+-- @param self menu instance
 local function run_keygrabber(self)
     local wp = self._private
     wp.keygrabber = awful.keygrabber.run(function(_, key, event)
@@ -88,12 +120,15 @@ local function run_keygrabber(self)
             on_enter(self, wp.select_index, wp.args[wp.select_index], "key")
         elseif gtable.hasitem(keys.exec, key) then
             on_enter(self, wp.select_index, wp.args[wp.select_index], "key")
-        elseif gtable.hasitem(keys.close, key) then
-            self:get_root():hide()
         end
     end)
 end
 
+--- Create a menu entry widget
+-- @param self menu instance
+-- @param index item index
+-- @param args item arguments
+-- @return wibox widget
 local function entry(self, index, args)
     local wp = self._private
     local theme = wp.theme
@@ -155,6 +190,8 @@ local function entry(self, index, args)
     return ret
 end
 
+--- Set popup coordinates based on mouse and parent menu
+-- @param self menu instance
 local function set_coords(self)
     local wp = self._private
     local theme = wp.theme
@@ -211,11 +248,14 @@ local function set_coords(self)
     end
 end
 
+--- Get the root menu instance
+-- @return root menu instance
 function menu:get_root()
     local wp = self._private
     return wp.parent and menu.get_root(wp.parent) or self
 end
 
+--- Destroy all active child menus recursively
 function menu:destroy_active_children()
     local child = self._private.active_child
     while child do
@@ -225,11 +265,13 @@ function menu:destroy_active_children()
     end
 end
 
+--- Destroy this menu instance
 function menu:destroy()
     self:hide()
     self = nil
 end
 
+--- Select next menu item
 function menu:next()
     local wp = self._private
     local items_layout = self.widget:get_children_by_id("items-layout")[1]
@@ -242,6 +284,7 @@ function menu:next()
     end
 end
 
+--- Select previous menu item
 function menu:back()
     local wp = self._private
     local items_layout = self.widget:get_children_by_id("items-layout")[1]
@@ -254,6 +297,7 @@ function menu:back()
     end
 end
 
+--- Hide the menu and stop keygrabber
 function menu:hide()
     local wp = self._private
     if not wp.shown then
@@ -266,6 +310,7 @@ function menu:hide()
     self.visible = false
 end
 
+--- Show the menu and start keygrabber
 function menu:show()
     local wp = self._private
     if wp.shown then
@@ -279,6 +324,7 @@ function menu:show()
     self.visible = true
 end
 
+--- Toggle menu visibility
 function menu:toggle()
     if not self.visible then
         self:show()
@@ -287,6 +333,10 @@ function menu:toggle()
     end
 end
 
+--- Create a new menu instance
+-- @param args menu arguments (items, theme, etc)
+-- @param parent parent menu instance (for submenus)
+-- @return menu instance
 function menu.new(args, parent)
     if not args then
         return
@@ -364,9 +414,15 @@ function menu.new(args, parent)
         end
     end
 
+    -- Setup centralized click-to-hide behavior
+    click_to_hide.menu(ret, function()
+        ret:get_root():hide()
+    end, { outside_only = true, exclusive = true })
+
     return ret
 end
 
+--- Module entry point: returns a callable table for menu creation
 return setmetatable({
     new = menu.new,
 }, {

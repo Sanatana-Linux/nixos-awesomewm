@@ -212,8 +212,7 @@ local function create_notification_popup(n)
                                 height = dpi(80),
                                 {
                                     widget = wibox.widget.textbox,
-                                    font = beautiful.font_h0,
-                                    markup = n.text or n.massage,
+                    font = beautiful.font_name .. dpi(9),                                    markup = n.text or n.massage,
                                 },
                             },
                         },

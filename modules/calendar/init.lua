@@ -28,7 +28,7 @@ local function wday_widget(self, index)
 			{
 				widget = wibox.widget.textbox,
 				align = "center",
-				font = beautiful.font_h0,
+				font = beautiful.font_name .. dpi(9),
 				markup = os.date("%a", os.time({
 					year = 1,
 					month = 1,

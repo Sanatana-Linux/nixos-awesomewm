@@ -1,88 +1,146 @@
-local screenlock = {}
+-- Heavily inspired by https://github.com/chadcat7/crystal/blob/aura/ui/lock/init.lua/
+
+require("ui.lock.lockscreen")
 
 local awful = require("awful")
-local wibox = require("wibox")
-local lgi = require("lgi")
-local cairo = lgi.require("cairo")
 
-local function draw_icon(surface, isalive)
-    local cr = cairo.Context(surface)
-    cr:scale(100, 100)
+local h = require("helpers")
 
-    -- Main key body
-    local x = 0.45 + 0.025
-    local y = 0.1
-    local keyw = 0.1
-    local keyh = 0.6
-    cr:set_source_rgb(0.8, 0.8, 0.8)
-    cr:rectangle(x, y, keyw, keyh)
+local pam = require("lib.liblua_pam") -- https://github.com/RMTT/lua-pam/
 
-    -- Key cuts
-    local ycut = y + (keyh / 3 * 2)
-    cr:move_to(x, ycut)
-    cr:set_line_width(0.01)
-    local n = { 0.07, 0.09, 0.05, 0.09 }
-    for i = 1, 4 do
-        cr:line_to(x, ycut)
-        cr:line_to(x - n[i], ycut)
-        cr:line_to(x - n[i], ycut - 0.05)
-        cr:line_to(x, ycut - 0.05)
-        ycut = ycut - 0.1
-    end
-    cr:fill()
+--
+-- Lockscreen function
+--
 
-    -- Key bow
-    local xc = x + keyw / 2 - 0.025
-    local yc = y + keyh + 0.05
-    cr:arc(xc, yc, 0.2, 0, 2 * math.pi)
-    cr:fill()
-
-    -- Key hole
-    cr:set_source_rgb(0, 0, 0)
-    cr:arc(xc, yc + 0.06, 0.05, 0, 2 * math.pi)
-    cr:fill()
+local function auth(password)
+    return pam.auth_current_user(password)
 end
 
-local function update_icon(widget, isalive)
-    local image = cairo.ImageSurface("ARGB32", 100, 100)
-    draw_icon(image, isalive)
-    widget:set_image(image)
+local clients = client.get()
+
+local function unlock()
+    awesome.emit_signal("ui::lock::state", false)
+    awful.spawn.with_shell("pamixer -u")
+    awful.spawn.with_shell("xset s off -dpms")
+
+    -- Unhide all clients
+    for _, c in ipairs(clients) do
+        c.hidden = false
+    end
 end
 
-local function pread(cmd)
-    local pd = io.popen(cmd, "r")
-    if not pd then
-        return ""
+local function lock()
+    awesome.emit_signal("ui::lock::state", true)
+    awesome.emit_signal("signal::mpris::pause", "%all%")
+    awful.spawn.with_shell("pamixer -m")
+    awful.spawn.with_shell("xset s on +dpms")
+
+    -- Hide all clients and unset focus
+    clients = client.get()
+    for _, c in ipairs(clients) do
+        c.hidden = true
     end
-    local data = pd:read("*a")
-    pd:close()
-    return data
+    client.focus = nil
+
+    -- Setup keygrabber
+    local input = ""
+    local input_count = 0
+    local grabber = awful.keygrabber({
+        auto_start = true,
+        stop_event = "release",
+        mask_event_callback = true,
+        keybindings = {
+            awful.key({
+                modifiers = { "Mod1", "Mod4", "Shift", "Control" },
+                key = "Return",
+                on_press = function()
+                    input = input
+                end,
+            }),
+        },
+        keypressed_callback = function(_, _, key)
+            if #key == 1 then
+                if input_count < 32 then
+                    awesome.emit_signal(
+                        "ui::lock::keypress",
+                        key,
+                        input_count,
+                        nil
+                    )
+                    if input == nil then
+                        input = key
+                    end
+                    input = input .. key
+                    input_count = input_count + 1
+                elseif input_count > 33 then
+                    -- Doesn't actually enter escape, we just use this so we can show colors
+                    awesome.emit_signal("ui::lock::keypress", "Escape", 0, nil)
+                    input = ""
+                    input_count = 0
+                else
+                    awesome.emit_signal(
+                        "ui::lock::keypress",
+                        "BackSpace",
+                        0,
+                        nil
+                    )
+                end
+            elseif key == "BackSpace" then
+                awesome.emit_signal("ui::lock::keypress", key, input_count, nil)
+                input = input:sub(1, -2)
+                if input_count > 0 then
+                    input_count = input_count - 1
+                end
+            elseif key == "Escape" then
+                awesome.emit_signal("ui::lock::keypress", key, 0, nil)
+                input = ""
+                input_count = 0
+            elseif key == "Return" then
+                awesome.emit_signal("ui::lock::keypress", key, 0, nil)
+            elseif key == "Caps_Lock" then
+                awesome.emit_signal("signal::peripheral::caps::update")
+            end
+        end,
+        keyreleased_callback = function(self, _, key)
+            if key == "Return" then
+                if auth(input) then
+                    awesome.emit_signal(
+                        "ui::lock::keypress",
+                        key,
+                        input_count,
+                        true
+                    )
+                    awesome.emit_signal("ui::lock::state", false)
+                    input = ""
+                    input_count = 0
+                    self:stop()
+                    unlock()
+                else
+                    awesome.emit_signal(
+                        "ui::lock::keypress",
+                        key,
+                        input_count,
+                        false
+                    )
+                    awesome.emit_signal("ui::lock::state", true)
+                    input = ""
+                    input_count = 0
+                end
+            end
+        end,
+    })
+    grabber:start()
 end
 
-function screenlock.new()
-    local widget = wibox.widget.imagebox()
-    local state = {
-        valid = false,
-        brightness = 0,
-    }
+awesome.connect_signal("ui::lock::toggle", function()
+    lock()
+end)
 
-    widget.configure = function(self, seconds)
-        os.execute("xset s " .. seconds .. " 5")
-    end
-
-    widget.lock = function(self)
-        os.execute(
-            "/run/current-system/sw/bin/xss-lock -n /run/current-system/sw/bin/xsecurelock -l -- xsecurelock"
-        )
-    end
-
-    widget:buttons(awful.util.table.join(awful.button({}, 1, function()
-        widget:lock()
-    end)))
-
-    widget:configure(300)
-    update_icon(widget, true)
-    return widget
+-- Don't require auth if login handoff from the .bash_profile script is present
+local auth_file =
+    h.join_path(os.getenv("HOME"), "/.cache/passivelemon/loginauth")
+if h.is_file(auth_file) then
+    os.remove(tostring(auth_file))
+else
+    lock()
 end
-
-return screenlock

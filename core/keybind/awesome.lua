@@ -79,20 +79,22 @@ awful.keyboard.append_global_keybindings({
 	-- Tab Between Applications
 	awful.keygrabber({
 		keybindings = {
-			--		awful.key({
---				modifiers = { "Mod1" },
---				key = "Tab",
---				on_press = function()
---					awesome.emit_signal("window_switcher::next")
---				end,
---			}),
-		},
-		root_keybindings = {
 			awful.key({
 				modifiers = { "Mod1" },
 				key = "Tab",
-				on_press = function() end,
+				on_press = function()
+					awesome.emit_signal("window_switcher::next")
+				end,
 			}),
+			awful.key({
+				modifiers = { "Mod1", "Shift" },
+				key = "Tab",
+				on_press = function()
+					awesome.emit_signal("window_switcher::previous")
+				end,
+			}),
+		},
+		root_keybindings = {
 		},
 		stop_key = "Mod1",
 		stop_event = "release",

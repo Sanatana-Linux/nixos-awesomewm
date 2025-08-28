@@ -107,6 +107,23 @@ return function()
                     element.bg = beautiful.bg_alt .. "66"
                 end
             end
+        -- If "previous", change the background color of the currently selected client and move the selection to the previous client
+        elseif fn == "previous" then
+            if #sortedClients == 0 then
+                curr = 1 -- Reset the selection
+            elseif curr <= 1 then
+                curr = #sortedClients
+            else
+                curr = curr - 1
+            end
+
+            for i, element in ipairs(elems.children) do
+                if i == curr then
+                    element.bg = beautiful.fg .. "88"
+                else
+                    element.bg = beautiful.bg_alt .. "66"
+                end
+            end
             -- If "raise", bring the currently selected client to the front and reset the selection
         elseif fn == "raise" then
             if #sortedClients > 0 then
@@ -140,6 +157,10 @@ return function()
 
     awesome.connect_signal("window_switcher::next", function()
         elems = createElement("next")
+    end)
+
+    awesome.connect_signal("window_switcher::previous", function()
+        elems = createElement("previous")
     end)
 
     awesome.connect_signal("window_switcher::raise", function()

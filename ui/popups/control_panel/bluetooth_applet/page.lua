@@ -196,7 +196,7 @@ local function on_device_removed(self, path)
 			{
 				widget = wibox.widget.textbox,
 				align = "center",
-				font = beautiful.font_h2,
+				font = beautiful.font_name .. dpi(12),
 				markup = text_icons.wait
 			}
 		})
@@ -228,7 +228,7 @@ local function on_powered(self, powered)
 			{
 				widget = wibox.widget.textbox,
 				align = "center",
-				font = beautiful.font_h2,
+				font = beautiful.font_name .. dpi(12),
 				markup = text_icons.wait
 			}
 		})
@@ -250,7 +250,7 @@ local function on_powered(self, powered)
 			{
 				widget = wibox.widget.textbox,
 				align = "center",
-				font = beautiful.font_h2,
+				font = beautiful.font_name .. dpi(12),
 				markup = "Bluetooth disabled"
 			}
 		})

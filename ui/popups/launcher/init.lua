@@ -17,10 +17,10 @@ local capi = { screen = screen }
 local powermenu = require("ui.popups.powermenu").get_default()
 local menubar = require("menubar")
 local crop_surface = require("modules.crop_surface")
-local lockscreen = require("ui.lockscreen")
 local launcher = {}
 local shapes = require("modules.shapes.init")
 local backdrop = require("modules.backdrop")
+local click_to_hide = require("modules.click_to_hide")
 
 local function launch_app(app)
     if not app then
@@ -185,7 +185,7 @@ function launcher:update_entries()
                                             height = 25,
                                             {
                                                 widget = wibox.widget.textbox,
-                                                font = beautiful.font_h0,
+                                                font = beautiful.font_name .. dpi(9),
                                                 markup = app:get_description(),
                                             },
                                         },
@@ -245,17 +245,32 @@ function launcher:show()
     end
     wp.shown = true
 
-    backdrop.show(self)
-
     wp.unfiltered = Gio.AppInfo.get_all()
     wp.filtered = filter_apps(wp.unfiltered, "")
     wp.start_index, wp.select_index = 1, 1
+
+    -- Reset text input
+    local text_input = self.widget:get_children_by_id("text-input")[1]
+    text_input:set_input("")
+    text_input:set_cursor_index(1)
+
     self:update_entries()
-    self.widget:get_children_by_id("text-input")[1]:focus()
 
     self.opacity = 0
     self.visible = true
     self:emit_signal("widget::layout_changed") -- Force layout update to get geometry
+
+    -- Ensure placement happens before animation
+    if self.placement then
+        self.placement(self)
+    end
+
+    -- Show backdrop after positioning
+    backdrop.show(self)
+
+    -- Focus text input immediately after becoming visible
+    local text_input = self.widget:get_children_by_id("text-input")[1]
+    text_input:focus()
 
     local final_y = self.y
     local start_y = final_y + dpi(20)
@@ -271,6 +286,7 @@ function launcher:show()
             self.y = start_y + (final_y - start_y) * progress
         end,
         complete = function()
+            -- Animation complete
             self:emit_signal("property::shown", wp.shown)
         end,
     })
@@ -445,8 +461,9 @@ local function new()
                                                 id = "text-input",
                                                 widget = modules.text_input({
                                                     placeholder = "Search...",
-                                                    cursor_bg = beautiful.fg,
-                                                    cursor_fg = beautiful.bg,
+                                                    background = beautiful.bg,
+                                                    cursor_bg = beautiful.bg,
+                                                    cursor_fg = beautiful.fg,
                                                     placeholder_fg = beautiful.fg_alt,
                                                 }),
                                             },
@@ -492,7 +509,7 @@ local function new()
     local lock_button = ret.widget:get_children_by_id("lock-button")[1]
     lock_button:buttons({
         awful.button({}, 1, function()
-            awful.spawn("bin/glitchlock.sh")
+            awful.spawn("/home/tlh/.config/awesome/bin/glitchlock.sh")
         end),
     })
 
@@ -515,8 +532,7 @@ local function new()
 
     local text_input = ret.widget:get_children_by_id("text-input")[1]
     text_input:on_focused(function()
-        text_input:set_input("")
-        text_input:set_cursor_index(1)
+        -- Text is already cleared in show() method
     end)
 
     text_input:on_unfocused(function()
@@ -543,8 +559,16 @@ local function new()
         elseif key == "Up" then
             ret:back()
             ret:update_entries()
+        elseif key == "Escape" then
+            ret:hide()
         end
     end)
+
+    -- Setup centralized click-to-hide behavior but disable escape key handling
+    -- since the launcher has its own text input that needs escape priority
+    click_to_hide.popup(ret, function()
+        ret:hide()
+    end, { outside_only = true, exclusive = true, disable_escape = true })
 
     return ret
 end

@@ -1,4 +1,12 @@
--- helpers/crop_surface.lua
+--[[
+    Crop a Cairo surface to a specified aspect ratio, centering the crop.
+
+    @param ratio (number) Desired aspect ratio (width / height).
+    @param surf (cairo.Surface) Source Cairo surface to crop.
+
+    @return (cairo.Surface) Cropped Cairo surface with the specified aspect ratio.
+--]]
+
 local awful = require("awful")
 local beautiful = require("beautiful")
 local gears = require("gears")
@@ -8,6 +16,10 @@ local gmatrix = require("gears.matrix")
 local json = require("lib.json")
 local wibox = require("wibox")
 
+--- Crop a Cairo surface to a given aspect ratio, centering the crop.
+-- @param ratio Desired aspect ratio (width / height).
+-- @param surf Source Cairo surface.
+-- @return Cropped Cairo surface.
 return function(ratio, surf)
     local old_w, old_h = gears.surface.get_size(surf)
     local old_ratio = old_w / old_h
@@ -18,7 +30,7 @@ return function(ratio, surf)
     local new_h = old_h
     local new_w = old_w
     local offset_h, offset_w = 0, 0
-    -- quick mafs
+    -- Calculate new dimensions and offsets for cropping
     if old_ratio < ratio then
         new_h = math.ceil(old_w * (1 / ratio))
         offset_h = math.ceil((old_h - new_h) / 2)

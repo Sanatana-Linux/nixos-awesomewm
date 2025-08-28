@@ -5,32 +5,61 @@
 -- new brightness service.
 
 local awful = require("awful") -- AwesomeWM utility library
+local gears = require("gears") -- AwesomeWM gears for timers
 local audio_service_module = require("service.audio") -- Import audio service module
 local audio_service = audio_service_module.get_default() -- Get default audio service instance
 local volume_osd = require("ui.popups.on_screen_display.volume").get_default() -- Import volume OSD
 local brightness_service_module = require("service.brightness") -- Import brightness service module
 local brightness_service = brightness_service_module.get_default() -- Get default brightness service instance
 local brightness_osd = require("ui.popups.on_screen_display.brightness").get_default() -- Import brightness OSD
-local screenshot = require("service.screenshot").get_default() -- Screenshot service instance
+local screenshot_popup = require("ui.popups.screenshot_popup").get_default() -- Screenshot popup instance
 local powermenu = require("ui.popups.powermenu").get_default() -- Power menu UI instance
 -- modkey is defined globally in core/keybind/init.lua
 local modkey = "Mod4" -- Set modkey (usually the Super/Windows key)
+
+-- Volume control throttling
+local volume_throttle_timer = nil
+local volume_throttle_delay = 0.1 -- 100ms delay between volume adjustments
 
 awful.keyboard.append_global_keybindings({
     -- -------------------------------------------------------------------------- --
     -- Volume keybindings
     awful.key({}, "XF86AudioRaiseVolume", function()
+        if volume_throttle_timer and volume_throttle_timer.started then
+            return -- Ignore if throttle timer is active
+        end
+        
         if audio_service and audio_service.set_default_sink_volume then
             audio_service:set_default_sink_volume("+5", function(volume, is_muted)
                 volume_osd:show(volume, is_muted)
             end)
+            
+            -- Start throttle timer
+            volume_throttle_timer = gears.timer({
+                timeout = volume_throttle_delay,
+                single_shot = true,
+                callback = function() end
+            })
+            volume_throttle_timer:start()
         end
     end, { description = "increase volume", group = "hardware" }),
     awful.key({}, "XF86AudioLowerVolume", function()
+        if volume_throttle_timer and volume_throttle_timer.started then
+            return -- Ignore if throttle timer is active
+        end
+        
         if audio_service and audio_service.set_default_sink_volume then
             audio_service:set_default_sink_volume("-5", function(volume, is_muted)
                 volume_osd:show(volume, is_muted)
             end)
+            
+            -- Start throttle timer
+            volume_throttle_timer = gears.timer({
+                timeout = volume_throttle_delay,
+                single_shot = true,
+                callback = function() end
+            })
+            volume_throttle_timer:start()
         end
     end, { description = "decrease volume", group = "hardware" }),
     awful.key({}, "XF86AudioMute", function()
@@ -66,18 +95,14 @@ awful.keyboard.append_global_keybindings({
     end, { description = "show power menu", group = "awesome" }),
 
     -- -------------------------------------------------------------------------- --
-    -- Screenshot keybindings (handled by screenshot service)
+    -- Lockscreen keybinding
+    awful.key({ modkey, "Control" }, "l", function()
+        awful.spawn("/home/tlh/.config/awesome/bin/glitchlock.sh")
+    end, { description = "lock screen", group = "awesome" }),
+
+    -- -------------------------------------------------------------------------- --
+    -- Screenshot keybindings
     awful.key({ modkey }, "Print", function()
-        screenshot:take_select() -- Take a screenshot of a selected area
-    end, { description = "take screenshot (select area)", group = "utility" }),
-
-    -- Take a full screenshot
-    awful.key({}, "Print", function()
-        screenshot:take_full()
-    end, { description = "take full screenshot", group = "utility" }),
-
-    -- Take a delayed screenshot (3 seconds)
-    awful.key({ "Shift" }, "Print", function()
-        screenshot:take_delay(3)
-    end, { description = "take screenshot with delay", group = "utility" }),
+        screenshot_popup:toggle()
+    end, { description = "show screenshot menu", group = "utility" }),
 })

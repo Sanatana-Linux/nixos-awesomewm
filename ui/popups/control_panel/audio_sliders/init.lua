@@ -168,15 +168,22 @@ local function new()
     audio_service:connect_signal("default-source::volume", function(_, val)
         microphone_slider:set_value(tonumber(val))
         microphone_value:set_markup(val .. "%")
+        -- Update icon based on volume level
+        local volume = tonumber(val)
+        if volume == 0 then
+            microphone_icon:set_markup("󰍭")
+        else
+            microphone_icon:set_markup("󰍬")
+        end
     end)
 
     audio_service:connect_signal("default-source::mute", function(_, mute)
         if mute then
-            microphone_icon:set_markup(text_icons.mic_off)
+            microphone_icon:set_markup("󰍭")
             microphone_slider:set_bar_active_color(beautiful.fg_alt)
             microphone_slider:set_handle_border_color(beautiful.fg_alt)
         else
-            microphone_icon:set_markup(text_icons.mic_on)
+            microphone_icon:set_markup("󰍬")
             microphone_slider:set_bar_active_color(beautiful.ac)
             microphone_slider:set_handle_border_color(beautiful.ac)
         end

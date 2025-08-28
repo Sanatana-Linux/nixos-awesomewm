@@ -13,6 +13,7 @@ local notification = require("ui.notification").get_default()
 local launcher = require("ui.popups.launcher").get_default()
 local powermenu = require("ui.popups.powermenu").get_default()
 local control_panel = require("ui.popups.control_panel").get_default()
+local screenshot_popup = require("ui.popups.screenshot_popup").get_default()
 
 -- Explicitly load the screenshot notification handler to ensure it's ready
 require("ui.notification.screenshots")
@@ -65,6 +66,7 @@ powermenu:connect_signal("property::shown", function(_, shown)
         launcher:hide()
         control_panel:hide()
         menu:hide()
+        screenshot_popup:hide()
     end
 end)
 
@@ -72,6 +74,7 @@ launcher:connect_signal("property::shown", function(_, shown)
     if shown == true then
         powermenu:hide()
         menu:hide()
+        screenshot_popup:hide()
     end
 end)
 
@@ -79,6 +82,16 @@ control_panel:connect_signal("property::shown", function(_, shown)
     if shown == true then
         powermenu:hide()
         menu:hide()
+        screenshot_popup:hide()
+    end
+end)
+
+screenshot_popup:connect_signal("property::shown", function(_, shown)
+    if shown == true then
+        powermenu:hide()
+        menu:hide()
+        launcher:hide()
+        control_panel:hide()
     end
 end)
 
@@ -87,6 +100,7 @@ local function click_hideaway()
     launcher:hide()
     powermenu:hide()
     control_panel:hide()
+    screenshot_popup:hide()
 end
 
 awful.mouse.append_global_mousebinding(awful.button({}, 1, click_hideaway))

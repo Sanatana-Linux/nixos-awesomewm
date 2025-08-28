@@ -148,7 +148,7 @@ local function create_notification_widget(n)
 								height = dpi(80),
 								{
 									widget = wibox.widget.textbox,
-									font = beautiful.font_h0,
+									font = beautiful.font_name .. dpi(9),
 									markup = n.text or n.massage
 								}
 							}
@@ -181,7 +181,7 @@ local function remove_notification(self, w)
 			{
 				widget = wibox.widget.textbox,
 				align = "center",
-				font = beautiful.font_h2,
+				font = beautiful.font_name .. dpi(12),
 				markup = "No notifications"
 			}
 		})
@@ -213,7 +213,7 @@ function notification_list:clear_notifications()
 		{
 			widget = wibox.widget.textbox,
 			align = "center",
-			font = beautiful.font_h2,
+			font = beautiful.font_name .. dpi(12),
 			markup = "No notifications"
 		}
 	})
@@ -344,13 +344,27 @@ local function new()
 		{
 			widget = wibox.widget.textbox,
 			align = "center",
-			font = beautiful.font_h2,
+			font = beautiful.font_name .. dpi(12),
 			markup = "No notifications"
 		}
 	})
 
 	naughty.connect_signal("request::display", function(n)
 		add_notification(ret, n)
+	end)
+
+	-- Also capture error notifications 
+	naughty.connect_signal("request::display_error", function(message, startup)
+		-- Create a notification object for the error
+		local error_notification = naughty.notify {
+			app_name = "Awesome",
+			urgency = "critical", 
+			title = "An error happened" .. (startup and " during startup!" or "!"),
+			text = message,
+			timeout = 0, -- Keep error notifications persistent
+		}
+		-- Add the error notification to the control panel
+		add_notification(ret, error_notification)
 	end)
 
 	return ret

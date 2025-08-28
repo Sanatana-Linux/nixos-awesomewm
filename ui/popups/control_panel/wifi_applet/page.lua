@@ -110,7 +110,7 @@ local function on_wireless_enabled(self, enabled)
 			{
 				widget = wibox.widget.textbox,
 				align = "center",
-				font = beautiful.font_h2,
+				font = beautiful.font_name .. dpi(12),
 				markup = text_icons.wait
 			}
 		})
@@ -125,7 +125,7 @@ local function on_wireless_enabled(self, enabled)
 			{
 				widget = wibox.widget.textbox,
 				align = "center",
-				font = beautiful.font_h2,
+				font = beautiful.font_name .. dpi(12),
 				markup = "Wifi Disabled"
 			}
 		})

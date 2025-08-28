@@ -71,7 +71,7 @@ local function new()
                                 {
                                     id = "description",
                                     widget = wibox.widget.textbox,
-                                    font = beautiful.font_h0,
+                                    font = beautiful.font_name .. dpi(9),
                                 },
                             },
                         },

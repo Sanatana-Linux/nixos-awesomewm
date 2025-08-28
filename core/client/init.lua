@@ -18,6 +18,9 @@
 -- Import required AwesomeWM libraries
 local awful = require("awful")
 local rclient = require("ruled.client")
+local beautiful = require("beautiful")
+local shapes = require("modules.shapes.init")
+local dpi = beautiful.xresources.apply_dpi
 local capi = { client = client, tag = tag, mouse = mouse }
 local awesome = awesome
 require("awful.autofocus")
@@ -220,3 +223,32 @@ end
 capi.client.connect_signal("property::minimized", focus_back)
 capi.client.connect_signal("unmanage", focus_back)
 capi.tag.connect_signal("property::selected", focus_back)
+
+--[[
+    Client shape management:
+    Applies rounded corners to clients except when maximized or fullscreen.
+--]]
+local function update_client_shape(c)
+    if c.maximized or c.fullscreen then
+        c.shape = nil
+    else
+        c.shape = shapes.rrect(dpi(6))
+    end
+end
+
+-- Apply shape when client is managed
+capi.client.connect_signal("manage", function(c)
+    update_client_shape(c)
+end)
+
+-- Update shape when client state changes
+capi.client.connect_signal("property::maximized", update_client_shape)
+capi.client.connect_signal("property::fullscreen", update_client_shape)
+capi.client.connect_signal("property::geometry", function(c)
+    -- Small delay to ensure geometry changes are processed
+    require("gears").timer.delayed_call(function()
+        if c.valid then
+            update_client_shape(c)
+        end
+    end)
+end)

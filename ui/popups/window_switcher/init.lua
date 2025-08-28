@@ -5,6 +5,7 @@ local wibox = require("wibox")
 local dpi = require("beautiful").xresources.apply_dpi
 local gears = require("gears")
 local shapes = require('modules.shapes')
+local click_to_hide = require("modules.click_to_hide")
 -- Import the elements module for the window switcher
 local elems = require("ui.popups.window_switcher.elements")
 
@@ -36,6 +37,11 @@ local window_switcher = function(s)
         winlist,
         layout = wibox.layout.fixed.vertical,
     })
+
+    -- Setup centralized click-to-hide behavior
+    click_to_hide.popup(container, function()
+        container.visible = false
+    end, { outside_only = true, exclusive = true })
 
     -- Connect a signal to toggle the visibility of the container when the user wants to switch windows
     awesome.connect_signal("window_switcher::toggle", function()

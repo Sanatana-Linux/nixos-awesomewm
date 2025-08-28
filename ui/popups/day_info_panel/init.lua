@@ -6,29 +6,12 @@ local modules = require("modules")
 local dpi = beautiful.xresources.apply_dpi
 local anim = require("modules.animations")
 local capi = { screen = screen }
+local click_to_hide = require("modules.click_to_hide")
 
 local shapes = require('modules.shapes')
 local rrect = shapes.rrect
 
 local day_info = {}
-
--- Keys to close the day info panel
-local keys = {
-    close = { "Escape", "q" },
-}
-
--- Starts the keygrabber to listen for close keys
-local function run_keygrabber(self)
-    local wp = self._private
-    wp.keygrabber = awful.keygrabber.run(function(_, key, event)
-        if event ~= "press" then
-            return
-        end
-        if gtable.hasitem(keys.close, key) then
-            self:hide()
-        end
-    end)
-end
 
 function day_info:show()
     local wp = self._private
@@ -62,8 +45,6 @@ function day_info:show()
             self:emit_signal("property::shown", wp.shown)
         end,
     })
-
-    run_keygrabber(self)
 end
 
 function day_info:hide()
@@ -72,11 +53,6 @@ function day_info:hide()
         return
     end
     wp.shown = false
-
-    if wp.keygrabber then
-        awful.keygrabber.stop(wp.keygrabber)
-        wp.keygrabber = nil
-    end
 
     local start_y = self.y
     local final_y = start_y + dpi(20)
@@ -145,6 +121,12 @@ local function new()
     local wp = ret._private
     wp.calendar_widget = calendar_widget
     wp.shown = false
+
+    -- Setup centralized click-to-hide behavior
+    click_to_hide.popup(ret, function()
+        ret:hide()
+    end, { outside_only = true, exclusive = true })
+
     return ret
 end
 

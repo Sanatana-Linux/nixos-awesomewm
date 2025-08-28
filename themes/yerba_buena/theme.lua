@@ -13,13 +13,9 @@ local icons_path = theme_path .. "icons/"
 
 local theme = {}
 
-theme.font_name = "Agave Nerd Font Propo Bold "
+theme.font_name = "SF Pro Rounded Heavy "
 theme.taglist_font = "awesomewm-font 10"
-theme.font_h0 = theme.font_name .. " " .. tostring(dpi(9))
-theme.font_h1 = theme.font_name .. " " .. tostring(dpi(13))
-theme.font_h2 = theme.font_name .. " " .. tostring(dpi(12))
-theme.font_h3 = theme.font_name .. " " .. tostring(dpi(26))
-theme.font = theme.font_h1
+theme.font = theme.font_name .. tostring(dpi(13))
 
 theme.text_icons = {
     -- control + shift + u in the terminal ;]
@@ -82,6 +78,14 @@ theme.icon_bluetooth = icons_path .. "wibar/bluetooth.svg"
 theme.wifi_icon = icons_path .. "wibar/wifi.svg"
 theme.settings_icon = icons_path .. "wibar/settings.svg"
 
+-- Power icons
+theme.power_icons = {
+    lock = icons_path .. "power/lock.svg",
+    poweroff = icons_path .. "power/poweroff.svg",
+    reboot = icons_path .. "power/reboot.svg",
+    exit = icons_path .. "power/exit.svg",
+}
+
 theme.titlebar_icons = {
     close = gcolor.recolor_image(icons_path .. "titlebar/close.svg", theme.fg),
     maximize = gcolor.recolor_image(
@@ -125,7 +129,7 @@ theme.bg_normal = theme.bg
 theme.fg_normal = theme.fg
 
 -- Gradient definitions
-theme.bg_gradient = "radial:0,21:0,56:0," .. "#3c3c3ccc" .. ":1," .. "#111111cc"
+theme.bg_gradient = "radial:0,21:0,56:0," .. "#4c4c4ccc" .. ":1," .. "#111111cc"
 theme.bg_gradient_alt = "radial:0,510:0,16:0,"
     .. "#2c2c2ccc"
     .. ":1,"
@@ -245,5 +249,12 @@ theme.layout_mstab =
     gcolor.recolor_image(icons_path .. "/layouts/mstab.png", theme.fg)
 theme.layout_tile =
     gcolor.recolor_image(icons_path .. "layouts/tile.png", theme.fg)
+
+-- Screenshot icons
+theme.screenshot_icons = {
+    fullscreen = icons_path .. "screenshot/fullscreen.svg",
+    selection = icons_path .. "screenshot/selection.svg", 
+    delay = icons_path .. "screenshot/delay.svg",
+}
 
 return theme

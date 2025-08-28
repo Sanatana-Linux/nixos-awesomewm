@@ -29,7 +29,7 @@ return function()
                 spacing = dpi(5),
                 {
                     widget = wibox.widget.textclock,
-                    font = beautiful.font_name .. " 16",
+                    font = beautiful.font_name .. dpi(16),
                     format = "%H:%M", -- Time format
                 },
             },

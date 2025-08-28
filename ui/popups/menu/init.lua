@@ -17,7 +17,7 @@ local menu = {}
 local function create_desktop_menu()
     return modules.menu({
         theme = {
-            item_font = beautiful.font_h0,
+            item_font = beautiful.font_name .. dpi(9),
             item_width = dpi(250),
         },
         items = {

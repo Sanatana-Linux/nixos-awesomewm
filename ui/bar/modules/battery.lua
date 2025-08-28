@@ -43,7 +43,7 @@ return function()
     -- The text label for the percentage, overlaid on the progressbar
     local percentage_label = wibox.widget({
         id = "percentage",
-        font = beautiful.font_h0,
+        font = beautiful.font_name .. dpi(9),
         color = beautiful.bg,
         align = "center",
         valign = "center",
