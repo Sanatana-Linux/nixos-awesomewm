@@ -13,8 +13,10 @@ local screenshot_service = require("service.screenshot").get_default()
 local function createButton(icon_path, name, fn)
     local button = wibox.widget({
         widget = wibox.container.background,
-        bg = beautiful.bg_gradient_button,
+        bg = beautiful.bg_gradient_button_alt,
         shape = shapes.rrect(8),
+        border_width = dpi(1.5),
+        border_color = beautiful.fg_alt .. '99',
         forced_width = dpi(108),
         forced_height = dpi(108),
         buttons = {
@@ -42,11 +44,11 @@ local function createButton(icon_path, name, fn)
 
     -- Add hover effects manually
     button:connect_signal("mouse::enter", function(w)
-        w:set_bg(beautiful.bg_gradient_button_alt)
+        w:set_bg(beautiful.bg_gradient_recessed)
     end)
     
     button:connect_signal("mouse::leave", function(w)
-        w:set_bg(beautiful.bg_gradient_button)
+        w:set_bg(beautiful.bg_gradient_button_alt)
     end)
 
     awful.tooltip({
@@ -141,7 +143,7 @@ function screenshot_popup:new()
                     nil,
                     {
                         text = "Screenshot",
-                        font = beautiful.font_name .. dpi(24),
+                        font = beautiful.font_name .. dpi(16),
                         align = "center",
                         valign = "center",
                         widget = wibox.widget.textbox,

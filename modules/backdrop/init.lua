@@ -22,7 +22,7 @@ local backdrop_wibox = nil
 local function create_backdrop_widget()
     return {
         widget = wibox.container.background,
-        bg = beautiful.bg and (beautiful.bg .. "88") or "#00000088",
+        bg = beautiful.bg and (beautiful.bg .. "cc") or "#000000cc",
     }
 end
 
@@ -40,8 +40,8 @@ local function _initialize_backdrop()
             width = capi.screen.primary.geometry.width,
             height = capi.screen.primary.geometry.height,
             bg = "#00000000", -- Transparent
-            type = "splash",
-            input_passthrough = true,
+            type = "popup_menu",
+            ontop = true,
             visible = false,
         })
 
@@ -78,9 +78,18 @@ local function show_backdrop(popup_wibox)
 
     if backdrop_wibox then
         backdrop_wibox.visible = true
-        -- Place the backdrop below the calling popup
-        if popup_wibox and popup_wibox.drawable then
-            backdrop_wibox.below = popup_wibox.drawable
+        -- Ensure the backdrop is below the popup
+        if popup_wibox then
+            -- Use a small delay to ensure proper layering
+            require("gears").timer.delayed_call(function()
+                if popup_wibox.drawable then
+                    backdrop_wibox.below = popup_wibox.drawable
+                elseif popup_wibox.widget then
+                    backdrop_wibox.below = popup_wibox.widget
+                else
+                    backdrop_wibox.below = popup_wibox
+                end
+            end)
         end
     end
 end

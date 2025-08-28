@@ -1,12 +1,14 @@
 local awful = require("awful")
 local wibox = require("wibox")
 local beautiful = require("beautiful")
+local gears = require("gears")
 local gtable = require("gears.table")
 local text_icons = beautiful.text_icons
 local dpi = beautiful.xresources.apply_dpi
 local capi = { awesome = awesome, screen = screen }
 local shapes = require("modules.shapes")
 local click_to_hide = require("modules.click_to_hide")
+local backdrop = require("modules.backdrop")
 
 local powermenu = {}
 
@@ -69,9 +71,12 @@ function powermenu:update_elements()
     for i, element in ipairs(wp.elements) do
         local element_widget = wibox.widget({
             widget = wibox.container.background,
-            forced_width = dpi(50),
-            forced_height = dpi(50),
-            shape = shapes.rrect(10),
+            bg = beautiful.bg_gradient_button_alt,
+            border_width = dpi(1.5),
+            border_color = beautiful.fg_alt .. '99',
+            forced_width = dpi(108),
+            forced_height = dpi(108),
+            shape = shapes.rrect(8),
             buttons = {
                 awful.button({}, 1, function()
                     if wp.select_index == i then
@@ -83,37 +88,43 @@ function powermenu:update_elements()
                 end),
             },
             {
-                widget = wibox.widget.imagebox,
-                image = element.icon,
-                halign = "center",
-                valign = "center",
-                forced_width = dpi(24),
-                forced_height = dpi(24),
+                widget = wibox.container.margin,
+                margins = dpi(15),
+                {
+                    widget = wibox.container.place,
+                    halign = "center",
+                    valign = "center",
+                    {
+                        widget = wibox.widget.imagebox,
+                        image = gears.color.recolor_image(element.icon, element.color),
+                        resize = true,
+                        forced_width = dpi(48),
+                        forced_height = dpi(48),
+                        id = "icon_" .. i,
+                    },
+                },
             },
         })
 
-        if i == wp.select_index then
-            element_widget:set_bg(element.color)
-        else
-            element_widget:connect_signal("mouse::enter", function(w)
-                if i == 1 then  -- lock button
-                    w:set_bg(beautiful.bg_gradient_button_alt)
-                else
-                    -- Create color-specific gradients for other buttons
-                    local gradient = "linear:0,0:0,21:0,0,"
-                        .. element.color
-                        .. ":1,"
-                        .. element.color .. "99"
-                    w:set_bg(gradient)
-                end
-            end)
-
-            element_widget:connect_signal("mouse::leave", function(w)
-                if wp.select_index ~= i then
-                    w:set_bg(nil)
-                end
-            end)
-        end
+        element_widget:connect_signal("mouse::enter", function(w)
+            -- Create color-specific gradient for hover
+            local hover_gradient = "linear:0,0:0,32:0," .. element.color .. ":1," .. element.color .. "cc"
+            w:set_bg(hover_gradient)
+            -- Change icon to white on hover
+            local icon_widget = w:get_children_by_id("icon_" .. i)[1]
+            if icon_widget then
+                icon_widget:set_image(gears.color.recolor_image(element.icon, beautiful.fg))
+            end
+        end)
+        
+        element_widget:connect_signal("mouse::leave", function(w)
+            w:set_bg(beautiful.bg_gradient_button_alt)
+            -- Restore original icon color
+            local icon_widget = w:get_children_by_id("icon_" .. i)[1]
+            if icon_widget then
+                icon_widget:set_image(gears.color.recolor_image(element.icon, element.color))
+            end
+        end)
 
         elements_container:add(element_widget)
     end
@@ -125,6 +136,7 @@ function powermenu:show()
         return
     end
     wp.shown = true
+    backdrop.show(self)
     self.visible = true
     self:emit_signal("property::shown", wp.shown)
     wp.select_index = 1
@@ -138,6 +150,7 @@ function powermenu:hide()
         return
     end
     wp.shown = false
+    backdrop.hide()
     if wp.keygrabber then
         awful.keygrabber.stop(wp.keygrabber)
         wp.keygrabber = nil
