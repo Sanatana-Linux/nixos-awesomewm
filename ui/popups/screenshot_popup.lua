@@ -100,8 +100,8 @@ function screenshot_popup:new()
         widget = wibox.container.background,
         bg = beautiful.bg_gradient_button,
         shape = shapes.rrect(8),
-        forced_width = dpi(24),
-        forced_height = dpi(24),
+        forced_width = dpi(32),
+        forced_height = dpi(32),
         buttons = {
             awful.button({}, 1, function()
                 close_popup()
@@ -109,7 +109,7 @@ function screenshot_popup:new()
         },
         {
             widget = wibox.container.margin,
-            margins = dpi(4),
+            margins = dpi(6),
             {
                 widget = wibox.container.place,
                 halign = "center",
@@ -118,6 +118,8 @@ function screenshot_popup:new()
                     widget = wibox.widget.imagebox,
                     image = gears.color.recolor_image(beautiful.titlebar_icons.close, beautiful.fg),
                     resize = true,
+                    forced_width = dpi(20),
+                    forced_height = dpi(20),
                 },
             },
         },
