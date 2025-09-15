@@ -6,7 +6,7 @@ local gtimer = require("gears.timer")
 local gears = require("gears")
 local modules = require("modules")
 local beautiful = require("beautiful")
-local shapes = require('modules.shapes')
+local shapes = require("modules.shapes")
 local ncr = naughty.notification_closed_reason
 local dpi = beautiful.xresources.apply_dpi
 local create_markup = require("lib").create_markup
@@ -212,7 +212,8 @@ local function create_notification_popup(n)
                                 height = dpi(80),
                                 {
                                     widget = wibox.widget.textbox,
-                    font = beautiful.font_name .. dpi(9),                                    markup = n.text or n.massage,
+                                    font = beautiful.font_name .. dpi(9),
+                                    markup = n.text or n.massage,
                                 },
                             },
                         },

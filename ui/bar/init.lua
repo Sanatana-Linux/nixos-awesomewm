@@ -67,7 +67,12 @@ function bar.create_primary(s)
             layout = wibox.layout.align.horizontal,
             { -- Left widgets
                 widget = wibox.container.margin,
-                margins = { top = dpi(2), bottom = dpi(2), left = dpi(7), right = dpi(7) },
+                margins = {
+                    top = dpi(2),
+                    bottom = dpi(2),
+                    left = dpi(7),
+                    right = dpi(7),
+                },
                 {
                     layout = wibox.layout.fixed.horizontal,
                     spacing = dpi(8),
@@ -76,7 +81,12 @@ function bar.create_primary(s)
             },
             { -- Center widgets
                 widget = wibox.container.margin,
-                margins = { top = dpi(2), bottom = dpi(2), left = dpi(7), right = dpi(7) },
+                margins = {
+                    top = dpi(2),
+                    bottom = dpi(2),
+                    left = dpi(7),
+                    right = dpi(7),
+                },
                 new_tags_widget.new({
                     screen = s,
                     taglist_buttons = taglist_buttons,

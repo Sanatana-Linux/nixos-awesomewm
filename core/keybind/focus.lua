@@ -1,9 +1,9 @@
 ---@diagnostic disable: undefined-global
-local awful = require("awful")                                       -- AwesomeWM utility library
+local awful = require("awful") -- AwesomeWM utility library
 
 local capi = { awesome = awesome, client = client, screen = screen } -- Shorthand for core objects
 
-local modkey = "Mod4"                                                -- Set modkey (usually the Super/Windows key)
+local modkey = "Mod4" -- Set modkey (usually the Super/Windows key)
 
 -- Append global keybindings for focusing clients and screens
 awful.keyboard.append_global_keybindings({
@@ -59,5 +59,4 @@ awful.keyboard.append_global_keybindings({
             c:activate({ raise = true, context = "key.unminimize" })
         end
     end, { description = "restore minimized", group = "Client" }),
-
 })

@@ -20,7 +20,7 @@ local gtable = require("gears.table")
 local dpi = beautiful.xresources.apply_dpi
 
 local function get_screen(s)
-	return s and capi.screen[s]
+    return s and capi.screen[s]
 end
 
 local layoutbox = { mt = {} }
@@ -28,23 +28,23 @@ local layoutbox = { mt = {} }
 local boxes = nil
 
 local function update(w, screen)
-	screen = get_screen(screen)
-	local name = layout.getname(layout.get(screen))
-	local image_name = "layout_" .. name
-	local theme_image = beautiful[image_name]
-	local success = false
-	if theme_image ~= nil then
-		success = w.imagebox:set_image(beautiful[image_name])
-	end
-	w.textbox.text = success and "" or name
+    screen = get_screen(screen)
+    local name = layout.getname(layout.get(screen))
+    local image_name = "layout_" .. name
+    local theme_image = beautiful[image_name]
+    local success = false
+    if theme_image ~= nil then
+        success = w.imagebox:set_image(beautiful[image_name])
+    end
+    w.textbox.text = success and "" or name
 end
 
 local function update_from_tag(t)
-	local screen = get_screen(t.screen)
-	local w = boxes and boxes[screen]
-	if w then
-		update(w, screen)
-	end
+    local screen = get_screen(t.screen)
+    local w = boxes and boxes[screen]
+    if w then
+        update(w, screen)
+    end
 end
 
 --- Create a layoutbox widget. It draws a picture with the current layout
@@ -55,69 +55,69 @@ end
 -- @tparam table args.buttons The `awful.button`s for this layoutbox.
 -- @return The layoutbox.
 function layoutbox.new(args)
-	args = args or {}
-	local screen = args.screen
+    args = args or {}
+    local screen = args.screen
 
-	if type(args) == "number" or type(args) == "screen" or args.fake_remove then
-		screen, args = args, {}
+    if type(args) == "number" or type(args) == "screen" or args.fake_remove then
+        screen, args = args, {}
 
-		gdebug.deprecate(
-			"Use awful.widget.layoutbox{screen=s} instead of awful.widget.layoutbox(screen)",
-			{deprecated_in=5}
-		)
-	end
+        gdebug.deprecate(
+            "Use awful.widget.layoutbox{screen=s} instead of awful.widget.layoutbox(screen)",
+            { deprecated_in = 5 }
+        )
+    end
 
-	assert(type(args) == "table")
+    assert(type(args) == "table")
 
-	screen = get_screen(screen or 1)
+    screen = get_screen(screen or 1)
 
-	-- Do we already have the update callbacks registered?
-	if boxes == nil then
-		boxes = setmetatable({}, { __mode = "kv" })
-		capi.tag.connect_signal("property::selected", update_from_tag)
-		capi.tag.connect_signal("property::layout", update_from_tag)
-		capi.tag.connect_signal("property::screen", function()
-			for s, w in pairs(boxes) do
-				if s.valid then
-					update(w, s)
-				end
-			end
-		end)
-		layoutbox.boxes = boxes
-	end
+    -- Do we already have the update callbacks registered?
+    if boxes == nil then
+        boxes = setmetatable({}, { __mode = "kv" })
+        capi.tag.connect_signal("property::selected", update_from_tag)
+        capi.tag.connect_signal("property::layout", update_from_tag)
+        capi.tag.connect_signal("property::screen", function()
+            for s, w in pairs(boxes) do
+                if s.valid then
+                    update(w, s)
+                end
+            end
+        end)
+        layoutbox.boxes = boxes
+    end
 
-	-- Do we already have a layoutbox for this screen?
-	local w = boxes[screen]
-	if not w then
-		local imagebox = wibox.widget.imagebox()
-		local textbox = wibox.widget.textbox()
+    -- Do we already have a layoutbox for this screen?
+    local w = boxes[screen]
+    if not w then
+        local imagebox = wibox.widget.imagebox()
+        local textbox = wibox.widget.textbox()
 
-		w = wibox.widget {
-			{
-				widget = wibox.container.margin,
-				margins = dpi(4),
-				imagebox
-			},
-			textbox,
-			layout = wibox.layout.fixed.horizontal
-		}
+        w = wibox.widget({
+            {
+                widget = wibox.container.margin,
+                margins = dpi(4),
+                imagebox,
+            },
+            textbox,
+            layout = wibox.layout.fixed.horizontal,
+        })
 
-		-- Store references to the actual widgets for direct access in update function
-		w.imagebox = imagebox
-		w.textbox = textbox
+        -- Store references to the actual widgets for direct access in update function
+        w.imagebox = imagebox
+        w.textbox = textbox
 
-		-- Apply the buttons, visible, forced_width and so on
-		gtable.crush(w, args)
+        -- Apply the buttons, visible, forced_width and so on
+        gtable.crush(w, args)
 
-		update(w, screen)
-		boxes[screen] = w
-	end
+        update(w, screen)
+        boxes[screen] = w
+    end
 
-	return w
+    return w
 end
 
 function layoutbox.mt:__call(...)
-	return layoutbox.new(...)
+    return layoutbox.new(...)
 end
 
 return setmetatable(layoutbox, layoutbox.mt)

@@ -11,7 +11,8 @@ local audio_service = audio_service_module.get_default() -- Get default audio se
 local volume_osd = require("ui.popups.on_screen_display.volume").get_default() -- Import volume OSD
 local brightness_service_module = require("service.brightness") -- Import brightness service module
 local brightness_service = brightness_service_module.get_default() -- Get default brightness service instance
-local brightness_osd = require("ui.popups.on_screen_display.brightness").get_default() -- Import brightness OSD
+local brightness_osd =
+    require("ui.popups.on_screen_display.brightness").get_default() -- Import brightness OSD
 local screenshot_popup = require("ui.popups.screenshot_popup").get_default() -- Screenshot popup instance
 local powermenu = require("ui.popups.powermenu").get_default() -- Power menu UI instance
 -- modkey is defined globally in core/keybind/init.lua
@@ -28,17 +29,20 @@ awful.keyboard.append_global_keybindings({
         if volume_throttle_timer and volume_throttle_timer.started then
             return -- Ignore if throttle timer is active
         end
-        
+
         if audio_service and audio_service.set_default_sink_volume then
-            audio_service:set_default_sink_volume("+5", function(volume, is_muted)
-                volume_osd:show(volume, is_muted)
-            end)
-            
+            audio_service:set_default_sink_volume(
+                "+5",
+                function(volume, is_muted)
+                    volume_osd:show(volume, is_muted)
+                end
+            )
+
             -- Start throttle timer
             volume_throttle_timer = gears.timer({
                 timeout = volume_throttle_delay,
                 single_shot = true,
-                callback = function() end
+                callback = function() end,
             })
             volume_throttle_timer:start()
         end
@@ -47,17 +51,20 @@ awful.keyboard.append_global_keybindings({
         if volume_throttle_timer and volume_throttle_timer.started then
             return -- Ignore if throttle timer is active
         end
-        
+
         if audio_service and audio_service.set_default_sink_volume then
-            audio_service:set_default_sink_volume("-5", function(volume, is_muted)
-                volume_osd:show(volume, is_muted)
-            end)
-            
+            audio_service:set_default_sink_volume(
+                "-5",
+                function(volume, is_muted)
+                    volume_osd:show(volume, is_muted)
+                end
+            )
+
             -- Start throttle timer
             volume_throttle_timer = gears.timer({
                 timeout = volume_throttle_delay,
                 single_shot = true,
-                callback = function() end
+                callback = function() end,
             })
             volume_throttle_timer:start()
         end

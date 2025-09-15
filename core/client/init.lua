@@ -24,7 +24,6 @@ local dpi = beautiful.xresources.apply_dpi
 local capi = { client = client, tag = tag, mouse = mouse }
 local awesome = awesome
 require("awful.autofocus")
-require("core.client.backdrop")
 require("core.client.better_resize")
 require("core.client.center_in_parent")
 require("core.client.restore_clients")
@@ -96,6 +95,12 @@ rclient.connect_signal("request::rules", function()
         properties = { titlebars_enabled = true },
     })
 
+    -- rclient.append_rule({
+    --     id = "firefox_no_titlebar",
+    --     rule_any = { class = { "firefox", "Firefox" } },
+    --     properties = { titlebars_enabled = false },
+    -- })
+
     rclient.append_rule({
         rule_any = { class = { "mpv" } },
         properties = { width = 1280, height = 720 },
@@ -113,6 +118,7 @@ rclient.connect_signal("request::rules", function()
         centered = true,
         screen = awful.screen.preferred,
         placement = center_and_keep_on_screen,
+        ontop = true,
     }
     rclient.append_rule({
         id = "xephyr_fixed_size",

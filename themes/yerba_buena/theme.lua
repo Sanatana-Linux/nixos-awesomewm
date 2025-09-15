@@ -253,7 +253,7 @@ theme.layout_tile =
 -- Screenshot icons
 theme.screenshot_icons = {
     fullscreen = icons_path .. "screenshot/fullscreen.svg",
-    selection = icons_path .. "screenshot/selection.svg", 
+    selection = icons_path .. "screenshot/selection.svg",
     delay = icons_path .. "screenshot/delay.svg",
 }
 

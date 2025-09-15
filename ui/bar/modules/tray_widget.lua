@@ -6,7 +6,7 @@ local awful = require("awful")
 local wibox = require("wibox")
 local beautiful = require("beautiful")
 local dpi = beautiful.xresources.apply_dpi
-local shapes = require('modules.shapes.init')
+local shapes = require("modules.shapes.init")
 
 -- Creates a system tray widget.
 -- It's initially hidden and can be revealed by clicking a button.

@@ -8,7 +8,7 @@ local anim = require("modules.animations")
 local capi = { screen = screen }
 local click_to_hide = require("modules.click_to_hide")
 
-local shapes = require('modules.shapes')
+local shapes = require("modules.shapes")
 local rrect = shapes.rrect
 
 local day_info = {}

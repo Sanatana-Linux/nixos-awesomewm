@@ -24,7 +24,8 @@ local awful = require("awful")
 local wibox = require("wibox")
 local beautiful = require("beautiful")
 local gtable = require("gears.table")
-local capi = { mouse = mouse }
+local gears = require("gears")
+local capi = { mouse = mouse, root = root }
 local dpi = beautiful.xresources.apply_dpi
 local text_icons = beautiful.text_icons
 local shapes = require("modules.shapes")
@@ -40,6 +41,7 @@ local keys = {
     left = { "Left" },
     right = { "Right" },
     exec = { "Return" },
+    hide = { "Escape" },
 }
 
 --- Update visual state of menu items based on selection
@@ -94,6 +96,8 @@ local function on_enter(self, index, args, type)
         end
     end
 
+    -- Only execute items that don't have submenus and only when explicitly triggered via key
+    -- Don't auto-execute on mouse hover or right arrow navigation
     if not args.items and args.exec and type == "key" then
         args.exec()
         self:get_root():hide()
@@ -117,9 +121,31 @@ local function run_keygrabber(self)
         elseif gtable.hasitem(keys.left, key) then
             self:hide()
         elseif gtable.hasitem(keys.right, key) then
-            on_enter(self, wp.select_index, wp.args[wp.select_index], "key")
+            if wp.select_index and wp.args[wp.select_index] then
+                local current_item = wp.args[wp.select_index]
+                if current_item.items then
+                    -- Expand submenu
+                    on_enter(self, wp.select_index, current_item, "key")
+                elseif current_item.exec then
+                    -- Execute item if no submenu
+                    current_item.exec()
+                    self:get_root():hide()
+                end
+            end
         elseif gtable.hasitem(keys.exec, key) then
-            on_enter(self, wp.select_index, wp.args[wp.select_index], "key")
+            if wp.select_index and wp.args[wp.select_index] then
+                local current_item = wp.args[wp.select_index]
+                if current_item.exec then
+                    -- Execute the item
+                    current_item.exec()
+                    self:get_root():hide()
+                elseif current_item.items then
+                    -- Expand submenu if no exec function
+                    on_enter(self, wp.select_index, current_item, "key")
+                end
+            end
+        elseif gtable.hasitem(keys.hide, key) then
+            self:get_root():hide()
         end
     end)
 end
@@ -180,7 +206,11 @@ local function entry(self, index, args)
 
     ret:buttons({
         awful.button({}, 1, function()
-            if not args.items and args.exec then
+            if args.items then
+                -- Expand submenu on click
+                on_enter(self, index, args, "mouse")
+            elseif args.exec then
+                -- Execute item on click
                 args.exec()
                 self:get_root():hide()
             end
@@ -317,6 +347,12 @@ function menu:show()
         return
     end
     wp.shown = true
+
+    -- Initialize selection to first item if not set
+    if not wp.select_index and wp.args and #wp.args > 0 then
+        wp.select_index = 1
+    end
+
     update_items(self)
     self.screen = capi.mouse.screen
     set_coords(self)
@@ -414,10 +450,22 @@ function menu.new(args, parent)
         end
     end
 
-    -- Setup centralized click-to-hide behavior
-    click_to_hide.menu(ret, function()
-        ret:get_root():hide()
-    end, { outside_only = true, exclusive = true })
+    -- Simple click-outside-to-hide that only responds to desktop clicks
+    ret:connect_signal("property::visible", function(w)
+        if w.visible then
+            -- Add a timer-delayed desktop click handler to avoid immediate triggering
+            gears.timer.delayed_call(function()
+                capi.root.buttons({
+                    awful.button({}, 1, function()
+                        ret:get_root():hide()
+                    end),
+                })
+            end)
+        else
+            -- Remove desktop click handler when menu is hidden
+            capi.root.buttons({})
+        end
+    end)
 
     return ret
 end

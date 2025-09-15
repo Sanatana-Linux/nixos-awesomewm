@@ -4,7 +4,6 @@
 local awful = require("awful")
 local wibox = require("wibox")
 local gears = require("gears")
-local backdrop = require("modules.backdrop")
 
 local popup_manager = {}
 
@@ -22,7 +21,6 @@ local function hide_all_popups()
         end
     end
     active_popup = nil
-    backdrop.hide() -- Hide backdrop when all popups are closed
 end
 
 local function setup_escape_key()
@@ -69,30 +67,43 @@ local function click_to_hide(widget, hide_fct, options)
             widget.visible = false
         end
 
+    local click_bind = awful.button({}, 1, function(object)
+        hide_fct(object)
+    end)
+
+    -- Store the wibox handler function so we can disconnect it later
+    local wibox_handler = function(w)
+        -- For outside_only mode, don't hide if clicking on the widget itself
+        if outside_only and w == widget then
+            return
+        end
+        hide_fct(w)
+    end
+
     -- Register this popup
     registered_popups[widget] = {
         hide_function = hide_fct,
         exclusive = exclusive,
         outside_only = outside_only,
         disable_escape = disable_escape,
+        wibox_handler = wibox_handler,
     }
-
-    local click_bind = awful.button({}, 1, function(object)
-        hide_fct(object)
-    end)
 
     -- Handle visibility changes
     widget:connect_signal("property::visible", function(w)
         if not w.visible then
             -- Popup is being hidden
-            wibox.disconnect_signal("button::press", hide_fct)
+            local data = registered_popups[widget]
+            if data and data.wibox_handler then
+                wibox.disconnect_signal("button::press", data.wibox_handler)
+            end
             client.disconnect_signal("button::press", hide_fct)
             awful.mouse.remove_global_mousebinding(click_bind)
-            
+
             if active_popup == widget then
                 active_popup = nil
                 stop_escape_listener()
-                
+
                 -- Check if any other popups are still visible
                 local any_visible = false
                 for popup, _ in pairs(registered_popups) do
@@ -100,11 +111,6 @@ local function click_to_hide(widget, hide_fct, options)
                         any_visible = true
                         break
                     end
-                end
-                
-                -- Hide backdrop only if no popups are visible
-                if not any_visible then
-                    backdrop.hide()
                 end
             end
         else
@@ -117,22 +123,24 @@ local function click_to_hide(widget, hide_fct, options)
                     end
                 end
             end
-            
+
             active_popup = widget
-            
+
             -- Only start escape listener if not disabled for this widget
             local data = registered_popups[widget]
             if not data.disable_escape then
                 start_escape_listener()
             end
-            
-            -- Show backdrop with blur effect
-            backdrop.show(widget)
-            
+
             -- Set up click-to-hide bindings
             awful.mouse.append_global_mousebinding(click_bind)
             client.connect_signal("button::press", hide_fct)
-            wibox.connect_signal("button::press", hide_fct)
+
+            -- Connect to wibox press but exclude the widget itself and its children
+            local data = registered_popups[widget]
+            if data and data.wibox_handler then
+                wibox.connect_signal("button::press", data.wibox_handler)
+            end
         end
     end)
 
@@ -142,7 +150,6 @@ local function click_to_hide(widget, hide_fct, options)
         if active_popup == widget then
             active_popup = nil
             stop_escape_listener()
-            backdrop.hide()
         end
     end)
 end
@@ -152,13 +159,77 @@ local function click_to_hide_menu(menu, hide_fct, options)
     hide_fct = hide_fct or function()
         menu:hide()
     end
-    -- Use the menu object directly since awful.popup doesn't have .wibox property
-    click_to_hide(menu, hide_fct, options)
+
+    -- For menus, we completely bypass the complex wibox detection
+    -- and only handle global mouse clicks and client clicks
+    options = options or {}
+    local exclusive = options.exclusive ~= false -- default true
+    local disable_escape = options.disable_escape or false
+
+    -- Register this popup
+    registered_popups[menu] = {
+        hide_function = hide_fct,
+        exclusive = exclusive,
+        outside_only = true,
+        disable_escape = disable_escape,
+        wibox_handler = nil, -- No wibox handler for menus
+    }
+
+    local click_bind = awful.button({}, 1, function(object)
+        hide_fct(object)
+    end)
+
+    -- Handle visibility changes
+    menu:connect_signal("property::visible", function(w)
+        if not w.visible then
+            -- Popup is being hidden
+            client.disconnect_signal("button::press", hide_fct)
+            awful.mouse.remove_global_mousebinding(click_bind)
+
+            if active_popup == menu then
+                active_popup = nil
+                stop_escape_listener()
+            end
+        else
+            -- Popup is being shown
+            if exclusive then
+                -- Hide other popups first
+                for popup, data in pairs(registered_popups) do
+                    if popup ~= menu and popup.visible and data.exclusive then
+                        data.hide_function()
+                    end
+                end
+            end
+
+            active_popup = menu
+
+            -- Only start escape listener if not disabled for this widget
+            local data = registered_popups[menu]
+            if not data.disable_escape then
+                start_escape_listener()
+            end
+
+            -- Set up click-to-hide bindings (no wibox handler for menus)
+            awful.mouse.append_global_mousebinding(click_bind)
+            client.connect_signal("button::press", hide_fct)
+        end
+    end)
+
+    -- Clean up when widget is destroyed
+    menu:connect_signal("widget::destroyed", function()
+        registered_popups[menu] = nil
+        if active_popup == menu then
+            active_popup = nil
+            stop_escape_listener()
+        end
+    end)
 end
 
 -- Utility functions for manual popup management
 popup_manager.hide_all = hide_all_popups
-popup_manager.get_active = function() return active_popup end
+popup_manager.get_active = function()
+    return active_popup
+end
 popup_manager.is_any_visible = function()
     for popup, _ in pairs(registered_popups) do
         if popup.visible then

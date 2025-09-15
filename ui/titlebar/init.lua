@@ -6,7 +6,7 @@ local wibox = require("wibox")
 local beautiful = require("beautiful")
 local dpi = beautiful.xresources.apply_dpi
 local awful = require("awful")
-local shapes = require('modules.shapes')
+local shapes = require("modules.shapes")
 
 local client = client
 

@@ -55,7 +55,7 @@ Replace 'gears.timer' with your preferred timer if needed.
 
 --]]
 
-local gears = require("gears") -- Ensure you have the gears library available   
+local gears = require("gears") -- Ensure you have the gears library available
 
 local M = {}
 
@@ -200,18 +200,20 @@ end
 -- Slide an element vertically (animates the 'y' property)
 function M.slide_y(element, params)
     params = params or {}
-    params.update = params.update or function(pos)
-        element.y = pos
-    end
+    params.update = params.update
+        or function(pos)
+            element.y = pos
+        end
     return M.animate(params)
 end
 
 -- Slide an element horizontally (animates the 'x' property)
 function M.slide(element, params)
     params = params or {}
-    params.update = params.update or function(pos)
-        element.x = pos
-    end
+    params.update = params.update
+        or function(pos)
+            element.x = pos
+        end
     return M.animate(params)
 end
 

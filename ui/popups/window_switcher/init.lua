@@ -4,7 +4,7 @@ local beautiful = require("beautiful")
 local wibox = require("wibox")
 local dpi = require("beautiful").xresources.apply_dpi
 local gears = require("gears")
-local shapes = require('modules.shapes')
+local shapes = require("modules.shapes")
 local click_to_hide = require("modules.click_to_hide")
 -- Import the elements module for the window switcher
 local elems = require("ui.popups.window_switcher.elements")

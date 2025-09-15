@@ -16,7 +16,7 @@ local function createButton(icon_path, name, fn)
         bg = beautiful.bg_gradient_button_alt,
         shape = shapes.rrect(8),
         border_width = dpi(1.5),
-        border_color = beautiful.fg_alt .. '99',
+        border_color = beautiful.fg_alt .. "99",
         forced_width = dpi(108),
         forced_height = dpi(108),
         buttons = {
@@ -46,7 +46,7 @@ local function createButton(icon_path, name, fn)
     button:connect_signal("mouse::enter", function(w)
         w:set_bg(beautiful.bg_gradient_recessed)
     end)
-    
+
     button:connect_signal("mouse::leave", function(w)
         w:set_bg(beautiful.bg_gradient_button_alt)
     end)
@@ -83,20 +83,32 @@ function screenshot_popup:new()
         ret:hide()
     end
 
-    local fullscreen_btn = createButton(beautiful.screenshot_icons.fullscreen, "Fullscreen", function()
-        close_popup()
-        screenshot_service:take_full()
-    end)
+    local fullscreen_btn = createButton(
+        beautiful.screenshot_icons.fullscreen,
+        "Fullscreen",
+        function()
+            close_popup()
+            screenshot_service:take_full()
+        end
+    )
 
-    local selection_btn = createButton(beautiful.screenshot_icons.selection, "Selection", function()
-        close_popup()
-        screenshot_service:take_select()
-    end)
+    local selection_btn = createButton(
+        beautiful.screenshot_icons.selection,
+        "Selection",
+        function()
+            close_popup()
+            screenshot_service:take_select()
+        end
+    )
 
-    local delay_btn = createButton(beautiful.screenshot_icons.delay, "Delay 3s", function()
-        close_popup()
-        screenshot_service:take_delay(3)
-    end)
+    local delay_btn = createButton(
+        beautiful.screenshot_icons.delay,
+        "Delay 3s",
+        function()
+            close_popup()
+            screenshot_service:take_delay(3)
+        end
+    )
 
     local close_button = wibox.widget({
         widget = wibox.container.background,
@@ -118,7 +130,10 @@ function screenshot_popup:new()
                 valign = "center",
                 {
                     widget = wibox.widget.imagebox,
-                    image = gears.color.recolor_image(beautiful.titlebar_icons.close, beautiful.fg),
+                    image = gears.color.recolor_image(
+                        beautiful.titlebar_icons.close,
+                        beautiful.fg
+                    ),
                     resize = true,
                     forced_width = dpi(20),
                     forced_height = dpi(20),
@@ -131,7 +146,7 @@ function screenshot_popup:new()
     close_button:connect_signal("mouse::enter", function(w)
         w:set_bg("linear:0,0:0,32:0," .. beautiful.red .. ":1," .. "#b61442")
     end)
-    
+
     close_button:connect_signal("mouse::leave", function(w)
         w:set_bg(beautiful.bg_gradient_button)
     end)

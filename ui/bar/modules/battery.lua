@@ -11,7 +11,7 @@ local dpi = beautiful.xresources.apply_dpi
 local battery_service = require("service.battery").get_default()
 local modules = require("modules")
 local text_icons = beautiful.text_icons
-local shapes = require('modules.shapes.init')
+local shapes = require("modules.shapes.init")
 
 return function()
     local battery_tooltip = awful.tooltip({
@@ -91,7 +91,12 @@ return function()
         shape = shapes.rrect(8),
         child_widget = {
             widget = wibox.container.margin,
-            margins = { top = dpi(4), bottom = dpi(4), left = dpi(4), right = dpi(4) },
+            margins = {
+                top = dpi(4),
+                bottom = dpi(4),
+                left = dpi(4),
+                right = dpi(4),
+            },
             {
                 layout = wibox.layout.fixed.horizontal,
                 spacing = dpi(3),

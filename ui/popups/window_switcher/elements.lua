@@ -7,7 +7,7 @@ local awful = require("awful")
 local client = client
 local dpi = require("beautiful").xresources.apply_dpi
 local overflow = require("wibox.layout.overflow")
-local shapes = require('modules.shapes')
+local shapes = require("modules.shapes")
 
 -- Define the main function
 return function()
@@ -54,8 +54,13 @@ return function()
                                 valign = "center",
                                 halign = "center",
                                 widget = wibox.widget.imagebox,
-                                image =  require('menubar').utils.lookup_icon(c.class) or
-                                require('menubar').utils.lookup_icon("default-application-icon") or awful.widget.clienticon,
+                                image = require("menubar").utils.lookup_icon(
+                                    c.class
+                                )
+                                    or require("menubar").utils.lookup_icon(
+                                        "default-application-icon"
+                                    )
+                                    or awful.widget.clienticon,
                             },
                             widget = wibox.container.margin,
                             margins = dpi(2),
@@ -81,7 +86,7 @@ return function()
                 },
                 forced_height = dpi(96),
                 forced_width = dpi(108),
-                shape =  shapes.rrect(beautiful.border_radius or dpi(10)),
+                shape = shapes.rrect(beautiful.border_radius or dpi(10)),
                 widget = wibox.container.background,
                 id = "background",
                 bg = beautiful.bg_alt .. "66",
@@ -138,7 +143,7 @@ return function()
             end
             curr = 1 -- Reset the selection
         else
-             -- Initial highlighting
+            -- Initial highlighting
             for i, element in ipairs(elems.children) do
                 if #sortedClients > 0 and i == curr then
                     element.bg = beautiful.fg .. "88"

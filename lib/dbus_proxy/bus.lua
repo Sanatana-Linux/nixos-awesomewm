@@ -21,20 +21,21 @@ local Gio = require("lgi").Gio
 -- Private table
 local _Bus = {}
 setmetatable(_Bus, {
-	__index = function(tbl, key)
-		local v
-		if key == "SESSION" or key == "SYSTEM" then
-			v = Gio.bus_get_sync(Gio.BusType[key])
-		else
-			-- Pulseaudio example:
-			-- key = "unix:path=/run/user/1000/pulse/dbus-socket"
-			v = Gio.DBusConnection.new_for_address_sync(
-				key,
-				Gio.DBusConnectionFlags.NONE)
-		end
-		rawset(tbl, key, v)
-		return v
-	end
+    __index = function(tbl, key)
+        local v
+        if key == "SESSION" or key == "SYSTEM" then
+            v = Gio.bus_get_sync(Gio.BusType[key])
+        else
+            -- Pulseaudio example:
+            -- key = "unix:path=/run/user/1000/pulse/dbus-socket"
+            v = Gio.DBusConnection.new_for_address_sync(
+                key,
+                Gio.DBusConnectionFlags.NONE
+            )
+        end
+        rawset(tbl, key, v)
+        return v
+    end,
 })
 
 --[[-- Available connections to the DBus daemon. Fields on this table
@@ -66,8 +67,10 @@ assert(nil == invalid2)
 ]]
 local Bus = {}
 setmetatable(Bus, {
-	__index = _Bus,
-	__newindex = function() error("Cannot set values", 2) end
+    __index = _Bus,
+    __newindex = function()
+        error("Cannot set values", 2)
+    end,
 })
 
 return Bus

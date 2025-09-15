@@ -19,7 +19,6 @@ local menubar = require("menubar")
 local crop_surface = require("modules.crop_surface")
 local launcher = {}
 local shapes = require("modules.shapes.init")
-local backdrop = require("modules.backdrop")
 local click_to_hide = require("modules.click_to_hide")
 
 local function launch_app(app)
@@ -185,7 +184,8 @@ function launcher:update_entries()
                                             height = 25,
                                             {
                                                 widget = wibox.widget.textbox,
-                                                font = beautiful.font_name .. dpi(9),
+                                                font = beautiful.font_name
+                                                    .. dpi(9),
                                                 markup = app:get_description(),
                                             },
                                         },
@@ -265,9 +265,6 @@ function launcher:show()
         self.placement(self)
     end
 
-    -- Show backdrop after positioning
-    backdrop.show(self)
-
     -- Focus text input immediately after becoming visible
     local text_input = self.widget:get_children_by_id("text-input")[1]
     text_input:focus()
@@ -298,8 +295,6 @@ function launcher:hide()
         return
     end
     wp.shown = false
-
-    backdrop.hide()
 
     wp.unfiltered = {}
     wp.filtered = {}
@@ -458,14 +453,19 @@ local function new()
                                             strategy = "max",
                                             height = dpi(25),
                                             {
-                                                id = "text-input",
-                                                widget = modules.text_input({
-                                                    placeholder = "Search...",
-                                                    background = beautiful.bg,
-                                                    cursor_bg = beautiful.bg,
-                                                    cursor_fg = beautiful.fg,
-                                                    placeholder_fg = beautiful.fg_alt,
-                                                }),
+                                                widget = wibox.container.background,
+                                                bg = beautiful.bg .. "cc",
+                                                shape = shapes.rrect(10),
+                                                {
+                                                    id = "text-input",
+                                                    widget = modules.text_input({
+                                                        placeholder = "Search...",
+                                                        background = beautiful.bg,
+                                                        cursor_bg = beautiful.bg,
+                                                        cursor_fg = beautiful.fg,
+                                                        placeholder_fg = beautiful.fg_alt,
+                                                    }),
+                                                },
                                             },
                                         },
                                     },

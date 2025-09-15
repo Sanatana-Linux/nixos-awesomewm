@@ -209,7 +209,7 @@ local function create_client_menu(c)
                 end,
             },
             {
-                label = " close", -- nf-fa-close
+                label = "✕ close", -- nf-fa-close
                 exec = function()
                     c:kill()
                 end,

@@ -8,7 +8,6 @@ local dpi = beautiful.xresources.apply_dpi
 local capi = { awesome = awesome, screen = screen }
 local shapes = require("modules.shapes")
 local click_to_hide = require("modules.click_to_hide")
-local backdrop = require("modules.backdrop")
 
 local powermenu = {}
 
@@ -73,7 +72,7 @@ function powermenu:update_elements()
             widget = wibox.container.background,
             bg = beautiful.bg_gradient_button_alt,
             border_width = dpi(1.5),
-            border_color = beautiful.fg_alt .. '99',
+            border_color = beautiful.fg_alt .. "99",
             forced_width = dpi(108),
             forced_height = dpi(108),
             shape = shapes.rrect(8),
@@ -96,7 +95,10 @@ function powermenu:update_elements()
                     valign = "center",
                     {
                         widget = wibox.widget.imagebox,
-                        image = gears.color.recolor_image(element.icon, element.color),
+                        image = gears.color.recolor_image(
+                            element.icon,
+                            element.color
+                        ),
                         resize = true,
                         forced_width = dpi(48),
                         forced_height = dpi(48),
@@ -108,21 +110,29 @@ function powermenu:update_elements()
 
         element_widget:connect_signal("mouse::enter", function(w)
             -- Create color-specific gradient for hover
-            local hover_gradient = "linear:0,0:0,32:0," .. element.color .. ":1," .. element.color .. "cc"
+            local hover_gradient = "linear:0,0:0,32:0,"
+                .. element.color
+                .. ":1,"
+                .. element.color
+                .. "cc"
             w:set_bg(hover_gradient)
             -- Change icon to white on hover
             local icon_widget = w:get_children_by_id("icon_" .. i)[1]
             if icon_widget then
-                icon_widget:set_image(gears.color.recolor_image(element.icon, beautiful.fg))
+                icon_widget:set_image(
+                    gears.color.recolor_image(element.icon, beautiful.fg)
+                )
             end
         end)
-        
+
         element_widget:connect_signal("mouse::leave", function(w)
             w:set_bg(beautiful.bg_gradient_button_alt)
             -- Restore original icon color
             local icon_widget = w:get_children_by_id("icon_" .. i)[1]
             if icon_widget then
-                icon_widget:set_image(gears.color.recolor_image(element.icon, element.color))
+                icon_widget:set_image(
+                    gears.color.recolor_image(element.icon, element.color)
+                )
             end
         end)
 
@@ -150,7 +160,6 @@ function powermenu:hide()
         return
     end
     wp.shown = false
-    backdrop.hide()
     if wp.keygrabber then
         awful.keygrabber.stop(wp.keygrabber)
         wp.keygrabber = nil
@@ -172,6 +181,7 @@ local function new()
     local ret = awful.popup({
         visible = false,
         ontop = true,
+        type = "tooltip",
         screen = capi.screen.primary,
         bg = "#00000000",
         placement = awful.placement.centered,

@@ -5,7 +5,7 @@ local beautiful = require("beautiful")
 local text_icons = beautiful.text_icons
 local dpi = beautiful.xresources.apply_dpi
 local nm_client = require("service.network").get_default()
-local shapes = require('modules.shapes')
+local shapes = require("modules.shapes")
 
 local function on_wireless_enabled(self, enabled)
     local separator = self:get_children_by_id("separator")[1]
@@ -51,7 +51,10 @@ local function new()
                             valign = "center",
                             {
                                 widget = wibox.widget.imagebox,
-                                image = gcolor.recolor_image(beautiful.wifi_icon, beautiful.fg),
+                                image = gcolor.recolor_image(
+                                    beautiful.wifi_icon,
+                                    beautiful.fg
+                                ),
                                 forced_height = dpi(24),
                                 forced_width = dpi(24),
                                 resize = true,
@@ -103,7 +106,10 @@ local function new()
                                 margins = dpi(6),
                                 {
                                     widget = wibox.widget.imagebox,
-                                    image = gcolor.recolor_image(beautiful.tray_arrow_right, beautiful.fg),
+                                    image = gcolor.recolor_image(
+                                        beautiful.tray_arrow_right,
+                                        beautiful.fg
+                                    ),
                                 },
                             },
                         },

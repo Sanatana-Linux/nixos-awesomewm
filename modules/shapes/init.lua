@@ -29,4 +29,3 @@ function M.circle(rad)
 end
 
 return M
-

@@ -59,4 +59,3 @@ screenshot:connect_signal("saved", function(_, dir, name)
         actions = { view_file, open_dir, copy, annotate, delete },
     })
 end)
-

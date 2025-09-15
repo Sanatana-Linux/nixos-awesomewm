@@ -52,7 +52,10 @@ local function new()
                             valign = "center",
                             {
                                 widget = wibox.widget.imagebox,
-                                image = gcolor.recolor_image(beautiful.icon_bluetooth, beautiful.fg),
+                                image = gcolor.recolor_image(
+                                    beautiful.icon_bluetooth,
+                                    beautiful.fg
+                                ),
                                 forced_height = dpi(24),
                                 forced_width = dpi(24),
                                 resize = true,
@@ -104,7 +107,10 @@ local function new()
                                 margins = dpi(6),
                                 {
                                     widget = wibox.widget.imagebox,
-                                    image = gcolor.recolor_image(beautiful.tray_arrow_right, beautiful.fg),
+                                    image = gcolor.recolor_image(
+                                        beautiful.tray_arrow_right,
+                                        beautiful.fg
+                                    ),
                                 },
                             },
                         },

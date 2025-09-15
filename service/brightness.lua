@@ -16,34 +16,58 @@ local brightness_service = {} -- Renamed for clarity to avoid conflict with file
 -- Emits "brightness::updated" or "brightness::error".
 function brightness_service:get(callback)
     -- Use async to avoid blocking the UI
-    awful.spawn.easy_async_with_shell("brightnessctl g", function(stdout, stderr, reason, exit_code)
-        if exit_code == 0 then
-            local current_max_brightness_raw = ""
-            local current_brightness_raw = stdout
+    awful.spawn.easy_async_with_shell(
+        "brightnessctl g",
+        function(stdout, stderr, reason, exit_code)
+            if exit_code == 0 then
+                local current_max_brightness_raw = ""
+                local current_brightness_raw = stdout
 
-            awful.spawn.easy_async_with_shell("brightnessctl m", function(stdout_max)
-                current_max_brightness_raw = stdout_max
-                local current_brightness = tonumber(current_brightness_raw)
-                local max_brightness = tonumber(current_max_brightness_raw)
+                awful.spawn.easy_async_with_shell(
+                    "brightnessctl m",
+                    function(stdout_max)
+                        current_max_brightness_raw = stdout_max
+                        local current_brightness =
+                            tonumber(current_brightness_raw)
+                        local max_brightness =
+                            tonumber(current_max_brightness_raw)
 
-                if current_brightness ~= nil and max_brightness ~= nil and max_brightness > 0 then
-                    local percentage = math.floor((current_brightness / max_brightness) * 100)
-                    self._private.current_brightness = percentage
-                    self:emit_signal("brightness::updated", percentage)
-                    if callback then
-                        callback(percentage)
+                        if
+                            current_brightness ~= nil
+                            and max_brightness ~= nil
+                            and max_brightness > 0
+                        then
+                            local percentage = math.floor(
+                                (current_brightness / max_brightness) * 100
+                            )
+                            self._private.current_brightness = percentage
+                            self:emit_signal("brightness::updated", percentage)
+                            if callback then
+                                callback(percentage)
+                            end
+                        else
+                            gdebug.print_error(
+                                "Brightness service: Failed to parse brightness output. Current: "
+                                    .. tostring(current_brightness_raw)
+                                    .. " Max: "
+                                    .. tostring(current_max_brightness_raw)
+                            )
+                            self:emit_signal(
+                                "brightness::error",
+                                "Failed to parse brightness output"
+                            )
+                        end
                     end
-                else
-                    gdebug.print_error("Brightness service: Failed to parse brightness output. Current: " ..
-                    tostring(current_brightness_raw) .. " Max: " .. tostring(current_max_brightness_raw))
-                    self:emit_signal("brightness::error", "Failed to parse brightness output")
-                end
-            end)
-        else
-            gdebug.print_error("Brightness service: Failed to get brightness: " .. (stderr or reason))
-            self:emit_signal("brightness::error", stderr or reason)
+                )
+            else
+                gdebug.print_error(
+                    "Brightness service: Failed to get brightness: "
+                        .. (stderr or reason)
+                )
+                self:emit_signal("brightness::error", stderr or reason)
+            end
         end
-    end)
+    )
     -- Return cached value immediately, if available
     return self._private.current_brightness
 end
@@ -79,16 +103,17 @@ end
 -- Creates a new brightness service instance.
 -- @return gobject The new brightness service object.
 local function new()
-    local ret = gobject {}                   -- Create a gears object for signal emission
+    local ret = gobject({}) -- Create a gears object for signal emission
     gtable.crush(ret, brightness_service, true) -- Mixin the brightness_service methods
     ret._private = {
-        current_brightness = nil,            -- Store the last known brightness
+        current_brightness = nil, -- Store the last known brightness
     }
 
     -- Fetch initial brightness state
     -- A short delay ensures Awesome is fully up and running before the first call
-    gtimer.delayed_call(function() ret:get() end)
-
+    gtimer.delayed_call(function()
+        ret:get()
+    end)
 
     return ret
 end
@@ -103,5 +128,5 @@ local function get_default()
 end
 
 return {
-    get_default = get_default
+    get_default = get_default,
 }

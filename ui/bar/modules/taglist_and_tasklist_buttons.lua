@@ -25,7 +25,7 @@ local function create_single_tag(tag, s)
     -- This function clears and repopulates the client icon list for this tag.
     local function update_clients()
         clients_layout:reset()
-        
+
         -- Remove clients_layout from content_layout if it exists
         local content_children = content_layout:get_children()
         if #content_children > 1 then
@@ -39,7 +39,7 @@ local function create_single_tag(tag, s)
                 local client_buttons = awful.util.table.join(
                     awful.button({}, 1, function()
                         -- Left click: jump to the client, focusing it and its tag.
-                        awful.client.jumpto(c)
+                        c:jump_to()
                     end),
                     awful.button({}, 2, function()
                         -- Middle click: minimize the client.
@@ -71,7 +71,7 @@ local function create_single_tag(tag, s)
                 -- Add the icon to the layout
                 clients_layout:add(icon_widget)
             end
-            
+
             -- Only add the clients_layout to content_layout if there are clients
             content_layout:add(clients_layout)
         end

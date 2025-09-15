@@ -17,15 +17,24 @@ awful.keyboard.append_global_keybindings({
     end, { description = "swap with next client by index", group = "client" }),
 
     -- Swap current client with previous client in stack
-    awful.key({ modkey, "Shift" }, "k", function()
-        awful.client.swap.byidx(-1) -- Move current window up in client stack
-    end, { description = "swap with previous client by index", group = "client" }),
+    awful.key(
+        { modkey, "Shift" },
+        "k",
+        function()
+            awful.client.swap.byidx(-1) -- Move current window up in client stack
+        end,
+        { description = "swap with previous client by index", group = "client" }
+    ),
 
     -- -------------------------------------------------------------------------- --
 
     -- Jump to urgent client (window requesting attention)
-    awful.key({ modkey }, "u", awful.client.urgent.jumpto, -- Built-in function to focus urgent window
-        { description = "jump to urgent client", group = "client" }),
+    awful.key(
+        { modkey },
+        "u",
+        awful.client.urgent.jumpto, -- Built-in function to focus urgent window
+        { description = "jump to urgent client", group = "client" }
+    ),
 
     -- -------------------------------------------------------------------------- --
 

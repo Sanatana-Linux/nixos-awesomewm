@@ -17,7 +17,10 @@ local function new()
         minimum_width = dpi(290),
         maximum_width = dpi(290),
         placement = function(d)
-            awful.placement.bottom(d, { margins = { bottom = dpi(20) }, honor_workarea = true })
+            awful.placement.bottom(
+                d,
+                { margins = { bottom = dpi(20) }, honor_workarea = true }
+            )
         end,
         widget = {
             widget = wibox.container.margin,
