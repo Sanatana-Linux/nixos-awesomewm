@@ -27,29 +27,60 @@ local function launch_app(app)
         return
     end
     
-    -- Safely get desktop app info to check terminal requirement
+    -- Get terminal requirement - check if app needs terminal
     local term_needed = false
-    if Gio.DesktopAppInfo then
-        local status, desktop_app_info = pcall(function()
+    local desktop_app_info = nil
+    
+    -- Safely try to get desktop info
+    if Gio.DesktopAppInfo and app.get_id then
+        local status, result = pcall(function()
             return Gio.DesktopAppInfo.new(app:get_id())
         end)
-        
-        if status and desktop_app_info then
-            local term_status, terminal_string = pcall(function()
-                return desktop_app_info:get_string("Terminal")
-            end)
-            if term_status and terminal_string == "true" then
-                term_needed = true
-            end
+        if status then
+            desktop_app_info = result
         end
     end
     
-    local term_status, term = pcall(function()
-        return Gio.AppInfo.get_default_for_uri_scheme("terminal")
-    end)
-    if not term_status then
-        term = nil
+    if desktop_app_info and desktop_app_info.get_string then
+        local status, terminal_string = pcall(function()
+            return desktop_app_info:get_string("Terminal")
+        end)
+        if status and terminal_string == "true" then
+            term_needed = true
+        end
     end
+    
+    local term = Gio.AppInfo.get_default_for_uri_scheme("terminal")
+
+    awful.spawn(
+        term_needed
+                and term
+                and string.format(
+                    "%s -e %s",
+                    term:get_executable(),
+                    app:get_executable()
+                )
+            or string.match(app:get_executable(), "^env") and string.gsub(
+                app:get_commandline(),
+                "%%%a",
+                ""
+            )
+            or app:get_executable()
+    )
+end
+    
+    -- Use pcall to safely get desktop info
+    local success, desktop_app_info = pcall(function()
+        return Gio.DesktopAppInfo.new(app:get_id())
+    end)
+    
+    local term_needed = false
+    if success and desktop_app_info then
+        local terminal_string = desktop_app_info:get_string("Terminal")
+        term_needed = terminal_string == "true"
+    end
+    
+    local term = Gio.AppInfo.get_default_for_uri_scheme("terminal")
 
     awful.spawn(
         term_needed
@@ -147,21 +178,16 @@ function launcher:update_entries()
     if #wp.filtered > 0 then
         for i, app in ipairs(wp.filtered) do
             if i >= wp.start_index and i <= wp.start_index + wp.rows - 1 then
-                -- Safely get icon name from desktop info
-                local icon_name = app:get_name()
-                if Gio.DesktopAppInfo then
-                    local status, desktop_info = pcall(function()
-                        return Gio.DesktopAppInfo.new(app:get_id())
-                    end)
-                    
-                    if status and desktop_info then
-                        local icon_status, icon_str = pcall(function()
-                            return desktop_info:get_string("Icon")
-                        end)
-                        if icon_status and icon_str then
-                            icon_name = icon_str
-                        end
-                    end
+                -- Use pcall to safely get desktop info
+                local success, desktop_info = pcall(function()
+                    return Gio.DesktopAppInfo.new(app:get_id())
+                end)
+                
+                local icon_name
+                if success and desktop_info then
+                    icon_name = desktop_info:get_string("Icon") or app:get_name()
+                else
+                    icon_name = app:get_name()
                 end
 
                 local icon_path = menubar.utils.lookup_icon(icon_name)
@@ -276,11 +302,7 @@ function launcher:show()
     end
     wp.shown = true
 
-    -- Safely get all applications
-    local status, apps = pcall(function()
-        return Gio.AppInfo.get_all()
-    end)
-    wp.unfiltered = (status and apps) or {}
+    wp.unfiltered = Gio.AppInfo.get_all()
     wp.filtered = filter_apps(wp.unfiltered, "")
     wp.start_index, wp.select_index = 1, 1
 

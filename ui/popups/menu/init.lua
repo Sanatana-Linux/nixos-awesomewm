@@ -1,4 +1,5 @@
-local Gio = require("lgi").require("Gio")
+local lgi = require("lgi")
+local Gio = lgi.Gio
 local awful = require("awful")
 local beautiful = require("beautiful")
 local gtable = require("gears.table")
@@ -27,10 +28,12 @@ local function create_desktop_menu()
                     {
                         label = "󰒓 config", -- nf-md-cog
                         exec = function()
-                            local app = Gio.AppInfo.get_default_for_type(
-                                "inode/directory"
-                            )
-                            if app then
+                            local status, app = pcall(function()
+                                return Gio.AppInfo.get_default_for_type(
+                                    "inode/directory"
+                                )
+                            end)
+                            if status and app then
                                 awful.spawn(
                                     string.format(
                                         "%s %s",

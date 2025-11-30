@@ -18,38 +18,76 @@ local screenshot_popup = require("ui.popups.screenshot_popup").get_default()
 -- Explicitly load the screenshot notification handler to ensure it's ready
 require("ui.notification.screenshots")
 
-capi.screen.connect_signal("request::desktop_decoration", function(s)
-    if s == capi.screen.primary then
-        s.bar = bar.create_primary(s)
-        s.bar:connect_signal("property::visible", function()
-            if control_panel.visible == true then
-                gtimer.delayed_call(function()
-                    awful.placement.bottom_right(control_panel, {
-                        honor_workarea = true,
-                        margins = beautiful.useless_gap,
-                    })
-                end)
-            end
+-- Function to create bar for a given screen
+local function setup_screen_bar(s)
+    -- Debug: log that we're trying to create a bar
+    io.stderr:write(
+        string.format(
+            "[BAR] Setting up bar for screen %d (primary: %s)\n",
+            s.index,
+            tostring(s == capi.screen.primary)
+        )
+    )
 
-            if launcher.visible == true then
-                gtimer.delayed_call(function()
-                    awful.placement.bottom_left(launcher, {
-                        honor_workarea = true,
-                        margins = beautiful.useless_gap,
-                    })
-                end)
-            end
-        end)
-    else
-        s.bar = bar.create_secondary(s)
+    -- Skip if bar already exists
+    if s.bar then
+        io.stderr:write(
+            string.format("[BAR] Screen %d already has a bar, skipping\n", s.index)
+        )
+        return
     end
 
-    s.bar.visible = true
-    awful.placement.bottom(s.bar, {
-        honor_workarea = false,
-        margins = { bottom = 0 },
-    })
-end)
+    local success, err = pcall(function()
+        if s == capi.screen.primary then
+            s.bar = bar.create_primary(s)
+            s.bar:connect_signal("property::visible", function()
+                if control_panel.visible == true then
+                    gtimer.delayed_call(function()
+                        awful.placement.bottom_right(control_panel, {
+                            honor_workarea = true,
+                            margins = beautiful.useless_gap,
+                        })
+                    end)
+                end
+
+                if launcher.visible == true then
+                    gtimer.delayed_call(function()
+                        awful.placement.bottom_left(launcher, {
+                            honor_workarea = true,
+                            margins = beautiful.useless_gap,
+                        })
+                    end)
+                end
+            end)
+        else
+            s.bar = bar.create_secondary(s)
+        end
+
+        s.bar.visible = true
+        awful.placement.bottom(s.bar, {
+            honor_workarea = false,
+            margins = { bottom = 0 },
+        })
+    end)
+
+    if not success then
+        naughty.notification({
+            urgency = "critical",
+            title = "Bar Creation Error",
+            message = string.format(
+                "Failed to create bar for screen %d: %s",
+                s.index,
+                tostring(err)
+            ),
+        })
+    end
+end
+
+-- Setup bars for all existing screens
+awful.screen.connect_for_each_screen(setup_screen_bar)
+
+-- Also handle screens added later (hot-plug)
+screen.connect_signal("added", setup_screen_bar)
 
 capi.screen.connect_signal("request::wallpaper", function(s)
     s.wallpaper = wallpaper(s)

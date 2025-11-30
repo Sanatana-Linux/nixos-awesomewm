@@ -119,6 +119,12 @@ end
 
 -- Wibar for secondary screens.
 function bar.create_secondary(s)
+    local tags_widget = new_tags_widget.new({
+        screen = s,
+        taglist_buttons = taglist_buttons,
+        tasklist_buttons = tasklist_buttons,
+    })
+
     local wibar = awful.wibar({
         position = "bottom",
         ontop = true,
@@ -135,27 +141,13 @@ function bar.create_secondary(s)
         },
         widget = {
             layout = wibox.layout.align.horizontal,
-            {},
+            nil,
             {
-                widget = wibox.container.place,
-                halign = "center",
-                valign = "center",
-                align = "center",
-                {
-                    widget = wibox.container.margin,
-                    margins = dpi(7),
-                    {
-                        layout = wibox.layout.fixed.horizontal,
-                        spacing = dpi(12),
-                        new_tags_widget.new({
-                            screen = s,
-                            taglist_buttons = taglist_buttons,
-                            tasklist_buttons = tasklist_buttons,
-                        }),
-                    },
-                },
+                widget = wibox.container.margin,
+                margins = dpi(7),
+                tags_widget,
             },
-            {},
+            nil,
         },
     })
     wibar.y = s.geometry.y + s.geometry.height - wibar.height

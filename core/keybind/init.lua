@@ -1,6 +1,7 @@
 ---@diagnostic disable: undefined-global
 -- Import required libraries
-local Gio = require("lgi").require("Gio") -- GIO library for system operations
+local lgi = require("lgi")
+local Gio = lgi.Gio -- GIO library for system operations
 local awful = require("awful") -- AwesomeWM's core functionality library
 local capi = { awesome = awesome, client = client } -- Capture global awesome and client APIs
 

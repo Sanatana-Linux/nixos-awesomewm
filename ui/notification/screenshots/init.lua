@@ -1,4 +1,5 @@
-local Gio = require("lgi").require("Gio")
+local lgi = require("lgi")
+local Gio = lgi.Gio
 local awful = require("awful")
 local naughty = require("naughty")
 local screenshot = require("service.screenshot").get_default()
@@ -16,15 +17,19 @@ screenshot:connect_signal("saved", function(_, dir, name)
 
     -- Connect signals to the actions
     view_file:connect_signal("invoked", function()
-        local app = Gio.AppInfo.get_default_for_type("image/png")
-        if app then
+        local status, app = pcall(function()
+            return Gio.AppInfo.get_default_for_type("image/png")
+        end)
+        if status and app then
             awful.spawn(string.format("%s %s", app:get_executable(), path))
         end
     end)
 
     open_dir:connect_signal("invoked", function()
-        local app = Gio.AppInfo.get_default_for_type("inode/directory")
-        if app then
+        local status, app = pcall(function()
+            return Gio.AppInfo.get_default_for_type("inode/directory")
+        end)
+        if status and app then
             awful.spawn(string.format("%s %s", app:get_executable(), dir))
         end
     end)
