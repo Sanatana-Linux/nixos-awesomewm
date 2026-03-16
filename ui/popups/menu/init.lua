@@ -184,6 +184,13 @@ local function create_client_menu(c)
                 end,
             },
             {
+                label = (c.floating and "󰖰 unset floating" or "󰖰 set floating"), -- nf-md-arrow_all
+                exec = function()
+                    c.floating = not c.floating
+                    c:activate()
+                end,
+            },
+            {
                 label = (
                     c.fullscreen and "󰖳 unset fullscreen"
                     or "󰖳 set fullscreen"

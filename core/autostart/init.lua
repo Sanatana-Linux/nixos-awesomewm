@@ -9,6 +9,7 @@ gc_service.start()
 local autostart_commands = {
     "xrdb -merge ~/.Xresources", -- Merge X resources
     "picom", -- Start the compositor
+    "clipse --listen &",
 }
 
 --- Checks if AwesomeWM was restarted in this session.

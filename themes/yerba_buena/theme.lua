@@ -102,15 +102,15 @@ theme.fallback_icon =
 
 -- Colors
 theme.red = "#ED5D86"
-theme.green = "#54a48d"
+theme.green = "#4fbe94"
 theme.yellow = "#FFE089"
 theme.blue = "#0f88ff"
 theme.magenta = "#9051ff"
 theme.cyan = "#01fbff"
 theme.orange = "#df8559"
 
-theme.bg = "#1f1f22"
-theme.bg_alt = "#2a2a2f"
+theme.bg = "#1f1f1F"
+theme.bg_alt = "#2a2a2A"
 theme.bg_urg = "#30303c"
 
 theme.fg_alt = "#8c8c98"
@@ -173,6 +173,8 @@ theme.titlebar_bg_urgent = theme.bg_urg .. "99"
 theme.titlebar_fg_normal = theme.fg_alt
 theme.titlebar_fg_focus = theme.fg
 theme.titlebar_fg_urgent = theme.red
+
+theme.tab_bar_margin_height = dpi(3)
 
 theme.notification_margins = dpi(30)
 theme.notification_spacing = dpi(10)

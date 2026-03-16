@@ -51,17 +51,17 @@ local tasklist_buttons = awful.util.table.join(
 function bar.create_primary(s)
     local wibar = awful.wibar({
         position = "bottom",
-        ontop = true,
+        type = "dock",
         screen = s,
         height = dpi(30),
         border_width = dpi(0),
         border_color = beautiful.bg .. "66",
         bg = beautiful.bg .. "99",
         margins = {
-            left = -beautiful.border_width,
-            right = -beautiful.border_width,
+            left = 0,
+            right = 0,
             top = 0,
-            bottom = -beautiful.border_width,
+            bottom = 0,
         },
         widget = {
             layout = wibox.layout.align.horizontal,
@@ -113,7 +113,6 @@ function bar.create_primary(s)
             },
         },
     })
-    wibar.y = s.geometry.y + s.geometry.height - wibar.height
     return wibar
 end
 
@@ -127,17 +126,17 @@ function bar.create_secondary(s)
 
     local wibar = awful.wibar({
         position = "bottom",
-        ontop = true,
+        type = "dock",
         screen = s,
         height = dpi(40),
-        border_width = beautiful.border_width,
-        border_color = beautiful.fg_alt .. "99",
+        border_width = 0,
+        border_color = "#00000000",
         bg = beautiful.bg .. "99",
         margins = {
-            left = -beautiful.border_width,
-            right = -beautiful.border_width,
+            left = 0,
+            right = 0,
             top = 0,
-            bottom = -beautiful.border_width,
+            bottom = 0,
         },
         widget = {
             layout = wibox.layout.align.horizontal,
@@ -150,7 +149,6 @@ function bar.create_secondary(s)
             nil,
         },
     })
-    wibar.y = s.geometry.y + s.geometry.height - wibar.height
     return wibar
 end
 

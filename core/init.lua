@@ -8,6 +8,7 @@
 --   - tag: Virtual desktop (tag) management
 --   - client: Window (client) management rules and signals
 --   - keybind: Global and client keybindings
+--   - screen: Screen management and primary screen override
 
 require("core.autostart")
 require("core.error")
@@ -16,3 +17,4 @@ require("core.notification")
 require("core.tag")
 require("core.client")
 require("core.keybind")
+require("core.screen")

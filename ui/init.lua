@@ -32,7 +32,10 @@ local function setup_screen_bar(s)
     -- Skip if bar already exists
     if s.bar then
         io.stderr:write(
-            string.format("[BAR] Screen %d already has a bar, skipping\n", s.index)
+            string.format(
+                "[BAR] Screen %d already has a bar, skipping\n",
+                s.index
+            )
         )
         return
     end

@@ -26,14 +26,14 @@ local function launch_app(app)
     if not app then
         return
     end
-    
+
     -- Safely get desktop app info to check terminal requirement
     local term_needed = false
     if Gio.DesktopAppInfo then
         local status, desktop_app_info = pcall(function()
             return Gio.DesktopAppInfo.new(app:get_id())
         end)
-        
+
         if status and desktop_app_info then
             local term_status, terminal_string = pcall(function()
                 return desktop_app_info:get_string("Terminal")
@@ -43,7 +43,7 @@ local function launch_app(app)
             end
         end
     end
-    
+
     local term_status, term = pcall(function()
         return Gio.AppInfo.get_default_for_uri_scheme("terminal")
     end)
@@ -148,17 +148,46 @@ function launcher:update_entries()
         for i, app in ipairs(wp.filtered) do
             if i >= wp.start_index and i <= wp.start_index + wp.rows - 1 then
                 -- Safely get icon name from desktop info
-                local icon_name = app:get_name()
-                if Gio.DesktopAppInfo then
-                    local status, desktop_info = pcall(function()
+                local icon_name = "application-x-executable"
+                local icon = nil
+
+                -- Try to get icon directly from app object
+                local icon_status, icon_result = pcall(function()
+                    return app:get_icon()
+                end)
+                
+                if icon_status and icon_result then
+                    icon = icon_result
+                end
+
+                -- If we have a GIcon object, try to get icon names from it
+                if icon then
+                    local names_status, names = pcall(function()
+                        return icon:get_names()
+                    end)
+                    if names_status and names and names[1] then
+                        icon_name = names[1]
+                    elseif names_status and names == nil then
+                        -- ThemedIcon might return nil for get_names, use tostring
+                        local str_status, icon_str = pcall(function()
+                            return tostring(icon)
+                        end)
+                        if str_status and icon_str then
+                            icon_name = icon_str
+                        end
+                    end
+                end
+
+                -- Fallback: try to get icon from desktop entry file
+                if icon_name == "application-x-executable" and Gio.DesktopAppInfo then
+                    local desktop_status, desktop_info = pcall(function()
                         return Gio.DesktopAppInfo.new(app:get_id())
                     end)
-                    
-                    if status and desktop_info then
-                        local icon_status, icon_str = pcall(function()
+                    if desktop_status and desktop_info then
+                        local icon_str_status, icon_str = pcall(function()
                             return desktop_info:get_string("Icon")
                         end)
-                        if icon_status and icon_str then
+                        if icon_str_status and icon_str and icon_str ~= "" then
                             icon_name = icon_str
                         end
                     end
