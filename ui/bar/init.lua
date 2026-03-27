@@ -1,12 +1,13 @@
 -- ui/bar/init.lua
 -- This module defines and assembles the main status bar (wibar) for AwesomeWM.
--- This version corrects the layout to remove the duplicated time widget.
+-- Hover-reveal bar that slides in from bottom on mouse hover.
 
 local awful = require("awful")
 local wibox = require("wibox")
 local beautiful = require("beautiful")
 local dpi = beautiful.xresources.apply_dpi
 local menu = require("ui.popups.menu").get_default()
+local hover_bar = require("ui.bar.hover_bar")
 
 -- Load wibar component modules
 local launcher_button = require("ui.bar.modules.launcher_button")
@@ -14,7 +15,7 @@ local control_panel_button = require("ui.bar.modules.control_panel_button")
 local time_widget = require("ui.bar.modules.time_widget")
 local tray_widget = require("ui.bar.modules.tray_widget")
 local layoutbox_widget = require("ui.bar.modules.layoutbox_widget")
-local new_tags_widget = require("ui/bar/modules/taglist_and_tasklist_buttons")
+local new_tags_widget = require("ui.bar.modules.taglist_and_tasklist_buttons")
 local battery_widget = require("ui.bar.modules.battery")
 
 local bar = {}
@@ -49,71 +50,66 @@ local tasklist_buttons = awful.util.table.join(
 
 -- Creates the wibar for the primary screen.
 function bar.create_primary(s)
-    local wibar = awful.wibar({
-        position = "bottom",
-        type = "dock",
+    local bar_widget = {
+        layout = wibox.layout.align.horizontal,
+        {
+            -- Left widgets
+            widget = wibox.container.margin,
+            margins = {
+                top = dpi(2),
+                bottom = dpi(2),
+                left = dpi(7),
+                right = dpi(7),
+            },
+            {
+                layout = wibox.layout.fixed.horizontal,
+                spacing = dpi(8),
+                launcher_button(),
+            },
+        },
+        {
+            -- Center widgets
+            widget = wibox.container.margin,
+            margins = {
+                top = dpi(2),
+                bottom = dpi(2),
+                left = dpi(7),
+                right = dpi(7),
+            },
+            new_tags_widget.new({
+                screen = s,
+                taglist_buttons = taglist_buttons,
+                tasklist_buttons = tasklist_buttons,
+            }),
+        },
+        {
+            -- Right widgets
+            widget = wibox.container.margin,
+            margins = {
+                top = dpi(2),
+                bottom = dpi(2),
+                left = 0,
+                right = dpi(7),
+            },
+            {
+                layout = wibox.layout.fixed.horizontal,
+                spacing = dpi(8),
+                tray_widget(),
+                layoutbox_widget(s),
+                battery_widget(),
+                time_widget(),
+                control_panel_button(),
+            },
+        },
+    }
+
+    local hb = hover_bar.create({
         screen = s,
         height = dpi(30),
-        border_width = dpi(0),
-        border_color = beautiful.bg .. "66",
-        bg = beautiful.bg .. "99",
-        margins = {
-            left = 0,
-            right = 0,
-            top = 0,
-            bottom = 0,
-        },
-        widget = {
-            layout = wibox.layout.align.horizontal,
-            { -- Left widgets
-                widget = wibox.container.margin,
-                margins = {
-                    top = dpi(2),
-                    bottom = dpi(2),
-                    left = dpi(7),
-                    right = dpi(7),
-                },
-                {
-                    layout = wibox.layout.fixed.horizontal,
-                    spacing = dpi(8),
-                    launcher_button(),
-                },
-            },
-            { -- Center widgets
-                widget = wibox.container.margin,
-                margins = {
-                    top = dpi(2),
-                    bottom = dpi(2),
-                    left = dpi(7),
-                    right = dpi(7),
-                },
-                new_tags_widget.new({
-                    screen = s,
-                    taglist_buttons = taglist_buttons,
-                    tasklist_buttons = tasklist_buttons,
-                }),
-            },
-            { -- Right widgets
-                widget = wibox.container.margin,
-                margins = {
-                    top = dpi(2),
-                    bottom = dpi(2),
-                    left = 0,
-                    right = dpi(7),
-                },
-                {
-                    layout = wibox.layout.fixed.horizontal,
-                    spacing = dpi(8),
-                    tray_widget(),
-                    layoutbox_widget(s),
-                    battery_widget(),
-                    time_widget(), -- Correctly placed exactly once
-                    control_panel_button(),
-                },
-            },
-        },
+        widget = bar_widget,
+        is_primary = true,
     })
-    return wibar
+    return hb
 end
 
 -- Wibar for secondary screens.
@@ -124,32 +120,24 @@ function bar.create_secondary(s)
         tasklist_buttons = tasklist_buttons,
     })
 
-    local wibar = awful.wibar({
-        position = "bottom",
-        type = "dock",
+    local bar_widget = {
+        layout = wibox.layout.align.horizontal,
+        nil,
+        {
+            widget = wibox.container.margin,
+            margins = dpi(7),
+            tags_widget,
+        },
+        nil,
+    }
+
+    local hb = hover_bar.create({
         screen = s,
         height = dpi(40),
-        border_width = 0,
-        border_color = "#00000000",
-        bg = beautiful.bg .. "99",
-        margins = {
-            left = 0,
-            right = 0,
-            top = 0,
-            bottom = 0,
-        },
-        widget = {
-            layout = wibox.layout.align.horizontal,
-            nil,
-            {
-                widget = wibox.container.margin,
-                margins = dpi(7),
-                tags_widget,
-            },
-            nil,
-        },
+        widget = bar_widget,
+        is_primary = false,
     })
-    return wibar
+    return hb
 end
 
 return bar
