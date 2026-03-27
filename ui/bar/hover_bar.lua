@@ -27,6 +27,8 @@ function hover_bar.create(args)
     local hidden_y = screen_geo.y + screen_geo.height
     local visible_y = screen_geo.y + screen_geo.height - bar_height
 
+    local screen_geo_handler = nil
+
     -- State tracking
     local state = {
         is_visible = false,
@@ -85,13 +87,7 @@ function hover_bar.create(args)
             single_shot = true,
             callback = function()
                 if state.is_visible and not state.is_animating then
-                    hover_bar.hide(
-                        bar,
-                        state,
-                        screen_geo,
-                        bar_height,
-                        animation_controller
-                    )
+                    hide_bar()
                 end
             end,
         })
@@ -116,6 +112,29 @@ function hover_bar.create(args)
                 if callback then
                     callback()
                 end
+            end,
+        })
+    end
+
+    local function hide_bar()
+        local geo = screen.geometry
+        local target_y = geo.y + geo.height
+        cancel_hide_timer()
+        if animation_controller then
+            animation_controller.stop()
+        end
+        state.is_animating = true
+        animation_controller = anim.slide_y(bar, {
+            start = bar.y,
+            target = target_y,
+            duration = ANIMATION_DURATION,
+            easing = anim.easing.quadratic,
+            update = function(pos)
+                bar.y = pos
+            end,
+            complete = function()
+                state.is_animating = false
+                state.is_visible = false
             end,
         })
     end
@@ -145,7 +164,7 @@ function hover_bar.create(args)
     end)
 
     -- Handle screen geometry changes
-    screen:connect_signal("property::geometry", function()
+    screen_geo_handler = function()
         local geo = screen.geometry
         local new_hidden_y = geo.y + geo.height
         local new_visible_y = geo.y + geo.height - bar_height
@@ -162,7 +181,8 @@ function hover_bar.create(args)
         else
             bar.y = new_hidden_y
         end
-    end)
+    end
+    screen:connect_signal("property::geometry", screen_geo_handler)
 
     return {
         bar = bar,
@@ -175,49 +195,20 @@ function hover_bar.create(args)
             end
         end,
         hide = function()
-            cancel_hide_timer()
-            if state.is_visible then
-                hover_bar.hide(
-                    bar,
-                    state,
-                    screen_geo,
-                    bar_height,
-                    animation_controller
-                )
-            end
+            hide_bar()
         end,
         destroy = function()
             cancel_hide_timer()
             if animation_controller then
                 animation_controller.stop()
             end
+            if screen_geo_handler then
+                screen:disconnect_signal("property::geometry", screen_geo_handler)
+            end
             bar:destroy()
             trigger_zone:destroy()
         end,
     }
-end
-
-function hover_bar.hide(bar, state, screen_geo, bar_height, animation_controller)
-    local hidden_y = screen_geo.y + screen_geo.height
-
-    if animation_controller then
-        animation_controller.stop()
-    end
-
-    state.is_animating = true
-    animation_controller = anim.slide_y(bar, {
-        start = bar.y,
-        target = hidden_y,
-        duration = ANIMATION_DURATION,
-        easing = anim.easing.quadratic,
-        update = function(pos)
-            bar.y = pos
-        end,
-        complete = function()
-            state.is_animating = false
-            state.is_visible = false
-        end,
-    })
 end
 
 return hover_bar
