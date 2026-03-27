@@ -40,38 +40,33 @@ local function setup_screen_bar(s)
         return
     end
 
-    local success, err = pcall(function()
-        if s == capi.screen.primary then
-            s.bar = bar.create_primary(s)
-            s.bar:connect_signal("property::visible", function()
-                if control_panel.visible == true then
-                    gtimer.delayed_call(function()
-                        awful.placement.bottom_right(control_panel, {
-                            honor_workarea = true,
-                            margins = beautiful.useless_gap,
-                        })
-                    end)
-                end
+	local success, err = pcall(function()
+		if s == capi.screen.primary then
+			s.bar = bar.create_primary(s)
+			s.bar.bar:connect_signal("property::visible", function()
+				if control_panel.visible == true then
+					gtimer.delayed_call(function()
+						awful.placement.bottom_right(control_panel, {
+							honor_workarea = true,
+							margins = beautiful.useless_gap,
+						})
+					end)
+				end
 
-                if launcher.visible == true then
-                    gtimer.delayed_call(function()
-                        awful.placement.bottom_left(launcher, {
-                            honor_workarea = true,
-                            margins = beautiful.useless_gap,
-                        })
-                    end)
-                end
-            end)
-        else
-            s.bar = bar.create_secondary(s)
-        end
-
-        s.bar.visible = true
-        awful.placement.bottom(s.bar, {
-            honor_workarea = false,
-            margins = { bottom = 0 },
-        })
-    end)
+				if launcher.visible == true then
+					gtimer.delayed_call(function()
+						awful.placement.bottom_left(launcher, {
+							honor_workarea = true,
+							margins = beautiful.useless_gap,
+						})
+					end)
+				end
+			end)
+		else
+			s.bar = bar.create_secondary(s)
+		end
+		-- Hover bar manages its own visibility and positioning
+	end)
 
     if not success then
         naughty.notification({
@@ -152,4 +147,4 @@ end)
 
 require("ui.titlebar")
 require("ui.tabbar")
-require("ui.popups.window_switcher")
+require("ui.popups.window_switcher").enable()
