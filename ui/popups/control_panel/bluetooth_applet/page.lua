@@ -3,12 +3,17 @@ local wibox = require("wibox")
 local beautiful = require("beautiful")
 local gears = require("gears")
 local modules = require("modules")
+local button_styles = require("modules.button_styles")
 local shapes = require("modules.shapes.init")
 local text_icons = beautiful.text_icons
 local dpi = beautiful.xresources.apply_dpi
 local adapter = require("service.bluetooth").get_default()
 
-local ICON_LOCK = beautiful.theme_path .. "/icons/power/lock.svg"
+local ICONS_PATH = beautiful.theme_path .. "/icons/"
+local ICON_LOCK = ICONS_PATH .. "power/lock.svg"
+local ICON_BLUETOOTH = ICONS_PATH .. "wibar/bluetooth.svg"
+local ICON_SEARCH = ICONS_PATH .. "wibar/settings.svg"
+local ICON_BACK = ICONS_PATH .. "wibar/arrow-left.svg"
 
 local function create_dev_widget(path)
     local dev = adapter:get_device(path)
@@ -322,54 +327,59 @@ local function new()
             {
                 id = "bottom-bar",
                 widget = wibox.container.background,
-                forced_height = dpi(50),
-                bg = beautiful.bg_alt,
+            forced_height = dpi(50),
+            bg = beautiful.bg_alt,
+            {
+                layout = wibox.layout.align.horizontal,
                 {
-                    layout = wibox.layout.align.horizontal,
-                    {
-                        layout = wibox.layout.fixed.horizontal,
-                        spacing = beautiful.separator_thickness + dpi(2),
-                        spacing_widget = {
-                            widget = wibox.container.margin,
-                            margins = { top = dpi(12), bottom = dpi(12) },
-                            {
-                                widget = wibox.widget.separator,
-                                orientation = "vertical",
-                            },
-                        },
+                    layout = wibox.layout.fixed.horizontal,
+                    spacing = beautiful.separator_thickness + dpi(2),
+                    spacing_widget = {
+                        widget = wibox.container.margin,
+                        margins = { top = dpi(12), bottom = dpi(12) },
                         {
-                            id = "bottombar-toggle-button",
-                            widget = modules.hover_button({
-                                forced_width = dpi(50),
-                                forced_height = dpi(50),
-                            }),
-                        },
-                        {
-                            id = "bottombar-discover-button",
-                            widget = modules.hover_button({
-                                label = text_icons.search,
-                                forced_width = dpi(50),
-                                forced_height = dpi(50),
-                            }),
+                            widget = wibox.widget.separator,
+                            orientation = "vertical",
                         },
                     },
-                    nil,
                     {
-                        id = "bottombar-close-button",
-                        widget = modules.hover_button({
-                            label = text_icons.arrow_left,
-                            forced_width = dpi(50),
-                            forced_height = dpi(50),
-                        }),
+                        id = "bottombar-toggle-button",
+                        widget = modules.hover_button(
+                            button_styles.icon_button({
+                                icon = ICON_BLUETOOTH,
+                                size = dpi(22),
+                                radius = 10,
+                            })
+                        ),
                     },
+                    {
+                        id = "bottombar-discover-button",
+                        widget = modules.hover_button(
+                            button_styles.icon_button({
+                                icon = ICON_SEARCH,
+                                size = dpi(22),
+                                radius = 10,
+                            })
+                        ),
+                    },
+                },
+                nil,
+                {
+                    id = "bottombar-close-button",
+                    widget = modules.hover_button(
+                        button_styles.icon_button({
+                            icon = ICON_BACK,
+                            size = dpi(22),
+                            radius = 10,
+                        })
+                    ),
                 },
             },
         },
-    })
+    },
+})
 
-    ret:get_children_by_id("bottom-bar")[1].shape = shapes.rrect(10)
-    ret:get_children_by_id("bottombar-toggle-button")[1].shape =
-        shapes.rrect(10)
+ret:get_children_by_id("bottom-bar")[1].shape = shapes.rrect(10)
     ret:get_children_by_id("bottombar-discover-button")[1].shape =
         shapes.rrect(10)
     ret:get_children_by_id("bottombar-close-button")[1].shape = shapes.rrect(10)
