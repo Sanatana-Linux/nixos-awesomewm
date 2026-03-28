@@ -13,7 +13,7 @@ local icons_path = theme_path .. "icons/"
 
 local theme = {}
 
-theme.font_name = " "
+theme.font_name = "OperatorUltraNerdFontComplete Nerd Font Propo "
 theme.taglist_font = "awesomewm-font 10"
 theme.font = theme.font_name .. tostring(dpi(13))
 
