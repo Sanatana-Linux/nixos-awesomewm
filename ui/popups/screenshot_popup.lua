@@ -15,54 +15,51 @@ local icons_dir = gfs.get_configuration_dir() .. "ui/popups/screenshot_popup/ico
 local titlebar_close_icon = gfs.get_configuration_dir() .. "ui/titlebar/icons/close.svg"
 
 local function createButton(icon_path, name, fn)
-    local button = wibox.widget({
-        widget = wibox.container.background,
-        bg = beautiful.bg_gradient_button_alt,
-        shape = shapes.rrect(8),
-        border_width = dpi(1.5),
-        border_color = beautiful.fg_alt .. "99",
-        forced_width = dpi(108),
-        forced_height = dpi(108),
-        buttons = {
-            awful.button({}, 1, function()
-                fn()
-            end),
-        },
-        {
-            widget = wibox.container.margin,
-            margins = dpi(15),
-            {
-                widget = wibox.container.place,
-                halign = "center",
-                valign = "center",
-                {
-                    widget = wibox.widget.imagebox,
-                    image = icon_path,
-                    resize = true,
-                    forced_width = dpi(48),
-                    forced_height = dpi(48),
-                },
-            },
-        },
-    })
+	local button = wibox.widget({
+		widget = wibox.container.background,
+		bg = beautiful.bg_gradient_button,
+		shape = shapes.rrect(8),
+		forced_width = dpi(108),
+		forced_height = dpi(108),
+		buttons = {
+			awful.button({}, 1, function()
+				fn()
+			end),
+		},
+		{
+			widget = wibox.container.margin,
+			margins = dpi(15),
+			{
+				widget = wibox.container.place,
+				halign = "center",
+				valign = "center",
+				{
+					widget = wibox.widget.imagebox,
+					image = icon_path,
+					resize = true,
+					forced_width = dpi(48),
+					forced_height = dpi(48),
+				},
+			},
+		},
+	})
 
-    -- Add hover effects manually
-    button:connect_signal("mouse::enter", function(w)
-        w:set_bg(beautiful.bg_gradient_recessed)
-    end)
+	button:connect_signal("mouse::enter", function(w)
+		w:set_bg(beautiful.bg_gradient_button_alt)
+	end)
 
-    button:connect_signal("mouse::leave", function(w)
-        w:set_bg(beautiful.bg_gradient_button_alt)
-    end)
+	button:connect_signal("mouse::leave", function(w)
+		w:set_bg(beautiful.bg_gradient_button)
+	end)
 
-    awful.tooltip({
-        objects = { button },
-        text = name,
-        bg = beautiful.bg_urg,
-        fg = beautiful.fg,
-    })
+	awful.tooltip({
+		objects = { button },
+		text = name,
+		bg = beautiful.bg_urg,
+		fg = beautiful.fg,
+	})
 
-    return button
+	return button
 end
 
 local screenshot_popup = {}
@@ -114,46 +111,42 @@ function screenshot_popup:new()
         end
     )
 
-    local close_button = wibox.widget({
-        widget = wibox.container.background,
-        bg = beautiful.bg_gradient_button,
-        shape = shapes.rrect(8),
-        forced_width = dpi(32),
-        forced_height = dpi(32),
-        buttons = {
-            awful.button({}, 1, function()
-                close_popup()
-            end),
-        },
-        {
-            widget = wibox.container.margin,
-            margins = dpi(6),
-            {
-                widget = wibox.container.place,
-                halign = "center",
-                valign = "center",
-                {
-                    widget = wibox.widget.imagebox,
-                    image = gears.color.recolor_image(
-                        titlebar_close_icon,
-                        beautiful.fg
-                    ),
-                    resize = true,
-                    forced_width = dpi(20),
-                    forced_height = dpi(20),
-                },
-            },
-        },
-    })
+	local close_button = wibox.widget({
+		widget = wibox.container.background,
+		bg = beautiful.bg_gradient_button,
+		shape = shapes.rrect(8),
+		forced_width = dpi(32),
+		forced_height = dpi(32),
+		buttons = {
+			awful.button({}, 1, function()
+				close_popup()
+			end),
+		},
+		{
+			widget = wibox.container.margin,
+			margins = dpi(6),
+			{
+				widget = wibox.container.place,
+				halign = "center",
+				valign = "center",
+				{
+					widget = wibox.widget.imagebox,
+					image = gears.color.recolor_image(titlebar_close_icon, beautiful.fg),
+					resize = true,
+					forced_width = dpi(20),
+					forced_height = dpi(20),
+				},
+			},
+		},
+	})
 
-    -- Add hover effects
-    close_button:connect_signal("mouse::enter", function(w)
-        w:set_bg("linear:0,0:0,32:0," .. beautiful.red .. ":1," .. "#b61442")
-    end)
+	close_button:connect_signal("mouse::enter", function(w)
+		w:set_bg(beautiful.bg_gradient_button_alt)
+	end)
 
-    close_button:connect_signal("mouse::leave", function(w)
-        w:set_bg(beautiful.bg_gradient_button)
-    end)
+	close_button:connect_signal("mouse::leave", function(w)
+		w:set_bg(beautiful.bg_gradient_button)
+	end)
 
     ret.widget:setup({
         {
