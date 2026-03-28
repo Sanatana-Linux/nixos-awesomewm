@@ -110,12 +110,12 @@ local function create_notification_popup(n)
             return { 0, 0 }
         end,
         widget = {
-            widget = wibox.container.background,
-            bg = beautiful.bg,
-            fg = beautiful.fg,
-            border_color = beautiful.border_color_normal,
-            border_width = beautiful.border_width,
-            shape = shapes.rrect_20,
+		widget = wibox.container.background,
+		bg = beautiful.bg .. "99",
+		fg = beautiful.fg,
+		border_color = beautiful.border_color_normal,
+		border_width = beautiful.border_width,
+		shape = shapes.rrect_20,
             {
                 widget = wibox.container.margin,
                 margins = dpi(15),

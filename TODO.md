@@ -11,7 +11,7 @@
   - [ ] TODO no icons on buttons
   - [ ] TODO non-functional backend state
 
-- [ ] TODO change font to OperatorUltraNerdFontComplete Nerd Font Propo
+- [x] TODO change font to OperatorUltraNerdFontComplete Nerd Font Propo
 
 - [ ] TODO create a backdrop component that is placed behind the popup windows
   - [ ] TODO it should be semi-transparent black, something like #00000088
