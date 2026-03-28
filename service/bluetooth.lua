@@ -2,6 +2,7 @@ local lgi = require("lgi")
 local dbus_proxy = require("lib.dbus_proxy")
 local gobject = require("gears.object")
 local gtable = require("gears.table")
+local awful = require("awful")
 
 local adapter = {}
 local device = {}
@@ -101,7 +102,25 @@ function adapter:stop_discovery()
 end
 
 function adapter:get_discovering()
-    return self._private.adapter_proxy.Discovering
+	return self._private.adapter_proxy.Discovering
+end
+
+function adapter:get_powered()
+	return self._private.adapter_proxy.Powered
+end
+
+function adapter:is_blocked()
+	return self._private.blocked or false
+end
+
+function adapter:unblock(callback)
+	awful.spawn.easy_async("rfkill unblock bluetooth", function()
+		self._private.blocked = false
+		self:emit_signal("property::blocked", false)
+		if callback then
+			callback()
+		end
+	end)
 end
 
 function adapter:get_devices()
@@ -262,10 +281,15 @@ local function new()
                     ret.devices[path] = create_device_object(path)
                 end
             end
-        end
-    end
+	end
+	end
 
-    return ret
+	awful.spawn.easy_async("rfkill list bluetooth", function(stdout)
+		ret._private.blocked = stdout:match("Soft blocked: yes") ~= nil
+		ret:emit_signal("property::blocked", ret._private.blocked)
+	end)
+
+	return ret
 end
 
 local instance = nil

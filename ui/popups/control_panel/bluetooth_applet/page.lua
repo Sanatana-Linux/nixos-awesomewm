@@ -230,51 +230,71 @@ local function on_discovering(self, discovering)
 end
 
 local function on_powered(self, powered)
-    local devs_layout = self:get_children_by_id("devices-layout")[1]
-    local bottombar_toggle_button =
-        self:get_children_by_id("bottombar-toggle-button")[1]
-    local bottombar_discover_button =
-        self:get_children_by_id("bottombar-discover-button")[1]
+	local devs_layout = self:get_children_by_id("devices-layout")[1]
+	local bottombar_toggle_button = self:get_children_by_id("bottombar-toggle-button")[1]
+	local bottombar_discover_button = self:get_children_by_id("bottombar-discover-button")[1]
 
-    on_discovering(self, adapter:get_discovering())
+	on_discovering(self, adapter:get_discovering())
 
-    if powered then
-        bottombar_toggle_button:set_label(text_icons.switch_on)
-        devs_layout:reset()
-        devs_layout:add(wibox.widget({
-            widget = wibox.container.background,
-            fg = beautiful.fg_alt,
-            forced_height = dpi(400),
-            {
-                widget = wibox.widget.textbox,
-                align = "center",
-                font = beautiful.font_name .. dpi(12),
-                markup = text_icons.wait,
-            },
-        }))
+	if powered then
+		bottombar_toggle_button:set_label(text_icons.switch_on)
+		devs_layout:reset()
+		devs_layout:add(wibox.widget({
+			widget = wibox.container.background,
+			fg = beautiful.fg_alt,
+			forced_height = dpi(400),
+			{
+				widget = wibox.widget.textbox,
+				align = "center",
+				font = beautiful.font_name .. dpi(12),
+				markup = text_icons.wait,
+			},
+		}))
 
-        for _, dev in pairs(adapter:get_devices()) do
-            on_device_added(self, dev:get_path())
-        end
+		for _, dev in pairs(adapter:get_devices()) do
+			on_device_added(self, dev:get_path())
+		end
 
-        adapter:start_discovery()
-    else
-        bottombar_toggle_button:set_label(text_icons.switch_off)
-        bottombar_discover_button:set_fg(beautiful.fg)
-        bottombar_discover_button:set_bg(beautiful.bg_alt)
-        devs_layout:reset()
-        devs_layout:add(wibox.widget({
-            widget = wibox.container.background,
-            fg = beautiful.fg_alt,
-            forced_height = dpi(400),
-            {
-                widget = wibox.widget.textbox,
-                align = "center",
-                font = beautiful.font_name .. dpi(12),
-                markup = "Bluetooth disabled",
-            },
-        }))
-    end
+		adapter:start_discovery()
+	else
+		bottombar_toggle_button:set_label(text_icons.switch_off)
+		bottombar_discover_button:set_fg(beautiful.fg)
+		bottombar_discover_button:set_bg(beautiful.bg_alt)
+		devs_layout:reset()
+		devs_layout:add(wibox.widget({
+			widget = wibox.container.background,
+			fg = beautiful.fg_alt,
+			forced_height = dpi(400),
+			{
+				widget = wibox.widget.textbox,
+				align = "center",
+				font = beautiful.font_name .. dpi(12),
+				markup = "Bluetooth disabled",
+			},
+		}))
+	end
+end
+
+local function on_blocked(self, blocked)
+	local devs_layout = self:get_children_by_id("devices-layout")[1]
+	local bottombar_toggle_button = self:get_children_by_id("bottombar-toggle-button")[1]
+
+	if blocked then
+		bottombar_toggle_button:set_label(text_icons.lock)
+		bottombar_toggle_button:set_label("Unblock")
+		devs_layout:reset()
+		devs_layout:add(wibox.widget({
+			widget = wibox.container.background,
+			fg = beautiful.fg_alt,
+			forced_height = dpi(400),
+			{
+				widget = wibox.widget.textbox,
+				align = "center",
+				font = beautiful.font_name .. dpi(12),
+				markup = "Bluetooth is blocked\nClick toggle to unblock",
+			},
+		}))
+	end
 end
 
 local function new()
@@ -350,13 +370,18 @@ local function new()
         shapes.rrect(10)
     ret:get_children_by_id("bottombar-close-button")[1].shape = shapes.rrect(10)
 
-    local bottombar_toggle_button =
-        ret:get_children_by_id("bottombar-toggle-button")[1]
-    bottombar_toggle_button:buttons({
-        awful.button({}, 1, function()
-            adapter:set_powered(not adapter:get_powered())
-        end),
-    })
+local bottombar_toggle_button = ret:get_children_by_id("bottombar-toggle-button")[1]
+bottombar_toggle_button:buttons({
+	awful.button({}, 1, function()
+		if adapter:is_blocked() then
+			adapter:unblock(function()
+				adapter:set_powered(true)
+			end)
+		else
+			adapter:set_powered(not adapter:get_powered())
+		end
+	end),
+})
 
     local bottombar_discover_button =
         ret:get_children_by_id("bottombar-discover-button")[1]
@@ -384,11 +409,15 @@ local function new()
         on_discovering(ret, dsc)
     end)
 
-    adapter:connect_signal("property::powered", function(_, powered)
-        on_powered(ret, powered)
-    end)
+	adapter:connect_signal("property::powered", function(_, powered)
+		on_powered(ret, powered)
+	end)
 
-    on_powered(ret, adapter:get_powered())
+	adapter:connect_signal("property::blocked", function(_, blocked)
+		on_blocked(ret, blocked)
+	end)
+
+	on_powered(ret, adapter:get_powered())
 
     return ret
 end
