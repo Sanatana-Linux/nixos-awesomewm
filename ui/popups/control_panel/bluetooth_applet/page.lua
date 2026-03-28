@@ -5,13 +5,13 @@ local gears = require("gears")
 local modules = require("modules")
 local button_styles = require("modules.button_styles")
 local shapes = require("modules.shapes.init")
+local page_container = require("modules.page_container")
 local text_icons = beautiful.text_icons
 local dpi = beautiful.xresources.apply_dpi
 local adapter = require("service.bluetooth").get_default()
 
 local ICONS_PATH = beautiful.theme_path .. "/icons/"
 local ICON_LOCK = ICONS_PATH .. "power/lock.svg"
-local ICON_BLUETOOTH = ICONS_PATH .. "wibar/bluetooth.svg"
 local ICON_SEARCH = ICONS_PATH .. "wibar/settings.svg"
 local ICON_BACK = ICONS_PATH .. "wibar/arrow-left.svg"
 
@@ -88,10 +88,10 @@ local function create_dev_widget(path)
     })
 
     local header = dev_widget:get_children_by_id("header")[1]
-    header.shape =
-        shapes.rrect(10), header:connect_signal("mouse::enter", function(w)
-            w:set_bg(beautiful.bg_urg)
-        end)
+    header.shape = shapes.rrect(10)
+    header:connect_signal("mouse::enter", function(w)
+        w:set_bg(beautiful.bg_urg)
+    end)
 
     header:connect_signal("mouse::leave", function(w)
         w:set_bg(nil)
@@ -238,54 +238,57 @@ local function on_discovering(self, discovering)
 end
 
 local function on_powered(self, powered)
-	local devs_layout = self:get_children_by_id("devices-layout")[1]
-	local bottombar_toggle_button = self:get_children_by_id("bottombar-toggle-button")[1]
-	local bottombar_discover_button = self:get_children_by_id("bottombar-discover-button")[1]
+    local devs_layout = self:get_children_by_id("devices-layout")[1]
+    local bottombar_toggle_button =
+        self:get_children_by_id("bottombar-toggle-button")[1]
+    local bottombar_discover_button =
+        self:get_children_by_id("bottombar-discover-button")[1]
 
-	on_discovering(self, adapter:get_discovering())
+    on_discovering(self, adapter:get_discovering())
 
-	if powered then
-		bottombar_toggle_button:set_label(text_icons.switch_on)
-		devs_layout:reset()
-		devs_layout:add(wibox.widget({
-			widget = wibox.container.background,
-			fg = beautiful.fg_alt,
-			forced_height = dpi(400),
-			{
-				widget = wibox.widget.textbox,
-				align = "center",
-				font = beautiful.font_name .. dpi(12),
-				markup = text_icons.wait,
-			},
-		}))
+    if powered then
+        bottombar_toggle_button:set_label(text_icons.switch_on)
+        devs_layout:reset()
+        devs_layout:add(wibox.widget({
+            widget = wibox.container.background,
+            fg = beautiful.fg_alt,
+            forced_height = dpi(400),
+            {
+                widget = wibox.widget.textbox,
+                align = "center",
+                font = beautiful.font_name .. dpi(12),
+                markup = text_icons.wait,
+            },
+        }))
 
-		for _, dev in pairs(adapter:get_devices()) do
-			on_device_added(self, dev:get_path())
-		end
+        for _, dev in pairs(adapter:get_devices()) do
+            on_device_added(self, dev:get_path())
+        end
 
-		adapter:start_discovery()
-	else
-		bottombar_toggle_button:set_label(text_icons.switch_off)
-		bottombar_discover_button:set_fg(beautiful.fg)
-		bottombar_discover_button:set_bg(beautiful.bg_alt)
-		devs_layout:reset()
-		devs_layout:add(wibox.widget({
-			widget = wibox.container.background,
-			fg = beautiful.fg_alt,
-			forced_height = dpi(400),
-			{
-				widget = wibox.widget.textbox,
-				align = "center",
-				font = beautiful.font_name .. dpi(12),
-				markup = "Bluetooth disabled",
-			},
-		}))
-	end
+        adapter:start_discovery()
+    else
+        bottombar_toggle_button:set_label(text_icons.switch_off)
+        bottombar_discover_button:set_fg(beautiful.fg)
+        bottombar_discover_button:set_bg(beautiful.bg_alt)
+        devs_layout:reset()
+        devs_layout:add(wibox.widget({
+            widget = wibox.container.background,
+            fg = beautiful.fg_alt,
+            forced_height = dpi(400),
+            {
+                widget = wibox.widget.textbox,
+                align = "center",
+                font = beautiful.font_name .. dpi(12),
+                markup = "Bluetooth disabled",
+            },
+        }))
+    end
 end
 
 local function on_blocked(self, blocked)
     local devs_layout = self:get_children_by_id("devices-layout")[1]
-    local bottombar_toggle_button = self:get_children_by_id("bottombar-toggle-button")[1]
+    local bottombar_toggle_button =
+        self:get_children_by_id("bottombar-toggle-button")[1]
 
     if blocked then
         bottombar_toggle_button:set_image(
@@ -307,9 +310,8 @@ local function on_blocked(self, blocked)
 end
 
 local function new()
-    local ret = wibox.widget({
-        widget = wibox.container.background,
-        {
+    local ret = page_container({
+        content = {
             layout = wibox.layout.fixed.vertical,
             spacing = dpi(8),
             {
@@ -327,75 +329,72 @@ local function new()
             {
                 id = "bottom-bar",
                 widget = wibox.container.background,
-            forced_height = dpi(50),
-            bg = beautiful.bg_alt,
-            {
-                layout = wibox.layout.align.horizontal,
+                forced_height = dpi(50),
+                bg = beautiful.bg_alt,
+                shape = shapes.rrect(10),
                 {
-                    layout = wibox.layout.fixed.horizontal,
-                    spacing = beautiful.separator_thickness + dpi(2),
-                    spacing_widget = {
-                        widget = wibox.container.margin,
-                        margins = { top = dpi(12), bottom = dpi(12) },
+                    layout = wibox.layout.align.horizontal,
+                    {
+                        layout = wibox.layout.fixed.horizontal,
+                        spacing = beautiful.separator_thickness + dpi(2),
+                        spacing_widget = {
+                            widget = wibox.container.margin,
+                            margins = { top = dpi(12), bottom = dpi(12) },
+                            {
+                                widget = wibox.widget.separator,
+                                orientation = "vertical",
+                            },
+                        },
                         {
-                            widget = wibox.widget.separator,
-                            orientation = "vertical",
+                            id = "bottombar-toggle-button",
+                            widget = modules.hover_button(
+                                button_styles.icon_button({
+                                    icon = ICONS_PATH .. "wibar/bluetooth.svg",
+                                    size = dpi(22),
+                                    radius = 10,
+                                })
+                            ),
+                        },
+                        {
+                            id = "bottombar-discover-button",
+                            widget = modules.hover_button(
+                                button_styles.icon_button({
+                                    icon = ICON_SEARCH,
+                                    size = dpi(22),
+                                    radius = 10,
+                                })
+                            ),
                         },
                     },
+                    nil,
                     {
-                        id = "bottombar-toggle-button",
+                        id = "bottombar-close-button",
                         widget = modules.hover_button(
                             button_styles.icon_button({
-                                icon = ICON_BLUETOOTH,
+                                icon = ICON_BACK,
                                 size = dpi(22),
                                 radius = 10,
                             })
                         ),
                     },
-                    {
-                        id = "bottombar-discover-button",
-                        widget = modules.hover_button(
-                            button_styles.icon_button({
-                                icon = ICON_SEARCH,
-                                size = dpi(22),
-                                radius = 10,
-                            })
-                        ),
-                    },
-                },
-                nil,
-                {
-                    id = "bottombar-close-button",
-                    widget = modules.hover_button(
-                        button_styles.icon_button({
-                            icon = ICON_BACK,
-                            size = dpi(22),
-                            radius = 10,
-                        })
-                    ),
                 },
             },
         },
-    },
-})
+    })
 
-ret:get_children_by_id("bottom-bar")[1].shape = shapes.rrect(10)
-    ret:get_children_by_id("bottombar-discover-button")[1].shape =
-        shapes.rrect(10)
-    ret:get_children_by_id("bottombar-close-button")[1].shape = shapes.rrect(10)
-
-local bottombar_toggle_button = ret:get_children_by_id("bottombar-toggle-button")[1]
-bottombar_toggle_button:buttons({
-	awful.button({}, 1, function()
-		if adapter:is_blocked() then
-			adapter:unblock(function()
-				adapter:set_powered(true)
-			end)
-		else
-			adapter:set_powered(not adapter:get_powered())
-		end
-	end),
-})
+    local bottombar_toggle_button =
+        ret:get_children_by_id("bottombar-toggle-button")[1]
+    bottombar_toggle_button:buttons({
+        awful.button({}, 1, function()
+            if adapter:is_blocked() then
+                adapter:unblock(function()
+                    adapter:set_powered(true)
+                end)
+            else
+                adapter:set_powered(not adapter:get_powered())
+            end
+        end),
+    })
 
     local bottombar_discover_button =
         ret:get_children_by_id("bottombar-discover-button")[1]
@@ -423,15 +422,15 @@ bottombar_toggle_button:buttons({
         on_discovering(ret, dsc)
     end)
 
-	adapter:connect_signal("property::powered", function(_, powered)
-		on_powered(ret, powered)
-	end)
+    adapter:connect_signal("property::powered", function(_, powered)
+        on_powered(ret, powered)
+    end)
 
-	adapter:connect_signal("property::blocked", function(_, blocked)
-		on_blocked(ret, blocked)
-	end)
+    adapter:connect_signal("property::blocked", function(_, blocked)
+        on_blocked(ret, blocked)
+    end)
 
-	on_powered(ret, adapter:get_powered())
+    on_powered(ret, adapter:get_powered())
 
     return ret
 end
