@@ -4,6 +4,7 @@ local wibox = require("wibox")
 local gtable = require("gears.table")
 local gtimer = require("gears.timer")
 local gears = require("gears")
+local gfs = require("gears.filesystem")
 local modules = require("modules")
 local beautiful = require("beautiful")
 local shapes = require("modules.shapes")
@@ -11,6 +12,8 @@ local ncr = naughty.notification_closed_reason
 local dpi = beautiful.xresources.apply_dpi
 local create_markup = require("lib").create_markup
 local remove_nonindex = require("lib").remove_nonindex
+
+local close_icon = gfs.get_configuration_dir() .. "ui/notification/icons/close.svg"
 
 local notifications = {}
 
@@ -147,16 +150,16 @@ local function create_notification_popup(n)
                                 ),
                             },
                             {
-                                {
-                                    id = "close",
-                                    widget = wibox.widget.imagebox,
-                                    image = gears.color.recolor_image(
-                                        beautiful.titlebar_icons.close,
-                                        beautiful.fg
-                                    ),
-                                    forced_width = dpi(12),
-                                    forced_height = dpi(12),
-                                },
+                        {
+                            id = "close",
+                            widget = wibox.widget.imagebox,
+                            image = gears.color.recolor_image(
+                                close_icon,
+                                beautiful.fg
+                            ),
+                            forced_width = dpi(12),
+                            forced_height = dpi(12),
+                        },
                                 widget = wibox.container.margin,
                                 margins = dpi(1),
                             },

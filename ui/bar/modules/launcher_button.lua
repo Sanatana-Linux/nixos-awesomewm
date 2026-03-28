@@ -1,13 +1,15 @@
 -- ui/bar/modules/launcher_button.lua
 -- Encapsulates the wibar button for the application launcher.
--- Now uses the SVG icon from the theme.
 
 local awful = require("awful")
 local beautiful = require("beautiful")
 local wibox = require("wibox")
+local gfs = require("gears.filesystem")
 local launcher = require("ui.popups.launcher").get_default()
 local dpi = beautiful.xresources.apply_dpi
 local shapes = require("modules.shapes.init")
+
+local icon_path = gfs.get_configuration_dir() .. "ui/bar/modules/launcher_button/icons/nix.svg"
 
 -- Creates a button to toggle the application launcher using the SVG icon.
 -- @return widget The launcher button widget.
@@ -29,7 +31,7 @@ return function()
             {
                 id = "icon",
                 widget = wibox.widget.imagebox,
-                image = beautiful.launcher_icon,
+                image = icon_path,
                 resize = true,
             },
         },

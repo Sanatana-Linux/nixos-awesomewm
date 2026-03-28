@@ -3,12 +3,20 @@ local wibox = require("wibox")
 local naughty = require("naughty")
 local beautiful = require("beautiful")
 local gtable = require("gears.table")
+local gfs = require("gears.filesystem")
+local gcolor = require("gears.color")
 local modules = require("modules")
-local text_icons = beautiful.text_icons
 local ncr = naughty.notification_closed_reason
 local dpi = beautiful.xresources.apply_dpi
 local create_markup = require("lib").create_markup
 local shapes = require("modules.shapes")
+
+local icons_dir = gfs.get_configuration_dir()
+    .. "ui/popups/control_panel/notification_list/icons/"
+local bell_on_icon = icons_dir .. "bell-on.svg"
+local bell_off_icon = icons_dir .. "bell-off.svg"
+local trash_icon = icons_dir .. "trash.svg"
+local close_icon = icons_dir .. "close.svg"
 
 local notification_list = {}
 
@@ -102,11 +110,21 @@ local function create_notification_widget(n)
                             },
                             {
                                 id = "close",
-                                widget = wibox.widget.textbox,
-                                markup = create_markup(
-                                    text_icons.cross,
-                                    { fg = beautiful.red }
-                                ),
+                                widget = modules.hover_button({
+icon_source = close_icon,
+                icon_normal_color = beautiful.red,
+                icon_hover_color = beautiful.bg,
+                                    child_widget = {
+                                        widget = wibox.widget.imagebox,
+                                        image = gcolor.recolor_image(
+                                            close_icon,
+                                            beautiful.red
+                                        ),
+                                        resize = true,
+                                        forced_width = dpi(16),
+                                        forced_height = dpi(16),
+                                    },
+                                }),
                             },
                         },
                     },
@@ -307,21 +325,57 @@ local function new()
                         {
                             id = "dnd-button",
                             widget = modules.hover_button({
-                                label = text_icons.bell_on,
                                 bg_normal = beautiful.bg,
                                 margins = { right = dpi(11), left = dpi(11) },
                                 shape = shapes.rrect(10),
+                                forced_height = dpi(36),
+                                forced_width = dpi(42),
+                                child_widget = {
+                                    widget = wibox.container.place,
+                                    halign = "center",
+                                    valign = "center",
+                                    {
+                                        id = "dnd-icon",
+                                        widget = wibox.widget.imagebox,
+                                        image = gcolor.recolor_image(
+                                            bell_on_icon,
+                                            beautiful.fg
+                                        ),
+                                        resize = true,
+                                        forced_width = dpi(20),
+                                        forced_height = dpi(20),
+                                    },
+                                },
                             }),
                         },
                         {
                             id = "clear-button",
                             widget = modules.hover_button({
-                                label = text_icons.trash,
                                 fg_normal = beautiful.red,
                                 bg_normal = beautiful.bg,
                                 bg_hover = beautiful.red,
                                 margins = { right = dpi(11), left = dpi(11) },
                                 shape = shapes.rrect(10),
+                                forced_height = dpi(36),
+                                forced_width = dpi(42),
+icon_source = trash_icon,
+                icon_normal_color = beautiful.red,
+                icon_hover_color = beautiful.bg,
+                                child_widget = {
+                                    widget = wibox.container.place,
+                                    halign = "center",
+                                    valign = "center",
+                                    {
+                                        widget = wibox.widget.imagebox,
+                                        image = gcolor.recolor_image(
+                                            trash_icon,
+                                            beautiful.red
+                                        ),
+                                        resize = true,
+                                        forced_width = dpi(20),
+                                        forced_height = dpi(20),
+                                    },
+                                },
                             }),
                         },
                     },
@@ -346,10 +400,11 @@ local function new()
     dnd_button:buttons({
         awful.button({}, 1, function()
             ret:toggle_dnd()
+            local icon = dnd_button:get_children_by_id("dnd-icon")[1]
             if wp.dnd_mode then
-                dnd_button:set_label(text_icons.bell_off)
+                icon.image = gcolor.recolor_image(bell_off_icon, beautiful.fg)
             else
-                dnd_button:set_label(text_icons.bell_on)
+                icon.image = gcolor.recolor_image(bell_on_icon, beautiful.fg)
             end
         end),
     })

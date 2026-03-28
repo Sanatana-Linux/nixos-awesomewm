@@ -1,7 +1,17 @@
 local lgi = require("lgi")
-local Gtk = lgi.require("Gtk", "3.0")
-local Gdk = lgi.require("Gdk", "3.0")
-local GdkPixbuf = lgi.require("GdkPixbuf")
+local Gtk, Gdk, GdkPixbuf
+
+local success, err = pcall(function()
+    Gtk = lgi.require("Gtk", "3.0")
+    Gdk = lgi.require("Gdk", "3.0")
+    GdkPixbuf = lgi.require("GdkPixbuf")
+end)
+
+if not success then
+    Gtk = nil
+    Gdk = nil
+    GdkPixbuf = nil
+end
 local awful = require("awful")
 local naughty = require("naughty") -- Added for error notifications
 local gobject = require("gears.object")
@@ -91,8 +101,18 @@ function screenshot:copy_screenshot(path)
     if not file_exists(path) then
         return
     end
+    if not GdkPixbuf then
+        naughty.notification({
+            app_name = "Screenshot",
+            urgency = "normal",
+            title = "Copy Failed",
+            message = "GTK clipboard not available",
+            timeout = 5,
+        })
+        return
+    end
     local image = GdkPixbuf.Pixbuf.new_from_file(path)
-    if image then
+    if image and self._private.clipboard then
         self._private.clipboard:set_image(image)
         self._private.clipboard:store()
     end
@@ -102,7 +122,9 @@ local function new()
     local ret = gobject({})
     gtable.crush(ret, screenshot, true)
     ret._private = {}
-    ret._private.clipboard = Gtk.Clipboard.get(Gdk.SELECTION_CLIPBOARD)
+    if Gtk and Gdk then
+        ret._private.clipboard = Gtk.Clipboard.get(Gdk.SELECTION_CLIPBOARD)
+    end
     return ret
 end
 

@@ -71,11 +71,16 @@ function control_panel:show()
     audio:get_default_source_data()
     self:setup_main_page()
 
-    self.opacity = 1 -- Set opacity to 1 immediately
-    self.visible = true
+self.opacity = 0
+self.visible = true
+
+gtimer.delayed_call(function()
+    local placement_func = self.placement
+    if placement_func then
+        placement_func(self)
+    end
 
     gtimer.delayed_call(function()
-        self.placement(self)
         self:emit_signal("widget::layout_changed")
 
         local final_y = self.y
@@ -88,7 +93,7 @@ function control_panel:show()
             duration = 0.3,
             easing = anim.easing.quadratic,
             update = function(progress)
-                -- self.opacity = progress -- Keep opacity at 1
+                self.opacity = progress
                 self.y = start_y + (final_y - start_y) * progress
             end,
             complete = function()
@@ -96,6 +101,7 @@ function control_panel:show()
             end,
         })
     end)
+end)
 end
 
 function control_panel:hide()

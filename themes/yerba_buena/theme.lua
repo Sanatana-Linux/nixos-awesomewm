@@ -13,101 +13,67 @@ local icons_path = theme_path .. "icons/"
 
 local theme = {}
 
-theme.font_name = "SF Pro Rounded Heavy "
+theme.font_name = " "
 theme.taglist_font = "awesomewm-font 10"
 theme.font = theme.font_name .. tostring(dpi(13))
 
+-- Text icons (ASCII alternatives, replace with SVG icons where possible)
 theme.text_icons = {
-    -- control + shift + u in the terminal ;]
-    arrow_down = "",
-    arrow_left = "«",
-    arrow_right = "»",
-    arrow_up = "",
-    bell_off = "􀋞",
-    bell_on = "􀋚",
-    bluetooth = "",
-    calendar = "",
-    check = "",
-    check_off = "",
-    check_on = "",
-    cloud = "󰬅",
-    cross = "󰬅",
-    dash = "",
-    droplet = "",
-    exit = "",
-    eye_off = "",
-    eye_on = "",
-    gear = "",
-    home = "󰠦",
-    image = "🖻",
-    lock_off = "",
-    lock_on = "",
-    menu = "",
-    mic_off = "",
-    mic_on = "",
-    mist = "",
-    moon = "",
-    no_cloud = "",
-    poweroff = "",
-    rain = "",
-    reboot = "",
-    search = "",
-    shower_rain = "",
-    shrink = "",
-    sliders = "",
-    snow = "",
-    stretch = "",
-    sun = "",
-    switch_off = "",
-    switch_on = "",
-    thermometer = "",
-    thunder = "",
-    trash = "􀈒",
-    vol_off = "",
-    vol_on = "",
-    wait = "",
-    wifi = "",
-    wind = "",
+    arrow_down = "",
+    arrow_left = "",
+    arrow_right = ">",
+    arrow_up = "",
+    bell_off = "",
+    bell_on = "",
+    bluetooth = "",
+    calendar = "",
+    check = "*",
+    check_off = "",
+    check_on = "*",
+    cloud = "",
+    cross = "x",
+    dash = "-",
+    exit = "",
+    eye_off = "",
+    eye_on = "",
+    gear = "",
+    home = "",
+    image = "",
+    lock_off = "",
+    lock_on = "",
+    menu = "",
+    mic_off = "",
+    mic_on = "",
+    mist = "",
+    poweroff = "",
+    reboot = "",
+    search = "",
+    shrink = "",
+    sliders = "",
+    snow = "",
+    stretch = "",
+    sun = "",
+    switch_off = "",
+    switch_on = "",
+    thermometer = "",
+    thunder = "",
+    trash = "",
+    vol_off = "",
+    vol_on = "",
+    wait = "",
+    wifi = "",
+    wind = "",
+    bolt = "",
 }
--- Add the launcher icon path
-theme.launcher_icon = icons_path .. "wibar/nix.svg"
-theme.tray_arrow_left = icons_path .. "wibar/arrow-left.svg"
-theme.tray_arrow_right = icons_path .. "wibar/arrow-right.svg"
-theme.awesome_icon = icons_path .. "awesome_icon.svg"
-theme.icon_bluetooth = icons_path .. "wibar/bluetooth.svg"
-theme.wifi_icon = icons_path .. "wibar/wifi.svg"
-theme.settings_icon = icons_path .. "wibar/settings.svg"
-
--- Power icons
-theme.power_icons = {
-    lock = icons_path .. "power/lock.svg",
-    poweroff = icons_path .. "power/poweroff.svg",
-    reboot = icons_path .. "power/reboot.svg",
-    exit = icons_path .. "power/exit.svg",
-}
-
-theme.titlebar_icons = {
-    close = gcolor.recolor_image(icons_path .. "titlebar/close.svg", theme.fg),
-    maximize = gcolor.recolor_image(
-        icons_path .. "titlebar/maximize.svg",
-        theme.fg
-    ),
-    minimize = gcolor.recolor_image(
-        icons_path .. "titlebar/minus.svg",
-        theme.fg
-    ),
-}
-theme.fallback_icon =
-    gcolor.recolor_image(icons_path .. "desktop/fallback_icon.svg", theme.fg)
 
 -- Colors
-theme.red = "#ED5D86"
-theme.green = "#4fbe94"
-theme.yellow = "#FFE089"
-theme.blue = "#0f88ff"
-theme.magenta = "#9051ff"
-theme.cyan = "#01fbff"
-theme.orange = "#df8559"
+theme.red = "#fc618d"
+theme.green = "#7bd88f"
+theme.yellow = "#Fce566"
+theme.blue = "#948ae3"
+theme.magenta = "#948ae3"
+theme.cyan = "#5ad4e6"
+theme.orange = "#fd9353"
 
 theme.bg = "#1f1f1F"
 theme.bg_alt = "#2a2a2A"
@@ -180,7 +146,7 @@ theme.notification_margins = dpi(30)
 theme.notification_spacing = dpi(10)
 theme.notification_timeout = 5
 
-theme.menu_submenu = theme.text_icons.arrow_right .. " "
+theme.menu_submenu = "» "
 theme.menu_bg_normal = theme.bg
 theme.menu_fg_normal = theme.fg
 theme.menu_bg_focus = theme.ac
@@ -249,14 +215,5 @@ theme.layout_overflow =
     gcolor.recolor_image(icons_path .. "/layouts/deck.png", theme.fg)
 theme.layout_mstab =
     gcolor.recolor_image(icons_path .. "/layouts/mstab.png", theme.fg)
-theme.layout_tile =
-    gcolor.recolor_image(icons_path .. "layouts/tile.png", theme.fg)
-
--- Screenshot icons
-theme.screenshot_icons = {
-    fullscreen = icons_path .. "screenshot/fullscreen.svg",
-    selection = icons_path .. "screenshot/selection.svg",
-    delay = icons_path .. "screenshot/delay.svg",
-}
 
 return theme

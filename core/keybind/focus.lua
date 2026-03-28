@@ -18,28 +18,12 @@ awful.keyboard.append_global_keybindings({
     end, { description = "focus previous by index", group = "Focus" }),
 
     -- Go back to the previously focused client
-    awful.key({ modkey }, "Tab", function()
-        awful.client.focus.history.previous()
-        if capi.client.focus then
-            capi.client.focus:raise() -- Raise the client to the top
-        end
-    end, { description = "go back", group = "Focus" }),
-
-    -- Alt+Tab: Cycle through clients (fallback if window switcher fails)
-    awful.key({ "Mod1" }, "Tab", function()
-        awful.client.focus.byidx(1)
-        if capi.client.focus then
-            capi.client.focus:raise()
-        end
-    end, { description = "cycle through clients", group = "Focus" }),
-
-    -- Alt+Shift+Tab: Cycle through clients in reverse
-    awful.key({ "Mod1", "Shift" }, "Tab", function()
-        awful.client.focus.byidx(-1)
-        if capi.client.focus then
-            capi.client.focus:raise()
-        end
-    end, { description = "cycle through clients (reverse)", group = "Focus" }),
+awful.key({ modkey }, "Tab", function()
+    awful.client.focus.history.previous()
+    if capi.client.focus then
+        capi.client.focus:raise()
+    end
+end, { description = "go back", group = "Focus" }),
 
     -- Focus the next screen
     awful.key({ modkey, "Control" }, "j", function()

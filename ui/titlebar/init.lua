@@ -1,7 +1,6 @@
 ---@diagnostic disable: undefined-global
 local gfs = require("gears.filesystem")
 local gears = require("gears")
-local theme_path = gfs.get_configuration_dir() .. "/theme/"
 local wibox = require("wibox")
 local beautiful = require("beautiful")
 local dpi = beautiful.xresources.apply_dpi
@@ -10,13 +9,18 @@ local shapes = require("modules.shapes")
 
 local client = client
 
-local function make_button(txt, onclick)
+local icons_dir = gfs.get_configuration_dir() .. "ui/titlebar/icons/"
+local close_icon = icons_dir .. "close.svg"
+local maximize_icon = icons_dir .. "maximize.svg"
+local minimize_icon = icons_dir .. "minus.svg"
+
+local function make_button(icon_path, onclick)
     return function(c)
         local btn = wibox.widget({
             {
                 {
                     {
-                        image = gears.color.recolor_image(txt, beautiful.fg),
+                        image = gears.color.recolor_image(icon_path, beautiful.fg),
                         resize = true,
                         align = "center",
                         valign = "center",
@@ -61,19 +65,19 @@ local function make_button(txt, onclick)
     end
 end
 
-local close_button = make_button(beautiful.titlebar_icons.close, function(c)
+local close_button = make_button(close_icon, function(c)
     c:kill()
 end)
 
 local maximize_button = make_button(
-    beautiful.titlebar_icons.maximize,
+    maximize_icon,
     function(c)
         c.maximized = not c.maximized
     end
 )
 
 local minimize_button = make_button(
-    beautiful.titlebar_icons.minimize,
+    minimize_icon,
     function(c)
         gears.timer.delayed_call(function()
             c.minimized = true

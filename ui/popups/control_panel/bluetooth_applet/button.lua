@@ -2,11 +2,16 @@ local awful = require("awful")
 local gcolor = require("gears.color")
 local wibox = require("wibox")
 local beautiful = require("beautiful")
+local gfs = require("gears.filesystem")
 local modules = require("modules")
 local shapes = require("modules.shapes.init")
 local text_icons = beautiful.text_icons
 local dpi = beautiful.xresources.apply_dpi
 local adapter = require("service.bluetooth").get_default()
+
+local icons_dir = gfs.get_configuration_dir() .. "ui/popups/control_panel/bluetooth_applet/icons/"
+local bluetooth_icon = icons_dir .. "bluetooth.svg"
+local arrow_right = icons_dir .. "arrow-right.svg"
 
 local function on_powered(self, powered)
     local separator = self:get_children_by_id("separator")[1]
@@ -50,16 +55,16 @@ local function new()
                         {
                             widget = wibox.container.place,
                             valign = "center",
-                            {
-                                widget = wibox.widget.imagebox,
-                                image = gcolor.recolor_image(
-                                    beautiful.icon_bluetooth,
-                                    beautiful.fg
-                                ),
-                                forced_height = dpi(24),
-                                forced_width = dpi(24),
-                                resize = true,
-                            },
+                        {
+                            widget = wibox.widget.imagebox,
+                            image = gcolor.recolor_image(
+                                bluetooth_icon,
+                                beautiful.fg
+                            ),
+                            forced_height = dpi(24),
+                            forced_width = dpi(24),
+                            resize = true,
+                        },
                         },
                         {
                             widget = wibox.container.place,
@@ -105,13 +110,13 @@ local function new()
                             {
                                 widget = wibox.container.margin,
                                 margins = dpi(6),
-                                {
-                                    widget = wibox.widget.imagebox,
-                                    image = gcolor.recolor_image(
-                                        beautiful.tray_arrow_right,
-                                        beautiful.fg
-                                    ),
-                                },
+                        {
+                            widget = wibox.widget.imagebox,
+                            image = gcolor.recolor_image(
+                                arrow_right,
+                                beautiful.fg
+                            ),
+                        },
                             },
                         },
                     },

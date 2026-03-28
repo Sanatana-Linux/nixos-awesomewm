@@ -4,11 +4,15 @@ local beautiful = require("beautiful")
 local gears = require("gears")
 local gobject = require("gears.object")
 local gtable = require("gears.table")
+local gfs = require("gears.filesystem")
 local dpi = beautiful.xresources.apply_dpi
 local shapes = require("modules.shapes")
 local modules = require("modules")
 local click_to_hide = require("modules.click_to_hide")
 local screenshot_service = require("service.screenshot").get_default()
+
+local icons_dir = gfs.get_configuration_dir() .. "ui/popups/screenshot_popup/icons/"
+local titlebar_close_icon = gfs.get_configuration_dir() .. "ui/titlebar/icons/close.svg"
 
 local function createButton(icon_path, name, fn)
     local button = wibox.widget({
@@ -84,7 +88,7 @@ function screenshot_popup:new()
     end
 
     local fullscreen_btn = createButton(
-        beautiful.screenshot_icons.fullscreen,
+        icons_dir .. "fullscreen.svg",
         "Fullscreen",
         function()
             close_popup()
@@ -93,7 +97,7 @@ function screenshot_popup:new()
     )
 
     local selection_btn = createButton(
-        beautiful.screenshot_icons.selection,
+        icons_dir .. "selection.svg",
         "Selection",
         function()
             close_popup()
@@ -102,7 +106,7 @@ function screenshot_popup:new()
     )
 
     local delay_btn = createButton(
-        beautiful.screenshot_icons.delay,
+        icons_dir .. "delay.svg",
         "Delay 3s",
         function()
             close_popup()
@@ -131,7 +135,7 @@ function screenshot_popup:new()
                 {
                     widget = wibox.widget.imagebox,
                     image = gears.color.recolor_image(
-                        beautiful.titlebar_icons.close,
+                        titlebar_close_icon,
                         beautiful.fg
                     ),
                     resize = true,

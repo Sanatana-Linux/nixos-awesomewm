@@ -1,12 +1,16 @@
 -- ui/bar/modules/tray_widget.lua
 -- Encapsulates the wibar widget for the system tray.
--- Updated to correctly use icon surfaces from the theme and center the icon.
 
 local awful = require("awful")
 local wibox = require("wibox")
 local beautiful = require("beautiful")
+local gfs = require("gears.filesystem")
 local dpi = beautiful.xresources.apply_dpi
 local shapes = require("modules.shapes.init")
+
+local icons_dir = gfs.get_configuration_dir() .. "ui/bar/modules/tray_widget/icons/"
+local arrow_left = icons_dir .. "arrow-left.svg"
+local arrow_right = icons_dir .. "arrow-right.svg"
 
 -- Creates a system tray widget.
 -- It's initially hidden and can be revealed by clicking a button.
@@ -42,7 +46,7 @@ return function()
                         {
                             id = "reveal-button",
                             widget = wibox.widget.imagebox,
-                            image = beautiful.tray_arrow_left,
+                            image = arrow_left,
                             resize = true,
                             forced_width = beautiful.systray_icon_size,
                             forced_height = beautiful.systray_icon_size,
@@ -61,11 +65,11 @@ return function()
             if not visibility then
                 visibility = true
                 items_layout:insert(2, systray)
-                reveal_button:set_image(beautiful.tray_arrow_right)
+                reveal_button:set_image(arrow_right)
             else
                 visibility = false
                 items_layout:remove(2)
-                reveal_button:set_image(beautiful.tray_arrow_left)
+                reveal_button:set_image(arrow_left)
             end
         end),
     })

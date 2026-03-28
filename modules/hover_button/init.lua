@@ -35,6 +35,7 @@
 
 local wibox = require("wibox")
 local gtable = require("gears.table")
+local gcolor = require("gears.color")
 local beautiful = require("beautiful")
 
 -- Button methods table
@@ -122,12 +123,27 @@ local function new(args)
     wp.fg_hover = args.fg_hover or beautiful.fg or "#ffffff"
     wp.bg_normal = args.bg_normal or beautiful.bg_gradient_button
     wp.fg_normal = args.fg_normal or beautiful.fg or "#ffffff"
+    wp.icon_source = args.icon_source
+    wp.icon_normal_color = args.icon_normal_color
+    wp.icon_hover_color = args.icon_hover_color
+
+    local function recolor_icons(w, color)
+        if not wp.icon_source or not color then
+            return
+        end
+        for _, child in ipairs(w:get_all_children()) do
+            if child.set_image then
+                child.image = gcolor.recolor_image(wp.icon_source, color)
+            end
+        end
+    end
 
     -- Mouse hover: apply hover colors/borders
     ret:connect_signal("mouse::enter", function(w)
         w:set_border_color(wp.border_hover)
         w:set_bg(wp.bg_hover)
         w:set_fg(wp.fg_hover)
+        recolor_icons(w, wp.icon_hover_color)
     end)
 
     -- Mouse leave: revert to normal colors/borders
@@ -135,6 +151,7 @@ local function new(args)
         w:set_border_color(wp.border_normal)
         w:set_bg(wp.bg_normal)
         w:set_fg(wp.fg_normal)
+        recolor_icons(w, wp.icon_normal_color)
     end)
 
     -- Button press: revert to normal colors/borders
@@ -142,6 +159,7 @@ local function new(args)
         w:set_border_color(wp.border_normal)
         w:set_bg(wp.bg_normal)
         w:set_fg(wp.fg_normal)
+        recolor_icons(w, wp.icon_normal_color)
     end)
 
     return ret

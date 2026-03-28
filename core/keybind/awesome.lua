@@ -94,33 +94,34 @@ awful.keyboard.append_global_keybindings({
     -- end, { description = "Client Selection Menu", group = "awesome" }),
     -- -------------------------------------------------------------------------- --
     -- Tab Between Applications
-    awful.keygrabber({
-        keybindings = {
-            awful.key({
-                modifiers = { "Mod1" },
-                key = "Tab",
-                on_press = function()
-                    awesome.emit_signal("window_switcher::next")
-                end,
-            }),
-            awful.key({
-                modifiers = { "Mod1", "Shift" },
-                key = "Tab",
-                on_press = function()
-                    awesome.emit_signal("window_switcher::previous")
-                end,
-            }),
-        },
-        root_keybindings = {},
-        stop_key = "Mod1",
-        stop_event = "release",
-        start_callback = function()
-            awesome.emit_signal("window_switcher::toggle")
-        end,
-        stop_callback = function()
-            awesome.emit_signal("window_switcher::raise")
-            awesome.emit_signal("window_switcher::toggle")
-        end,
-        export_keybindings = true,
-    }),
+awful.keygrabber({
+    keybindings = {
+        awful.key({
+            modifiers = { "Mod1" },
+            key = "Tab",
+            on_press = function()
+                awful.client.focus.byidx(1)
+            end,
+        }),
+        awful.key({
+            modifiers = { "Mod1", "Shift" },
+            key = "Tab",
+            on_press = function()
+                awful.client.focus.byidx(-1)
+            end,
+        }),
+    },
+    root_keybindings = {},
+    stop_key = "Mod1",
+    stop_event = "release",
+    start_callback = function()
+        awesome.emit_signal("window_switcher::turn_on")
+    end,
+    stop_callback = function()
+        if client.focus then
+            client.focus:raise()
+        end
+    end,
+    export_keybindings = true,
+}),
 })

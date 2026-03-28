@@ -5,9 +5,12 @@ local awful = require("awful")
 local beautiful = require("beautiful")
 local modules = require("modules")
 local wibox = require("wibox")
+local gfs = require("gears.filesystem")
 local control_panel = require("ui.popups.control_panel").get_default()
 local dpi = beautiful.xresources.apply_dpi
 local shapes = require("modules.shapes.init")
+
+local icon_path = gfs.get_configuration_dir() .. "ui/bar/modules/control_panel_button/icons/settings.svg"
 
 -- Creates a button to toggle the control panel.
 -- @return widget The control panel button widget.
@@ -30,7 +33,7 @@ return function()
             margins = dpi(2),
             {
                 widget = wibox.widget.imagebox,
-                image = beautiful.settings_icon,
+                image = icon_path,
                 forced_width = dpi(22),
                 forced_height = dpi(22),
             },

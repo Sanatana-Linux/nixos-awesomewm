@@ -3,11 +3,14 @@ local wibox = require("wibox")
 local beautiful = require("beautiful")
 local gears = require("gears")
 local gtable = require("gears.table")
+local gfs = require("gears.filesystem")
 local text_icons = beautiful.text_icons
 local dpi = beautiful.xresources.apply_dpi
 local capi = { awesome = awesome, screen = screen }
 local shapes = require("modules.shapes")
 local click_to_hide = require("modules.click_to_hide")
+
+local icons_dir = gfs.get_configuration_dir() .. "ui/popups/powermenu/icons/"
 
 local powermenu = {}
 
@@ -212,28 +215,28 @@ local function new()
                 awful.spawn("/home/tlh/.config/awesome/bin/glitchlock.sh")
                 self:hide()
             end,
-            icon = beautiful.power_icons.lock,
+            icon = icons_dir .. "lock.svg",
             color = beautiful.blue,
         },
         {
             exec = function()
                 awful.spawn("poweroff")
             end,
-            icon = beautiful.power_icons.poweroff,
+            icon = icons_dir .. "poweroff.svg",
             color = beautiful.red,
         },
         {
             exec = function()
                 awful.spawn("reboot")
             end,
-            icon = beautiful.power_icons.reboot,
+            icon = icons_dir .. "reboot.svg",
             color = beautiful.yellow,
         },
         {
             exec = function()
                 capi.awesome.quit()
             end,
-            icon = beautiful.power_icons.exit,
+            icon = icons_dir .. "exit.svg",
             color = beautiful.green,
         },
     }

@@ -11,6 +11,7 @@ local modules = require("modules")
 local anim = require("modules.animations")
 local text_icons = beautiful.text_icons
 local dpi = beautiful.xresources.apply_dpi
+local gcolor = require("gears.color")
 local lua_escape = require("lib").lua_escape
 local is_supported = require("lib").is_supported
 local table_to_file = require("lib").table_to_file
@@ -21,6 +22,9 @@ local crop_surface = require("modules.crop_surface")
 local launcher = {}
 local shapes = require("modules.shapes.init")
 local click_to_hide = require("modules.click_to_hide")
+
+local lock_icon_path = gfs.get_configuration_dir() .. "lock-line.svg"
+local power_icon_path = gfs.get_configuration_dir() .. "shut-down-line.svg"
 
 local function launch_app(app)
     if not app then
@@ -155,7 +159,7 @@ function launcher:update_entries()
                 local icon_status, icon_result = pcall(function()
                     return app:get_icon()
                 end)
-                
+
                 if icon_status and icon_result then
                     icon = icon_result
                 end
@@ -179,7 +183,10 @@ function launcher:update_entries()
                 end
 
                 -- Fallback: try to get icon from desktop entry file
-                if icon_name == "application-x-executable" and Gio.DesktopAppInfo then
+                if
+                    icon_name == "application-x-executable"
+                    and Gio.DesktopAppInfo
+                then
                     local desktop_status, desktop_info = pcall(function()
                         return Gio.DesktopAppInfo.new(app:get_id())
                     end)
@@ -448,19 +455,29 @@ local function new()
                                 {
                                     id = "lock-button",
                                     widget = modules.hover_button({
-                                        label = text_icons.lock_on,
                                         forced_width = dpi(50),
                                         forced_height = dpi(50),
                                         fg_normal = beautiful.fg,
                                         bg_hover = beautiful.bg_gradient_button_alt,
                                         shape = shapes.rrect(10),
+                                        child_widget = {
+                                            widget = wibox.container.margin,
+                                            margins = dpi(10),
+                                            {
+                                                widget = wibox.widget.imagebox,
+                                                image = gcolor.recolor_image(
+                                                    lock_icon_path,
+                                                    beautiful.fg
+                                                ),
+                                                resize = true,
+                                            },
+                                        },
                                     }),
                                 },
 
                                 {
                                     id = "powermenu-button",
                                     widget = modules.hover_button({
-                                        label = text_icons.poweroff,
                                         forced_width = dpi(50),
                                         forced_height = dpi(50),
                                         fg_normal = beautiful.red,
@@ -469,6 +486,21 @@ local function new()
                                             .. ":1,"
                                             .. "#b61442",
                                         shape = shapes.rrect(10),
+icon_source = power_icon_path,
+                icon_normal_color = beautiful.red,
+                icon_hover_color = beautiful.bg,
+                                        child_widget = {
+                                            widget = wibox.container.margin,
+                                            margins = dpi(10),
+                                            {
+                                                widget = wibox.widget.imagebox,
+                                                image = gcolor.recolor_image(
+                                                    power_icon_path,
+                                                    beautiful.red
+                                                ),
+                                                resize = true,
+                                            },
+                                        },
                                     }),
                                 },
                                 layout = wibox.layout.fixed.vertical,
