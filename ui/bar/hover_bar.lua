@@ -43,7 +43,7 @@ function hover_bar.create(args)
 		visible = true,
 		ontop = true,
 		type = "utility",
-		bg = "#ff000022",
+		bg = "transparent",
 		input_pass_through = false,
 	})
 

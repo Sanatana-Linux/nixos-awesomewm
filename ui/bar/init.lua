@@ -50,93 +50,93 @@ local tasklist_buttons = awful.util.table.join(
 
 -- Creates the wibar for the primary screen.
 function bar.create_primary(s)
-    local bar_widget = {
-        layout = wibox.layout.align.horizontal,
-        {
-            -- Left widgets
-            widget = wibox.container.margin,
-            margins = {
-                top = dpi(2),
-                bottom = dpi(2),
-                left = dpi(7),
-                right = dpi(7),
-            },
-            {
-                layout = wibox.layout.fixed.horizontal,
-                spacing = dpi(8),
-                launcher_button(),
-            },
-        },
-        {
-            -- Center widgets
-            widget = wibox.container.margin,
-            margins = {
-                top = dpi(2),
-                bottom = dpi(2),
-                left = dpi(7),
-                right = dpi(7),
-            },
-            new_tags_widget.new({
-                screen = s,
-                taglist_buttons = taglist_buttons,
-                tasklist_buttons = tasklist_buttons,
-            }),
-        },
-        {
-            -- Right widgets
-            widget = wibox.container.margin,
-            margins = {
-                top = dpi(2),
-                bottom = dpi(2),
-                left = 0,
-                right = dpi(7),
-            },
-            {
-                layout = wibox.layout.fixed.horizontal,
-                spacing = dpi(8),
-                tray_widget(),
-                layoutbox_widget(s),
-                battery_widget(),
-                time_widget(),
-                control_panel_button(),
-            },
-        },
-    }
+	local bar_widget = {
+		layout = wibox.layout.align.horizontal,
+		{
+			-- Left widgets
+			widget = wibox.container.margin,
+			margins = {
+				top = dpi(2),
+				bottom = dpi(2),
+				left = dpi(7),
+				right = dpi(7),
+			},
+			{
+				layout = wibox.layout.fixed.horizontal,
+				spacing = dpi(8),
+				launcher_button(),
+			},
+		},
+		{
+			-- Center widgets
+			widget = wibox.container.margin,
+			margins = {
+				top = dpi(2),
+				bottom = dpi(2),
+				left = dpi(7),
+				right = dpi(7),
+			},
+			new_tags_widget.new({
+				screen = s,
+				taglist_buttons = taglist_buttons,
+				tasklist_buttons = tasklist_buttons,
+			}),
+		},
+		{
+			-- Right widgets
+			widget = wibox.container.margin,
+			margins = {
+				top = dpi(2),
+				bottom = dpi(2),
+				left = 0,
+				right = dpi(7),
+			},
+			{
+				layout = wibox.layout.fixed.horizontal,
+				spacing = dpi(8),
+				tray_widget(),
+				layoutbox_widget(s),
+				battery_widget(),
+				time_widget(),
+				control_panel_button(),
+			},
+		},
+	}
 
-    local hb = hover_bar.create({
-        screen = s,
-        height = dpi(30),
-        widget = bar_widget,
-        is_primary = true,
-    })
+	local hb = hover_bar.create({
+		screen = s,
+		height = dpi(30),
+		widget = bar_widget,
+		is_primary = true,
+	})
     return hb
 end
 
 -- Wibar for secondary screens.
 function bar.create_secondary(s)
-    local tags_widget = new_tags_widget.new({
-        screen = s,
-        taglist_buttons = taglist_buttons,
-        tasklist_buttons = tasklist_buttons,
-    })
+	local tags_widget = new_tags_widget.new({
+		screen = s,
+		taglist_buttons = taglist_buttons,
+		tasklist_buttons = tasklist_buttons,
+	})
 
-    local bar_widget = {
-        layout = wibox.layout.align.horizontal,
-        nil,
-        {
-            widget = wibox.container.margin,
-            margins = dpi(7),
-            tags_widget,
-        },
-        nil,
-    }
+	local bar_widget = {
+		layout = wibox.layout.align.horizontal,
+		nil,
+		{
+			widget = wibox.container.margin,
+			margins = dpi(7),
+			tags_widget,
+		},
+		nil,
+	}
 
-    local hb = hover_bar.create({
-        screen = s,
-        height = dpi(40),
-        widget = bar_widget,
-        is_primary = false,
-    })
+	local hb = hover_bar.create({
+		screen = s,
+		height = dpi(40),
+		widget = bar_widget,
+		is_primary = false,
+	})
     return hb
 end
 
