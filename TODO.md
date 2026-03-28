@@ -1,5 +1,5 @@
-- [ ] TODO now that the wibar hides without disturbing the arrangement of the other things on screen (clients in that case), it should be made taller by ~100% its present height
-  - [ ] TODO adjust the height of the buttons and placement of their contents to account for this
+- [x] TODO now that the wibar hides without disturbing the arrangement of the other things on screen (clients in that case), it should be made taller by ~100% its present height
+- [x] TODO adjust the height of the buttons and placement of their contents to account for this
 
 - [ ] TODO the animation library is a complete, badly documented and clunky cluster fuck that needs to be polished up, documented and written in code that is less autistic
 
