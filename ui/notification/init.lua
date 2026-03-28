@@ -13,7 +13,7 @@ local dpi = beautiful.xresources.apply_dpi
 local create_markup = require("lib").create_markup
 local remove_nonindex = require("lib").remove_nonindex
 
-local close_icon = gfs.get_configuration_dir() .. "ui/notification/icons/close.svg"
+local close_icon = gfs.get_configuration_dir() .. "ui/titlebar/icons/close.svg"
 
 local notifications = {}
 
@@ -149,20 +149,29 @@ local function create_notification_popup(n)
                                     { fg = beautiful.fg_alt }
                                 ),
                             },
-                            {
-                        {
-                            id = "close",
-                            widget = wibox.widget.imagebox,
-                            image = gears.color.recolor_image(
-                                close_icon,
-                                beautiful.fg
-                            ),
-                            forced_width = dpi(12),
-                            forced_height = dpi(12),
-                        },
-                                widget = wibox.container.margin,
-                                margins = dpi(1),
-                            },
+			{
+				{
+					{
+						id = "close",
+						image = gears.color.recolor_image(close_icon, beautiful.fg),
+						resize = true,
+						align = "center",
+						valign = "center",
+						widget = wibox.widget.imagebox,
+					},
+					left = dpi(3),
+					right = dpi(3),
+					top = dpi(3),
+					bottom = dpi(3),
+					widget = wibox.container.margin,
+				},
+				shape = shapes.rrect(2),
+				border_width = dpi(1),
+				border_color = beautiful.fg_alt .. "aa",
+				bg = beautiful.bg_gradient_button,
+				id = "close_bg",
+				widget = wibox.container.background,
+			},
                         },
                     },
                     {
@@ -227,12 +236,17 @@ local function create_notification_popup(n)
         },
     })
 
-    local close = popup_widget.widget:get_children_by_id("close")[1]
-    close:buttons({
-        awful.button({}, 1, function()
-            n:destroy(ncr.silent)
-        end),
-    })
+	local close = popup_widget.widget:get_children_by_id("close")[1]
+	local close_bg = popup_widget.widget:get_children_by_id("close_bg")[1]
+	close_bg:add_button(awful.button({}, 1, function()
+		n:destroy(ncr.silent)
+	end))
+	close_bg:connect_signal("mouse::enter", function()
+		close_bg.bg = beautiful.bg_gradient_button_alt
+	end)
+	close_bg:connect_signal("mouse::leave", function()
+		close_bg.bg = beautiful.bg_gradient_button
+	end)
 
     return popup_widget
 end
