@@ -1,11 +1,14 @@
 local awful = require("awful")
 local wibox = require("wibox")
 local beautiful = require("beautiful")
+local gears = require("gears")
 local modules = require("modules")
 local shapes = require("modules.shapes.init")
 local text_icons = beautiful.text_icons
 local dpi = beautiful.xresources.apply_dpi
 local adapter = require("service.bluetooth").get_default()
+
+local ICON_LOCK = beautiful.theme_path .. "/icons/power/lock.svg"
 
 local function create_dev_widget(path)
     local dev = adapter:get_device(path)
@@ -276,25 +279,26 @@ local function on_powered(self, powered)
 end
 
 local function on_blocked(self, blocked)
-	local devs_layout = self:get_children_by_id("devices-layout")[1]
-	local bottombar_toggle_button = self:get_children_by_id("bottombar-toggle-button")[1]
+    local devs_layout = self:get_children_by_id("devices-layout")[1]
+    local bottombar_toggle_button = self:get_children_by_id("bottombar-toggle-button")[1]
 
-	if blocked then
-		bottombar_toggle_button:set_label(text_icons.lock)
-		bottombar_toggle_button:set_label("Unblock")
-		devs_layout:reset()
-		devs_layout:add(wibox.widget({
-			widget = wibox.container.background,
-			fg = beautiful.fg_alt,
-			forced_height = dpi(400),
-			{
-				widget = wibox.widget.textbox,
-				align = "center",
-				font = beautiful.font_name .. dpi(12),
-				markup = "Bluetooth is blocked\nClick toggle to unblock",
-			},
-		}))
-	end
+    if blocked then
+        bottombar_toggle_button:set_image(
+            gears.color.recolor_image(ICON_LOCK, beautiful.fg)
+        )
+        devs_layout:reset()
+        devs_layout:add(wibox.widget({
+            widget = wibox.container.background,
+            fg = beautiful.fg_alt,
+            forced_height = dpi(400),
+            {
+                widget = wibox.widget.textbox,
+                align = "center",
+                font = beautiful.font_name .. dpi(12),
+                markup = "Bluetooth is blocked\\nClick toggle to unblock",
+            },
+        }))
+    end
 end
 
 local function new()

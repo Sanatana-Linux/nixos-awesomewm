@@ -3,9 +3,9 @@
 
 - [x] TODO the animation library is a complete, badly documented and clunky cluster fuck that needs to be polished up, documented and written in code that is less autistic
 
-- [ ] TODO bluetooth menu
+- [x] TODO bluetooth menu
 - [x] TODO keep SVG icons (user confirmed)
-- [ ] TODO handle rfkill soft-blocked state - bluetooth shows "Powered: no, PowerState: off-blocked"
+- [x] TODO handle rfkill soft-blocked state - bluetooth shows "Powered: no, PowerState: off-blocked"
 
 - [ ] TODO wifi menu
   - [ ] TODO no icons on buttons

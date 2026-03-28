@@ -39,6 +39,7 @@ theme.text_icons = {
     gear = "",
     home = "",
     image = "",
+    lock = "",
     lock_off = "",
     lock_on = "",
     menu = "",

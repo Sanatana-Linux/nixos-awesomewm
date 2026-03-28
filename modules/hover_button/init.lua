@@ -50,6 +50,18 @@ function button:set_label(label)
     end
 end
 
+--- Set the button image.
+-- @param image (string) Path to image or image data.
+function button:set_image(image)
+    local image_widgets = self:get_all_children()
+    for _, child in ipairs(image_widgets) do
+        if child.set_image then
+            child:set_image(image)
+            break
+        end
+    end
+end
+
 --- Set the normal background color and apply it immediately.
 -- @param color (string) Background color.
 function button:set_bg_normal(color)
