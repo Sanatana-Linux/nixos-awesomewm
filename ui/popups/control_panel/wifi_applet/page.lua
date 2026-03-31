@@ -1,16 +1,48 @@
+--[[
+WiFi Management Page
+
+Provides a full management interface for WiFi, allowing users to:
+- View a list of available access points
+- Connect to or disconnect from access points
+- Enable/disable WiFi functionality
+- Refresh the access point list
+--]]
+
 local awful = require("awful")
 local wibox = require("wibox")
 local beautiful = require("beautiful")
+local gcolor = require("gears.color")
+local gfs = require("gears.filesystem")
 local gtable = require("gears.table")
 local modules = require("modules")
-local text_icons = beautiful.text_icons
 local dpi = beautiful.xresources.apply_dpi
 local network = require("service.network")
+local shapes = require("modules.shapes.init")
+local applet_pages = require("modules.applet_pages")
+
 local client = network.get_default()
-local shapes = require("modules.shapes")
+
+------------------------------------------------------------------------
+-- Constants
+------------------------------------------------------------------------
+
+local ICONS_PATH = gfs.get_configuration_dir()
+    .. "ui/popups/control_panel/wifi_applet/icons/"
+local ICON_WIFI = ICONS_PATH .. "wifi.svg"
+local ICON_SEARCH = ICONS_PATH .. "search.svg"
+local ICON_BACK = ICONS_PATH .. "arrow-left.svg"
+local ICON_CHECK = ICONS_PATH .. "check.svg"
+local ICON_REFRESH = ICONS_PATH .. "refresh.svg"
+
+local WHITE = applet_pages.WHITE
 
 local wifi_page = {}
 
+------------------------------------------------------------------------
+-- Helper Functions
+------------------------------------------------------------------------
+
+-- Creates a widget representing an access point in the list
 local function create_ap_widget(self, ap)
     local ap_ssid = ap:get_ssid()
     local ap_strength = ap:get_strength()
@@ -20,6 +52,8 @@ local function create_ap_widget(self, ap)
         active = ap_is_active,
         widget = wibox.container.background,
         shape = shapes.rrect(10),
+        border_width = dpi(1),
+        border_color = WHITE,
         {
             widget = wibox.container.margin,
             forced_height = dpi(50),
@@ -27,11 +61,24 @@ local function create_ap_widget(self, ap)
             {
                 layout = wibox.layout.align.horizontal,
                 {
-                    widget = wibox.container.constraint,
-                    width = dpi(250),
+                    layout = wibox.layout.fixed.horizontal,
+                    spacing = dpi(8),
                     {
-                        id = "name",
-                        widget = wibox.widget.textbox,
+                        id = "check-icon",
+                        widget = wibox.widget.imagebox,
+                        image = gcolor.recolor_image(ICON_CHECK, WHITE),
+                        forced_height = dpi(14),
+                        forced_width = dpi(14),
+                        resize = true,
+                        visible = ap_is_active,
+                    },
+                    {
+                        widget = wibox.container.constraint,
+                        width = dpi(250),
+                        {
+                            id = "name",
+                            widget = wibox.widget.textbox,
+                        },
                     },
                 },
                 nil,
@@ -43,27 +90,37 @@ local function create_ap_widget(self, ap)
         },
     })
 
+    -- Populate SSID and signal strength
     local name = ap_widget:get_children_by_id("name")[1]
     name:set_markup(
-        ap_is_active and text_icons.check .. " " .. ap_ssid or ap_ssid
+        string.format(
+            "<span foreground='%s'>%s</span>",
+            WHITE,
+            ap_ssid or "Unknown"
+        )
     )
 
     local strength = ap_widget:get_children_by_id("strength")[1]
     strength:set_markup(
-        ap_strength > 70 and "▂▄▆█"
-            or ap_strength > 45 and "▂▄▆"
-            or ap_strength > 20 and "▂▄"
-            or "▂"
+        string.format(
+            "<span foreground='%s'>%s</span>",
+            WHITE,
+            ap_strength > 70 and "▂▄▆█"
+                or ap_strength > 45 and "▂▄▆"
+                or ap_strength > 20 and "▂▄"
+                or "▂"
+        )
     )
 
+    -- Hover effect
     ap_widget:connect_signal("mouse::enter", function(w)
         w:set_bg(beautiful.bg_urg)
     end)
-
     ap_widget:connect_signal("mouse::leave", function(w)
         w:set_bg(nil)
     end)
 
+    -- Click to open connection menu
     ap_widget:buttons({
         awful.button({}, 1, function()
             self:open_ap_menu(ap)
@@ -73,9 +130,10 @@ local function create_ap_widget(self, ap)
     return ap_widget
 end
 
+-- Updates the list of access points
 local function on_ap_list_changed(self)
     local wp = self._private
-    local aps_layout = self:get_children_by_id("access-points-layout")[1]
+    local content_layout = self:get_children_by_id("content-layout")[1]
     wp.ap_widgets = {}
 
     for _, ap in pairs(client.wireless:get_access_points()) do
@@ -85,60 +143,73 @@ local function on_ap_list_changed(self)
         end
     end
 
-    if aps_layout.children[1] ~= wp.ap_menu and #wp.ap_widgets ~= 0 then
-        aps_layout:reset()
+    -- Refresh layout if not currently in a menu
+    if content_layout.children[1] ~= wp.ap_menu and #wp.ap_widgets ~= 0 then
+        content_layout:reset()
         for _, ap_widget in ipairs(wp.ap_widgets) do
             if ap_widget.active then
-                aps_layout:insert(1, ap_widget)
+                content_layout:insert(1, ap_widget)
             else
-                aps_layout:add(ap_widget)
+                content_layout:add(ap_widget)
             end
         end
     end
 end
 
+-- Handles UI updates when WiFi is enabled/disabled
 local function on_wireless_enabled(self, enabled)
     local wp = self._private
-    local aps_layout = self:get_children_by_id("access-points-layout")[1]
-    local bottombar_toggle_button =
-        self:get_children_by_id("bottombar-toggle-button")[1]
+    local content_layout = self:get_children_by_id("content-layout")[1]
+    local bottombar_toggle_icon =
+        self:get_children_by_id("bottombar-toggle-icon")[1]
 
     if enabled then
-        bottombar_toggle_button:set_label(text_icons.switch_on)
-        aps_layout:reset()
-        aps_layout:add(wibox.widget({
-            widget = wibox.container.background,
-            fg = beautiful.fg_alt,
+        bottombar_toggle_icon:set_image(gcolor.recolor_image(ICON_WIFI, WHITE))
+        content_layout:reset()
+        content_layout:add(wibox.widget({
+            widget = wibox.container.place,
             forced_height = dpi(400),
+            halign = "center",
+            valign = "center",
             {
-                widget = wibox.widget.textbox,
-                align = "center",
-                font = beautiful.font_name .. dpi(12),
-                markup = text_icons.wait,
+                widget = wibox.widget.imagebox,
+                image = gcolor.recolor_image(ICON_SEARCH, WHITE),
+                forced_height = dpi(25),
+                forced_width = dpi(25),
+                resize = true,
             },
         }))
     else
         wp.ap_widgets = {}
-        bottombar_toggle_button:set_label(text_icons.switch_off)
-        aps_layout:reset()
-        aps_layout:add(wibox.widget({
-            widget = wibox.container.background,
-            fg = beautiful.fg_alt,
+        bottombar_toggle_icon:set_image(gcolor.recolor_image(ICON_WIFI, WHITE))
+        content_layout:reset()
+        content_layout:add(wibox.widget({
+            widget = wibox.container.place,
             forced_height = dpi(400),
+            halign = "center",
+            valign = "center",
             {
                 widget = wibox.widget.textbox,
                 align = "center",
                 font = beautiful.font_name .. dpi(12),
-                markup = "Wifi Disabled",
+                markup = "<span foreground='"
+                    .. WHITE
+                    .. "'>Wifi Disabled</span>",
             },
         }))
+        -- Clean up menu if open
         wp.ap_menu:get_children_by_id("password-input")[1]:unfocus()
     end
 end
 
+------------------------------------------------------------------------
+-- Public Methods
+------------------------------------------------------------------------
+
+-- Opens the connection menu for a specific access point
 function wifi_page:open_ap_menu(ap)
     local wp = self._private
-    local aps_layout = self:get_children_by_id("access-points-layout")[1]
+    local content_layout = self:get_children_by_id("content-layout")[1]
 
     local obscure = true
     local auto_connect = true
@@ -151,38 +222,56 @@ function wifi_page:open_ap_menu(ap)
     })
 
     local title = wp.ap_menu:get_children_by_id("title")[1]
-    title:set_markup(ap:get_ssid())
+    title:set_markup(
+        string.format("<span foreground='%s'>%s</span>", WHITE, ap:get_ssid())
+    )
 
     local password_widget = wp.ap_menu:get_children_by_id("password-widget")[1]
     local password_input = wp.ap_menu:get_children_by_id("password-input")[1]
     local connect_disconnect_button =
         wp.ap_menu:get_children_by_id("connect-disconnect-button")[1]
 
+    -- Menu for un-connected AP (Password input required)
     if ap ~= client.wireless:get_active_access_point() then
+        -- Obscure/Unobscure password toggle
         local obscure_icon = wp.ap_menu:get_children_by_id("obscure-icon")[1]
-        obscure_icon:set_markup(text_icons.eye_off)
+        obscure_icon:set_image(
+            gcolor.recolor_image(ICONS_PATH .. "eye-off.svg", WHITE)
+        )
         obscure_icon:buttons({
             awful.button({}, 1, function()
                 obscure = not obscure
                 password_input:set_obscure(obscure)
                 if obscure then
-                    obscure_icon:set_markup(text_icons.eye_off)
+                    obscure_icon:set_image(
+                        gcolor.recolor_image(ICONS_PATH .. "eye-off.svg", WHITE)
+                    )
                 else
-                    obscure_icon:set_markup(text_icons.eye_on)
+                    obscure_icon:set_image(
+                        gcolor.recolor_image(ICONS_PATH .. "eye.svg", WHITE)
+                    )
                 end
             end),
         })
 
+        -- Auto-connect toggle
         local auto_connect_icon =
             wp.ap_menu:get_children_by_id("auto-connect-icon")[1]
-        auto_connect_icon:set_markup(text_icons.check_on)
+        auto_connect_icon:set_image(gcolor.recolor_image(ICON_CHECK, WHITE))
         auto_connect_icon:buttons({
             awful.button({}, 1, function()
                 auto_connect = not auto_connect
                 if auto_connect then
-                    auto_connect_icon:set_markup(text_icons.check_on)
+                    auto_connect_icon:set_image(
+                        gcolor.recolor_image(ICON_CHECK, WHITE)
+                    )
                 else
-                    auto_connect_icon:set_markup(text_icons.check_off)
+                    auto_connect_icon:set_image(
+                        gcolor.recolor_image(
+                            ICONS_PATH .. "check-off.svg",
+                            WHITE
+                        )
+                    )
                 end
             end),
         })
@@ -216,6 +305,7 @@ function wifi_page:open_ap_menu(ap)
         password_widget.visible = true
         password_input:focus()
     else
+        -- Menu for connected AP (Disconnect only)
         connect_disconnect_button:set_label("Disconnect")
         connect_disconnect_button:buttons({
             awful.button({}, 1, function()
@@ -227,24 +317,24 @@ function wifi_page:open_ap_menu(ap)
         password_widget.visible = false
     end
 
-    aps_layout:reset()
-    aps_layout:add(wp.ap_menu)
+    content_layout:reset()
+    content_layout:add(wp.ap_menu)
 end
 
 function wifi_page:close_ap_menu()
     local wp = self._private
-    local aps_layout = self:get_children_by_id("access-points-layout")[1]
+    local content_layout = self:get_children_by_id("content-layout")[1]
     local password_input = wp.ap_menu:get_children_by_id("password-input")[1]
 
     if client:get_wireless_enabled() then
         password_input:unfocus()
         password_input:set_obscure(true)
-        aps_layout:reset()
+        content_layout:reset()
         for _, ap_widget in ipairs(wp.ap_widgets) do
             if ap_widget.active then
-                aps_layout:insert(1, ap_widget)
+                content_layout:insert(1, ap_widget)
             else
-                aps_layout:add(ap_widget)
+                content_layout:add(ap_widget)
             end
         end
     end
@@ -255,80 +345,38 @@ function wifi_page:refresh()
     client.wireless:request_scan()
 end
 
+------------------------------------------------------------------------
+-- Widget Factory
+------------------------------------------------------------------------
+
 local function new()
-    local ret = wibox.widget({
-        widget = wibox.container.background,
-        {
-            layout = wibox.layout.fixed.vertical,
-            spacing = dpi(8),
-            {
-                widget = wibox.container.background,
-                forced_height = dpi(400),
-                forced_width = dpi(400),
-                {
-                    id = "access-points-layout",
-                    layout = wibox.layout.overflow.vertical,
-                    scrollbar_enabled = false,
-                    step = 40,
-                    spacing = dpi(3),
-                },
-            },
-            {
-                widget = wibox.container.background,
-                forced_height = dpi(50),
-                bg = beautiful.bg_alt,
-                shape = shapes.rrect(10),
-                {
-                    layout = wibox.layout.align.horizontal,
-                    {
-                        layout = wibox.layout.fixed.horizontal,
-                        spacing = beautiful.separator_thickness + dpi(2),
-                        spacing_widget = {
-                            widget = wibox.container.margin,
-                            margins = { top = dpi(12), bottom = dpi(12) },
-                            {
-                                widget = wibox.widget.separator,
-                                orientation = "vertical",
-                            },
-                        },
-                        {
-                            id = "bottombar-toggle-button",
-                            widget = modules.hover_button({
-                                forced_width = dpi(50),
-                                forced_height = dpi(50),
-                                shape = shapes.rrect(10),
-                            }),
-                        },
-                        {
-                            id = "bottombar-refresh-button",
-                            widget = modules.hover_button({
-                                label = text_icons.reboot,
-                                forced_width = dpi(50),
-                                forced_height = dpi(50),
-                                shape = shapes.rrect(10),
-                            }),
-                        },
-                    },
-                    nil,
-                    {
-                        id = "bottombar-close-button",
-                        widget = modules.hover_button({
-                            label = text_icons.arrow_left,
-                            forced_width = dpi(50),
-                            forced_height = dpi(50),
-                            shape = shapes.rrect(10),
-                        }),
-                    },
-                },
-            },
+    local ret = applet_pages.create_base_page({
+        left_buttons = {
+            applet_pages.create_button({
+                id = "bottombar-toggle-button",
+                icon_id = "bottombar-toggle-icon",
+                icon = gcolor.recolor_image(ICON_WIFI, WHITE),
+            }),
+            applet_pages.create_button({
+                id = "bottombar-refresh-button",
+                icon_id = "bottombar-refresh-icon",
+                icon = gcolor.recolor_image(ICON_REFRESH, WHITE),
+            }),
+        },
+        right_buttons = {
+            applet_pages.create_button({
+                id = "bottombar-close-button",
+                icon_id = "bottombar-close-icon",
+                icon = gcolor.recolor_image(ICON_BACK, WHITE),
+            }),
         },
     })
 
     gtable.crush(ret, wifi_page, true)
     local wp = ret._private
-
     wp.ap_widgets = {}
 
+    -- AP Connection Menu
     wp.ap_menu = wibox.widget({
         layout = wibox.layout.fixed.vertical,
         forced_height = dpi(400),
@@ -340,8 +388,11 @@ local function new()
                 spacing = dpi(15),
                 {
                     id = "close-button",
-                    widget = wibox.widget.textbox,
-                    markup = text_icons.arrow_left,
+                    widget = wibox.widget.imagebox,
+                    image = gcolor.recolor_image(ICON_BACK, WHITE),
+                    forced_height = dpi(18),
+                    forced_width = dpi(18),
+                    resize = true,
                 },
                 {
                     id = "title",
@@ -357,12 +408,15 @@ local function new()
                 widget = wibox.container.background,
                 bg = beautiful.bg_alt,
                 shape = shapes.rrect(10),
+                border_width = dpi(1),
+                border_color = WHITE,
                 {
                     widget = wibox.container.margin,
                     margins = dpi(15),
                     {
                         layout = wibox.layout.fixed.vertical,
                         spacing = dpi(10),
+                        -- Password Input
                         {
                             widget = wibox.container.margin,
                             margins = { left = dpi(10), right = dpi(10) },
@@ -377,7 +431,7 @@ local function new()
                                         id = "password-input",
                                         widget = modules.text_input({
                                             placeholder = "Password",
-                                            cursor_bg = beautiful.fg,
+                                            cursor_bg = WHITE,
                                             cursor_fg = beautiful.bg,
                                             placeholder_fg = beautiful.fg_alt,
                                             obscure = true,
@@ -387,7 +441,10 @@ local function new()
                                 nil,
                                 {
                                     id = "obscure-icon",
-                                    widget = wibox.widget.textbox,
+                                    widget = wibox.widget.imagebox,
+                                    forced_height = dpi(18),
+                                    forced_width = dpi(18),
+                                    resize = true,
                                 },
                             },
                         },
@@ -398,8 +455,10 @@ local function new()
                             {
                                 widget = wibox.widget.separator,
                                 orientation = "horizontal",
+                                color = WHITE,
                             },
                         },
+                        -- Auto Connect Toggle
                         {
                             widget = wibox.container.margin,
                             margins = { left = dpi(10), right = dpi(10) },
@@ -407,12 +466,18 @@ local function new()
                                 layout = wibox.layout.align.horizontal,
                                 {
                                     widget = wibox.widget.textbox,
-                                    markup = "Auto connect",
+                                    markup = string.format(
+                                        "<span foreground='%s'>Auto connect</span>",
+                                        WHITE
+                                    ),
                                 },
                                 nil,
                                 {
                                     id = "auto-connect-icon",
-                                    widget = wibox.widget.textbox,
+                                    widget = wibox.widget.imagebox,
+                                    forced_height = dpi(18),
+                                    forced_width = dpi(18),
+                                    resize = true,
                                 },
                             },
                         },
@@ -421,16 +486,32 @@ local function new()
             },
             {
                 id = "connect-disconnect-button",
-                widget = modules.hover_button({
+                widget = wibox.container.background,
+                shape = shapes.rrect(10),
+                border_width = dpi(1),
+                border_color = WHITE,
+                bg = beautiful.bg_gradient_button,
+                {
+                    widget = wibox.container.margin,
                     margins = dpi(10),
-                    shape = shapes.rrect(10),
-                }),
+                    {
+                        id = "connect-disconnect-label",
+                        widget = wibox.widget.textbox,
+                        align = "center",
+                    },
+                },
             },
         },
     })
 
+    --------------------------------------------------------------------
+    -- Interaction/Signal Connections
+    --------------------------------------------------------------------
+
+    -- Button hover/click effects
     local bottombar_toggle_button =
         ret:get_children_by_id("bottombar-toggle-button")[1]
+    applet_pages.setup_button_effects(bottombar_toggle_button)
     bottombar_toggle_button:buttons({
         awful.button({}, 1, function()
             client:set_wireless_enabled(not client:get_wireless_enabled())
@@ -439,6 +520,7 @@ local function new()
 
     local bottombar_refresh_button =
         ret:get_children_by_id("bottombar-refresh-button")[1]
+    applet_pages.setup_button_effects(bottombar_refresh_button)
     bottombar_refresh_button:buttons({
         awful.button({}, 1, function()
             if client:get_wireless_enabled() then
@@ -447,6 +529,22 @@ local function new()
         end),
     })
 
+    local bottombar_close_button =
+        ret:get_children_by_id("bottombar-close-button")[1]
+    applet_pages.setup_button_effects(bottombar_close_button)
+
+    local connect_disconnect_button =
+        wp.ap_menu:get_children_by_id("connect-disconnect-button")[1]
+    applet_pages.setup_button_effects(connect_disconnect_button)
+
+    function connect_disconnect_button:set_label(label)
+        local lbl = self:get_children_by_id("connect-disconnect-label")[1]
+        lbl:set_markup(
+            string.format("<span foreground='%s'>%s</span>", WHITE, label)
+        )
+    end
+
+    -- Service Signals
     client.wireless:connect_signal("property::access-points", function()
         on_ap_list_changed(ret)
     end)
@@ -464,6 +562,7 @@ local function new()
         on_wireless_enabled(ret, enabled)
     end)
 
+    -- Initial load
     on_wireless_enabled(ret, client:get_wireless_enabled())
 
     if
@@ -478,6 +577,4 @@ end
 
 return setmetatable({
     new = new,
-}, {
-    __call = new,
-})
+}, { __call = new })

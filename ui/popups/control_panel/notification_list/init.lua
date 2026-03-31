@@ -432,24 +432,20 @@ icon_source = trash_icon,
         })
     )
 
-    naughty.connect_signal("request::display", function(n)
-        add_notification(ret, n)
-    end)
+naughty.connect_signal("added", function(n)
+	add_notification(ret, n)
+end)
 
-    -- Also capture error notifications
-    naughty.connect_signal("request::display_error", function(message, startup)
-        -- Create a notification object for the error
-        local error_notification = naughty.notify({
-            app_name = "Awesome",
-            urgency = "critical",
-            title = "An error happened"
-                .. (startup and " during startup!" or "!"),
-            text = message,
-            timeout = 0, -- Keep error notifications persistent
-        })
-        -- Add the error notification to the control panel
-        add_notification(ret, error_notification)
-    end)
+naughty.connect_signal("request::display_error", function(message, startup)
+	naughty.notification({
+		app_name = "Awesome",
+		urgency = "critical",
+		title = "An error happened"
+			.. (startup and " during startup!" or "!"),
+		text = message,
+		timeout = 0,
+	})
+end)
 
     return ret
 end

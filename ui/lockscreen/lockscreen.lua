@@ -1,175 +1,94 @@
-require("signal.caps")
-
 local awful = require("awful")
-local gears = require("gears")
-local b = require("beautiful")
+local beautiful = require("beautiful")
+local gtimer = require("gears.timer")
+local naughty = require("naughty")
 local wibox = require("wibox")
 
-local dpi = b.xresources.apply_dpi
+local color_helpers = require("helpers.color-helpers")
 
---
--- Lockscreen visual
---
+local wordclock = require("ui.lockscreen.wordclock")
+local lockscreen_body = require("ui.lockscreen.lockscreen_body")
+local grab_password = require("ui.lockscreen.grab_password")
+local power_buttons = require("ui.lockscreen.power_buttons")
+local weather_box = require("ui.lockscreen.weather_box")
+local media_controls_box = require("ui.lockscreen.media_controls_box")
 
--- This is purely a visual additive to the lock process, it does not handle any security measures
+local last_hour
+local last_minute
+local active_color
 
-local function get_random()
-    return math.random(0, 628) / 100
+local function update_time()
+    local hour, min = os.date("%H:%M"):match("(%d+):(%d+)")
+    local hour = tonumber(hour)
+    local min = tonumber(min)
+
+    -- update only if time has changed
+    if last_hour == hour and last_minute == min then
+        return
+    end
+
+    active_color = color_helpers.get_color_by_time_of_day(hour)
+    lockscreen_body:get_children_by_id("container")[1].border_color = active_color
+    wordclock.update_clock(hour, min, active_color)
+
+    last_hour = hour
+    last_minute = min
 end
 
-awful.screen.connect_for_each_screen(function(s)
-    local wallpaper = wibox.widget({
-        id = "imagebox",
-        widget = wibox.widget.imagebox,
-        image = b.lockscreen,
-        forced_width = s.geometry.width,
-        forced_height = s.geometry.height,
-        horizontal_fit_policy = "fit",
-        vertical_fit_policy = "fit",
-    })
+local clock_timer = gtimer {
+    timeout = 2,
+    call_now = false,
+    callback = update_time
+}
 
-    local circle = wibox.widget({
-        id = "bg",
-        widget = wibox.container.background,
-        bg = b.bg_primary,
-        shape = gears.shape.circle,
-        {
-            id = "arcchart",
-            widget = wibox.container.arcchart,
-            max_value = 100,
-            min_value = 0,
-            value = 0,
-            rounded_edge = false,
-            thickness = dpi(8),
-            start_angle = 0,
-            bg = b.fg_primary,
-            colors = { b.fg_primary },
-            forced_width = dpi(180),
-            forced_height = dpi(180),
-        },
-    })
-
-    local function reset()
-        circle:get_children_by_id("arcchart")[1].bg = b.fg_primary
-        circle:get_children_by_id("arcchart")[1].colors = { b.fg_primary }
-        circle:get_children_by_id("arcchart")[1].value = 0
-    end
-    local reset_timer = gears.timer({
-        timeout = 1,
-        single_shot = true,
-        callback = function()
-            reset()
-        end,
-    })
-
-    awesome.connect_signal("ui::lock::keypress", function(key, input, auth)
-        if #key == 1 then
-            circle:get_children_by_id("arcchart")[1].colors = { b.green }
-            circle:get_children_by_id("arcchart")[1].value = 20
-            circle:get_children_by_id("arcchart")[1].start_angle = get_random()
-        elseif key == "BackSpace" then
-            circle:get_children_by_id("arcchart")[1].colors = { b.red }
-            circle:get_children_by_id("arcchart")[1].value = 20
-            circle:get_children_by_id("arcchart")[1].start_angle = get_random()
-            if input == 0 then
-                circle:get_children_by_id("arcchart")[1].colors = { b.magenta }
-                circle:get_children_by_id("arcchart")[1].value = 100
-            end
-        elseif key == "Escape" then
-            circle:get_children_by_id("arcchart")[1].colors = { b.magenta }
-            circle:get_children_by_id("arcchart")[1].value = 100
-        elseif key == "Return" then
-            if auth == nil then
-                circle:get_children_by_id("arcchart")[1].colors = { b.magenta }
-                circle:get_children_by_id("arcchart")[1].value = 100
-            elseif auth then
-                circle:get_children_by_id("arcchart")[1].colors = { b.green }
-                circle:get_children_by_id("arcchart")[1].value = 100
-            elseif not auth then
-                circle:get_children_by_id("arcchart")[1].colors = { b.red }
-                circle:get_children_by_id("arcchart")[1].value = 100
-            end
-        end
-        reset_timer:again()
-    end)
-
-    local caps_lock = wibox.widget({
-        id = "textbox",
-        widget = wibox.widget.textbox,
-        markup = " ",
-        valign = "center",
-        halign = "center",
-        font = b.sysfont(dpi(14)),
-    })
-    awesome.connect_signal("signal::peripheral::caps::state", function(caps)
-        if caps then
-            caps_lock.markup = "Caps lock"
-        else
-            caps_lock.markup = " "
-        end
-    end)
-
-    local main = wibox({
-        width = s.geometry.width,
-        height = s.geometry.height,
-        screen = s,
-        ontop = true,
-        visible = false,
-        type = "desktop",
-        widget = {
-            layout = wibox.layout.stack,
-            wallpaper,
-            {
-                layout = wibox.layout.align.vertical,
+-- Add lockscreen to each screen
+awful.screen.connect_for_each_screen(
+    function(s)
+        s.lockscreen = wibox {
+            widget = {
                 {
-                    widget = wibox.container.place,
-                    valign = "center",
+                    lockscreen_body,
                     {
-                        widget = wibox.container.margin,
-                        margins = {
-                            top = dpi(200),
-                        },
-                        {
-                            layout = wibox.layout.fixed.vertical,
-                            spacing = dpi(5),
-                            {
-                                widget = wibox.widget.textclock,
-                                font = b.sysfont(dpi(120)),
-                                format = "%-I:%M %p",
-                                halign = "center",
-                                valign = "center",
-                            },
-                            {
-                                widget = wibox.widget.textclock,
-                                font = b.sysfont(dpi(28)),
-                                format = "%a %b %-d",
-                                halign = "center",
-                                valign = "center",
-                            },
-                        },
+                        power_buttons,
+                        weather_box,
+                        media_controls_box,
+
+                        spacing = dpi(12),
+                        layout = wibox.layout.fixed.vertical
                     },
+                    spacing = dpi(12),
+                    layout = wibox.layout.fixed.horizontal
                 },
-                {
-                    widget = wibox.container.place,
-                    halign = "center",
-                    {
-                        widget = wibox.container.margin,
-                        margins = {
-                            bottom = dpi(200),
-                        },
-                        {
-                            layout = wibox.layout.stack,
-                            circle,
-                            caps_lock,
-                        },
-                    },
-                },
+                widget = wibox.container.place
             },
-        },
-    })
-    awful.placement.centered(main)
+            visible = false,
+            ontop = true,
+            type = "splash",
+            screen = s,
+            bg = beautiful.black .. "A0"
+        }
+    end
+)
 
-    awesome.connect_signal("ui::lock::state", function(force)
-        main.visible = force or false
-    end)
-end)
+awesome.connect_signal(
+    "lockscreen::visible", function(visible)
+        if visible then
+            grab_password()
+            update_time()
+            clock_timer:start()
+        else
+            clock_timer:stop()
+        end
+
+        naughty.suspended = visible
+        for s in screen do
+            s.lockscreen.visible = visible
+        end
+    end
+)
+
+screen.connect_signal(
+    "request::wallpaper", function(s)
+        awful.placement.maximize(s.lockscreen)
+    end
+)

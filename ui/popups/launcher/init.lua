@@ -23,8 +23,8 @@ local launcher = {}
 local shapes = require("modules.shapes.init")
 local click_to_hide = require("modules.click_to_hide")
 
-local lock_icon_path = gfs.get_configuration_dir() .. "lock-line.svg"
-local power_icon_path = gfs.get_configuration_dir() .. "shut-down-line.svg"
+local lock_icon_path = gfs.get_configuration_dir() .. "ui/popups/launcher/icons/lock-line.svg"
+local power_icon_path = gfs.get_configuration_dir() .. "ui/popups/launcher/icons/shut-down-line.svg"
 
 local function launch_app(app)
     if not app then

@@ -17,22 +17,23 @@ theme.font_name = "OperatorUltraNerdFontComplete Nerd Font Propo "
 theme.taglist_font = "awesomewm-font 10"
 theme.font = theme.font_name .. tostring(dpi(13))
 
--- Text icons (ASCII alternatives, replace with SVG icons where possible)
+-- Text icons (Nerd Font icons)
 theme.text_icons = {
     arrow_down = "",
     arrow_left = "",
-    arrow_right = ">",
+    arrow_right = "",
     arrow_up = "",
     bell_off = "",
     bell_on = "",
     bluetooth = "",
+    bluetooth_off = "",
     calendar = "",
-    check = "*",
+    check = "",
     check_off = "",
-    check_on = "*",
+    check_on = "",
     cloud = "",
-    cross = "x",
-    dash = "-",
+    cross = "",
+    dash = "",
     exit = "",
     eye_off = "",
     eye_on = "",

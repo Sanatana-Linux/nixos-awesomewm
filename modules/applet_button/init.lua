@@ -1,3 +1,14 @@
+--[[
+Generic Applet Button Module
+
+Creates a consistent, styled button widget for control panel applets.
+
+Accepts configuration options for:
+- Icon and labels
+- Actions for toggle and reveal
+- Service/Adapter integration for state-based styling
+--]]
+
 local awful = require("awful")
 local wibox = require("wibox")
 local beautiful = require("beautiful")
@@ -7,19 +18,27 @@ local dpi = beautiful.xresources.apply_dpi
 
 local function new(opts)
     opts = opts or {}
+
+    -- Styling and content options
     local icon = opts.icon
-    local description = opts.description or "Module"
-    local handler = opts.handler
-    local power_handler = opts.power_handler
-    local adapter = opts.adapter
-    local powered_signal = opts.powered_signal
+    local name = opts.name or "Applet"
+    local active_text = opts.active_text or "Enabled"
+    local inactive_text = opts.inactive_text or "Disabled"
     local arrow_icon = opts.arrow_icon
-    local active_text = opts.active_text
-    local inactive_text = opts.inactive_text
+
+    -- Actions
+    local on_toggle = opts.on_toggle
+    local on_reveal = opts.on_reveal
+
+    -- Service integration for automatic state styling
+    local service = opts.service
+    local state_property = opts.state_property
+    local get_state_func = opts.get_state_func
 
     local forced_width = dpi(225)
     local forced_height = dpi(60)
 
+    -- Build the widget
     local ret = wibox.widget({
         widget = wibox.container.background,
         forced_width = forced_width,
@@ -30,13 +49,15 @@ local function new(opts)
         border_width = dpi(1),
         border_color = beautiful.border_color,
         {
-            widget = wibox.container.margin,
-            margins = { left = dpi(15), right = dpi(15) },
+            layout = wibox.layout.align.horizontal,
+            -- Toggle/Info Area
             {
-                layout = wibox.layout.align.horizontal,
+                id = "toggle-button",
+                widget = wibox.container.background,
+                forced_width = dpi(180),
                 {
-                    id = "label-background",
-                    widget = wibox.container.background,
+                    widget = wibox.container.margin,
+                    margins = { left = dpi(15) },
                     {
                         layout = wibox.layout.fixed.horizontal,
                         spacing = dpi(15),
@@ -44,6 +65,7 @@ local function new(opts)
                             widget = wibox.container.place,
                             valign = "center",
                             {
+                                id = "toggle-icon",
                                 widget = wibox.widget.imagebox,
                                 image = gcolor.recolor_image(icon, beautiful.fg),
                                 forced_height = dpi(24),
@@ -57,12 +79,11 @@ local function new(opts)
                             {
                                 layout = wibox.layout.fixed.vertical,
                                 {
-                                    id = "label",
                                     widget = wibox.widget.textbox,
-                                    markup = description,
+                                    markup = "<b>" .. name .. "</b>",
                                 },
                                 {
-                                    id = "description",
+                                    id = "state-label",
                                     widget = wibox.widget.textbox,
                                     font = beautiful.font_name .. dpi(9),
                                 },
@@ -70,133 +91,75 @@ local function new(opts)
                         },
                     },
                 },
-                nil,
+            },
+            -- Separator
+            {
+                widget = wibox.container.margin,
+                margins = { top = dpi(15), bottom = dpi(15) },
                 {
-                    layout = wibox.layout.fixed.horizontal,
+                    id = "separator",
+                    widget = wibox.widget.separator,
+                    forced_width = 1,
+                    orientation = "vertical",
+                    color = beautiful.border_color,
+                },
+            },
+            -- Reveal Area
+            {
+                id = "reveal-button",
+                widget = wibox.container.background,
+                forced_width = dpi(45),
+                {
+                    widget = wibox.container.place,
+                    valign = "center",
+                    halign = "center",
                     {
-                        widget = wibox.container.margin,
-                        forced_height = 1,
-                        forced_width = beautiful.separator_thickness,
-                        margins = { top = dpi(12), bottom = dpi(12) },
-                        {
-                            id = "separator",
-                            widget = wibox.widget.separator,
-                            orientation = "vertical",
-                        },
-                    },
-                    {
-                        id = "reveal-button",
-                        widget = wibox.container.background,
-                        forced_width = dpi(45),
-                        {
-                            widget = wibox.container.place,
-                            valign = "center",
-                            halign = "center",
-                            {
-                                widget = wibox.container.margin,
-                                margins = dpi(6),
-                                {
-                                    widget = wibox.widget.imagebox,
-                                    image = gcolor.recolor_image(
-                                        arrow_icon
-                                            or (beautiful.theme_path
-                                                .. "/icons/wibar/arrow-right.svg"),
-                                        beautiful.fg
-                                    ),
-                                },
-                            },
-                        },
+                        widget = wibox.widget.imagebox,
+                        image = gcolor.recolor_image(arrow_icon, beautiful.fg),
+                        forced_height = dpi(18),
+                        forced_width = dpi(18),
+                        resize = true,
                     },
                 },
             },
         },
     })
 
-    local label_background = ret:get_children_by_id("label-background")[1]
-    if handler then
-        label_background:buttons({
-            awful.button({}, 1, handler),
-        })
-    end
-
+    -- References
+    local toggle_button = ret:get_children_by_id("toggle-button")[1]
+    local reveal_button = ret:get_children_by_id("reveal-button")[1]
     local separator = ret:get_children_by_id("separator")[1]
+    local state_label = ret:get_children_by_id("state-label")[1]
 
-    local function on_state_change(self, state)
-        local description_widget = self:get_children_by_id("description")[1]
-
-        if state then
-            self:set_bg(beautiful.ac)
-            self:set_fg(beautiful.fg)
-            separator:set_color(beautiful.bg)
-            description_widget:set_markup(active_text or "Active")
+    -- State update logic
+    local function update_ui(is_active)
+        if is_active then
+            ret:set_bg(beautiful.ac)
+            state_label:set_markup(active_text)
+            separator:set_color(beautiful.fg)
         else
-            self:set_bg(beautiful.bg_alt)
-            self:set_fg(beautiful.fg)
-            separator:set_color(beautiful.bg_urg)
-            description_widget:set_markup(inactive_text or "Inactive")
+            ret:set_bg(beautiful.bg_alt)
+            state_label:set_markup(inactive_text)
+            separator:set_color(beautiful.border_color)
         end
     end
 
-    if adapter and powered_signal then
-        local reveal_button = ret:get_children_by_id("reveal-button")[1]
+    -- Signals/Buttons
+    if on_toggle then
+        toggle_button:buttons({ awful.button({}, 1, on_toggle) })
+    end
+    if on_reveal then
+        reveal_button:buttons({ awful.button({}, 1, on_reveal) })
+    end
 
-        local function get_powered_state()
-            if adapter.get_powered then
-                return adapter:get_powered()
-            elseif adapter.get_wireless_enabled then
-                return adapter:get_wireless_enabled()
-            end
-            return false
-        end
-
-        reveal_button:buttons({
-            awful.button({}, 1, function()
-                local powered_state = get_powered_state()
-                if powered_state then
-                    if power_handler then
-                        power_handler(adapter)
-                    end
-                else
-                    if adapter.unblock then
-                        adapter:unblock(function()
-                            adapter:set_powered(true)
-                        end)
-                    else
-                        adapter:set_powered(true)
-                    end
-                end
-            end),
-        })
-
-        ret:connect_signal("mouse::enter", function(w)
-            if not get_powered_state() then
-                w:set_bg(beautiful.bg_urg)
-                separator:set_color(beautiful.fg_alt)
-            end
+    if service and state_property and get_state_func then
+        service:connect_signal(state_property, function(_, state)
+            update_ui(state)
         end)
-
-        ret:connect_signal("mouse::leave", function(w)
-            if not get_powered_state() then
-                w:set_bg(beautiful.bg_alt)
-                separator:set_color(beautiful.bg_urg)
-            end
-        end)
-
-        adapter:connect_signal(powered_signal, function(_, state)
-            on_state_change(ret, state)
-        end)
-
-        on_state_change(ret, get_powered_state())
-    else
-        ret:connect_signal("mouse::enter", function(w)
-            w:set_bg(beautiful.bg_urg)
-        end)
-        ret:connect_signal("mouse::leave", function(w)
-            w:set_bg(nil)
-        end)
+        update_ui(get_state_func(service))
     end
 
     return ret
 end
 
-return setmetatable({}, { __call = new })
+return setmetatable({}, { __call = function(_, ...) return new(...) end })
