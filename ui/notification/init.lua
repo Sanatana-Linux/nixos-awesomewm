@@ -4,6 +4,7 @@ local wibox = require("wibox")
 local gtable = require("gears.table")
 local gtimer = require("gears.timer")
 local gears = require("gears")
+local gcolor = require("gears.color")
 local gfs = require("gears.filesystem")
 local modules = require("modules")
 local beautiful = require("beautiful")
@@ -12,6 +13,7 @@ local ncr = naughty.notification_closed_reason
 local dpi = beautiful.xresources.apply_dpi
 local create_markup = require("lib").create_markup
 local remove_nonindex = require("lib").remove_nonindex
+local notification_cache = require("ui.notification.cache")
 
 local close_icon = gfs.get_configuration_dir() .. "ui/titlebar/icons/close.svg"
 
@@ -242,10 +244,15 @@ local function create_notification_popup(n)
 		n:destroy(ncr.silent)
 	end))
 	close_bg:connect_signal("mouse::enter", function()
-		close_bg.bg = beautiful.bg_gradient_button_alt
+		-- Red gradient background like power menu toggle
+		close_bg.bg = "linear:0,0:0,32:0," .. beautiful.red .. ":1," .. "#b61442"
+		-- Change icon to white
+		close.image = gcolor.recolor_image(close_icon, beautiful.bg)
 	end)
 	close_bg:connect_signal("mouse::leave", function()
 		close_bg.bg = beautiful.bg_gradient_button
+		-- Revert icon to red
+		close.image = gcolor.recolor_image(close_icon, beautiful.red)
 	end)
 
     return popup_widget
@@ -255,6 +262,10 @@ function notifications.display(n)
     if not n then
         return
     end
+    
+    -- Cache the notification
+    notification_cache.add(n)
+    
     local notification_popup = create_notification_popup(n)
     local display_timer
 
@@ -281,6 +292,19 @@ function notifications.display(n)
     if display_timer then
         display_timer:start()
     end
+end
+
+-- Expose cache functions for use by other modules
+function notifications.get_cached_notifications()
+    return notification_cache.get_all()
+end
+
+function notifications.clear_cache()
+    return notification_cache.clear()
+end
+
+function notifications.get_cache_count()
+    return notification_cache.count()
 end
 
 local function new()

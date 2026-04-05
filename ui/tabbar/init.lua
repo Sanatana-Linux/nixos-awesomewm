@@ -17,6 +17,7 @@ local function create(c, focused_bool, buttons)
     local bg_focus = beautiful.bg_gradient_titlebar_alt
     local bg_temp = focused_bool and bg_focus or bg_normal
     local fg_temp = focused_bool and beautiful.fg or beautiful.fg
+    
     -- Create the tabbar widget
     local wid_temp = wibox.widget({
         {
@@ -41,6 +42,22 @@ local function create(c, focused_bool, buttons)
         fg = fg_temp,
         widget = wibox.container.background,
     })
+
+    -- Add tooltip with full window title
+    local tooltip = awful.tooltip({
+        objects = { wid_temp },
+        text = function() 
+            return c.name or c.class or "Unknown Window"
+        end,
+        delay_show = 0.5,
+        margins_topbottom = dpi(8),
+        margins_leftright = dpi(12),
+    })
+
+    -- Update tooltip when client name changes
+    c:connect_signal("property::name", function()
+        tooltip:set_text(c.name or c.class or "Unknown Window")
+    end)
 
     return wid_temp -- Return the created tabbar widget
 end

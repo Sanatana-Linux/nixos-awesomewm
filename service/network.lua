@@ -12,6 +12,7 @@ local connection = {}
 local wired = {}
 local wireless = {}
 local access_point = {}
+local device = {}
 
 network.NMState = {
     UNKNOWN = 0,
@@ -63,6 +64,87 @@ function network.device_state_to_string(state)
     }
 
     return device_state_to_string[state]
+end
+
+function network.device_type_to_string(dtype)
+    local device_type_to_string = {
+        [1] = "Ethernet",
+        [2] = "WiFi",
+    }
+    return device_type_to_string[dtype] or "Unknown"
+end
+
+function device:get_interface()
+    if self._private.device_proxy then
+        return self._private.device_proxy.Interface
+    end
+end
+
+function device:get_type()
+    if self._private.device_proxy then
+        return self._private.device_proxy.DeviceType
+    end
+end
+
+function device:get_type_string()
+    return network.device_type_to_string(self:get_type())
+end
+
+function device:get_state()
+    if self._private.device_proxy then
+        return self._private.device_proxy.State
+    end
+end
+
+function device:get_state_string()
+    return network.device_state_to_string(self:get_state())
+end
+
+function device:get_hw_address()
+    if self._private.device_proxy then
+        return self._private.device_proxy.HwAddress
+    end
+end
+
+function device:get_ip4_address()
+    if self._private.ip4_config_proxy then
+        local addrs = self._private.ip4_config_proxy.AddressData
+        if addrs and #addrs > 0 then
+            return addrs[1].address .. "/" .. addrs[1].prefix
+        end
+    end
+end
+
+function device:get_active_connection()
+    if self._private.device_proxy then
+        return self._private.device_proxy.ActiveConnection
+    end
+end
+
+function device:get_access_points()
+    if self._private.wireless_proxy then
+        return self.access_points
+    end
+end
+
+function device:get_access_point(path)
+    if self._private.wireless_proxy and self.access_points then
+        return self.access_points[path]
+    end
+end
+
+function device:get_active_access_point()
+    if self._private.wireless_proxy then
+        return self:get_access_point(
+            self._private.wireless_proxy.ActiveAccessPoint
+        )
+    end
+end
+
+function device:request_scan()
+    if self._private.wireless_proxy then
+        self._private.wireless_proxy:RequestScanAsync(nil, {}, {})
+    end
 end
 
 local function flags_to_security(flags, wpa_flags, rsn_flags)
@@ -267,24 +349,22 @@ function client:disconnect_active_access_point()
     )
 end
 
+function client:disconnect_access_point(dev)
+    if dev and dev._private.device_proxy then
+        self._private.client_proxy:DeactivateConnectionAsync(
+            nil,
+            {},
+            dev._private.device_proxy.ActiveConnection
+        )
+    end
+end
+
 function connection:get_filename()
     return self._private.connection_proxy.Filename
 end
 
 function connection:get_path()
     return self._private.connection_proxy.object_path
-end
-
-function wired:get_hw_address()
-    if self._private.device_proxy then
-        return self._private.device_proxy.HwAddress
-    end
-end
-
-function wired:get_state()
-    if self._private.device_proxy then
-        return self._private.device_proxy.State
-    end
 end
 
 function wireless:get_hw_address()
@@ -296,6 +376,12 @@ end
 function wireless:get_state()
     if self._private.device_proxy then
         return self._private.device_proxy.State
+    end
+end
+
+function wireless:get_bitrate()
+    if self._private.wireless_proxy then
+        return self._private.wireless_proxy.Bitrate
     end
 end
 
@@ -437,6 +523,10 @@ local function new()
     gtable.crush(ret.wireless, wireless, true)
     ret.wireless._private = {}
 
+    ret.devices = {}
+    ret.wireless_devices = {}
+    ret.wired_devices = {}
+
     local device_paths = ret._private.client_proxy:GetDevices()
     for _, device_path in ipairs(device_paths) do
         local device_proxy = dbus_proxy.Proxy:new({
@@ -447,29 +537,145 @@ local function new()
         })
 
         if device_proxy then
+            local device_obj = gobject({})
+            gtable.crush(device_obj, device, true)
+            device_obj._private = {}
+            device_obj._private.device_proxy = device_proxy
+
             if device_proxy.DeviceType == network.DeviceType.ETHERNET then
-                ret.wired._private.device_proxy = device_proxy
-                ret.wired._private.wired_proxy = dbus_proxy.Proxy:new({
+                device_obj._private.wired_proxy = dbus_proxy.Proxy:new({
                     bus = dbus_proxy.Bus.SYSTEM,
                     name = "org.freedesktop.NetworkManager",
                     interface = "org.freedesktop.NetworkManager.Device.Wired",
                     path = device_path,
                 })
+
+                if device_proxy.ActiveConnection then
+                    device_obj._private.ip4_config_proxy =
+                        dbus_proxy.Proxy:new({
+                            bus = dbus_proxy.Bus.SYSTEM,
+                            name = "org.freedesktop.NetworkManager",
+                            interface = "org.freedesktop.NetworkManager.IP4Config",
+                            path = device_proxy.Ip4Config or "/",
+                        })
+                end
+
+                table.insert(ret.devices, device_obj)
+                table.insert(ret.wired_devices, device_obj)
+
+                if not ret.wired._private.device_proxy then
+                    ret.wired._private.device_proxy = device_proxy
+                    ret.wired._private.wired_proxy =
+                        device_obj._private.wired_proxy
+                end
+
+                device_proxy:connect_signal(
+                    "StateChanged",
+                    function(_, new_state, old_state, reason)
+                        device_obj:emit_signal(
+                            "property::state",
+                            new_state,
+                            old_state,
+                            reason
+                        )
+                        ret:emit_signal("device::state", device_obj, new_state)
+                    end
+                )
             elseif device_proxy.DeviceType == network.DeviceType.WIFI then
-                ret.wireless._private.device_proxy = device_proxy
-                ret.wireless._private.wireless_proxy = dbus_proxy.Proxy:new({
+                device_obj._private.wireless_proxy = dbus_proxy.Proxy:new({
                     bus = dbus_proxy.Bus.SYSTEM,
                     name = "org.freedesktop.NetworkManager",
                     interface = "org.freedesktop.NetworkManager.Device.Wireless",
                     path = device_path,
                 })
 
-                ret.wireless._private.properties_proxy = dbus_proxy.Proxy:new({
+                device_obj._private.properties_proxy = dbus_proxy.Proxy:new({
                     bus = dbus_proxy.Bus.SYSTEM,
                     name = "org.freedesktop.NetworkManager",
                     interface = "org.freedesktop.DBus.Properties",
                     path = device_path,
                 })
+
+                if device_proxy.ActiveConnection then
+                    device_obj._private.ip4_config_proxy =
+                        dbus_proxy.Proxy:new({
+                            bus = dbus_proxy.Bus.SYSTEM,
+                            name = "org.freedesktop.NetworkManager",
+                            interface = "org.freedesktop.NetworkManager.IP4Config",
+                            path = device_proxy.Ip4Config or "/",
+                        })
+                end
+
+                device_obj.access_points = {}
+
+                device_obj._private.wireless_proxy:connect_signal(
+                    "AccessPointAdded",
+                    function(_, ap_path)
+                        local access_point_object =
+                            create_access_point_object(ap_path)
+                        device_obj.access_points[ap_path] = access_point_object
+                        device_obj:emit_signal("access-point-added", ap_path)
+                        device_obj:emit_signal("property::access-points")
+                    end
+                )
+
+                device_obj._private.wireless_proxy:connect_signal(
+                    "AccessPointRemoved",
+                    function(_, ap_path)
+                        device_obj.access_points[ap_path] = nil
+                        device_obj:emit_signal("access-point-removed", ap_path)
+                        device_obj:emit_signal("property::access-points")
+                    end
+                )
+
+                local ap_paths =
+                    device_obj._private.wireless_proxy:GetAccessPoints()
+                for _, ap_path in ipairs(ap_paths) do
+                    local access_point_object =
+                        create_access_point_object(ap_path)
+                    if access_point_object then
+                        device_obj.access_points[ap_path] = access_point_object
+                    end
+                end
+
+                device_obj._private.properties_proxy:connect_signal(
+                    "PropertiesChanged",
+                    function(_, _, props)
+                        if props.AccessPoints ~= nil then
+                            device_obj:emit_signal("property::access-points")
+                        end
+                        if props.ActiveAccessPoint ~= nil then
+                            device_obj:emit_signal(
+                                "property::active-access-point",
+                                props.ActiveAccessPoint
+                            )
+                        end
+                    end
+                )
+
+                table.insert(ret.devices, device_obj)
+                table.insert(ret.wireless_devices, device_obj)
+
+                if not ret.wireless._private.device_proxy then
+                    ret.wireless._private.device_proxy = device_proxy
+                    ret.wireless._private.wireless_proxy =
+                        device_obj._private.wireless_proxy
+                    ret.wireless._private.properties_proxy =
+                        device_obj._private.properties_proxy
+                end
+
+                device_proxy:connect_signal(
+                    "StateChanged",
+                    function(_, new_state, old_state, reason)
+                        device_obj:emit_signal(
+                            "property::state",
+                            new_state,
+                            old_state,
+                            reason
+                        )
+                        ret:emit_signal("device::state", device_obj, new_state)
+                    end
+                )
             end
         end
     end

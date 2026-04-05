@@ -26,51 +26,14 @@ local function create_dev_widget(path)
         forced_height = dpi(40),
         {
             layout = wibox.layout.fixed.vertical,
-            {
+            applet_pages.create_item_widget({
                 id = "header",
-                widget = wibox.container.background,
-                forced_height = dpi(40),
-                shape = shapes.rrect(10),
-                border_width = dpi(1),
-                border_color = WHITE,
-                {
-                    widget = wibox.container.margin,
-                    margins = { left = dpi(15), right = dpi(15) },
-                    {
-                        layout = wibox.layout.align.horizontal,
-                        {
-                            layout = wibox.layout.fixed.horizontal,
-                            spacing = dpi(8),
-                            {
-                                id = "check-icon",
-                                widget = wibox.widget.imagebox,
-                                image = gcolor.recolor_image(ICON_CHECK, WHITE),
-                                forced_height = dpi(14),
-                                forced_width = dpi(14),
-                                resize = true,
-                            },
-                            {
-                                widget = wibox.container.constraint,
-                                width = dpi(200),
-                                {
-                                    id = "name",
-                                    widget = wibox.widget.textbox,
-                                },
-                            },
-                        },
-                        nil,
-                        {
-                            widget = wibox.container.constraint,
-                            width = dpi(130),
-                            {
-                                id = "percentage",
-                                widget = wibox.widget.textbox,
-                                align = "right",
-                            },
-                        },
-                    },
-                },
-            },
+                height = dpi(40),
+                name = dev:get_name() or dev:get_address(),
+                name_width = dpi(200),
+                check_icon = gcolor.recolor_image(ICON_CHECK, WHITE),
+                is_active = dev:get_connected(),
+            }),
             {
                 id = "buttons",
                 widget = wibox.container.background,
@@ -82,57 +45,21 @@ local function create_dev_widget(path)
                     {
                         layout = wibox.layout.flex.horizontal,
                         spacing = dpi(5),
-                        {
+                        applet_pages.create_action_button({
                             id = "connect-button",
-                            widget = wibox.container.background,
-                            shape = shapes.rrect(10),
-                            border_width = dpi(1),
-                            border_color = WHITE,
-                            bg = beautiful.bg_gradient_button,
-                            {
-                                widget = wibox.container.margin,
-                                margins = dpi(8),
-                                {
-                                    id = "connect-label",
-                                    widget = wibox.widget.textbox,
-                                    align = "center",
-                                },
-                            },
-                        },
-                        {
+                            label_id = "connect-label",
+                            text = dev:get_connected() and "Disconnect" or "Connect"
+                        }),
+                        applet_pages.create_action_button({
                             id = "pair-button",
-                            widget = wibox.container.background,
-                            shape = shapes.rrect(10),
-                            border_width = dpi(1),
-                            border_color = WHITE,
-                            bg = beautiful.bg_gradient_button,
-                            {
-                                widget = wibox.container.margin,
-                                margins = dpi(8),
-                                {
-                                    id = "pair-label",
-                                    widget = wibox.widget.textbox,
-                                    align = "center",
-                                },
-                            },
-                        },
-                        {
+                            label_id = "pair-label",
+                            text = dev:get_paired() and "Unpair" or "Pair"
+                        }),
+                        applet_pages.create_action_button({
                             id = "trust-button",
-                            widget = wibox.container.background,
-                            shape = shapes.rrect(10),
-                            border_width = dpi(1),
-                            border_color = WHITE,
-                            bg = beautiful.bg_gradient_button,
-                            {
-                                widget = wibox.container.margin,
-                                margins = dpi(8),
-                                {
-                                    id = "trust-label",
-                                    widget = wibox.widget.textbox,
-                                    align = "center",
-                                },
-                            },
-                        },
+                            label_id = "trust-label",
+                            text = dev:get_trusted() and "Untrust" or "Trust"
+                        }),
                     },
                 },
             },
@@ -142,7 +69,7 @@ local function create_dev_widget(path)
     local header = ret:get_children_by_id("header")[1]
     local check_icon = ret:get_children_by_id("check-icon")[1]
     local name = ret:get_children_by_id("name")[1]
-    local percentage = ret:get_children_by_id("percentage")[1]
+    local percentage = ret:get_children_by_id("status")[1]
     local buttons = ret:get_children_by_id("buttons")[1]
     local connect_button = ret:get_children_by_id("connect-button")[1]
     local connect_label = ret:get_children_by_id("connect-label")[1]
@@ -151,54 +78,49 @@ local function create_dev_widget(path)
     local trust_button = ret:get_children_by_id("trust-button")[1]
     local trust_label = ret:get_children_by_id("trust-label")[1]
 
+    percentage.align = "right"
+
     local buttons_visible = false
     local function toggle_buttons()
         buttons_visible = not buttons_visible
-        ret:set_forced_height(buttons_visible and dpi(80) or dpi(40))
+        ret:set_forced_height(buttons_visible and dpi(90) or dpi(40))
         buttons.visible = buttons_visible
     end
 
-    header:connect_signal("mouse::enter", function(w)
-        w:set_bg(beautiful.bg_urg)
-    end)
-    header:connect_signal("mouse::leave", function(w)
-        w:set_bg(nil)
-    end)
+    applet_pages.setup_item_effects(header)
     header:buttons({
         awful.button({}, 1, function()
             toggle_buttons()
         end),
     })
 
-    local function setup_button(button, action)
-        button:connect_signal("mouse::enter", function(w)
-            w:set_bg(beautiful.bg_gradient_button_alt)
-        end)
-        button:connect_signal("mouse::leave", function(w)
-            w:set_bg(beautiful.bg_gradient_button)
-        end)
-        button:buttons({
-            awful.button({}, 1, action),
-        })
-    end
+    applet_pages.setup_button_effects(connect_button)
+    applet_pages.setup_button_effects(pair_button)
+    applet_pages.setup_button_effects(trust_button)
 
-    setup_button(connect_button, function()
-        if not dev:get_connected() then
-            dev:connect()
-        else
-            dev:disconnect()
-        end
-    end)
-    setup_button(pair_button, function()
-        if not dev:get_paired() then
-            dev:pair()
-        else
-            dev:cancel_pairing()
-        end
-    end)
-    setup_button(trust_button, function()
-        dev:set_trusted(not dev:get_trusted())
-    end)
+    connect_button:buttons({
+        awful.button({}, 1, function()
+            if not dev:get_connected() then
+                dev:connect()
+            else
+                dev:disconnect()
+            end
+        end),
+    })
+    pair_button:buttons({
+        awful.button({}, 1, function()
+            if not dev:get_paired() then
+                dev:pair()
+            else
+                dev:cancel_pairing()
+            end
+        end),
+    })
+    trust_button:buttons({
+        awful.button({}, 1, function()
+            dev:set_trusted(not dev:get_trusted())
+        end),
+    })
 
     dev:connect_signal("property::percentage", function(_, perc)
         percentage:set_markup(
@@ -215,7 +137,6 @@ local function create_dev_widget(path)
     dev:connect_signal("property::connected", function(_, cnd)
         local dev_name = dev:get_name() or dev:get_address()
         if cnd then
-            check_icon:set_image(gcolor.recolor_image(ICON_CHECK, WHITE))
             check_icon.visible = true
         else
             check_icon.visible = false
@@ -254,7 +175,6 @@ local function create_dev_widget(path)
 
     local dev_name = dev:get_name() or dev:get_address()
     if dev:get_connected() then
-        check_icon:set_image(gcolor.recolor_image(ICON_CHECK, WHITE))
         check_icon.visible = true
     else
         check_icon.visible = false
@@ -327,19 +247,7 @@ local function on_device_removed(self, path)
     end
 
     if #devices_layout.children == 0 then
-        devices_layout:add(wibox.widget({
-            widget = wibox.container.place,
-            forced_height = dpi(400),
-            halign = "center",
-            valign = "center",
-            {
-                widget = wibox.widget.imagebox,
-                image = gcolor.recolor_image(ICON_SEARCH, WHITE),
-                forced_height = dpi(25),
-                forced_width = dpi(25),
-                resize = true,
-            },
-        }))
+        devices_layout:add(applet_pages.create_empty_state({ icon = ICON_SEARCH }))
     end
 end
 
@@ -374,19 +282,7 @@ local function on_powered(self, powered)
             gcolor.recolor_image(ICON_BLUETOOTH, WHITE)
         )
         devices_layout:reset()
-        devices_layout:add(wibox.widget({
-            widget = wibox.container.place,
-            forced_height = dpi(400),
-            halign = "center",
-            valign = "center",
-            {
-                widget = wibox.widget.imagebox,
-                image = gcolor.recolor_image(ICON_SEARCH, WHITE),
-                forced_height = dpi(25),
-                forced_width = dpi(25),
-                resize = true,
-            },
-        }))
+        devices_layout:add(applet_pages.create_empty_state({ icon = ICON_SEARCH }))
 
         for _, dev in pairs(adapter:get_devices()) do
             on_device_added(self, dev:get_path())
@@ -398,20 +294,7 @@ local function on_powered(self, powered)
             gcolor.recolor_image(ICON_BLUETOOTH, WHITE)
         )
         devices_layout:reset()
-        devices_layout:add(wibox.widget({
-            widget = wibox.container.place,
-            forced_height = dpi(400),
-            halign = "center",
-            valign = "center",
-            {
-                widget = wibox.widget.textbox,
-                align = "center",
-                font = beautiful.font_name .. dpi(12),
-                markup = "<span foreground='"
-                    .. WHITE
-                    .. "'>Bluetooth disabled</span>",
-            },
-        }))
+        devices_layout:add(applet_pages.create_empty_state({ text = "Bluetooth disabled" }))
     end
 end
 
@@ -425,19 +308,8 @@ local function on_blocked(self, blocked)
             gcolor.recolor_image(ICON_BLUETOOTH, WHITE)
         )
         devices_layout:reset()
-        devices_layout:add(wibox.widget({
-            widget = wibox.container.place,
-            forced_height = dpi(400),
-            halign = "center",
-            valign = "center",
-            {
-                widget = wibox.widget.textbox,
-                align = "center",
-                font = beautiful.font_name .. dpi(12),
-                markup = "<span foreground='"
-                    .. WHITE
-                    .. "'>Bluetooth is blocked\nClick toggle to unblock</span>",
-            },
+        devices_layout:add(applet_pages.create_empty_state({
+            text = "Bluetooth is blocked\nClick toggle to unblock"
         }))
     end
 end

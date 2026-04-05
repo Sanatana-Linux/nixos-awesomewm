@@ -81,6 +81,10 @@ theme.bg = "#1f1f1F"
 theme.bg_alt = "#2a2a2A"
 theme.bg_urg = "#30303c"
 
+-- Backdrop for popups
+theme.backdrop_color = "#000000BB" -- Darker semi-transparent black (75% opacity)
+theme.backdrop_opacity = 0.75 -- Increased opacity for darker appearance
+
 theme.fg_alt = "#8c8c98"
 theme.fg = "#f7f1ff"
 
@@ -148,6 +152,18 @@ theme.notification_margins = dpi(30)
 theme.notification_spacing = dpi(10)
 theme.notification_timeout = 5
 
+-- Notification action button styles (for screenshot buttons)
+theme.notification_action_bg_normal = theme.bg_gradient_button
+theme.notification_action_bg_selected = theme.bg_gradient_button_alt
+theme.notification_action_fg_normal = theme.fg
+theme.notification_action_fg_selected = theme.fg
+theme.notification_action_shape = function(cr, w, h)
+    require("gears.shape").rounded_rect(cr, w, h, dpi(6))
+end
+theme.notification_action_label_only = false
+theme.notification_action_margin_horizontal = dpi(8)
+theme.notification_action_margin_vertical = dpi(4)
+
 theme.menu_submenu = "» "
 theme.menu_bg_normal = theme.bg
 theme.menu_fg_normal = theme.fg
@@ -164,58 +180,58 @@ theme.systray_icon_margin = dpi(4)
 theme.wallpaper = theme_path .. "wallpaper/wallpaper.png"
 
 theme.layout_fairh =
-    gcolor.recolor_image(icons_path .. "/layouts/fairh.png", theme.fg)
+    gcolor.recolor_image(icons_path .. "/layouts/fairh.svg", theme.fg)
 theme.layout_fairv =
-    gcolor.recolor_image(icons_path .. "/layouts/fairv.png", theme.fg)
+    gcolor.recolor_image(icons_path .. "/layouts/fairv.svg", theme.fg)
 theme.layout_magnifier =
-    gcolor.recolor_image(icons_path .. "/layouts/magnifier.png", theme.fg)
+    gcolor.recolor_image(icons_path .. "/layouts/magnifier.svg", theme.fg)
 theme.layout_max =
-    gcolor.recolor_image(icons_path .. "/layouts/max.png", theme.fg)
+    gcolor.recolor_image(icons_path .. "/layouts/max.svg", theme.fg)
 theme.layout_fullscreen =
-    gcolor.recolor_image(icons_path .. "/layouts/fullscreen.png", theme.fg)
+    gcolor.recolor_image(icons_path .. "/layouts/fullscreen.svg", theme.fg)
 theme.layout_tilebottom =
-    gcolor.recolor_image(icons_path .. "/layouts/tilebottom.png", theme.fg)
+    gcolor.recolor_image(icons_path .. "/layouts/tilebottom.svg", theme.fg)
 theme.layout_tileleft =
-    gcolor.recolor_image(icons_path .. "/layouts/tileleft.png", theme.fg)
+    gcolor.recolor_image(icons_path .. "/layouts/tileleft.svg", theme.fg)
 theme.layout_tile =
-    gcolor.recolor_image(icons_path .. "/layouts/tile.png", theme.fg)
+    gcolor.recolor_image(icons_path .. "/layouts/tile.svg", theme.fg)
 theme.layout_tiletop =
-    gcolor.recolor_image(icons_path .. "/layouts/tiletop.png", theme.fg)
+    gcolor.recolor_image(icons_path .. "/layouts/tiletop.svg", theme.fg)
 theme.layout_spiral =
-    gcolor.recolor_image(icons_path .. "/layouts/spiral.png", theme.fg)
+    gcolor.recolor_image(icons_path .. "/layouts/spiral.svg", theme.fg)
 theme.layout_dwindle =
-    gcolor.recolor_image(icons_path .. "/layouts/dwindle.png", theme.fg)
+    gcolor.recolor_image(icons_path .. "/layouts/dwindle.svg", theme.fg)
 theme.layout_cornernw =
-    gcolor.recolor_image(icons_path .. "/layouts/cornernw.png", theme.fg)
+    gcolor.recolor_image(icons_path .. "/layouts/cornernw.svg", theme.fg)
 theme.layout_cornerne =
-    gcolor.recolor_image(icons_path .. "/layouts/cornerne.png", theme.fg)
+    gcolor.recolor_image(icons_path .. "/layouts/cornerne.svg", theme.fg)
 theme.layout_cornersw =
-    gcolor.recolor_image(icons_path .. "/layouts/cornersw.png", theme.fg)
+    gcolor.recolor_image(icons_path .. "/layouts/cornersw.svg", theme.fg)
 theme.layout_cornerse =
-    gcolor.recolor_image(icons_path .. "/layouts/cornerse.png", theme.fg)
+    gcolor.recolor_image(icons_path .. "/layouts/cornerse.svg", theme.fg)
 theme.layout_center =
-    gcolor.recolor_image(icons_path .. "/layouts/centermaster.png", theme.fg)
+    gcolor.recolor_image(icons_path .. "/layouts/centermaster.svg", theme.fg)
 theme.layout_stackLeft =
-    gcolor.recolor_image(icons_path .. "/layouts/stack_left.png", theme.fg)
+    gcolor.recolor_image(icons_path .. "/layouts/stack_left.svg", theme.fg)
 theme.layout_stack =
-    gcolor.recolor_image(icons_path .. "/layouts/stack.png", theme.fg)
+    gcolor.recolor_image(icons_path .. "/layouts/stack.svg", theme.fg)
 theme.layout_cascade =
-    gcolor.recolor_image(icons_path .. "/layouts/cascade.png", theme.fg)
+    gcolor.recolor_image(icons_path .. "/layouts/cascade.svg", theme.fg)
 theme.layout_cascadetile =
-    gcolor.recolor_image(icons_path .. "/layouts/cascadetile.png", theme.fg)
+    gcolor.recolor_image(icons_path .. "/layouts/cascadetile.svg", theme.fg)
 theme.layout_floating =
-    gcolor.recolor_image(icons_path .. "/layouts/floating.png", theme.fg)
+    gcolor.recolor_image(icons_path .. "/layouts/floating.svg", theme.fg)
 theme.layout_thrizen =
-    gcolor.recolor_image(icons_path .. "/layouts/thrizen.png", theme.fg)
+    gcolor.recolor_image(icons_path .. "/layouts/thrizen.svg", theme.fg)
 theme.layout_horizon =
-    gcolor.recolor_image(icons_path .. "/layouts/horizon.png", theme.fg)
+    gcolor.recolor_image(icons_path .. "/layouts/horizon.svg", theme.fg)
 theme.layout_equalarea =
-    gcolor.recolor_image(icons_path .. "/layouts/equalarea.png", theme.fg)
+    gcolor.recolor_image(icons_path .. "/layouts/equalarea.svg", theme.fg)
 theme.layout_deck =
-    gcolor.recolor_image(icons_path .. "/layouts/deck.png", theme.fg)
+    gcolor.recolor_image(icons_path .. "/layouts/deck.svg", theme.fg)
 theme.layout_overflow =
-    gcolor.recolor_image(icons_path .. "/layouts/deck.png", theme.fg)
+    gcolor.recolor_image(icons_path .. "/layouts/deck.svg", theme.fg)
 theme.layout_mstab =
-    gcolor.recolor_image(icons_path .. "/layouts/mstab.png", theme.fg)
+    gcolor.recolor_image(icons_path .. "/layouts/mstab.svg", theme.fg)
 
 return theme

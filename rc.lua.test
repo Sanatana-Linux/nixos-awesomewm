@@ -1,1 +1,106 @@
-rc.lua
+--
+-- ╱╭━━━╮╱╭╮╭╮╭╮╱╭━━━╮╱╭━━━╮╱╭━━━╮╱╭━╮╭━╮╱╭━━━╮╱╭╮╭╮╭╮╱╭━╮╭━╮
+-- ╱┃╭━╮┃╱┃┃┃┃┃┃╱┃╭━━╯╱┃╭━╮┃╱┃╭━╮┃╱┃┃╰╯┃┃╱┃╭━━╯╱┃┃┃┃┃┃╱┃┃╰╯┃┃
+-- ╱┃┃╱┃┃╱┃┃┃┃┃┃╱┃╰━━╮╱┃╰━━╮╱┃┃╱┃┃╱┃╭╮╭╮┃╱┃╰━━╮╱┃┃┃┃┃┃╱┃╭╮╭╮┃
+-- ╱┃╰━╯┃╱┃╰╯╰╯┃╱┃╭━━╯╱╰━━╮┃╱┃┃╱┃┃╱┃┃┃┃┃┃╱┃╭━━╯╱┃╰╯╰╯┃╱┃┃┃┃┃┃
+-- ╱┃╭━╮┃╱╰╮╭╮╭╯╱┃╰━━╮╱┃╰━╯┃╱┃╰━╯┃╱┃┃┃┃┃┃╱┃╰━━╮╱╰╮╭╮╭╯╱┃┃┃┃┃┃
+-- ╱╰╯╱╰╯╱╱╰╯╰╯╱╱╰━━━╯╱╰━━━╯╱╰━━━╯╱╰╯╰╯╰╯╱╰━━━╯╱╱╰╯╰╯╱╱╰╯╰╯╰╯
+
+-- TEST CONFIGURATION FILE
+-- This is a dedicated test file for debugging purposes using awmtt-ng.sh
+-- Use this instead of the main rc.lua when testing changes to avoid 
+-- breaking your main desktop environment.
+
+-- DEBUG SETTINGS
+local DEBUG_MODE = true
+local LOG_LEVEL = "debug"
+
+-- Add luarocks if available, if not, fail silently
+pcall(require, "luarocks.loader")
+
+-- Add upstream directory to package.path to use modified builtin libraries
+local config_dir = os.getenv("HOME") .. "/.config/awesome"
+package.path = config_dir
+    .. "/upstream/?.lua;"
+    .. config_dir
+    .. "/upstream/?/init.lua;"
+    .. package.path
+
+-- Enable debug output if in debug mode
+if DEBUG_MODE then
+    require("naughty").notify({
+        title = "AwesomeWM Test Environment",
+        text = "Loading test configuration...\nDebug mode: ON",
+        timeout = 3,
+    })
+end
+
+-- Custom error handler for test environment
+local function test_error_handler(err)
+    local naughty = require("naughty")
+    naughty.notify({
+        preset = naughty.config.presets.critical,
+        title = "Test Environment Error",
+        text = tostring(err),
+        timeout = 0,
+    })
+    
+    if DEBUG_MODE then
+        -- Print detailed error to stdout for debugging
+        print("AwesomeWM Test Error: " .. tostring(err))
+        print(debug.traceback())
+    end
+end
+
+-- Protected load of core modules
+local function safe_require(module_name)
+    local success, result = pcall(require, module_name)
+    if not success then
+        test_error_handler("Failed to load module: " .. module_name .. "\n" .. result)
+        return nil
+    end
+    return result
+end
+
+-- Load configuration and UI with error protection
+safe_require("configuration")
+safe_require("ui")
+
+-- Test environment specific settings
+if DEBUG_MODE then
+    -- Add any debug-specific configurations here
+    local beautiful = require("beautiful")
+    local gears = require("gears")
+    
+    -- Enable compositor if available (for testing backdrop effects)
+    if awesome.composite_manager_running then
+        require("naughty").notify({
+            title = "Compositor Status", 
+            text = "Compositor is running - backdrop effects available",
+            timeout = 2,
+        })
+    end
+    
+    -- Test keybinding for reloading config
+    local awful = require("awful")
+    local gears = require("gears")
+    
+    -- Add test keybinding to global keys
+    local test_key = awful.key({ "Mod4", "Shift" }, "r", function()
+        awesome.restart()
+    end)
+    
+    -- Get current global keys and add our test key
+    local globalkeys = root.keys() or {}
+    globalkeys = gears.table.join(globalkeys, test_key)
+    root.keys(globalkeys)
+    
+    -- Debug notification on startup complete
+    gears.timer.delayed_call(function()
+        require("naughty").notify({
+            title = "Test Environment Ready",
+            text = "AwesomeWM test environment loaded successfully",
+            timeout = 2,
+        })
+    end)
+end

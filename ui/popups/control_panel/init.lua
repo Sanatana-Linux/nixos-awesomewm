@@ -10,8 +10,9 @@ local shapes = require("modules.shapes")
 local notification_list = require("ui.popups.control_panel.notification_list")
 local audio_sliders = require("ui.popups.control_panel.audio_sliders")
 local brightness_slider = require("ui.popups.control_panel.brightness_slider")
-local wifi_button = require("ui.popups.control_panel.wifi_applet.button")
-local wifi_page = require("ui.popups.control_panel.wifi_applet.page")
+local network_button =
+    require("ui.popups.control_panel.networking_applet.button")
+local network_page = require("ui.popups.control_panel.networking_applet.page")
 local bluetooth_button =
     require("ui.popups.control_panel.bluetooth_applet.button")
 local bluetooth_page = require("ui.popups.control_panel.bluetooth_applet.page")
@@ -20,11 +21,11 @@ local click_to_hide = require("modules.click_to_hide")
 
 local control_panel = {}
 
-function control_panel:setup_wifi_page()
+function control_panel:setup_network_page()
     local wp = self._private
     local main_layout = self.widget:get_children_by_id("main-layout")[1]
     main_layout:reset()
-    main_layout:add(wp.wifi_page)
+    main_layout:add(wp.network_page)
 end
 
 function control_panel:setup_bluetooth_page()
@@ -54,7 +55,7 @@ function control_panel:setup_main_page()
         wibox.widget({
             layout = wibox.layout.fixed.horizontal,
             spacing = dpi(6),
-            wp.wifi_button,
+            wp.network_button,
             wp.bluetooth_button,
         })
     )
@@ -71,37 +72,37 @@ function control_panel:show()
     audio:get_default_source_data()
     self:setup_main_page()
 
-self.opacity = 0
-self.visible = true
-
-gtimer.delayed_call(function()
-    local placement_func = self.placement
-    if placement_func then
-        placement_func(self)
-    end
+    self.opacity = 0
+    self.visible = true
 
     gtimer.delayed_call(function()
-        self:emit_signal("widget::layout_changed")
+        local placement_func = self.placement
+        if placement_func then
+            placement_func(self)
+        end
 
-        local final_y = self.y
-        local start_y = final_y + dpi(20)
-        self.y = start_y
+        gtimer.delayed_call(function()
+            self:emit_signal("widget::layout_changed")
 
-        anim.animate({
-            start = 0,
-            target = 1,
-            duration = 0.3,
-            easing = anim.easing.quadratic,
-            update = function(progress)
-                self.opacity = progress
-                self.y = start_y + (final_y - start_y) * progress
-            end,
-            complete = function()
-                self:emit_signal("property::shown", wp.shown)
-            end,
-        })
+            local final_y = self.y
+            local start_y = final_y + dpi(20)
+            self.y = start_y
+
+            anim.animate({
+                start = 0,
+                target = 1,
+                duration = 0.3,
+                easing = anim.easing.quadratic,
+                update = function(progress)
+                    self.opacity = progress
+                    self.y = start_y + (final_y - start_y) * progress
+                end,
+                complete = function()
+                    self:emit_signal("property::shown", wp.shown)
+                end,
+            })
+        end)
     end)
-end)
 end
 
 function control_panel:hide()
@@ -111,7 +112,7 @@ function control_panel:hide()
     end
     wp.shown = false
 
-    wp.wifi_page:close_ap_menu()
+    wp.network_page:close_ap_menu()
 
     local start_y = self.y
     local final_y = start_y + dpi(20)
@@ -179,18 +180,18 @@ local function new()
     wp.notification_list = notification_list()
     wp.audio_sliders = audio_sliders()
     wp.brightness_slider = brightness_slider()
-    wp.wifi_button = wifi_button()
-    wp.wifi_page = wifi_page()
+    wp.network_button = network_button()
+    wp.network_page = network_page()
     wp.bluetooth_button = bluetooth_button()
     wp.bluetooth_page = bluetooth_page()
 
-    wp.wifi_button:get_children_by_id("reveal-button")[1]:buttons({
+    wp.network_button:get_children_by_id("reveal-button")[1]:buttons({
         awful.button({}, 1, function()
-            ret:setup_wifi_page()
+            ret:setup_network_page()
         end),
     })
 
-    wp.wifi_page:get_children_by_id("bottombar-close-button")[1]:buttons({
+    wp.network_page:get_children_by_id("bottombar-close-button")[1]:buttons({
         awful.button({}, 1, function()
             ret:setup_main_page()
         end),

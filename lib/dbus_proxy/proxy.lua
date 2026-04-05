@@ -215,17 +215,19 @@ local function call_async(
         function(_proxy, res)
             local out, err = _proxy:call_finish(res)
 
-            if not out and err then
-                user_callback(proxy, context, out, err)
-                return
-            end
+            if user_callback then
+                if not out and err then
+                    user_callback(proxy, context, out, err)
+                    return
+                end
 
-            local result = variant.strip(out)
-            if type(result) == "table" and #result == 1 then
-                result = result[1]
-            end
+                local result = variant.strip(out)
+                if type(result) == "table" and #result == 1 then
+                    result = result[1]
+                end
 
-            user_callback(proxy, context, result)
+                user_callback(proxy, context, result)
+            end
         end
     )
 end

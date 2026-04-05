@@ -3,7 +3,7 @@ local gears = require("gears")
 local wibox = require("wibox")
 
 local config_dir = gears.filesystem.get_configuration_dir()
-package.cpath = package.cpath .. ";" .. config_dir .. "ui/lockscreen/lib/?.so;"
+package.cpath = package.cpath .. ";" .. config_dir .. "lib/?.so;"
 local pam = require("liblua_pam")
 
 local lock_animation = require("ui.lockscreen.lock_animation")

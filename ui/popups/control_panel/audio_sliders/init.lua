@@ -10,12 +10,15 @@ local shapes = require("modules.shapes.init")
 local text_icons = beautiful.text_icons
 local dpi = beautiful.xresources.apply_dpi
 local audio_service = require("service.audio").get_default()
+local gtimer = require("gears.timer")
 
 local function new()
     local ret = wibox.widget({
         widget = wibox.container.background,
         bg = beautiful.bg_alt,
         shape = shapes.rrect(10),
+        border_width = dpi(1),
+        border_color = beautiful.fg_alt,
         {
             widget = wibox.container.margin,
             margins = {
@@ -147,10 +150,28 @@ local function new()
         end
     end)
 
+    -- Debounced volume updating to prevent glitching
+    local speaker_timer = nil
+    local last_speaker_value = 0
+
     speaker_slider:connect_signal("property::value", function(_, new_value)
         local rounded_value = math.floor(new_value)
         speaker_value:set_markup(tostring(rounded_value) .. "%")
-        audio_service:set_default_sink_volume(rounded_value)
+        
+        -- Store the latest value
+        last_speaker_value = rounded_value
+        
+        -- Cancel existing timer
+        if speaker_timer then
+            speaker_timer:stop()
+        end
+        
+        -- Set up new debounced timer
+        speaker_timer = gtimer.start_new(0.1, function() -- 100ms delay
+            audio_service:set_default_sink_volume(last_speaker_value)
+            speaker_timer = nil
+            return false -- Don't repeat
+        end)
     end)
 
     speaker_icon:buttons({
@@ -189,10 +210,28 @@ local function new()
         end
     end)
 
+    -- Debounced microphone volume updating to prevent glitching
+    local microphone_timer = nil
+    local last_microphone_value = 0
+
     microphone_slider:connect_signal("property::value", function(_, new_value)
         local rounded_value = math.floor(new_value)
         microphone_value:set_markup(tostring(rounded_value) .. "%")
-        audio_service:set_default_source_volume(rounded_value)
+        
+        -- Store the latest value
+        last_microphone_value = rounded_value
+        
+        -- Cancel existing timer
+        if microphone_timer then
+            microphone_timer:stop()
+        end
+        
+        -- Set up new debounced timer
+        microphone_timer = gtimer.start_new(0.1, function() -- 100ms delay
+            audio_service:set_default_source_volume(last_microphone_value)
+            microphone_timer = nil
+            return false -- Don't repeat
+        end)
     end)
 
     microphone_icon:buttons({

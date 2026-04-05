@@ -16,16 +16,16 @@ local minimize_icon = icons_dir .. "minus.svg"
 
 local function make_button(icon_path, onclick)
     return function(c)
+        local icon_widget = wibox.widget.imagebox()
+        icon_widget.image = gears.color.recolor_image(icon_path, beautiful.fg)
+        icon_widget.resize = true
+        icon_widget.align = "center"
+        icon_widget.valign = "center"
+        
         local btn = wibox.widget({
             {
                 {
-                    {
-                        image = gears.color.recolor_image(icon_path, beautiful.fg),
-                        resize = true,
-                        align = "center",
-                        valign = "center",
-                        widget = wibox.widget.imagebox,
-                    },
+                    icon_widget,
                     left = dpi(3),
                     right = dpi(3),
                     top = dpi(3),
@@ -41,18 +41,27 @@ local function make_button(icon_path, onclick)
             widget = wibox.container.background,
         })
 
+        -- Check if this is a close button (based on icon path)
+        local is_close_button = icon_path:find("close") ~= nil
+
         btn:connect_signal("mouse::enter", function()
-            btn.bg =
-                beautiful.bg_gradient_button_alt,
-                ---@diagnostic disable-next-line: redundant-value
-                btn:emit_signal("widget::redraw_needed")
+            if is_close_button then
+                -- Special red gradient effect for close buttons
+                btn.bg = "linear:0,0:0,32:0," .. beautiful.red .. ":1," .. "#b61442"
+                -- Change icon to white on hover
+                icon_widget.image = gears.color.recolor_image(icon_path, beautiful.bg)
+            else
+                -- Normal hover effect for other buttons
+                btn.bg = beautiful.bg_gradient_button_alt
+            end
+            btn:emit_signal("widget::redraw_needed")
         end)
 
         btn:connect_signal("mouse::leave", function()
-            btn.bg =
-                beautiful.bg_gradient_button,
-                ---@diagnostic disable-next-line: redundant-value
-                btn:emit_signal("widget::redraw_needed")
+            btn.bg = beautiful.bg_gradient_button
+            -- Revert icon color to normal
+            icon_widget.image = gears.color.recolor_image(icon_path, beautiful.fg)
+            btn:emit_signal("widget::redraw_needed")
         end)
 
         btn:add_button(awful.button({}, 1, function()

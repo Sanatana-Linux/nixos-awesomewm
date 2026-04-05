@@ -1,1 +1,22 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="240" height="240"><path d="M201.818 29.09H38.182C28.136 29.09 20 37.228 20 47.274v109.09c0 10.046 8.136 18.182 18.182 18.182h63.636l-18.182 27.273v9.091h72.728v-9.09l-18.182-27.274h63.636c10.046 0 18.182-8.136 18.182-18.181V47.273c0-10.046-8.136-18.182-18.182-18.182zm0 109.092H38.182v-90.91h163.636Z" style="fill:#fff;fill-opacity:1;stroke-width:4.5454545"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="240" height="240" viewBox="0 0 240 240">
+  <!-- Background rounded rectangle -->
+  <rect x="20" y="20" width="200" height="200" rx="30" ry="30" fill="#f7f1ff" stroke="#8c8c98" stroke-width="2"/>
+  
+  <!-- Grid of dots representing app content -->
+  <g fill="#5f5f6a">
+    <!-- Row 1 -->
+    <circle cx="80" cy="80" r="8"/>
+    <circle cx="120" cy="80" r="8"/>
+    <circle cx="160" cy="80" r="8"/>
+    
+    <!-- Row 2 -->
+    <circle cx="80" cy="120" r="8"/>
+    <circle cx="120" cy="120" r="8"/>
+    <circle cx="160" cy="120" r="8"/>
+    
+    <!-- Row 3 -->
+    <circle cx="80" cy="160" r="8"/>
+    <circle cx="120" cy="160" r="8"/>
+    <circle cx="160" cy="160" r="8"/>
+  </g>
+</svg>

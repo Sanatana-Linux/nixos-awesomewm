@@ -9,6 +9,7 @@ local text_icons = beautiful.text_icons
 local dpi = beautiful.xresources.apply_dpi
 local brightness_service = require("service.brightness").get_default()
 local shapes = require("modules.shapes.init")
+local gtimer = require("gears.timer")
 
 -- Creates a new brightness slider widget.
 -- @return widget The brightness slider widget.
@@ -45,16 +46,29 @@ local function new()
         align = "center",
     })
 
+    -- Debounced brightness updating to prevent glitching
+    local brightness_timer = nil
+    local last_brightness_value = 50
+
     -- Set brightness when slider value changes
-    local function set_brightness(value)
-        brightness_service:set(value)
+    local function set_brightness_debounced(value)
+        last_brightness_value = value
+        
+        -- Cancel existing timer
+        if brightness_timer then
+            brightness_timer:stop()
+        end
+        
+        -- Set up new debounced timer
+        brightness_timer = gtimer.start_new(0.1, function() -- 100ms delay
+            brightness_service:set(last_brightness_value)
+            brightness_timer = nil
+            return false -- Don't repeat
+        end)
     end
 
     slider:connect_signal("property::value", function(_, new_value)
-        set_brightness(new_value)
-    end)
-    slider:connect_signal("continuous_drag", function(_, new_value)
-        set_brightness(new_value)
+        set_brightness_debounced(new_value)
     end)
 
     -- Update widget state when brightness changes externally
@@ -102,6 +116,8 @@ local function new()
         widget = wibox.container.background,
         bg = beautiful.bg_alt,
         shape = shapes.rrect(10),
+        border_width = dpi(1),
+        border_color = beautiful.fg_alt,
         {
             widget = wibox.container.margin,
             margins = {

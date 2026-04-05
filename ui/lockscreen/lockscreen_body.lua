@@ -1,7 +1,7 @@
 local beautiful = require("beautiful")
 local wibox = require("wibox")
-
-local helpers = require("helpers")
+local dpi = beautiful.xresources.apply_dpi
+local shapes = require("modules.shapes")
 
 local wordclock = require("ui.lockscreen.wordclock")
 local lock_animation = require("ui.lockscreen.lock_animation")
@@ -19,8 +19,8 @@ return wibox.widget {
             widget = wibox.container.margin
         },
         id = "container",
-        shape = helpers.rrect(beautiful.border_radius),
-        bg = beautiful.xbackground,
+        shape = shapes.rrect(beautiful.border_radius),
+        bg = beautiful.bg,
         border_color = beautiful.focus,
         border_width = dpi(2),
         widget = wibox.container.background

@@ -202,6 +202,7 @@ function launcher:update_entries()
 
                 local icon_path = menubar.utils.lookup_icon(icon_name)
                     or menubar.utils.lookup_icon("application-x-executable")
+                    or gfs.get_configuration_dir() .. "themes/yerba_buena/icons/desktop/fallback_icon.svg"
 
                 local entry_widget = wibox.widget({
                     widget = wibox.container.background,

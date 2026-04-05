@@ -4,11 +4,13 @@ local beautiful = require("beautiful")
 local gears = require("gears")
 local gtable = require("gears.table")
 local gfs = require("gears.filesystem")
+local gcolor = require("gears.color")
 local text_icons = beautiful.text_icons
 local dpi = beautiful.xresources.apply_dpi
 local capi = { awesome = awesome, screen = screen }
 local shapes = require("modules.shapes")
 local click_to_hide = require("modules.click_to_hide")
+local backdrop = require("modules.backdrop")
 
 local icons_dir = gfs.get_configuration_dir() .. "ui/popups/powermenu/icons/"
 
@@ -73,9 +75,9 @@ function powermenu:update_elements()
     for i, element in ipairs(wp.elements) do
         local element_widget = wibox.widget({
             widget = wibox.container.background,
-            bg = beautiful.bg_gradient_button_alt,
+            bg = beautiful.bg_gradient_button,
             border_width = dpi(1.5),
-            border_color = beautiful.fg_alt .. "99",
+            border_color = "transparent",
             forced_width = dpi(108),
             forced_height = dpi(108),
             shape = shapes.rrect(8),
@@ -98,9 +100,9 @@ function powermenu:update_elements()
                     valign = "center",
                     {
                         widget = wibox.widget.imagebox,
-                        image = gears.color.recolor_image(
+                        image = gcolor.recolor_image(
                             element.icon,
-                            element.color
+                            beautiful.fg -- White icons like wibar buttons
                         ),
                         resize = true,
                         forced_width = dpi(48),
@@ -112,29 +114,30 @@ function powermenu:update_elements()
         })
 
         element_widget:connect_signal("mouse::enter", function(w)
-            -- Create color-specific gradient for hover
-            local hover_gradient = "linear:0,0:0,32:0,"
-                .. element.color
-                .. ":1,"
-                .. element.color
-                .. "cc"
-            w:set_bg(hover_gradient)
-            -- Change icon to white on hover
+            if element.name == "poweroff" then
+                -- Special red gradient for poweroff button only
+                local hover_gradient = "linear:0,0:0,32:0," .. beautiful.red .. ":1," .. "#b61442"
+                w:set_bg(hover_gradient)
+            else
+                -- Standard wibar button hover effect for other buttons
+                w:set_bg(beautiful.bg_gradient_recessed)
+            end
+            -- Keep icon white on hover like wibar buttons
             local icon_widget = w:get_children_by_id("icon_" .. i)[1]
             if icon_widget then
                 icon_widget:set_image(
-                    gears.color.recolor_image(element.icon, beautiful.fg)
+                    gcolor.recolor_image(element.icon, beautiful.fg)
                 )
             end
         end)
 
         element_widget:connect_signal("mouse::leave", function(w)
-            w:set_bg(beautiful.bg_gradient_button_alt)
-            -- Restore original icon color
+            w:set_bg(beautiful.bg_gradient_button)
+            -- Keep icon white like wibar buttons
             local icon_widget = w:get_children_by_id("icon_" .. i)[1]
             if icon_widget then
                 icon_widget:set_image(
-                    gears.color.recolor_image(element.icon, element.color)
+                    gcolor.recolor_image(element.icon, beautiful.fg)
                 )
             end
         end)
@@ -149,7 +152,7 @@ function powermenu:show()
         return
     end
     wp.shown = true
-    backdrop.show(self)
+    backdrop.show(self) -- Show backdrop before popup
     self.visible = true
     self:emit_signal("property::shown", wp.shown)
     wp.select_index = 1
@@ -169,6 +172,7 @@ function powermenu:hide()
     end
     wp.select_index = 1
     self.visible = false
+    backdrop.hide() -- Hide backdrop when popup hides
     self:emit_signal("property::shown", wp.shown)
 end
 
@@ -213,31 +217,31 @@ local function new()
         {
             exec = function()
                 awful.spawn("/home/tlh/.config/awesome/bin/glitchlock.sh")
-                self:hide()
+                ret:hide()
             end,
             icon = icons_dir .. "lock.svg",
-            color = beautiful.blue,
+            name = "lock",
         },
         {
             exec = function()
                 awful.spawn("poweroff")
             end,
             icon = icons_dir .. "poweroff.svg",
-            color = beautiful.red,
+            name = "poweroff", -- Special name for red hover effect
         },
         {
             exec = function()
                 awful.spawn("reboot")
             end,
             icon = icons_dir .. "reboot.svg",
-            color = beautiful.yellow,
+            name = "reboot",
         },
         {
             exec = function()
                 capi.awesome.quit()
             end,
             icon = icons_dir .. "exit.svg",
-            color = beautiful.green,
+            name = "exit",
         },
     }
 

@@ -1,119 +1,60 @@
 local beautiful = require("beautiful")
-local gstring = require("gears.string")
 local wibox = require("wibox")
+local gears = require("gears")
+local dpi = beautiful.xresources.apply_dpi
 
-local color_helpers = require("helpers.color-helpers")
+-- Create time display widget
+local time_widget = wibox.widget({
+    widget = wibox.widget.textbox,
+    align = "center",
+    valign = "center",
+    font = beautiful.font_name .. " Bold " .. dpi(42),
+    markup = os.date("%H:%M"),
+})
 
-local INACTIVE_COLOR = beautiful.light_black .. 20
+-- Create date display widget in MM-DD-YYYY format
+local date_widget = wibox.widget({
+    widget = wibox.widget.textbox,
+    align = "center",
+    valign = "center", 
+    font = beautiful.font_name .. " " .. dpi(16),
+    markup = os.date("%m-%d-%Y"),
+})
 
-local CHARMAP =
-    "I T L I S A S A M P M A I Q U A R T E R D C T W E N T Y F I V E X H A L F S T E N F T O P A S T E R U N I N E O N E S I X T H R E E F O U R F I V E T W O E I G H T E L E V E N S E V E N T W E L V E T E N S E O C L O C K"
+-- Combined wordclock widget
+local wordclock = wibox.widget({
+    {
+        time_widget,
+        date_widget,
+        spacing = dpi(8),
+        layout = wibox.layout.fixed.vertical
+    },
+    widget = wibox.container.place,
+    halign = "center",
+    valign = "center"
+})
 
-local time_chars = gstring.split(CHARMAP, " ")
-
-local POS_MAP = {
-    ["it"] = {1, 2},
-    ["is"] = {4, 5},
-    ["a"] = {12, 12},
-    ["quarter"] = {14, 20},
-    ["twenty"] = {23, 28},
-    ["five"] = {29, 32},
-    ["half"] = {34, 37},
-    ["ten"] = {39, 41},
-    ["past"] = {45, 48},
-    ["to"] = {43, 44},
-    ["0"] = {94, 99},
-    ["1"] = {56, 58},
-    ["2"] = {75, 77},
-    ["3"] = {62, 66},
-    ["4"] = {67, 70},
-    ["5"] = {71, 74},
-    ["6"] = {59, 61},
-    ["7"] = {89, 93},
-    ["8"] = {78, 82},
-    ["9"] = {52, 55},
-    ["10"] = {100, 102},
-    ["11"] = {83, 88},
-    ["12"] = {94, 99},
-    ["oclock"] = {105, 110}
-}
-
-local wordclock = wibox.widget {
-    forced_num_cols = 11,
-    spacing = dpi(4),
-    layout = wibox.layout.grid
-}
-
-local char_widgets = {}
-for pos, char in pairs(time_chars) do
-    local text_widget = wibox.widget {
-        markup = color_helpers.colorize_text(char, INACTIVE_COLOR),
-        font = beautiful.font_name .. "Bold 18",
-        halign = "center",
-        valign = "center",
-        forced_width = dpi(28),
-        forced_height = dpi(32),
-        widget = wibox.widget.textbox
-    }
-
-    char_widgets[pos] = text_widget
-    wordclock:add(text_widget)
-end
-
-local function colorize_word(word, color)
-    local start, limit = table.unpack(POS_MAP[word])
-    for pos = start, limit do
-        char_widgets[pos].markup = color_helpers.colorize_text(char_widgets[pos].text, color)
+-- Timer to update both time and date
+local timer = gears.timer({
+    timeout = 1,
+    call_now = true,
+    autostart = true,
+    callback = function()
+        local time_str = os.date("%H:%M")
+        local date_str = os.date("%m-%d-%Y")
+        
+        time_widget:set_markup("<span color='" .. (beautiful.fg or "#ffffff") .. "'>" .. time_str .. "</span>")
+        date_widget:set_markup("<span color='" .. (beautiful.fg_alt or "#aaaaaa") .. "'>" .. date_str .. "</span>")
     end
-end
+})
 
-local function activate_word(word)
-    colorize_word(word, wordclock.active_color)
-end
-
-local function reset_clock()
-    for word, _ in pairs(POS_MAP) do
-        colorize_word(word, INACTIVE_COLOR)
-    end
-
-    activate_word("it")
-    activate_word("is")
-end
-
-function wordclock.update_clock(hour, min, active_color)
-    wordclock.active_color = active_color
-    reset_clock()
-
-    if min >= 0 and min <= 2 or min >= 58 and min <= 59 then
-        activate_word("oclock")
-    elseif min >= 3 and min <= 7 or min >= 53 and min <= 57 then
-        activate_word("five")
-    elseif min >= 8 and min <= 12 or min >= 48 and min <= 52 then
-        activate_word("ten")
-    elseif min >= 13 and min <= 17 or min >= 43 and min <= 47 then
-        activate_word("a")
-        activate_word("quarter")
-    elseif min >= 18 and min <= 22 or min >= 38 and min <= 42 then
-        activate_word("twenty")
-    elseif min >= 23 and min <= 27 or min >= 33 and min <= 37 then
-        activate_word("twenty")
-        activate_word("five")
-    elseif min >= 28 and min <= 32 then
-        activate_word("half")
-    end
-
-    if min >= 3 and min <= 32 then
-        activate_word("past")
-    elseif min >= 33 and min <= 57 then
-        activate_word("to")
-    end
-
-    local hh = (min >= 0 and min <= 30) and hour or (hour + 1)
-    if hh > 12 then
-        hh = hh - 12
-    end
-
-    activate_word(tostring(hh))
+-- Function for compatibility with existing lockscreen code that changes color by time
+wordclock.update_clock = function(hour, min, color)
+    local time_str = string.format("%02d:%02d", hour, min)
+    local date_str = os.date("%m-%d-%Y")
+    
+    time_widget:set_markup("<span color='" .. (color or beautiful.fg or "#ffffff") .. "'>" .. time_str .. "</span>")
+    date_widget:set_markup("<span color='" .. (beautiful.fg_alt or "#aaaaaa") .. "'>" .. date_str .. "</span>")
 end
 
 return wordclock
