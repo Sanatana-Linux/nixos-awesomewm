@@ -3,7 +3,7 @@ local awful = require("awful")
 local capi = { awesome = awesome, client = client }
 local dropdown = require("modules.dropdown")
 local launcher = require("ui.popups.launcher").get_default()
-local hotkeys_popup = require("awful.hotkeys_popup")
+local hotkeys_popup = require("ui.popups.hotkeys_popup")
 local menubar = require("menubar")
 local beautiful = require("beautiful")
 local dpi = beautiful.xresources.apply_dpi

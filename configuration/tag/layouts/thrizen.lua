@@ -1,62 +1,120 @@
--- NOTE: Area is divided into 1-3 even columns, then
--- new rows start after that.
--- https://github.com/ciiqr/thrizen
---   +---------------------------------------------------------------+
+-- Thrizen Layout - 3-column grid layout with intelligent row distribution
+-- NOTE: Area is divided into 1-3 even columns, then new rows start after that.
+-- Based on: https://github.com/ciiqr/thrizen
+--
+-- Layout behavior:
+-- - Divides screen into up to 3 columns
+-- - Distributes clients evenly across columns and rows
+-- - Last client in second-to-last row gets double height if space available
+--
+-- Configuration:
+local config = {
+    max_columns = 3,    -- Maximum number of columns (1-3)
+    min_width = 200,    -- Minimum client width in pixels
+}
 
 -- Import necessary modules
-local pairs = pairs
 local math = math
+local pairs = pairs
 
--- Create a table for the custom layout
+-- Create the layout table
 local thrizen = { name = "thrizen" }
 
--- Function to arrange clients in the 'thrizen' layout
-function thrizen.arrange(screen)
-    -- Set the desired number of columns
-    local desiredColumns = 3
+-- Helper function to validate inputs
+local function validate_inputs(p)
+    if not p then
+        return false, "No layout parameters provided"
+    end
+    if not p.clients or #p.clients == 0 then
+        return false, "No clients to arrange"
+    end
+    if not p.workarea then
+        return false, "No workarea defined"
+    end
+    return true, nil
+end
 
-    -- Get the work area dimensions of the screen
-    local screenArea = screen.workarea
+-- Helper function to calculate layout dimensions
+local function calculate_dimensions(workarea, num_clients)
+    -- Determine the number of columns (minimum of num_clients and max_columns)
+    local num_columns = math.min(num_clients, config.max_columns)
+    
+    -- Ensure minimum width constraints are met
+    local proposed_width = workarea.width / num_columns
+    if proposed_width < config.min_width and num_columns > 1 then
+        num_columns = math.max(1, math.floor(workarea.width / config.min_width))
+    end
+    
+    -- Calculate individual client dimensions
+    local client_width = workarea.width / num_columns
+    local num_rows = math.ceil(num_clients / num_columns)
+    local client_height = workarea.height / num_rows
+    
+    return {
+        columns = num_columns,
+        rows = num_rows,
+        width = client_width,
+        height = client_height
+    }
+end
 
-    -- Get the number of clients on the screen
-    local numClients = #screen.clients
+-- Helper function to check if client should get double height
+local function should_double_height(client_index, dimensions, num_clients)
+    local current_row = math.floor((client_index - 1) / dimensions.columns)
+    local is_second_last_row = current_row == (dimensions.rows - 2)
+    local has_room_to_fill = (client_index - 1 + dimensions.columns) >= num_clients
+    
+    return has_room_to_fill and is_second_last_row and dimensions.rows > 1
+end
 
-    -- Determine the number of columns (minimum of numClients and desired columns)
-    local numColumns = math.min(numClients, desiredColumns)
-
-    -- Determine the individual client width based on the number of columns
-    local targetWidth = screenArea.width / numColumns
-
-    -- Determine the number of rows (must be a whole number)
-    local numRows = math.ceil(numClients / numColumns)
-
-    -- Determine the individual client height based on the number of rows
-    local targetHeight = screenArea.height / numRows
-
-    -- Iterate over the clients
-    for i, c in pairs(screen.clients) do
-        -- Use the current index to determine the current column and row
-        local currentColumn = (i - 1) % numColumns
-        local currentRow = math.floor((i - 1) / numColumns)
-
-        -- Check if it's the second-to-last row and there is room to fill
-        local isSecondLastRow = currentRow == (numRows - 2)
-        local hasRoomToFill = (i - 1 + numColumns) >= numClients
-        local isDoubleHeight = hasRoomToFill and isSecondLastRow
-
-        -- Calculate client offset based on column and row
-        local clientOffsetX = currentColumn * targetWidth
-        local clientOffsetY = currentRow * targetHeight
-
-        -- Set the geometry for the client
-        screen.geometries[c] = {
-            x = screenArea.x + clientOffsetX,
-            y = screenArea.y + clientOffsetY,
-            width = targetWidth,
-            height = isDoubleHeight and 2 * targetHeight or targetHeight,
+-- Main arrangement function
+function thrizen.arrange(p)
+    -- Validate inputs
+    local valid, error_msg = validate_inputs(p)
+    if not valid then
+        -- Silently return if no valid arrangement can be made
+        return
+    end
+    
+    local workarea = p.workarea
+    local clients = p.clients
+    local num_clients = #clients
+    
+    -- Calculate layout dimensions
+    local dimensions = calculate_dimensions(workarea, num_clients)
+    
+    -- Arrange each client
+    for i, c in pairs(clients) do
+        -- Skip invalid clients
+        if not c or c.minimized or not c.valid then
+            goto continue
+        end
+        
+        -- Calculate grid position (0-based for math, then adjust)
+        local current_column = (i - 1) % dimensions.columns
+        local current_row = math.floor((i - 1) / dimensions.columns)
+        
+        -- Calculate client position
+        local client_x = workarea.x + (current_column * dimensions.width)
+        local client_y = workarea.y + (current_row * dimensions.height)
+        
+        -- Determine client height (double height for special case)
+        local client_height = dimensions.height
+        if should_double_height(i, dimensions, num_clients) then
+            client_height = 2 * dimensions.height
+        end
+        
+        -- Set client geometry through the proper AwesomeWM parameter structure
+        p.geometries[c] = {
+            x = math.floor(client_x),
+            y = math.floor(client_y),
+            width = math.floor(dimensions.width),
+            height = math.floor(client_height),
         }
+        
+        ::continue::
     end
 end
 
--- Return the 'thrizen' layout object
+-- Return the layout object
 return thrizen

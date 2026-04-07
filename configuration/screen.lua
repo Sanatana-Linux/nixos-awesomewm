@@ -59,7 +59,7 @@ end
 -- Set up screen padding for all screens
 function screen_module.setup_screen_padding()
     local padding_size = dpi(3) -- Gap between windows and screen edges
-    
+
     -- Apply padding to all current screens
     for s in capi.screen do
         s.padding = {
@@ -75,7 +75,7 @@ end
 function screen_module.setup_screen_handling()
     -- Override primary screen on startup
     screen_module.override_primary()
-    
+
     -- Set up screen padding for all screens
     screen_module.setup_screen_padding()
 

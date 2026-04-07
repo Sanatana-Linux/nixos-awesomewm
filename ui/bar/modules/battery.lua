@@ -9,6 +9,7 @@ local gears = require("gears")
 local naughty = require("naughty")
 local dpi = beautiful.xresources.apply_dpi
 local battery_service = require("service.battery").get_default()
+local battery_popup = require("ui.popups.battery").get_default()
 local modules = require("modules")
 local text_icons = beautiful.text_icons
 local shapes = require("modules.shapes.init")
@@ -108,6 +109,13 @@ return function()
 
     -- Attach the tooltip to the main widget
     battery_tooltip:add_to_object(widget)
+
+    -- Add click handler to show/hide battery popup
+    widget:connect_signal("button::press", function(_, _, _, button)
+        if button == 1 then -- Left click
+            battery_popup:toggle()
+        end
+    end)
 
     -- Function to update all visual elements and the tooltip
     local function update_all()

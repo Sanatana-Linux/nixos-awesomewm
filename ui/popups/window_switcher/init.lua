@@ -22,7 +22,7 @@ local switcher = {}
 -- Settings
 local settings = {
     preview_box = true,
-    preview_box_bg = beautiful.backdrop_color or beautiful.bg .. "cc",
+    preview_box_bg = beautiful.backdrop_color or beautiful.bg .. "66", -- More transparent (40% opacity instead of 80%)
     preview_box_border = beautiful.border_color_normal or beautiful.fg .. "88",
     preview_box_fps = 30,
     preview_box_delay = 150,
@@ -43,6 +43,8 @@ local preview_widgets = {}
 local alt_tab_table = {}
 local alt_tab_index = 1
 local keygrabber_instance = nil
+local hover_timer = nil
+local hover_target_index = nil
 
 -- Helper function for counting table length
 local function table_length(t)
@@ -179,6 +181,40 @@ local function client_opacity()
         client.focus.opacity = opacity_focus
         alt_tab_table[alt_tab_index].client.opacity = opacity_selected
     end
+end
+
+-- Handle hover auto-selection
+local function start_hover_timer(target_index)
+    -- Stop existing timer if running
+    if hover_timer and hover_timer.started then
+        hover_timer:stop()
+    end
+    
+    hover_target_index = target_index
+    
+    -- Create new timer for 2-second delay
+    hover_timer = gears.timer({
+        timeout = 2.0, -- 2 seconds
+        single_shot = true,
+        callback = function()
+            if hover_target_index and hover_target_index ~= alt_tab_index then
+                cycle(hover_target_index - alt_tab_index)
+            end
+            hover_timer = nil
+            hover_target_index = nil
+        end,
+        autostart = false
+    })
+    
+    hover_timer:start()
+end
+
+local function stop_hover_timer()
+    if hover_timer and hover_timer.started then
+        hover_timer:stop()
+    end
+    hover_timer = nil
+    hover_target_index = nil
 end
 
 -- Update preview display
@@ -420,9 +456,27 @@ function switcher.preview()
             end
         end
 
-        -- Add mouse handler
+        -- Add mouse handlers for hover auto-selection
         preview_widgets[i]:connect_signal("mouse::enter", function()
-            cycle(left_right_tab_to_alt_tab_index[i] - alt_tab_index)
+            local target_index = left_right_tab_to_alt_tab_index[i]
+            if target_index ~= alt_tab_index then
+                start_hover_timer(target_index)
+            end
+        end)
+        
+        preview_widgets[i]:connect_signal("mouse::leave", function()
+            stop_hover_timer()
+        end)
+        
+        -- Immediate selection on click
+        preview_widgets[i]:connect_signal("button::press", function(_, _, _, button)
+            if button == 1 then -- Left click
+                local target_index = left_right_tab_to_alt_tab_index[i]
+                if target_index ~= alt_tab_index then
+                    stop_hover_timer()
+                    cycle(target_index - alt_tab_index)
+                end
+            end
         end)
     end
 
@@ -479,6 +533,9 @@ local function hide_switcher()
         preview_live_timer:stop()
     end
     
+    -- Stop hover timer
+    stop_hover_timer()
+    
     if keygrabber_instance then
         awful.keygrabber.stop(keygrabber_instance)
         keygrabber_instance = nil
@@ -516,6 +573,9 @@ local function cancel_switcher()
     if preview_live_timer then
         preview_live_timer:stop()
     end
+    
+    -- Stop hover timer
+    stop_hover_timer()
     
     if keygrabber_instance then
         awful.keygrabber.stop(keygrabber_instance)
@@ -580,6 +640,12 @@ function switcher.switch(dir, mod_key1, release_key, mod_key2, key_switch)
                 preview_delay_timer:stop()
             end
             cancel_switcher()
+        elseif key == "Return" then
+            -- Enter key focuses the current selected window and closes switcher
+            if preview_delay_timer.started then
+                preview_delay_timer:stop()
+            end
+            hide_switcher()
         elseif key == key_switch then
             local shift_held = false
             for _, m in ipairs(mods) do

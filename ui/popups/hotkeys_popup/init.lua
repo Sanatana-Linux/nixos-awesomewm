@@ -1,81 +1,3 @@
-# TODO LIST
-
-**NOTE:** When an item is finished, switch the `[  ]` to `[x]` **AND change the `TODO` to `DONE`.**
-
-- [x] DONE now that the wibar hides without disturbing the arrangement of the other things on screen (clients in that case), it should be made taller by ~100% its present height
-- [x] DONE adjust the height of the buttons and placement of their contents to account for this
-- [x] DONE the animation library is a complete, badly documented and clunky cluster fuck that needs to be polished up, documented and written in code that is less autistic
-- [x] DONE bluetooth menu
-  - [x] DONE keep SVG icons (user confirmed)
-  - [x] DONE handle rfkill soft-blocked state - bluetooth shows "Powered: no, PowerState: off-blocked"
-- [x] DONE wifi menu
-  - [x] DONE no icons on buttons
-  - [x] DONE non-functional backend state
-- [x] DONE change font to OperatorUltraNerdFontComplete Nerd Font Propo
-
-- [x] DONE abstract common page structure for wifi and bluetooth to module/ file
-- [x] DONE abstract common button on control panel style to module/ file
-
-- [x] DONE create a backdrop component that is placed behind the popup windows
-  - [x] DONE it should be semi-transparent black, something like #00000088
-  - [x] DONE clicking it should also close the popups like clicking outside of them should already
-  - [x] DONE when the popup hides, the backdrop should always hide as well
-  - [x] DONE either a blur should be applied in awesome or if picom must do this, it should be given a property allowing it to be targeted specifically.
-
-- [x] DONE change the hardcoded generic icon for the task manager to be one pulled from improved fallback icon
-  - [x] DONE use the same icon in the applauncher menu for applications without an icon
-
-- [x] DONE Fix notifications background to be the same color/opacity as the wibar
-- [x] DONE notification close button should be like the titlebar button in style
-- [x] DONE the buttons for the screenshot mode selection should be the same background+effects as the taglist+tasklist buttons for each tag and should have the same border effects
-  - [x] DONE The screenshot notification buttons offering the various additional functions like "animate" should be larger, more spaced apart and have tooltips describing their functionality in case it is cut off.
-
-- [x] DONE There are quirks that need ironing out in the mstab layout, like when switching between "slaves" in the stack, often the window getting focus will not occupy the entire "slave" side but but 10% in the center of the slave stack.
-  - [x] DONE hovering the items stacked on top of each other that are listed in the titlebar specific to this layout should have tooltips providing the entire name of the window being hovered
-
-- [x] DONE Sometimes windows that are not kitty windows summoned by the scratchpad will come to replace kitty when the scratchpad keybinding is toggled, this is not desirable at all
-
-- [x] DONE create a file in .cache/awesome/ to cache the history of the notifications
-  - [x] DONE have the notification list in the control panel read from the list of cached notifications
-  - [x] DONE have the clear notifications button erase the cache files content and have popup "Are you sure" dialogue
-
-- [x] DONE Add gaps between windows and the edges of the screen equaling dpi(3)
-
-- [x] DONE abstract out modules for the common features shared by multiple UI elements and then swap out the hardcoded settings for these new abstracted modules
-
-- [x] DONE power menu doesn't work, it just produces an error
-
-- [x] DONE sliders glitch and skip, likely need a delay on them to make the transition more smooth and less error prone
-
-- [x] DONE make a proper test file for debugging purposes to replace the symlink to rc.lua
-
-- [x] DONE Make the Bluetooth and Network applets on the control panel the same background color as the sliders and the border should be fg_alt for the buttons and boxes for the sliders
-
-- [x] DONE make the backdrop slightly darker and apply a blur effect
-
-- [x] DONE remove the goofy color styling (except the red for the power button only when hovered) from the power menu buttons and style them as the wibar buttons are styled.
-
-- [x] DONE apply window gaps to maximized windows of dpi(3) on all sides of the screen
-
-- [x] DONE change the "core" directory to "configuration" and update the various require statements adjusting for this change
-
-- [x] DONE make sure all the files within the modules directory are themsekves within their own subdirectories
-
-- [x] DONE change the png layout icons to the svg equivalents that are located in the same folder then remove the png versions.
-
-- [x] DONE the configuration/error and configuration/notification seem redundant given both could be included within the configuration/notification directory and called together by the directory wide init file
-
-- [x] DONE The icons for the launcher and the control panel should be larger than at present and more like the layout button icon in terms of how much of the buttonn they cover.
-
-- [x] DONE the module creating the backdrop must be placed behind any instance of the launcher, comntrol panel, calendar or the system statistics popups being displayed and still click outside of the popups must still close them
-
-- [x] DONE the search text that the user is able to search for applications via the launcher must have more padding (background color the text is typed in) by 20% top-bottom at least and right until almost the edge of the image it is place atop.
-
-- [x] DONE make the black background of the window switcher partially transparent, raise minimized windows as they are cycled through, do not include the windows on other tags, make it so upon hitting enter, the current window selected by the window switcher is brought into focus as the switcher closes
-
-- [x] DONE override the hotkeys displayed when the keybinding is pressed with the following (adapted to this configuration obviously):
-
-```lua
 --  _______         __   __
 -- |   |   |.-----.|  |_|  |--.-----.--.--.-----.
 -- |       ||  _  ||   _|    <|  -__|  |  |__ --|
@@ -96,7 +18,6 @@ local gstring = require('gears.string')
 local wibox = require('wibox')
 local beautiful = require('beautiful')
 local dpi = beautiful.xresources.apply_dpi
-local colors = require('themes').colors
 
 local matcher = require('gears.matcher')()
 -- ------------------------------------------------- --
@@ -192,13 +113,13 @@ function widget.new(args)
                 -- Basic multimedia keys:
                 XF86MonBrightnessUp = '🔆+',
                 XF86MonBrightnessDown = '🔅-',
-                XF86AudioRaiseVolume = '+',
-                XF86AudioLowerVolume = '-',
-                XF86Display = '',
-                XF86AudioMute = '',
-                XF86AudioPlay = '',
-                XF86AudioPrev = '',
-                XF86AudioNext = ''
+                XF86AudioRaiseVolume = '+',
+                XF86AudioLowerVolume = '-',
+                XF86Display = '',
+                XF86AudioMute = '',
+                XF86AudioPlay = '',
+                XF86AudioPrev = '',
+                XF86AudioNext = ''
             },
         _additional_hotkeys = {},
         _cached_wiboxes = {},
@@ -223,8 +144,8 @@ function widget.new(args)
         self.width = args.width or dpi(1400)
         self.height = args.height or dpi(960)
         self.fg = args.fg or beautiful.hotkeys_fg or beautiful.fg_normal
-        self.modifiers_fg = colors.colorF
-        self.label_bg = colors.alpha(colors.colorE, 'cc')
+        self.modifiers_fg = beautiful.fg_alt or beautiful.fg_normal
+        self.label_bg = beautiful.bg_alt or beautiful.bg_normal
         self.font = 'Operator SSm  9'
         self.description_font = args.description_font or beautiful.hotkeys_description_font or 'Operator SSm    8'
         self.group_margin = args.group_margin or beautiful.hotkeys_group_margin or dpi(6)
@@ -354,7 +275,7 @@ function widget.new(args)
     function widget_instance:_group_label(group, color)
         local textbox =
             wibox.widget {
-            markup = markup.fg(colors.color2, group),
+            markup = markup.fg(beautiful.fg_alt or beautiful.fg_normal, group),
             font = 'Operator SSm  9',
             widget = wibox.widget.textbox
         }
@@ -363,21 +284,23 @@ function widget.new(args)
             wibox.widget {
             {
                 {
-                    {nil, textbox, nil, layout = wibox.layout.fixed.vertical},
-                    top = dpi(4),
-                    bottom = dpi(4),
-                    left = dpi(8),
-                    right = dpi(8),
-                    widget = wibox.container.margin
+                    {
+                        {nil, textbox, nil, layout = wibox.layout.fixed.vertical},
+                        top = dpi(4),
+                        bottom = dpi(4),
+                        left = dpi(8),
+                        right = dpi(8),
+                        widget = wibox.container.margin
+                    },
+                    shape = beautiful.client_shape_rounded_small,
+                    bg = 'transparent',
+                    border_width = dpi(2),
+                    border_color = beautiful.fg_alt or beautiful.fg_normal,
+                    widget = wibox.container.background
                 },
-                shape = beautiful.client_shape_rounded_small,
-                bg = 'transparent',
-                border_width = dpi(2),
-                border_color = colors.color2,
-                widget = wibox.container.background
-            },
-            top = dpi(6),
-            widget = wibox.container.margin
+                top = dpi(6),
+                widget = wibox.container.margin
+            }
         }
         return margin
     end
@@ -431,7 +354,7 @@ function widget.new(args)
                 {layout = wibox.layout.fixed.vertical()},
                 layout = wibox.layout.fixed.vertical(),
                 widget = wibox.container.background,
-                bg = colors.alpha(colors.colorB, 'cc')
+                bg = beautiful.bg_alt or beautiful.bg_normal .. "cc"
             }
         end
         current_column.layout:add(self:_group_label(group))
@@ -450,7 +373,7 @@ function widget.new(args)
                     modifiers = markup.fg(self.modifiers_fg, modifiers .. '+')
                 end
                 local rendered_hotkey =
-                    markup.font(self.font, modifiers .. (key.key or '') .. markup.fg(colors.color2, ' : ')) ..
+                    markup.font(self.font, modifiers .. (key.key or '') .. markup.fg(beautiful.fg_alt or beautiful.fg_normal, ' : ')) ..
                     markup.font(self.description_font, key.description or '')
                 if length > max_label_width then
                     max_label_width = length
@@ -517,7 +440,7 @@ function widget.new(args)
                             shape = beautiful.client_shape_rounded_xl
                         },
                         margins = dpi(30),
-                        border_color = colors.black,
+                        border_color = beautiful.border_color or beautiful.border_color_normal,
                         border_width = dpi(2),
                         widget = wibox.container.margin
                     }
@@ -546,7 +469,7 @@ function widget.new(args)
                     columns,
                     widget = wibox.container.background,
                     bg = beautiful.bg_button_focused,
-                    border_color = colors.alpha(colors.black, 'bb'),
+                    border_color = beautiful.border_color or beautiful.border_color_normal .. "bb",
                     border_width = dpi(2),
                     shape = beautiful.client_shape_rounded_xl
                 },
@@ -567,9 +490,9 @@ function widget.new(args)
             awful.popup {
             widget = pages[1],
             ontop = true,
-            bg = colors.alpha(colors.colorB, 'aa'),
+            bg = beautiful.bg or beautiful.bg_normal .. "aa",
             border_width = dpi(2),
-            border_color = colors.black,
+            border_color = beautiful.border_color or beautiful.border_color_normal,
             fg = self.fg,
             shape = beautiful.client_shape_rounded_xl,
             placement = place_func,
@@ -755,48 +678,3 @@ function widget.add_group_rules(group, data)
 end
 
 return widget
-```
-
-- [ ] TODO add a lowb battery notifier via the configuration/notifications/battery.lua that looks something like this:
-
-```lua
-local battery = require 'sys.battery'
-local naughty = require 'naughty'
-
-local lowNotified = false
-local criticalNotified = false
-
-awesome.connect_signal('battery::percentage', function (percent)
-    print('battery is at ' .. percent)
-    if battery.status() ~= 'Charging' then
-
-        if percent <= 20 and percent >= 11 and not lowNotified then
-            lowNotified = true
-            naughty.notify {
-                category = 'battery-low',
-                title = 'Low Battery',
-                text = 'Battery is at ' .. tostring(percent) .. '%, consider charging.'
-            }
-        end
-
-        if percent <= 10 and not criticalNotified then
-            criticalNotified = true
-            naughty.notify {
-                category = 'battery-critical',
-                title = 'Critical Battery',
-                text = 'Battery is at ' .. tostring(percent) .. '%, you should really charge now.'
-            }
-        end
-    end
-end)
-
-awesome.connect_signal('battery::status', function(status)
-    if status == 'Charging' then
-        lowNotified = false
-        criticalNotified = false
-    end
-end)
-
-```
-
-- [x] DONE improve the custom layout files internal logic and refactor each where necessary and useful to make them more effective in achieving their intended layouts while being written in readily understood and non-esoteric fully documented code

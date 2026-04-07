@@ -58,25 +58,32 @@ function center.arrange(p)
         master_area_x = area.x
     end
 
-    -- Arrange masters
+    -- Arrange masters in vertical stack in center area
     for idx = 1, nmaster do
         local c = p.clients[idx]
-        local g = {
-            x = master_area_x,
-            y = area.y + (nmaster - idx) * (area.height / nmaster),
-            width = master_area_width,
-            height = area.height / nmaster,
-        }
-        p.geometries[c] = g
+        if c then -- Validate client exists
+            local g = {
+                x = master_area_x,
+                y = area.y + (idx - 1) * (area.height / nmaster), -- Fixed: was (nmaster - idx)
+                width = master_area_width,
+                height = area.height / nmaster,
+            }
+            p.geometries[c] = g
+        end
     end
 
-    -- Arrange slaves
+    -- Arrange slaves on left and right sides alternating
     for idx = 1, nslaves do
         local c = p.clients[idx + nmaster]
+        if not c then -- Validate client exists
+            break
+        end
+        
         local g
-
-        if idx % 2 == 0 then
-            -- Even index, place on the left side
+        
+        -- Alternate between left (odd indices) and right (even indices)
+        if idx % 2 == 1 then
+            -- Odd index (1,3,5...), place on the left side
             g = {
                 x = area.x,
                 y = area.y
@@ -87,7 +94,7 @@ function center.arrange(p)
             }
             left_iterator = left_iterator + 1
         else
-            -- Odd index, place on the right side
+            -- Even index (2,4,6...), place on the right side
             g = {
                 x = area.x + master_area_width + slave_area_width / 2,
                 y = area.y

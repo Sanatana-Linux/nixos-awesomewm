@@ -9,7 +9,7 @@ gc_service.start()
 local autostart_commands = {
     -- "xrdb -merge ~/.Xresources", -- Merge X resources
     "picom", -- Start the compositor
-    "xrandr --output eDP-1-1 --mode 2560x1600 --rate 60.00",
+    "xrandr --output eDP-1-1 --mode 2560x1600 --rate  144",
     "clipse --listen &",
 }
 

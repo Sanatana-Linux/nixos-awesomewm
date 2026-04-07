@@ -21,7 +21,7 @@ local menubar = require("menubar")
 local crop_surface = require("modules.crop_surface")
 local launcher = {}
 local shapes = require("modules.shapes.init")
-local click_to_hide = require("modules.click_to_hide")
+local backdrop = require("modules.backdrop")
 
 local lock_icon_path = gfs.get_configuration_dir() .. "ui/popups/launcher/icons/lock-line.svg"
 local power_icon_path = gfs.get_configuration_dir() .. "ui/popups/launcher/icons/shut-down-line.svg"
@@ -311,6 +311,10 @@ function launcher:show()
     if wp.shown then
         return
     end
+
+    -- Show backdrop first
+    backdrop.show(self)
+
     wp.shown = true
 
     -- Safely get all applications
@@ -387,6 +391,7 @@ function launcher:hide()
         end,
         complete = function()
             self.visible = false
+            backdrop.hide() -- Hide backdrop when popup hides
             self:emit_signal("property::shown", wp.shown)
         end,
     })
@@ -536,10 +541,12 @@ icon_source = power_icon_path,
                                 {
                                     widget = wibox.container.margin,
                                     forced_width = 1,
-                                    forced_height = dpi(50),
+                                    forced_height = dpi(60), -- Increased from dpi(50) for more padding
                                     margins = {
                                         left = dpi(10),
-                                        right = dpi(10),
+                                        right = dpi(5), -- Reduced from dpi(10) to extend almost to edge
+                                        top = dpi(6), -- Added top padding (20% more)
+                                        bottom = dpi(6), -- Added bottom padding (20% more)
                                     },
                                     {
                                         widget = wibox.container.place,
@@ -548,20 +555,29 @@ icon_source = power_icon_path,
                                         {
                                             widget = wibox.container.constraint,
                                             strategy = "max",
-                                            height = dpi(25),
+                                            height = dpi(30), -- Increased from dpi(25) for better visibility
                                             {
                                                 widget = wibox.container.background,
                                                 bg = beautiful.bg .. "cc",
                                                 shape = shapes.rrect(10),
                                                 {
-                                                    id = "text-input",
-                                                    widget = modules.text_input({
-                                                        placeholder = "Search...",
-                                                        background = beautiful.bg,
-                                                        cursor_bg = beautiful.bg,
-                                                        cursor_fg = beautiful.fg,
-                                                        placeholder_fg = beautiful.fg_alt,
-                                                    }),
+                                                    widget = wibox.container.margin,
+                                                    margins = {
+                                                        left = dpi(8),
+                                                        right = dpi(8),
+                                                        top = dpi(4), -- Added internal padding
+                                                        bottom = dpi(4), -- Added internal padding
+                                                    },
+                                                    {
+                                                        id = "text-input",
+                                                        widget = modules.text_input({
+                                                            placeholder = "Search...",
+                                                            background = beautiful.bg,
+                                                            cursor_bg = beautiful.bg,
+                                                            cursor_fg = beautiful.fg,
+                                                            placeholder_fg = beautiful.fg_alt,
+                                                        }),
+                                                    },
                                                 },
                                             },
                                         },
@@ -660,12 +676,6 @@ icon_source = power_icon_path,
             ret:hide()
         end
     end)
-
-    -- Setup centralized click-to-hide behavior but disable escape key handling
-    -- since the launcher has its own text input that needs escape priority
-    click_to_hide.popup(ret, function()
-        ret:hide()
-    end, { outside_only = true, exclusive = true, disable_escape = true })
 
     return ret
 end

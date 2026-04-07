@@ -17,7 +17,7 @@ local bluetooth_button =
     require("ui.popups.control_panel.bluetooth_applet.button")
 local bluetooth_page = require("ui.popups.control_panel.bluetooth_applet.page")
 local audio = require("service.audio").get_default()
-local click_to_hide = require("modules.click_to_hide")
+local backdrop = require("modules.backdrop")
 
 local control_panel = {}
 
@@ -66,6 +66,10 @@ function control_panel:show()
     if wp.shown then
         return
     end
+
+    -- Show backdrop first
+    backdrop.show(self)
+
     wp.shown = true
 
     audio:get_default_sink_data()
@@ -128,6 +132,7 @@ function control_panel:hide()
         end,
         complete = function()
             self.visible = false
+            backdrop.hide() -- Hide backdrop when popup hides
             self:emit_signal("property::shown", wp.shown)
         end,
     })
@@ -208,11 +213,6 @@ local function new()
             ret:setup_main_page()
         end),
     })
-
-    -- Setup centralized click-to-hide behavior
-    click_to_hide.popup(ret, function()
-        ret:hide()
-    end, { outside_only = true, exclusive = true })
 
     return ret
 end

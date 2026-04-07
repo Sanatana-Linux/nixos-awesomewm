@@ -36,6 +36,54 @@ function battery_service:update()
             end
         end
     )
+    
+    -- Get additional battery details for popup
+    self:update_detailed_info()
+end
+
+-- Get detailed battery information for popup display
+function battery_service:update_detailed_info()
+    -- Get health status
+    awful.spawn.easy_async_with_shell(
+        "cat /sys/class/power_supply/BAT0/health 2>/dev/null || echo 'Unknown'",
+        function(stdout)
+            local health = stdout:gsub("\n", "")
+            if self.health ~= health then
+                self.health = health
+                self:emit_signal("property::health", self.health)
+            end
+        end
+    )
+    
+    -- Get voltage (if available)
+    awful.spawn.easy_async_with_shell(
+        "cat /sys/class/power_supply/BAT0/voltage_now 2>/dev/null",
+        function(stdout)
+            local voltage_raw = tonumber(stdout)
+            if voltage_raw then
+                local voltage = math.floor(voltage_raw / 1000000 * 10) / 10 -- Convert to volts with 1 decimal
+                if self.voltage ~= voltage then
+                    self.voltage = voltage
+                    self:emit_signal("property::voltage", self.voltage)
+                end
+            end
+        end
+    )
+    
+    -- Get power consumption (if available)
+    awful.spawn.easy_async_with_shell(
+        "cat /sys/class/power_supply/BAT0/power_now 2>/dev/null",
+        function(stdout)
+            local power_raw = tonumber(stdout)
+            if power_raw then
+                local power = math.floor(power_raw / 1000000 * 10) / 10 -- Convert to watts with 1 decimal
+                if self.power ~= power then
+                    self.power = power
+                    self:emit_signal("property::power", self.power)
+                end
+            end
+        end
+    )
 end
 
 -- Constructor for a new battery service instance.
@@ -47,6 +95,9 @@ local function new()
     -- Initialize properties
     ret.level = 0
     ret.is_charging = false
+    ret.health = "Unknown"
+    ret.voltage = nil
+    ret.power = nil
 
     -- Set up a timer to periodically update battery info
     gears.timer({
