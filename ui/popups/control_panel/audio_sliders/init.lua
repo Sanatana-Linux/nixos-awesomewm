@@ -15,7 +15,7 @@ local gtimer = require("gears.timer")
 local function new()
     local ret = wibox.widget({
         widget = wibox.container.background,
-        bg = beautiful.bg_alt,
+        bg = beautiful.bg_alt .. "aa",
         shape = shapes.rrect(10),
         border_width = dpi(1),
         border_color = beautiful.fg_alt,
@@ -52,8 +52,8 @@ local function new()
                             handle_width = dpi(20),
                             handle_border_width = dpi(2),
                             handle_margins = { top = dpi(7), bottom = dpi(7) },
-                            bar_color = beautiful.bg_urg,
-                            handle_color = beautiful.bg_alt,
+                            bar_color = beautiful.bg_urg .. "aa",
+                            handle_color = beautiful.bg_alt .. "aa",
                             handle_border_color = beautiful.ac,
                             handle_shape = shapes.circle(9),
                             bar_shape = shapes.rbar(),
@@ -87,8 +87,8 @@ local function new()
                             handle_width = dpi(20),
                             handle_border_width = dpi(2),
                             handle_margins = { top = dpi(7), bottom = dpi(7) },
-                            bar_color = beautiful.bg_urg,
-                            handle_color = beautiful.bg_alt,
+                            bar_color = beautiful.bg_urg .. "aa",
+                            handle_color = beautiful.bg_alt .. "aa",
                             handle_border_color = beautiful.ac,
                             handle_shape = shapes.circle(9),
                             bar_shape = shapes.rbar(),
@@ -157,15 +157,15 @@ local function new()
     speaker_slider:connect_signal("property::value", function(_, new_value)
         local rounded_value = math.floor(new_value)
         speaker_value:set_markup(tostring(rounded_value) .. "%")
-        
+
         -- Store the latest value
         last_speaker_value = rounded_value
-        
+
         -- Cancel existing timer
         if speaker_timer then
             speaker_timer:stop()
         end
-        
+
         -- Set up new debounced timer
         speaker_timer = gtimer.start_new(0.1, function() -- 100ms delay
             audio_service:set_default_sink_volume(last_speaker_value)
@@ -217,15 +217,15 @@ local function new()
     microphone_slider:connect_signal("property::value", function(_, new_value)
         local rounded_value = math.floor(new_value)
         microphone_value:set_markup(tostring(rounded_value) .. "%")
-        
+
         -- Store the latest value
         last_microphone_value = rounded_value
-        
+
         -- Cancel existing timer
         if microphone_timer then
             microphone_timer:stop()
         end
-        
+
         -- Set up new debounced timer
         microphone_timer = gtimer.start_new(0.1, function() -- 100ms delay
             audio_service:set_default_source_volume(last_microphone_value)

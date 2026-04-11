@@ -25,8 +25,8 @@ local function create_backdrop()
 
     backdrop_wibox = wibox({
         visible = false,
-        ontop = false, -- Behind popups but above regular windows
-        type = "desktop",
+        ontop = true, -- Above regular windows
+        type = "dock", -- Dock type for background overlay
         bg = backdrop_color,
         opacity = backdrop_opacity,
         input_passthrough = false, -- Allow clicks to be captured

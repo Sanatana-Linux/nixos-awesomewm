@@ -24,9 +24,9 @@ local function new()
         handle_width = dpi(20),
         handle_border_width = dpi(2),
         handle_margins = { top = dpi(7), bottom = dpi(7) },
-        bar_color = beautiful.bg_urg,
+        bar_color = beautiful.bg_urg .. "aa",
         bar_active_color = beautiful.ac,
-        handle_color = beautiful.bg_alt,
+        handle_color = beautiful.bg_alt .. "aa",
         handle_border_color = beautiful.ac,
         handle_shape = shapes.circle(9),
         bar_shape = shapes.rbar(),
@@ -53,12 +53,12 @@ local function new()
     -- Set brightness when slider value changes
     local function set_brightness_debounced(value)
         last_brightness_value = value
-        
+
         -- Cancel existing timer
         if brightness_timer then
             brightness_timer:stop()
         end
-        
+
         -- Set up new debounced timer
         brightness_timer = gtimer.start_new(0.1, function() -- 100ms delay
             brightness_service:set(last_brightness_value)
@@ -114,7 +114,7 @@ local function new()
 
     return wibox.widget({
         widget = wibox.container.background,
-        bg = beautiful.bg_alt,
+        bg = beautiful.bg_alt .. "aa",
         shape = shapes.rrect(10),
         border_width = dpi(1),
         border_color = beautiful.fg_alt,

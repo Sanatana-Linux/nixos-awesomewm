@@ -163,7 +163,7 @@ local function new()
         end,
         widget = {
             widget = wibox.container.background,
-            bg = beautiful.bg .. "bb",
+            bg = beautiful.bg .. "55",
             border_width = beautiful.border_width,
             border_color = beautiful.border_color_normal,
             shape = shapes.rrect(20),

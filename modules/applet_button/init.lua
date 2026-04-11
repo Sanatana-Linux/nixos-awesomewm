@@ -48,7 +48,7 @@ local function new(opts)
         widget = wibox.container.background,
         forced_width = BUTTON_WIDTH,
         forced_height = BUTTON_HEIGHT,
-        bg = beautiful.bg,
+        bg = beautiful.bg_alt .. "aa",
         fg = beautiful.fg,
         shape = shapes.rrect(10),
         border_width = dpi(1),
@@ -164,10 +164,10 @@ local function new(opts)
     local function update_ui(is_active)
         wp.is_active = is_active
         if is_active then
-            ret:set_bg(beautiful.bg_alt)
+            ret:set_bg(beautiful.bg_alt .. "aa")
             ret:set_fg(beautiful.fg)
             ret:set_border_color(beautiful.fg_alt)
-            toggle_button:set_bg(beautiful.bg_alt)
+            toggle_button:set_bg(beautiful.bg_alt .. "aa")
             state_label:set_markup(
                 "<span foreground='"
                     .. beautiful.fg
@@ -188,7 +188,7 @@ local function new(opts)
             )
             separator:set_color(beautiful.fg_alt)
         else
-            ret:set_bg(beautiful.bg_alt)
+            ret:set_bg(beautiful.bg_alt .. "aa")
             ret:set_fg(beautiful.fg)
             ret:set_border_color(beautiful.fg_alt)
             toggle_button:set_bg(nil)
@@ -220,7 +220,7 @@ local function new(opts)
             return
         end
         if is_hovered then
-            toggle_button:set_bg(beautiful.bg_urg)
+            toggle_button:set_bg(beautiful.bg_urg .. "aa")
             separator:set_color(beautiful.fg_alt)
         else
             toggle_button:set_bg(nil)
@@ -236,7 +236,7 @@ local function new(opts)
             toggle_button:set_bg(nil)
             separator:set_color(beautiful.fg_alt)
         else
-            toggle_button:set_bg(beautiful.bg_alt)
+            toggle_button:set_bg(beautiful.bg_alt .. "aa")
             separator:set_color(beautiful.fg_alt)
         end
     end
@@ -261,7 +261,7 @@ local function new(opts)
 
     reveal_button:connect_signal("mouse::enter", function()
         if not wp.is_active then
-            reveal_button:set_bg(beautiful.bg_urg)
+            reveal_button:set_bg(beautiful.bg_urg .. "aa")
             reveal_icon:set_image(
                 gcolor.recolor_image(arrow_icon, beautiful.fg)
             )
