@@ -39,6 +39,9 @@ rnotification.connect_signal("request::rules", function()
     })
 end)
 
+-- Load battery notification module
+require("configuration.notification.battery")
+
 -- Clean up notifications when AwesomeWM exits
 capi.awesome.connect_signal("exit", function()
     -- Destroy all active notifications silently when the window manager shuts down

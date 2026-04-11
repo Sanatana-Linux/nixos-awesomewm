@@ -112,13 +112,37 @@ local function create_notification_widget(n, notification_list_widget, notificat
                             },
                             {
                                 id = "close",
-                                widget = modules.hover_button({
-                                    bg_normal = "transparent",
-                                    bg_hover = "linear:0,0:0,32:0," .. beautiful.red .. ":1," .. "#b61442",
-                                    icon_source = close_icon,
-                                    icon_normal_color = beautiful.red,
-                                    icon_hover_color = beautiful.bg,
-                                    child_widget = {
+                                widget = wibox.container.background,
+                                bg = "transparent",
+                                buttons = {
+                                    awful.button({}, 1, function()
+                                        print("DEBUG: SIMPLE CLOSE BUTTON CLICKED for notification:", notification_id)
+                                        print("DEBUG: notification_list_widget type:", type(notification_list_widget))
+                                        print("DEBUG: widget type:", type(widget))
+                                        
+                                        -- Remove this specific notification from the center and cache safely
+                                        local success, err = pcall(function()
+                                            print("DEBUG: Starting cache removal")
+                                            if notification_id then
+                                                local cache = require("ui.notification.cache")
+                                                local cache_result = cache.remove(notification_id)
+                                                print("DEBUG: Cache removal result:", cache_result)
+                                            end
+                                            print("DEBUG: Starting widget removal")
+                                            remove_notification(notification_list_widget, widget)
+                                            print("DEBUG: Widget removal completed")
+                                        end)
+                                        if not success then
+                                            print("ERROR: Error removing notification:", err)
+                                        else
+                                            print("DEBUG: Successfully removed notification")
+                                        end
+                                    end),
+                                },
+                                {
+                                    widget = wibox.container.margin,
+                                    margins = dpi(4),
+                                    {
                                         widget = wibox.widget.imagebox,
                                         image = gcolor.recolor_image(
                                             close_icon,
@@ -128,7 +152,7 @@ local function create_notification_widget(n, notification_list_widget, notificat
                                         forced_width = dpi(16),
                                         forced_height = dpi(16),
                                     },
-                                }),
+                                },
                             },
                         },
                     },
@@ -143,16 +167,7 @@ local function create_notification_widget(n, notification_list_widget, notificat
                     },
                     {
                         layout = wibox.layout.fixed.horizontal,
-                        buttons = {
-                            awful.button({}, 1, function()
-                                -- Don't destroy notification, just remove from center
-                                if notification_id then
-                                    -- Remove from cache
-                                    require("ui.notification.cache").remove(notification_id)
-                                end
-                                remove_notification(notification_list_widget, widget)
-                            end),
-                        },
+                        -- Remove the buttons from here to avoid duplicate handlers
                         fill_space = true,
                         spacing = dpi(10),
                         {
@@ -199,40 +214,72 @@ local function create_notification_widget(n, notification_list_widget, notificat
         },
     })
 
-    local close = widget:get_children_by_id("close")[1]
-    close:buttons({
-        awful.button({}, 1, function()
-            -- Remove this specific notification from the center and cache
-            if notification_id then
-                require("ui.notification.cache").remove(notification_id)
-            end
-            remove_notification(notification_list_widget, widget)
-        end),
-    })
-
     return widget
 end
 
 local function remove_notification(self, w)
-    local notifs_layout = self:get_children_by_id("notifications-layout")[1]
-    notifs_layout:remove_widgets(w)
-    if #notifs_layout.children == 0 then
-        notifs_layout:insert(
-            1,
-            wibox.widget({
-                widget = wibox.container.background,
-                fg = beautiful.fg_alt,
-                forced_height = dpi(560),
-                {
-                    widget = wibox.widget.textbox,
-                    align = "center",
-                    font = beautiful.font_name .. dpi(12),
-                    markup = "No notifications",
-                },
-            })
-        )
+    print("DEBUG: remove_notification called")
+    print("DEBUG: self type:", type(self))
+    print("DEBUG: w type:", type(w))
+    
+    local success, err = pcall(function()
+        print("DEBUG: Getting notifications-layout")
+        local notifs_layout = self:get_children_by_id("notifications-layout")[1]
+        if not notifs_layout then
+            print("ERROR: notifications-layout not found")
+            return
+        end
+        print("DEBUG: notifications-layout found, children count:", #notifs_layout.children)
+        
+        -- Check if widget exists in the layout before removing
+        local found = false
+        for i, child in ipairs(notifs_layout.children or {}) do
+            print("DEBUG: Checking child", i, "type:", type(child))
+            if child == w then
+                found = true
+                print("DEBUG: Found widget at index", i)
+                break
+            end
+        end
+        
+        if found then
+            print("DEBUG: Removing widget from layout")
+            notifs_layout:remove_widgets(w)
+            print("DEBUG: Successfully removed notification widget")
+        else
+            print("WARNING: Widget not found in layout, skipping removal")
+        end
+        
+        -- Check if we need to add the "No notifications" message
+        print("DEBUG: Checking if we need 'No notifications' message, children count:", #notifs_layout.children)
+        if #notifs_layout.children == 0 then
+            print("DEBUG: Adding 'No notifications' message")
+            notifs_layout:insert(
+                1,
+                wibox.widget({
+                    widget = wibox.container.background,
+                    fg = beautiful.fg_alt,
+                    forced_height = dpi(560),
+                    {
+                        widget = wibox.widget.textbox,
+                        align = "center",
+                        font = beautiful.font_name .. dpi(12),
+                        markup = "No notifications",
+                    },
+                })
+            )
+        end
+        
+        print("DEBUG: Calling update_count")
+        self:update_count()
+        print("DEBUG: update_count completed")
+    end)
+    
+    if not success then
+        print("ERROR: Error in remove_notification function:", err)
+    else
+        print("DEBUG: remove_notification completed successfully")
     end
-    self:update_count()
 end
 
 local function add_notification(self, n)
@@ -259,20 +306,111 @@ end
 
 -- Create confirmation dialog for clearing notifications
 local function create_confirmation_dialog(callback)
+    local screen = awful.screen.focused()
+    
+    local backdrop = wibox({
+        visible = false,
+        ontop = false,
+        type = "desktop",
+        bg = "#00000088",
+        x = screen.geometry.x,
+        y = screen.geometry.y,
+        width = screen.geometry.width,
+        height = screen.geometry.height,
+    })
+    
+    -- Define dialog functions first
+    local dialog_functions = {}
+    
+    local function hide_dialog()
+        backdrop.visible = false
+        if dialog_functions.dialog then
+            dialog_functions.dialog.visible = false
+        end
+    end
+    
+    local function handle_cancel()
+        print("Cancel button clicked")
+        hide_dialog()
+    end
+    
+    local function handle_clear_all()
+        print("DEBUG: Clear All button clicked")
+        hide_dialog()
+        if callback then
+            print("DEBUG: Calling callback function")
+            callback()
+        else
+            print("ERROR: No callback function provided")
+        end
+    end
+    
+    -- Create cancel button
+    local cancel_button = wibox.widget({
+        widget = wibox.container.background,
+        bg = beautiful.bg_alt,
+        shape = shapes.rrect(8),
+        buttons = {
+            awful.button({}, 1, handle_cancel)
+        },
+        {
+            widget = wibox.container.margin,
+            margins = {
+                left = dpi(15),
+                right = dpi(15),
+                top = dpi(8),
+                bottom = dpi(8),
+            },
+            {
+                widget = wibox.widget.textbox,
+                align = "center",
+                markup = "Cancel",
+                font = beautiful.font_name .. " " .. dpi(10),
+            },
+        },
+    })
+    
+    -- Create clear all button
+    local clear_button = wibox.widget({
+        widget = wibox.container.background,
+        bg = beautiful.red,
+        shape = shapes.rrect(8),
+        buttons = {
+            awful.button({}, 1, handle_clear_all)
+        },
+        {
+            widget = wibox.container.margin,
+            margins = {
+                left = dpi(15),
+                right = dpi(15),
+                top = dpi(8),
+                bottom = dpi(8),
+            },
+            {
+                widget = wibox.widget.textbox,
+                align = "center",
+                markup = create_markup("Clear All", { fg = beautiful.bg }),
+                font = beautiful.font_name .. " " .. dpi(10),
+            },
+        },
+    })
+    
+    -- Don't add button functionality separately since it's already in the widget definition
+    
     local dialog = awful.popup({
         visible = false,
         ontop = true,
         type = "dialog",
-        screen = awful.screen.focused(),
+        screen = screen,
         bg = "#00000000",
         placement = awful.placement.centered,
+        forced_width = dpi(350),
         widget = {
             widget = wibox.container.background,
-            bg = beautiful.bg .. "cc",
-            border_width = dpi(1.5),
+            bg = beautiful.bg,
+            border_width = dpi(2),
             border_color = beautiful.fg_alt,
             shape = shapes.rrect(15),
-            forced_width = dpi(350),
             {
                 widget = wibox.container.margin,
                 margins = dpi(20),
@@ -304,118 +442,93 @@ local function create_confirmation_dialog(callback)
                     {
                         layout = wibox.layout.flex.horizontal,
                         spacing = dpi(10),
-                        {
-                            widget = modules.hover_button({
-                                label = "Cancel",
-                                bg_normal = beautiful.bg_alt,
-                                fg_normal = beautiful.fg_alt,
-                                bg_hover = beautiful.bg_urg,
-                                shape = shapes.rrect(8),
-                                margins = {
-                                    left = dpi(15),
-                                    right = dpi(15),
-                                    top = dpi(8),
-                                    bottom = dpi(8),
-                                },
-                                buttons = {
-                                    awful.button({}, 1, function()
-                                        dialog.visible = false
-                                    end),
-                                },
-                            }),
-                        },
-                        {
-                            widget = modules.hover_button({
-                                label = "Clear All",
-                                bg_normal = beautiful.red,
-                                fg_normal = beautiful.bg,
-                                bg_hover = beautiful.red .. "aa",
-                                shape = shapes.rrect(8),
-                                margins = {
-                                    left = dpi(15),
-                                    right = dpi(15),
-                                    top = dpi(8),
-                                    bottom = dpi(8),
-                                },
-                                buttons = {
-                                    awful.button({}, 1, function()
-                                        dialog.visible = false
-                                        callback()
-                                    end),
-                                },
-                            }),
-                        },
+                        cancel_button,
+                        clear_button,
                     },
                 },
             },
         },
     })
-
-    -- Hide dialog when clicking outside
-    local backdrop = wibox({
-        visible = false,
-        ontop = false,
-        type = "desktop",
-        bg = "#00000044",
-        opacity = 0.6,
-    })
-
-    local function update_backdrop()
-        local s = awful.screen.focused()
-        backdrop.x = s.geometry.x
-        backdrop.y = s.geometry.y
-        backdrop.width = s.geometry.width
-        backdrop.height = s.geometry.height
-    end
-
-    dialog:connect_signal("property::visible", function()
-        if dialog.visible then
-            update_backdrop()
+    
+    dialog_functions.dialog = dialog
+    
+    -- Hide dialog when clicking backdrop
+    backdrop.buttons = {
+        awful.button({}, 1, hide_dialog)
+    }
+    
+    return {
+        show = function()
+            print("Showing confirmation dialog")
             backdrop.visible = true
-        else
-            backdrop.visible = false
-        end
-    end)
-
-    backdrop:buttons({
-        awful.button({}, 1, function()
-            dialog.visible = false
-        end),
-    })
-
-    return dialog
+            dialog.visible = true
+        end,
+        hide = hide_dialog
+    }
 end
 
 function notification_list:clear_notifications()
     -- Create confirmation dialog
     local dialog = create_confirmation_dialog(function()
-        -- Clear the visual notifications
+        print("Clear all button clicked - starting clearing process")
+        
+        -- Clear the visual notifications first
         local notifs_layout = self:get_children_by_id("notifications-layout")[1]
-        notifs_layout:reset()
-        notifs_layout:insert(
-            1,
-            wibox.widget({
-                widget = wibox.container.background,
-                fg = beautiful.fg_alt,
-                forced_height = dpi(560),
-                {
-                    widget = wibox.widget.textbox,
-                    align = "center",
-                    font = beautiful.font_name .. dpi(12),
-                    markup = "No notifications",
-                },
-            })
-        )
+        local notification_widgets = {}
+        
+        -- Collect all notification widgets to remove
+        for _, widget in ipairs(notifs_layout.children) do
+            if widget.is_notification then
+                table.insert(notification_widgets, widget)
+            end
+        end
+        
+        -- Remove widgets one by one safely
+        for _, widget in ipairs(notification_widgets) do
+            notifs_layout:remove_widgets(widget)
+        end
+        
+        -- Add "No notifications" message if list is empty
+        if #notifs_layout.children == 0 then
+            notifs_layout:insert(
+                1,
+                wibox.widget({
+                    widget = wibox.container.background,
+                    fg = beautiful.fg_alt,
+                    forced_height = dpi(560),
+                    {
+                        widget = wibox.widget.textbox,
+                        align = "center",
+                        font = beautiful.font_name .. dpi(12),
+                        markup = "No notifications",
+                    },
+                })
+            )
+        end
+        
         self:update_count()
         
-        -- Clear all active notifications
-        naughty.destroy_all_notifications(nil, ncr.silent)
+        -- Clear the notification cache safely
+        local cache_success = pcall(function()
+            local cache_file = os.getenv("HOME") .. "/.cache/awesome/notifications.json"
+            local file = io.open(cache_file, "w")
+            if file then
+                file:write("[]")
+                file:close()
+                print("Successfully cleared notification cache")
+            else
+                print("Failed to open cache file for writing")
+            end
+        end)
         
-        -- Clear the notification cache
-        notifications_service:clear_cache()
+        if not cache_success then
+            print("Failed to clear notification cache")
+        end
+        
+        print("Clear all process completed")
     end)
     
-    dialog.visible = true
+    dialog.show()
 end
 
 function notification_list:update_count()
@@ -514,9 +627,9 @@ local function new()
                                 shape = shapes.rrect(10),
                                 forced_height = dpi(36),
                                 forced_width = dpi(42),
-icon_source = trash_icon,
-                icon_normal_color = beautiful.red,
-                icon_hover_color = beautiful.bg,
+                                icon_source = trash_icon,
+                                icon_normal_color = beautiful.red,
+                                icon_hover_color = beautiful.bg,
                                 child_widget = {
                                     widget = wibox.container.place,
                                     halign = "center",
@@ -605,20 +718,9 @@ icon_source = trash_icon,
         end
     end)
 
-naughty.connect_signal("added", function(n)
-	add_notification(ret, n)
-end)
-
-naughty.connect_signal("request::display_error", function(message, startup)
-	naughty.notification({
-		app_name = "Awesome",
-		urgency = "critical",
-		title = "An error happened"
-			.. (startup and " during startup!" or "!"),
-		text = message,
-		timeout = 0,
-	})
-end)
+    naughty.connect_signal("added", function(n)
+        add_notification(ret, n)
+    end)
 
     return ret
 end

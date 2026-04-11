@@ -84,6 +84,36 @@ function battery_service:update_detailed_info()
             end
         end
     )
+    
+    -- Get battery capacity and cycle count for better estimates
+    awful.spawn.easy_async_with_shell(
+        "cat /sys/class/power_supply/BAT0/energy_full 2>/dev/null",
+        function(stdout)
+            local energy_full = tonumber(stdout)
+            if energy_full then
+                energy_full = energy_full / 1000000 -- Convert to Wh
+                if self.energy_full ~= energy_full then
+                    self.energy_full = energy_full
+                    self:emit_signal("property::energy_full", self.energy_full)
+                end
+            end
+        end
+    )
+    
+    -- Get current energy
+    awful.spawn.easy_async_with_shell(
+        "cat /sys/class/power_supply/BAT0/energy_now 2>/dev/null",
+        function(stdout)
+            local energy_now = tonumber(stdout)
+            if energy_now then
+                energy_now = energy_now / 1000000 -- Convert to Wh
+                if self.energy_now ~= energy_now then
+                    self.energy_now = energy_now
+                    self:emit_signal("property::energy_now", self.energy_now)
+                end
+            end
+        end
+    )
 end
 
 -- Constructor for a new battery service instance.
@@ -98,6 +128,8 @@ local function new()
     ret.health = "Unknown"
     ret.voltage = nil
     ret.power = nil
+    ret.energy_full = nil
+    ret.energy_now = nil
 
     -- Set up a timer to periodically update battery info
     gears.timer({

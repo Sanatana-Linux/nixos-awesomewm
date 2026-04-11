@@ -525,59 +525,42 @@ icon_source = power_icon_path,
                                 border_color = beautiful.border_color_normal,
 
                                 {
-                                    image = crop_surface(
-                                        3.42,
-                                        gears.surface.load_uncached(
-                                            beautiful.wallpaper
-                                        )
-                                    ),
-                                    opacity = 0.75,
-                                    forced_height = dpi(140),
-                                    clip_shape = shapes.rrect(10),
-                                    forced_width = dpi(440),
-                                    widget = wibox.widget.imagebox,
-                                },
-
-                                {
-                                    widget = wibox.container.margin,
-                                    forced_width = 1,
-                                    forced_height = dpi(60), -- Increased from dpi(50) for more padding
-                                    margins = {
-                                        left = dpi(10),
-                                        right = dpi(5), -- Reduced from dpi(10) to extend almost to edge
-                                        top = dpi(6), -- Added top padding (20% more)
-                                        bottom = dpi(6), -- Added bottom padding (20% more)
+                                    layout = wibox.layout.stack,
+                                    {
+                                        image = crop_surface(
+                                            3.42,
+                                            gears.surface.load_uncached(
+                                                beautiful.wallpaper
+                                            )
+                                        ),
+                                        opacity = 0.9,
+                                        forced_height = dpi(140),
+                                        clip_shape = shapes.rrect(10),
+                                        forced_width = dpi(480),
+                                        widget = wibox.widget.imagebox,
                                     },
                                     {
                                         widget = wibox.container.place,
-                                        halign = "left",
+                                        halign = "center",
                                         valign = "center",
                                         {
-                                            widget = wibox.container.constraint,
-                                            strategy = "max",
-                                            height = dpi(30), -- Increased from dpi(25) for better visibility
+                                            widget = wibox.container.background,
+                                            forced_width = dpi(300),
+                                            shape = shapes.rrect(8),
+                                            bg = beautiful.bg .. "cc",
                                             {
-                                                widget = wibox.container.background,
-                                                bg = beautiful.bg .. "cc",
-                                                shape = shapes.rrect(10),
+                                                widget = wibox.container.margin,
+                                                margins = dpi(20),
                                                 {
-                                                    widget = wibox.container.margin,
-                                                    margins = {
-                                                        left = dpi(8),
-                                                        right = dpi(8),
-                                                        top = dpi(4), -- Added internal padding
-                                                        bottom = dpi(4), -- Added internal padding
-                                                    },
-                                                    {
-                                                        id = "text-input",
-                                                        widget = modules.text_input({
-                                                            placeholder = "Search...",
-                                                            background = beautiful.bg,
-                                                            cursor_bg = beautiful.bg,
-                                                            cursor_fg = beautiful.fg,
-                                                            placeholder_fg = beautiful.fg_alt,
-                                                        }),
-                                                    },
+                                                    id = "text-input",
+                                                    widget = modules.text_input({
+                                                        placeholder = "Search...",
+                                                        background = "transparent",
+                                                        cursor_bg = beautiful.bg,
+                                                        cursor_fg = beautiful.fg,
+                                                        placeholder_fg = beautiful.fg_alt,
+                                                        font = beautiful.font_name .. "14",
+                                                    }),
                                                 },
                                             },
                                         },

@@ -757,7 +757,7 @@ end
 return widget
 ```
 
-- [ ] TODO add a lowb battery notifier via the configuration/notifications/battery.lua that looks something like this:
+- [x] DONE add a lowb battery notifier via the configuration/notifications/battery.lua that looks something like this:
 
 ```lua
 local battery = require 'sys.battery'
@@ -800,3 +800,15 @@ end)
 ```
 
 - [x] DONE improve the custom layout files internal logic and refactor each where necessary and useful to make them more effective in achieving their intended layouts while being written in readily understood and non-esoteric fully documented code
+
+- [x] DONE the clear all notifications confirmation dialogue is not dismissed when either button is pressed nor do all the notifications get cleared if that button is pressed, just some
+
+- [x] DONE clearing notifications produces an error creating 2 more notifications.
+
+- [ ] TODO system info popup shown from clicking the battery bar is still only showing RAM and CPU still needs:
+  - [ ] TODO GPU Info Arc Chart (and accommodating service/ file)
+  - [ ] TODO Disk Usage Arc Chart (and accommodating service/ file)
+  - [ ] TODO Swap Usage Arc Chart (and accommodating service/ file)
+  - [ ] TODO Battery/Power Information print out of dynamic height (and accommodating service/ file)
+  - [ ] TODO to be wider to accomodate the extra charts in rows of 2 charts per row
+  - [ ] TODO clicking a chart should open a terminal to HTOP for CPU/RAM/Swap, nvtop for GPU, Yazi for Disk Space
