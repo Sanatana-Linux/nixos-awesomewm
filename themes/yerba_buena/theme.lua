@@ -13,6 +13,9 @@ local icons_path = theme_path .. "icons/"
 
 local theme = {}
 
+-- Icon theme configuration for consistent icon lookup across all components
+theme.icon_theme = "Qogir-Dark"
+
 theme.font_name = "OperatorUltraNerdFontComplete Nerd Font Propo "
 theme.taglist_font = "awesomewm-font 10"
 theme.font = theme.font_name .. tostring(dpi(13))
@@ -82,8 +85,8 @@ theme.bg_alt = "#2a2a2A"
 theme.bg_urg = "#30303c"
 
 -- Backdrop for popups
-theme.backdrop_color = "#000000BB" -- Darker semi-transparent black (75% opacity)
-theme.backdrop_opacity = 0.75 -- Increased opacity for darker appearance
+theme.backdrop_color = "#000000" -- Darker semi-transparent black
+theme.backdrop_opacity = 0.4 -- Increased opacity for much darker appearance
 
 theme.fg_alt = "#8c8c98"
 theme.fg = "#f7f1ff"

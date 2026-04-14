@@ -4,6 +4,7 @@ local awful = require("awful")
 local wibox = require("wibox")
 local beautiful = require("beautiful")
 local gears = require("gears")
+local gtimer = require("gears.timer")
 local gtable = require("gears.table")
 local gfs = require("gears.filesystem")
 local gsurface = require("gears.surface")
@@ -17,7 +18,7 @@ local is_supported = require("lib").is_supported
 local table_to_file = require("lib").table_to_file
 local capi = { screen = screen }
 local powermenu = require("ui.popups.powermenu").get_default()
-local menubar = require("menubar")
+local icon_lookup = require("modules.icon-lookup") -- Centralized icon resolution
 local crop_surface = require("modules.crop_surface")
 local launcher = {}
 local shapes = require("modules.shapes.init")
@@ -151,58 +152,17 @@ function launcher:update_entries()
     if #wp.filtered > 0 then
         for i, app in ipairs(wp.filtered) do
             if i >= wp.start_index and i <= wp.start_index + wp.rows - 1 then
-                -- Safely get icon name from desktop info
-                local icon_name = "application-x-executable"
-                local icon = nil
-
-                -- Try to get icon directly from app object
-                local icon_status, icon_result = pcall(function()
-                    return app:get_icon()
-                end)
-
-                if icon_status and icon_result then
-                    icon = icon_result
-                end
-
-                -- If we have a GIcon object, try to get icon names from it
-                if icon then
-                    local names_status, names = pcall(function()
-                        return icon:get_names()
-                    end)
-                    if names_status and names and names[1] then
-                        icon_name = names[1]
-                    elseif names_status and names == nil then
-                        -- ThemedIcon might return nil for get_names, use tostring
-                        local str_status, icon_str = pcall(function()
-                            return tostring(icon)
-                        end)
-                        if str_status and icon_str then
-                            icon_name = icon_str
-                        end
-                    end
-                end
-
-                -- Fallback: try to get icon from desktop entry file
-                if
-                    icon_name == "application-x-executable"
-                    and Gio.DesktopAppInfo
-                then
-                    local desktop_status, desktop_info = pcall(function()
-                        return Gio.DesktopAppInfo.new(app:get_id())
-                    end)
-                    if desktop_status and desktop_info then
-                        local icon_str_status, icon_str = pcall(function()
-                            return desktop_info:get_string("Icon")
-                        end)
-                        if icon_str_status and icon_str and icon_str ~= "" then
-                            icon_name = icon_str
-                        end
-                    end
-                end
-
-                local icon_path = menubar.utils.lookup_icon(icon_name)
-                    or menubar.utils.lookup_icon("application-x-executable")
-                    or gfs.get_configuration_dir() .. "themes/yerba_buena/icons/desktop/fallback_icon.svg"
+                -- Use placeholder icon initially for fast rendering
+                local placeholder_icon = beautiful.text_icons.search or beautiful.text_icons.apps
+                
+                -- Create imagebox widget that we can update later
+                local icon_widget = wibox.widget({
+                    widget = wibox.widget.imagebox,
+                    image = placeholder_icon,
+                    resize = true,
+                    forced_width = dpi(32),
+                    forced_height = dpi(32),
+                })
 
                 local entry_widget = wibox.widget({
                     widget = wibox.container.background,
@@ -221,13 +181,7 @@ function launcher:update_entries()
                                     widget = wibox.container.place,
                                     valign = "center",
                                     halign = "center",
-                                    {
-                                        widget = wibox.widget.imagebox,
-                                        image = icon_path,
-                                        resize = true,
-                                        forced_width = dpi(32),
-                                        forced_height = dpi(32),
-                                    },
+                                    icon_widget, -- Use the icon widget we can update
                                 },
                                 {
                                     layout = wibox.layout.fixed.vertical,
@@ -252,43 +206,38 @@ function launcher:update_entries()
                                             height = 25,
                                             {
                                                 widget = wibox.widget.textbox,
-                                                font = beautiful.font_name
-                                                    .. dpi(9),
-                                                markup = app:get_description(),
+                                                markup = '<span size="smaller">'
+                                                    .. lua_escape(app:get_description())
+                                                    .. "</span>",
                                             },
-                                        },
+                                        }
+                                        or nil,
                                 },
                             },
                         },
                     },
                 })
 
-                entry_widget:buttons({
-                    awful.button({}, 1, function()
-                        if wp.select_index == i then
-                            launch_app(app)
-                            self:hide()
-                        else
-                            wp.select_index = i
-                            self:update_entries()
-                        end
-                    end),
-                })
-
+                -- Set selection background
                 if i == wp.select_index then
-                    entry_widget:set_bg(beautiful.bg_urg)
-                    entry_widget:set_fg(beautiful.fg)
-                else
-                    entry_widget:connect_signal("mouse::enter", function(w)
-                        w:set_bg(beautiful.bg_urg)
-                    end)
-
-                    entry_widget:connect_signal("mouse::leave", function(w)
-                        w:set_bg(nil)
-                    end)
+                    entry_widget.bg = beautiful.blue .. "55"
                 end
 
+                -- Add click handler
+                entry_widget:connect_signal("button::press", function(_, _, _, button)
+                    if button == 1 then
+                        launch_app(app)
+                        self:hide()
+                    end
+                end)
+
                 entries_container:add(entry_widget)
+                
+                -- Load real icon asynchronously after widget is added
+                gtimer.delayed_call(function()
+                    local icon_path = icon_lookup.get_app_icon(app)
+                    icon_widget.image = icon_path
+                end)
             end
         end
     else
@@ -317,52 +266,53 @@ function launcher:show()
 
     wp.shown = true
 
-    -- Safely get all applications
-    local status, apps = pcall(function()
-        return Gio.AppInfo.get_all()
-    end)
-    wp.unfiltered = (status and apps) or {}
+    -- Reset to show all apps (lightweight filtering)
     wp.filtered = filter_apps(wp.unfiltered, "")
     wp.start_index, wp.select_index = 1, 1
 
-    -- Reset text input
+    -- Reset text input (lightweight)
     local text_input = self.widget:get_children_by_id("text-input")[1]
     text_input:set_input("")
     text_input:set_cursor_index(1)
 
+    -- Update entries with pre-loaded data (much faster now)
     self:update_entries()
 
     self.opacity = 0
     self.visible = true
-    self:emit_signal("widget::layout_changed") -- Force layout update to get geometry
 
-    -- Ensure placement happens before animation
-    if self.placement then
-        self.placement(self)
-    end
+    gtimer.delayed_call(function()
+        -- Ensure placement happens before animation
+        if self.placement then
+            self.placement(self)
+        end
 
-    -- Focus text input immediately after becoming visible
-    local text_input = self.widget:get_children_by_id("text-input")[1]
-    text_input:focus()
+        gtimer.delayed_call(function()
+            self:emit_signal("widget::layout_changed") -- Force layout update to get geometry
 
-    local final_y = self.y
-    local start_y = final_y + dpi(20)
-    self.y = start_y
+            -- Focus text input immediately after becoming visible
+            text_input:focus()
 
-    anim.animate({
-        start = 0,
-        target = 1,
-        duration = 0.3,
-        easing = anim.easing.quadratic,
-        update = function(progress)
-            self.opacity = progress
-            self.y = start_y + (final_y - start_y) * progress
-        end,
-        complete = function()
-            -- Animation complete
-            self:emit_signal("property::shown", wp.shown)
-        end,
-    })
+            local final_y = self.y
+            local start_y = final_y + dpi(20)
+            self.y = start_y
+
+            anim.animate({
+                start = 0,
+                target = 1,
+                duration = 0.3,
+                easing = anim.easing.quadratic,
+                update = function(progress)
+                    self.opacity = progress
+                    self.y = start_y + (final_y - start_y) * progress
+                end,
+                complete = function()
+                    -- Animation complete
+                    self:emit_signal("property::shown", wp.shown)
+                end,
+            })
+        end)
+    end)
 end
 
 function launcher:hide()
@@ -372,9 +322,8 @@ function launcher:hide()
     end
     wp.shown = false
 
-    wp.unfiltered = {}
     wp.filtered = {}
-    wp.select_index, wp.select_index = 1, 1
+    wp.start_index, wp.select_index = 1, 1
     self.widget:get_children_by_id("text-input")[1]:unfocus()
 
     local start_y = self.y
@@ -593,6 +542,14 @@ icon_source = power_icon_path,
     local wp = ret._private
 
     wp.rows = 6
+    
+    -- Pre-load apps at initialization to avoid heavy operations during show
+    local status, apps = pcall(function()
+        return Gio.AppInfo.get_all()
+    end)
+    wp.unfiltered = (status and apps) or {}
+    wp.filtered = {}
+    wp.start_index, wp.select_index = 1, 1
 
     local powermenu_button =
         ret.widget:get_children_by_id("powermenu-button")[1]

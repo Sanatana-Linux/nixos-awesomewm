@@ -14,8 +14,8 @@ local backdrop_visible = false
 local associated_popup = nil
 
 -- Configuration
-local backdrop_color = beautiful.backdrop_color or "#00000088" -- Semi-transparent black
-local backdrop_opacity = beautiful.backdrop_opacity or 0.5
+local backdrop_color = beautiful.backdrop_color or "#000000" -- Semi-transparent black
+local backdrop_opacity = beautiful.backdrop_opacity or 0.2
 
 -- Create the backdrop wibox if it doesn't exist
 local function create_backdrop()
@@ -54,7 +54,10 @@ local function create_backdrop()
     if not success then
         -- Fallback: set a different property or skip entirely
         -- This allows the backdrop to work even if xproperties aren't supported
-        print("Warning: Could not set AWESOME_BACKDROP xproperty: " .. tostring(err))
+        print(
+            "Warning: Could not set AWESOME_BACKDROP xproperty: "
+                .. tostring(err)
+        )
     end
 
     return backdrop_wibox
@@ -63,7 +66,7 @@ end
 -- Show backdrop for a popup
 function backdrop.show(popup, options)
     options = options or {}
-    
+
     if backdrop_visible and associated_popup == popup then
         return -- Already shown for this popup
     end
@@ -77,7 +80,7 @@ function backdrop.show(popup, options)
     -- Associate with popup
     associated_popup = popup
     backdrop_visible = true
-    
+
     -- Show backdrop
     backdrop_wibox.visible = true
 
@@ -90,12 +93,14 @@ function backdrop.show(popup, options)
                 associated_popup.visible = false
             end
         end
-        
-        backdrop_wibox:buttons(gears.table.join(
-            awful.button({}, 1, backdrop_wibox._click_handler),
-            awful.button({}, 2, backdrop_wibox._click_handler),
-            awful.button({}, 3, backdrop_wibox._click_handler)
-        ))
+
+        backdrop_wibox:buttons(
+            gears.table.join(
+                awful.button({}, 1, backdrop_wibox._click_handler),
+                awful.button({}, 2, backdrop_wibox._click_handler),
+                awful.button({}, 3, backdrop_wibox._click_handler)
+            )
+        )
     end
 
     -- Connect to popup hide signal to auto-hide backdrop
@@ -117,7 +122,7 @@ function backdrop.hide()
 
     backdrop_visible = false
     associated_popup = nil
-    
+
     if backdrop_wibox then
         backdrop_wibox.visible = false
     end
@@ -138,11 +143,11 @@ function backdrop.update_properties(properties)
     if not backdrop_wibox then
         return
     end
-    
+
     if properties.color then
         backdrop_wibox.bg = properties.color
     end
-    
+
     if properties.opacity then
         backdrop_wibox.opacity = properties.opacity
     end

@@ -21,6 +21,57 @@ local close_icon = icons_dir .. "close.svg"
 
 local notification_list = {}
 
+-- Move remove_notification function to top so it's available when referenced
+local function remove_notification_by_id(self, notification_id)
+    local success, err = pcall(function()
+        local notifs_layout = self:get_children_by_id("notifications-layout")[1]
+        if not notifs_layout then
+            print("ERROR: notifications-layout not found")
+            return
+        end
+        
+        -- Find widget with matching notification ID
+        local widget_to_remove = nil
+        for i, child in ipairs(notifs_layout.children or {}) do
+            if child.is_notification and child.notification_id == notification_id then
+                widget_to_remove = child
+                break
+            end
+        end
+        
+        if widget_to_remove then
+            notifs_layout:remove_widgets(widget_to_remove)
+        else
+            print("WARNING: Widget with notification ID not found:", notification_id)
+            return
+        end
+        
+        -- Check if we need to add the "No notifications" message
+        if #notifs_layout.children == 0 then
+            notifs_layout:insert(
+                1,
+                wibox.widget({
+                    widget = wibox.container.background,
+                    fg = beautiful.fg_alt,
+                    forced_height = dpi(560),
+                    {
+                        widget = wibox.widget.textbox,
+                        align = "center",
+                        font = beautiful.font_name .. dpi(12),
+                        markup = "No notifications",
+                    },
+                })
+            )
+        end
+        
+        self:update_count()
+    end)
+    
+    if not success then
+        print("ERROR: Error removing notification:", err)
+    end
+end
+
 local function create_actions_widget(n)
     if not n.actions or #n.actions == 0 then
         return nil
@@ -66,7 +117,11 @@ local function create_actions_widget(n)
     return actions_widget
 end
 
-local function create_notification_widget(n, notification_list_widget, notification_id)
+local function create_notification_widget(
+    n,
+    notification_list_widget,
+    notification_id
+)
     local widget = wibox.widget({
         is_notification = true,
         notification_id = notification_id, -- Store ID for removal
@@ -106,7 +161,9 @@ local function create_notification_widget(n, notification_list_widget, notificat
                             {
                                 widget = wibox.widget.textbox,
                                 markup = create_markup(
-                                    n.timestamp and os.date("%H:%M", n.timestamp) or os.date("%H:%M"),
+                                    n.timestamp
+                                            and os.date("%H:%M", n.timestamp)
+                                        or os.date("%H:%M"),
                                     { fg = beautiful.fg_alt }
                                 ),
                             },
@@ -116,26 +173,24 @@ local function create_notification_widget(n, notification_list_widget, notificat
                                 bg = "transparent",
                                 buttons = {
                                     awful.button({}, 1, function()
-                                        print("DEBUG: SIMPLE CLOSE BUTTON CLICKED for notification:", notification_id)
-                                        print("DEBUG: notification_list_widget type:", type(notification_list_widget))
-                                        print("DEBUG: widget type:", type(widget))
-                                        
                                         -- Remove this specific notification from the center and cache safely
                                         local success, err = pcall(function()
-                                            print("DEBUG: Starting cache removal")
                                             if notification_id then
-                                                local cache = require("ui.notification.cache")
-                                                local cache_result = cache.remove(notification_id)
-                                                print("DEBUG: Cache removal result:", cache_result)
+                                                local cache = require(
+                                                    "ui.notification.cache"
+                                                )
+                                                cache.remove(notification_id)
                                             end
-                                            print("DEBUG: Starting widget removal")
-                                            remove_notification(notification_list_widget, widget)
-                                            print("DEBUG: Widget removal completed")
+                                            remove_notification_by_id(
+                                                notification_list_widget,
+                                                notification_id
+                                            )
                                         end)
                                         if not success then
-                                            print("ERROR: Error removing notification:", err)
-                                        else
-                                            print("DEBUG: Successfully removed notification")
+                                            print(
+                                                "ERROR: Error removing notification:",
+                                                err
+                                            )
                                         end
                                     end),
                                 },
@@ -217,81 +272,18 @@ local function create_notification_widget(n, notification_list_widget, notificat
     return widget
 end
 
-local function remove_notification(self, w)
-    print("DEBUG: remove_notification called")
-    print("DEBUG: self type:", type(self))
-    print("DEBUG: w type:", type(w))
-    
-    local success, err = pcall(function()
-        print("DEBUG: Getting notifications-layout")
-        local notifs_layout = self:get_children_by_id("notifications-layout")[1]
-        if not notifs_layout then
-            print("ERROR: notifications-layout not found")
-            return
-        end
-        print("DEBUG: notifications-layout found, children count:", #notifs_layout.children)
-        
-        -- Check if widget exists in the layout before removing
-        local found = false
-        for i, child in ipairs(notifs_layout.children or {}) do
-            print("DEBUG: Checking child", i, "type:", type(child))
-            if child == w then
-                found = true
-                print("DEBUG: Found widget at index", i)
-                break
-            end
-        end
-        
-        if found then
-            print("DEBUG: Removing widget from layout")
-            notifs_layout:remove_widgets(w)
-            print("DEBUG: Successfully removed notification widget")
-        else
-            print("WARNING: Widget not found in layout, skipping removal")
-        end
-        
-        -- Check if we need to add the "No notifications" message
-        print("DEBUG: Checking if we need 'No notifications' message, children count:", #notifs_layout.children)
-        if #notifs_layout.children == 0 then
-            print("DEBUG: Adding 'No notifications' message")
-            notifs_layout:insert(
-                1,
-                wibox.widget({
-                    widget = wibox.container.background,
-                    fg = beautiful.fg_alt,
-                    forced_height = dpi(560),
-                    {
-                        widget = wibox.widget.textbox,
-                        align = "center",
-                        font = beautiful.font_name .. dpi(12),
-                        markup = "No notifications",
-                    },
-                })
-            )
-        end
-        
-        print("DEBUG: Calling update_count")
-        self:update_count()
-        print("DEBUG: update_count completed")
-    end)
-    
-    if not success then
-        print("ERROR: Error in remove_notification function:", err)
-    else
-        print("DEBUG: remove_notification completed successfully")
-    end
-end
-
 local function add_notification(self, n)
     if not n then
         return
     end
     local notifs_layout = self:get_children_by_id("notifications-layout")[1]
-    
+
     -- Generate ID if it doesn't exist
-    local notification_id = n.id or tostring(os.time() .. math.random(1000, 9999))
-    
-    local new_notification_widget = create_notification_widget(n, self, notification_id)
+    local notification_id = n.id
+        or tostring(os.time() .. math.random(1000, 9999))
+
+    local new_notification_widget =
+        create_notification_widget(n, self, notification_id)
     if
         #notifs_layout.children == 1
         and not notifs_layout.children[1].is_notification
@@ -307,7 +299,7 @@ end
 -- Create confirmation dialog for clearing notifications
 local function create_confirmation_dialog(callback)
     local screen = awful.screen.focused()
-    
+
     local backdrop = wibox({
         visible = false,
         ontop = false,
@@ -318,40 +310,37 @@ local function create_confirmation_dialog(callback)
         width = screen.geometry.width,
         height = screen.geometry.height,
     })
-    
+
     -- Define dialog functions first
     local dialog_functions = {}
-    
+
     local function hide_dialog()
         backdrop.visible = false
         if dialog_functions.dialog then
             dialog_functions.dialog.visible = false
         end
     end
-    
+
     local function handle_cancel()
-        print("Cancel button clicked")
         hide_dialog()
     end
-    
+
     local function handle_clear_all()
-        print("DEBUG: Clear All button clicked")
         hide_dialog()
         if callback then
-            print("DEBUG: Calling callback function")
             callback()
         else
             print("ERROR: No callback function provided")
         end
     end
-    
+
     -- Create cancel button
     local cancel_button = wibox.widget({
         widget = wibox.container.background,
         bg = beautiful.bg_alt,
         shape = shapes.rrect(8),
         buttons = {
-            awful.button({}, 1, handle_cancel)
+            awful.button({}, 1, handle_cancel),
         },
         {
             widget = wibox.container.margin,
@@ -369,14 +358,14 @@ local function create_confirmation_dialog(callback)
             },
         },
     })
-    
+
     -- Create clear all button
     local clear_button = wibox.widget({
         widget = wibox.container.background,
         bg = beautiful.red,
         shape = shapes.rrect(8),
         buttons = {
-            awful.button({}, 1, handle_clear_all)
+            awful.button({}, 1, handle_clear_all),
         },
         {
             widget = wibox.container.margin,
@@ -394,9 +383,9 @@ local function create_confirmation_dialog(callback)
             },
         },
     })
-    
+
     -- Don't add button functionality separately since it's already in the widget definition
-    
+
     local dialog = awful.popup({
         visible = false,
         ontop = true,
@@ -449,45 +438,42 @@ local function create_confirmation_dialog(callback)
             },
         },
     })
-    
+
     dialog_functions.dialog = dialog
-    
+
     -- Hide dialog when clicking backdrop
     backdrop.buttons = {
-        awful.button({}, 1, hide_dialog)
+        awful.button({}, 1, hide_dialog),
     }
-    
+
     return {
         show = function()
-            print("Showing confirmation dialog")
             backdrop.visible = true
             dialog.visible = true
         end,
-        hide = hide_dialog
+        hide = hide_dialog,
     }
 end
 
 function notification_list:clear_notifications()
     -- Create confirmation dialog
     local dialog = create_confirmation_dialog(function()
-        print("Clear all button clicked - starting clearing process")
-        
         -- Clear the visual notifications first
         local notifs_layout = self:get_children_by_id("notifications-layout")[1]
         local notification_widgets = {}
-        
+
         -- Collect all notification widgets to remove
         for _, widget in ipairs(notifs_layout.children) do
             if widget.is_notification then
                 table.insert(notification_widgets, widget)
             end
         end
-        
+
         -- Remove widgets one by one safely
         for _, widget in ipairs(notification_widgets) do
             notifs_layout:remove_widgets(widget)
         end
-        
+
         -- Add "No notifications" message if list is empty
         if #notifs_layout.children == 0 then
             notifs_layout:insert(
@@ -505,29 +491,27 @@ function notification_list:clear_notifications()
                 })
             )
         end
-        
+
         self:update_count()
-        
+
         -- Clear the notification cache safely
         local cache_success = pcall(function()
-            local cache_file = os.getenv("HOME") .. "/.cache/awesome/notifications.json"
+            local cache_file = os.getenv("HOME")
+                .. "/.cache/awesome/notifications.json"
             local file = io.open(cache_file, "w")
             if file then
                 file:write("[]")
                 file:close()
-                print("Successfully cleared notification cache")
             else
                 print("Failed to open cache file for writing")
             end
         end)
-        
+
         if not cache_success then
             print("Failed to clear notification cache")
         end
-        
-        print("Clear all process completed")
     end)
-    
+
     dialog.show()
 end
 
@@ -704,14 +688,19 @@ local function new()
     -- Load cached notifications after a brief delay to avoid initialization issues
     local gtimer = require("gears.timer")
     gtimer.delayed_call(function()
-        local cached_notifications = notifications_service:get_cached_notifications()
+        local cached_notifications =
+            notifications_service:get_cached_notifications()
         if cached_notifications and #cached_notifications > 0 then
             -- Remove the "No notifications" placeholder
             notifs_layout:reset()
             -- Add cached notifications (newest first since cache is already in that order)
             for _, cached_notif in ipairs(cached_notifications) do
                 -- Create notification widget from cached data
-                local cached_widget = create_notification_widget(cached_notif, ret, cached_notif.id)
+                local cached_widget = create_notification_widget(
+                    cached_notif,
+                    ret,
+                    cached_notif.id
+                )
                 notifs_layout:add(cached_widget)
             end
             ret:update_count()

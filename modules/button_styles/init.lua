@@ -39,6 +39,7 @@ function M.icon_button(opts)
         fg_normal = BASE_STYLE.fg,
         fg_hover = BASE_STYLE.fg,
         shape = shapes.rrect(radius),
+         
         child_widget = {
             widget = wibox.container.margin,
             margins = opts.margins or dpi(2),

@@ -9,6 +9,7 @@ local dpi = beautiful.xresources.apply_dpi
 local menu = require("ui.popups.menu").get_default()
 local gears = require("gears") -- Required for filesystem checks
 local naughty = require("naughty") -- Required for notifications
+local icon_lookup = require("modules.icon-lookup") -- Centralized icon resolution
 local fancy_taglist = {}
 local shapes = require("modules.shapes")
 
@@ -51,18 +52,27 @@ local function create_single_tag(tag, s)
                     end)
                 )
 
-                -- Create the client icon or a fallback if no icon is available
+                -- Create the client icon with proper fallback chain using centralized icon lookup
                 local icon_widget
-                if c.icon then
+                local system_icon_path = icon_lookup.get_client_icon(c)
+                
+                if system_icon_path and icon_lookup.is_readable(system_icon_path) then
+                    -- 1. Use system theme icon (preferred)
+                    icon_widget = wibox.widget.imagebox()
+                    icon_widget.image = system_icon_path
+                    icon_widget.forced_height = dpi(18)
+                    icon_widget.forced_width = dpi(18)
+                    icon_widget.resize = true
+                elseif c.icon then
+                    -- 2. Fallback to client-provided icon (original behavior)
                     icon_widget = awful.widget.clienticon(c, {
                         forced_height = dpi(18),
                         forced_width = dpi(18),
                     })
                 else
-                    -- Use a fallback icon for clients without a specific icon
+                    -- 3. Final fallback to generic icon
                     icon_widget = wibox.widget.imagebox()
-                    icon_widget.image =
-                        "/home/tlh/.config/awesome/themes/yerba_buena/icons/desktop/fallback_icon.svg"
+                    icon_widget.image = icon_lookup.get_fallback_icon()
                     icon_widget.forced_height = dpi(18)
                     icon_widget.forced_width = dpi(18)
                 end
@@ -168,6 +178,9 @@ local function create_single_tag(tag, s)
     -- Robustly connect to global signals to ensure icons are always updated.
     client.connect_signal("manage", update_clients)
     client.connect_signal("unmanage", update_clients)
+    client.connect_signal("property::class", update_clients)
+    client.connect_signal("property::instance", update_clients)
+    client.connect_signal("property::icon", update_clients)
     client.connect_signal("tagged", function(_, t)
         if t == tag then
             update_clients()

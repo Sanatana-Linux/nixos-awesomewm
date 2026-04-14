@@ -5,11 +5,15 @@
 
 local cairo = require("lgi").cairo
 local awful = require("awful")
-local gears = require("gears")
 local wibox = require("wibox")
+local gears = require("gears")
 local beautiful = require("beautiful")
 local dpi = beautiful.xresources.apply_dpi
+local anim = require("modules.animations")
+local backdrop = require("modules.backdrop")
+local modules = require("modules")
 local shapes = require("modules.shapes")
+local icon_lookup = require("modules.icon-lookup") -- Centralized icon resolution
 local capi = {
     screen = screen,
     client = client,
@@ -372,14 +376,20 @@ function switcher.preview()
             end
 
             -- Draw client icon
+            -- Get icon using centralized lookup with proper fallback chain
             local icon
-            if c.icon then
+            local system_icon_path = icon_lookup.get_client_icon(c)
+            
+            if system_icon_path and icon_lookup.is_readable(system_icon_path) then
+                -- Use system theme icon
+                icon = gears.surface.load(system_icon_path)
+            elseif c.icon then
+                -- Use client-provided icon
                 icon = gears.surface(c.icon)
             else
-                -- Use fallback icon from theme
-                local gfs = require("gears.filesystem")
-                local fallback_path = gfs.get_configuration_dir() .. "/themes/yerba_buena/icons/fallback_icon.svg"
-                if gears.filesystem.file_readable(fallback_path) then
+                -- Use fallback icon
+                local fallback_path = icon_lookup.get_fallback_icon()
+                if icon_lookup.is_readable(fallback_path) then
                     icon = gears.surface.load(fallback_path)
                 else
                     -- Create a simple fallback
