@@ -14,10 +14,10 @@ local icon_lookup = {}
 local icon_cache = {}
 
 -- Default icon theme (can be overridden by beautiful.icon_theme)
-local DEFAULT_ICON_THEME = "Qogir-Dark"
+local DEFAULT_ICON_THEME = "Honor-grey-dark"
 
 -- Fallback icon path
-local FALLBACK_ICON = "/home/tlh/.config/awesome/themes/yerba_buena/icons/desktop/fallback_icon.svg"
+local FALLBACK_ICON = "/home/tlh/.config/awesome/themes/kailash/icons/desktop/fallback_icon.svg"
 
 -- Enhanced application class to icon name mappings
 -- Based on available icons in common icon themes
@@ -132,11 +132,18 @@ end
 
 -- Look up an icon in the system theme
 local function lookup_system_icon(icon_name)
-    if not icon_name or icon_name == "" then
-        return nil
-    end
-    
-    return menubar.utils.lookup_icon(icon_name)
+	if not icon_name or icon_name == "" then
+		return nil
+	end
+
+	local icon_path = menubar.utils.lookup_icon(icon_name)
+
+	-- menubar.utils.lookup_icon may return empty string instead of nil
+	if icon_path and icon_path ~= "" then
+		return icon_path
+	end
+
+	return nil
 end
 
 -- Get icon name from desktop file using application ID or class name
@@ -283,18 +290,30 @@ function icon_lookup.get_app_icon(app)
             end
         end
         
-        -- Final fallback: use app name or executable
-        if not icon_name then
-            icon_name = string.lower(app:get_name()) or "application-x-executable"
-        end
-        
-        -- Look up the icon in the system theme
-        icon_path = lookup_system_icon(icon_name) or
-                   lookup_system_icon("application-x-executable") or
-                   FALLBACK_ICON
-        
-        return icon_path
-    end)
+	-- Final fallback: use app name or executable
+	if not icon_name then
+		icon_name = string.lower(app:get_name()) or "application-x-executable"
+	end
+
+	-- Look up the icon in the system theme
+	icon_path = lookup_system_icon(icon_name)
+
+	-- If not found, try common fallbacks
+	if not icon_path or icon_path == "" then
+		icon_path = lookup_system_icon("application-x-executable")
+	end
+
+	if not icon_path or icon_path == "" then
+		icon_path = lookup_system_icon("applications-other")
+	end
+
+	-- Final fallback to theme's fallback icon
+	if not icon_path or icon_path == "" then
+		icon_path = FALLBACK_ICON
+	end
+
+	return icon_path
+end)
 end
 
 -- Get fallback icon path

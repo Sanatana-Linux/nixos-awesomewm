@@ -1,0 +1,6 @@
+# Error logs are stored in XDG cache directory
+# ~/.cache/awesome/errors.log
+*.log
+
+# Cache files
+*.json

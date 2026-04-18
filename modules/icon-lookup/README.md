@@ -1,16 +1,16 @@
 -- Example: How to change the icon theme
 -- Simply modify the theme.lua file:
 
--- For Qogir Dark (current):
-theme.icon_theme = "Qogir-Dark"
+-- For Honor Grey Dark (current):
+theme.icon_theme = "Honor-grey-dark"
 
--- For Qogir Light:
--- theme.icon_theme = "Qogir-Light"
+-- For Honor Grey Light:
+-- theme.icon_theme = "Honor-grey"
 
 -- For Adwaita:
 -- theme.icon_theme = "Adwaita"
 
--- For hicolor (fallback):  
+-- For hicolor (fallback):
 -- theme.icon_theme = "hicolor"
 
 -- The centralized icon lookup module will automatically use the new theme

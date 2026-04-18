@@ -9,87 +9,79 @@ A modern, feature-rich AwesomeWM configuration with custom UI components, animat
 ## Features
 
 - **Custom UI Components**: Modern control panels, popups, and notification system
-- **Comprehensive Theming**: Yerba Buena theme with gradients, rounded corners, and consistent styling
+- **Comprehensive Theming**: Yerba Buena theme with (pseudo-)3D button gradients, rounded corners, transparency and consistent styling
 - **Advanced Window Management**: Custom taglist/tasklist, window switcher, and client management
 - **System Integration**: Audio, brightness, network, Bluetooth, and battery status widgets
 - **Animations**: Smooth transitions and visual feedback throughout the interface
 - **Multiple Layouts**: Support for various window layouts with on-screen display
-- **Modular Architecture**: Well-organized codebase with clear separation of concerns
+- **Modular Architecture**: Well-organized codebase with clear separation of concerns and preference for keeping assets with the widgets that use them
 
 ## Installation
 
-1. **Prerequisites**:
-   - AwesomeWM 4.3+
-   - Lua 5.3+
-   - Required fonts: Agave Nerd Font Propo Bold, awesomewm-font
+I use nix to handle the installation of awesomewm and the dependencies of this configuration and
+nixpkgs has its own quirky naming conventions which I will leave it to you to translate in the
+naming conventions used by your distro.
 
-2. **Clone Configuration**:
-   ```bash
-   git clone <repository-url> ~/.config/awesome
-   cd ~/.config/awesome
-   ```
+This configuration is compiled for awesomewm compiled with luajit, but should work as expected with awesomewm
+compiled from the git repository (>4.3 aka `awesome-git` on the AUR).
 
-3. **Install Dependencies**:
-   - Ensure all system services (audio, brightness control, etc.) are available
-   - Install required fonts and icon themes
+A non-trivial portion of the visual effects are the result of picom (pijulius fork), which provides the
+shadows and other compositor specific effects that I have been slowly replacing with native functionality
+written in lua, but this process is a work in progress and not guaranteed to completely eliminate the need
+for picom, especially for the blur effect between transparent surfaces and the wallpaper.
 
-4. **Test Configuration**:
-   ```bash
-   # Test in nested session
-   ./bin/awmtt-ng.sh start
-   
-   # Or restart AwesomeWM
-   awesome -c ~/.config/awesome/rc.lua
-   ```
+```
 
 ## Project Structure
 
 ```
-├── core/                    # Core AwesomeWM functionality
-│   ├── autostart/          # Auto-start applications
-│   ├── client/             # Client (window) management
-│   ├── error/              # Error handling and notifications
-│   ├── keybind/            # Keybinding definitions
-│   ├── notification/       # Notification system
-│   ├── tag/                # Tag (workspace) management
-│   └── theme/              # Theme initialization
-├── lib/                     # Utility libraries
-│   ├── dbus_proxy/         # D-Bus communication
-│   ├── inspect.lua         # Debug inspection utility
-│   └── json.lua            # JSON handling
-├── modules/                 # Reusable UI modules
-│   ├── animations/         # Animation framework
-│   ├── dropdown/           # Dropdown terminal
-│   ├── hover_button/       # Interactive button widget
-│   ├── menu/               # Context menu system
-│   ├── shapes/             # Custom shape definitions
-│   └── text_input/         # Text input widgets
-├── service/                 # System service integrations
-│   ├── audio.lua           # Audio/volume control
-│   ├── battery.lua         # Battery status
-│   ├── bluetooth.lua       # Bluetooth management
-│   ├── brightness.lua      # Screen brightness
-│   ├── network.lua         # Network connectivity
-│   └── screenshot.lua      # Screenshot functionality
-├── themes/                  # Visual themes
-│   └── yerba_buena/        # Main theme with icons and styling
-├── ui/                      # User interface components
-│   ├── bar/                # Top panel/bar
-│   ├── lockscreen/         # Screen lock interface
-│   ├── notification/       # Notification display
-│   ├── popups/             # Various popup interfaces
-│   │   ├── control_panel/  # System control panel
-│   │   ├── launcher/       # Application launcher
-│   │   ├── on_screen_display/ # Volume/brightness OSD
-│   │   ├── powermenu/      # Power management
-│   │   └── window_switcher/ # Alt-tab style window switcher
-│   ├── tabbar/             # Window tab bar
-│   ├── titlebar/           # Window title bars
-│   └── wallpaper/          # Dynamic wallpaper management
-└── wibox/                   # Custom wibox widgets
-    ├── layout/             # Custom layouts
-    └── widget/             # Enhanced widgets
-```
+
+├── core/ # Core AwesomeWM functionality
+│ ├── autostart/ # Auto-start applications
+│ ├── client/ # Client (window) management
+│ ├── error/ # Error handling and notifications
+│ ├── keybind/ # Keybinding definitions
+│ ├── notification/ # Notification system
+│ ├── tag/ # Tag (workspace) management
+│ └── theme/ # Theme initialization
+├── lib/ # Utility libraries
+│ ├── dbus_proxy/ # D-Bus communication
+│ ├── inspect.lua # Debug inspection utility
+│ └── json.lua # JSON handling
+├── modules/ # Reusable UI modules
+│ ├── animations/ # Animation framework
+│ ├── dropdown/ # Dropdown terminal
+│ ├── hover_button/ # Interactive button widget
+│ ├── menu/ # Context menu system
+│ ├── shapes/ # Custom shape definitions
+│ └── text_input/ # Text input widgets
+├── service/ # System service integrations
+│ ├── audio.lua # Audio/volume control
+│ ├── battery.lua # Battery status
+│ ├── bluetooth.lua # Bluetooth management
+│ ├── brightness.lua # Screen brightness
+│ ├── network.lua # Network connectivity
+│ └── screenshot.lua # Screenshot functionality
+├── themes/ # Visual themes
+│ └── yerba_buena/ # Main theme with icons and styling
+├── ui/ # User interface components
+│ ├── bar/ # Top panel/bar
+│ ├── lockscreen/ # Screen lock interface
+│ ├── notification/ # Notification display
+│ ├── popups/ # Various popup interfaces
+│ │ ├── control_panel/ # System control panel
+│ │ ├── launcher/ # Application launcher
+│ │ ├── on_screen_display/ # Volume/brightness OSD
+│ │ ├── powermenu/ # Power management
+│ │ └── window_switcher/ # Alt-tab style window switcher
+│ ├── tabbar/ # Window tab bar
+│ ├── titlebar/ # Window title bars
+│ └── wallpaper/ # Dynamic wallpaper management
+└── wibox/ # Custom wibox widgets
+├── layout/ # Custom layouts
+└── widget/ # Enhanced widgets
+
+````
 
 ## Key Components
 
@@ -101,7 +93,7 @@ A modern, feature-rich AwesomeWM configuration with custom UI components, animat
 
 ### User Interface
 - **Control Panel**: System settings, audio/brightness controls, notification center
-- **Application Launcher**: Modern app launcher with search functionality  
+- **Application Launcher**: Modern app launcher with search functionality
 - **Window Switcher**: Alt-tab style window navigation with previews
 - **On-Screen Display**: Volume and brightness indicators
 - **Power Menu**: System power management interface
@@ -144,16 +136,17 @@ function service:get_default()
 end
 
 return service
-```
+````
 
 ## Development
 
 ### Testing
+
 ```bash
 # Start test environment (Xephyr nested session)
 ./bin/awmtt-ng.sh start
 
-# Stop test environment  
+# Stop test environment
 ./bin/awmtt-ng.sh stop
 
 # Format code
@@ -164,6 +157,7 @@ awesome -c rc.lua --check
 ```
 
 ### Code Style
+
 - **Indentation**: 4 spaces
 - **Line width**: 80 characters max
 - **Variables**: `snake_case`, always use `local`
@@ -171,6 +165,7 @@ awesome -c rc.lua --check
 - **Comments**: Document purpose and parameters for complex functions
 
 ### Adding Features
+
 1. Follow the modular architecture
 2. Use existing services and utilities where possible
 3. Maintain consistent theming and styling
@@ -179,10 +174,9 @@ awesome -c rc.lua --check
 
 ## Documentation
 
-- [Keybindings Reference](.github/documentation/keybindings.md)
-- [Additional Resources](.github/documentation/Additional-Resources.md)
-- [Credits](.github/documentation/Credit-Where-It-Is-Due.md)
-- [Project Notes](.github/documentation/rc.lua.md)
+- [Keybindings Reference](./documentation/keybindings.md)
+- [Additional Resources](.documentation/Additional-Resources.md)
+- [Credits](.documentation/Credit-Where-It-Is-Due.m)
 
 ## Contributing
 

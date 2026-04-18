@@ -812,3 +812,12 @@ end)
   - [ ] TODO Battery/Power Information print out of dynamic height (and accommodating service/ file)
   - [ ] TODO to be wider to accomodate the extra charts in rows of 2 charts per row
   - [ ] TODO clicking a chart should open a terminal to HTOP for CPU/RAM/Swap, nvtop for GPU, Yazi for Disk Space
+
+  - [x] TODO in ui/popups/ there is screenshot_popup.lua that should be screenshot_popup/init.luia
+  - [ ] TODO there is a configuration/notification and a ui/notification, this is redundant and annoying, consolidate them into a single location at ui/notification without removing any functionality of either
+  - [x] DONE there is a configuration/screen.lua that should instead be configuration/screen/init.lua
+
+- [ ] TODO the services/ directory uses [functionality].lua files that should all instead be [functionality]/init.lua
+- [x] TODO surface_filters to apply blur behind the clients and backdrop
+  - [ ] TODO replace picom provided shadows with those provided by surface_filters.so
+  - [x] DONE go through the picom nixos configuration and insure the same windows and values are assigned to achieve parity between the picom setup and that enabled by this configuration's modules and settings (obviously the blur kernel is going to be different which is fine) then commemnt out the autostart for picom in configuration/autostart/init.lua

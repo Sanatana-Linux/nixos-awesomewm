@@ -88,11 +88,11 @@ local function create_single_tag(tag, s)
     end
     local tag_label = wibox.widget.imagebox()
     local tag_icon_path = string.format(
-        "/home/tlh/.config/awesome/themes/yerba_buena/icons/tags/%s.svg",
+        "/home/tlh/.config/awesome/themes/kailash/icons/tags/%s.svg",
         string.lower(tag.name)
     )
     local fallback_icon_path =
-        "/home/tlh/.config/awesome/themes/yerba_buena/icons/fallback_icon.svg"
+        "/home/tlh/.config/awesome/themes/kailash/icons/fallback_icon.svg"
 
     -- Check if the specific tag icon exists, otherwise use a fallback
     if gears.filesystem.file_readable(tag_icon_path) then

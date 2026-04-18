@@ -1,5 +1,5 @@
 -- Backdrop component for popup windows
--- Creates a semi-transparent overlay that can blur the background and handle clicks
+-- Creates a semi-transparent overlay with blur effect using surface_filters
 
 local awful = require("awful")
 local wibox = require("wibox")
@@ -8,159 +8,137 @@ local gears = require("gears")
 
 local backdrop = {}
 
--- Backdrop instance tracking
-local backdrop_wibox = nil
+-- Try to load surface_filters for blur effect
+local has_surface_filters, surface_filters = pcall(function()
+	return require("lib.surface_filters")
+end)
+
+-- Backdrop instance tracking (per screen)
+local backdrop_wiboxes = {}
 local backdrop_visible = false
 local associated_popup = nil
 
 -- Configuration
-local backdrop_color = beautiful.backdrop_color or "#000000" -- Semi-transparent black
-local backdrop_opacity = beautiful.backdrop_opacity or 0.2
+local backdrop_color_base = beautiful.backdrop_color or "#000000"
+local backdrop_opacity = beautiful.backdrop_opacity or 0.4
+local backdrop_blur_radius = beautiful.backdrop_blur_radius or 8
+local backdrop_blur_enabled = beautiful.backdrop_blur_enabled ~= false
+local backdrop_dual_pass = beautiful.backdrop_dual_pass ~= false
 
--- Create the backdrop wibox if it doesn't exist
-local function create_backdrop()
-    if backdrop_wibox then
-        return backdrop_wibox
-    end
+-- Convert opacity (0-1) to hex alpha (00-FF)
+local function opacity_to_hex(opacity)
+	local alpha = math.floor(opacity * 255 + 0.5)
+	return string.format("%02x", math.min(255, math.max(0, alpha)))
+end
 
-    backdrop_wibox = wibox({
-        visible = false,
-        ontop = true, -- Above regular windows
-        type = "dock", -- Dock type for background overlay
-        bg = backdrop_color,
-        opacity = backdrop_opacity,
-        input_passthrough = false, -- Allow clicks to be captured
-    })
+-- Combine base color with opacity for 8-character hex
+local backdrop_color = backdrop_color_base .. opacity_to_hex(backdrop_opacity)
 
-    -- Set backdrop to cover entire screen
-    local function update_geometry()
-        local s = awful.screen.focused()
-        if s then
-            backdrop_wibox.x = s.geometry.x
-            backdrop_wibox.y = s.geometry.y
-            backdrop_wibox.width = s.geometry.width
-            backdrop_wibox.height = s.geometry.height
-        end
-    end
+-- Create backdrop wibox for a specific screen
+local function create_backdrop_for_screen(s)
+	if backdrop_wiboxes[s] then
+		return backdrop_wiboxes[s]
+	end
 
-    -- Update geometry when screen changes
-    screen.connect_signal("property::geometry", update_geometry)
-    update_geometry()
+	local bw = wibox({
+		visible = false,
+		ontop = true,
+		type = "dock",
+		bg = backdrop_color,
+		input_passthrough = false,
+		screen = s,
+	})
 
-    -- Add blur property for picom targeting (wrapped in pcall to handle unsupported xproperties)
-    local success, err = pcall(function()
-        backdrop_wibox:set_xproperty("AWESOME_BACKDROP", "true")
-    end)
-    if not success then
-        -- Fallback: set a different property or skip entirely
-        -- This allows the backdrop to work even if xproperties aren't supported
-        print(
-            "Warning: Could not set AWESOME_BACKDROP xproperty: "
-                .. tostring(err)
-        )
-    end
+	-- Position and size
+	bw.x = s.geometry.x
+	bw.y = s.geometry.y
+	bw.width = s.geometry.width
+	bw.height = s.geometry.height
 
-    return backdrop_wibox
+	backdrop_wiboxes[s] = bw
+	return bw
 end
 
 -- Show backdrop for a popup
 function backdrop.show(popup, options)
-    options = options or {}
+	options = options or {}
 
-    if backdrop_visible and associated_popup == popup then
-        return -- Already shown for this popup
-    end
+	if backdrop_visible and associated_popup == popup then
+		return
+	end
 
-    -- Hide any existing backdrop
-    backdrop.hide()
+	backdrop.hide()
 
-    -- Create backdrop if needed
-    create_backdrop()
+	-- Create backdrop for all screens
+	for s in screen do
+		local bw = create_backdrop_for_screen(s)
+		bw.visible = true
+	end
 
-    -- Associate with popup
-    associated_popup = popup
-    backdrop_visible = true
-
-    -- Show backdrop
-    backdrop_wibox.visible = true
-
-    -- Handle clicks on backdrop to hide popup
-    if not backdrop_wibox._click_handler then
-        backdrop_wibox._click_handler = function()
-            if associated_popup and associated_popup.hide then
-                associated_popup:hide()
-            elseif associated_popup then
-                associated_popup.visible = false
-            end
-        end
-
-        backdrop_wibox:buttons(
-            gears.table.join(
-                awful.button({}, 1, backdrop_wibox._click_handler),
-                awful.button({}, 2, backdrop_wibox._click_handler),
-                awful.button({}, 3, backdrop_wibox._click_handler)
-            )
-        )
-    end
-
-    -- Connect to popup hide signal to auto-hide backdrop
-    if popup and not popup._backdrop_connected then
-        popup:connect_signal("property::visible", function(p)
-            if not p.visible and associated_popup == p then
-                backdrop.hide()
-            end
-        end)
-        popup._backdrop_connected = true
-    end
+	associated_popup = popup
+	backdrop_visible = true
 end
 
 -- Hide backdrop
 function backdrop.hide()
-    if not backdrop_visible then
-        return
-    end
+	if not backdrop_visible then
+		return
+	end
 
-    backdrop_visible = false
-    associated_popup = nil
+	backdrop_visible = false
+	associated_popup = nil
 
-    if backdrop_wibox then
-        backdrop_wibox.visible = false
-    end
+	for s, bw in pairs(backdrop_wiboxes) do
+		if bw then
+			bw.visible = false
+		end
+	end
 end
 
 -- Check if backdrop is visible
 function backdrop.is_visible()
-    return backdrop_visible
+	return backdrop_visible
 end
 
 -- Get the associated popup
 function backdrop.get_popup()
-    return associated_popup
+	return associated_popup
 end
 
 -- Update backdrop properties
 function backdrop.update_properties(properties)
-    if not backdrop_wibox then
-        return
-    end
+	if properties.color or properties.opacity then
+		local color = properties.color or backdrop_color_base
+		local opacity = properties.opacity or backdrop_opacity
+		local new_color = color .. opacity_to_hex(opacity)
 
-    if properties.color then
-        backdrop_wibox.bg = properties.color
-    end
+		for s, bw in pairs(backdrop_wiboxes) do
+			if bw then
+				bw.bg = new_color
+			end
+		end
+	end
 
-    if properties.opacity then
-        backdrop_wibox.opacity = properties.opacity
-    end
+	if properties.blur_radius then
+		backdrop_blur_radius = properties.blur_radius
+	end
+end
+
+-- Enable/disable blur (for future use when blur is properly implemented)
+function backdrop.set_blur_enabled(enabled)
+	backdrop_blur_enabled = enabled
 end
 
 -- Clean up backdrop
 function backdrop.cleanup()
-    if backdrop_wibox then
-        backdrop_wibox.visible = false
-        backdrop_wibox = nil
-    end
-    backdrop_visible = false
-    associated_popup = nil
+	for s, bw in pairs(backdrop_wiboxes) do
+		if bw then
+			bw.visible = false
+			backdrop_wiboxes[s] = nil
+		end
+	end
+	backdrop_visible = false
+	associated_popup = nil
 end
 
 return backdrop

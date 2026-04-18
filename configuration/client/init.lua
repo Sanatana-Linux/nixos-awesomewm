@@ -241,11 +241,11 @@ capi.tag.connect_signal("property::selected", focus_back)
     Applies rounded corners to clients except when maximized or fullscreen.
 --]]
 local function update_client_shape(c)
-    if c.maximized or c.fullscreen then
-        c.shape = nil
-    else
-        c.shape = shapes.rrect(dpi(6))
-    end
+	if c.maximized or c.fullscreen then
+		c.shape = nil
+	else
+		c.shape = shapes.rrect(dpi(12))
+	end
 end
 
 -- Apply shape when client is managed
@@ -269,10 +269,111 @@ capi.client.connect_signal("property::maximized", function(c)
 end)
 capi.client.connect_signal("property::fullscreen", update_client_shape)
 capi.client.connect_signal("property::geometry", function(c)
-    -- Small delay to ensure geometry changes are processed
-    require("gears").timer.delayed_call(function()
-        if c.valid then
-            update_client_shape(c)
-        end
-    end)
+	-- Small delay to ensure geometry changes are processed
+	require("gears").timer.delayed_call(function()
+		if c.valid then
+			update_client_shape(c)
+		end
+	end)
 end)
+
+--[[
+Window opacity management (matching picom opacity rules):
+- Normal windows: 0.95 (from picom wintypes)
+- Inactive windows: 0.90 (from picom inactive-opacity)
+- Active/focused: 1.0
+- Specific app rules from picom configuration
+--]]
+local opacity_rules = {
+	-- i3lock: 100%
+	{ rule = { class = "i3lock" }, properties = { opacity = 1.0 } },
+	-- Dunst: 60%
+	{ rule = { class = "Dunst" }, properties = { opacity = 0.6 } },
+	-- kitty focused: 85%, unfocused: 80%
+	{ rule = { class = "kitty" }, properties = { opacity = 0.85 } },
+	-- awesome: 95%
+	{ rule = { class = "awesome" }, properties = { opacity = 0.95 } },
+}
+
+local function apply_opacity(c)
+	-- Skip certain window types
+	if c.type == "desktop" then
+		return
+	end
+
+	-- Check opacity rules
+	for _, rule in ipairs(opacity_rules) do
+		if rule.rule.class and c.class == rule.rule.class then
+			c.opacity = rule.properties.opacity
+			return
+		end
+	end
+
+	-- Default opacity based on focus state
+	if c.focused then
+		c.opacity = beautiful.active_opacity or 1.0
+	else
+		c.opacity = beautiful.inactive_opacity or 0.90
+	end
+end
+
+-- Apply opacity on focus change
+capi.client.connect_signal("focus", function(c)
+	-- Don't override app-specific opacity rules
+	local is_kitty = c.class == "kitty"
+	if is_kitty then
+		c.opacity = 0.85
+	else
+		c.opacity = beautiful.active_opacity or 1.0
+	end
+end)
+
+capi.client.connect_signal("unfocus", function(c)
+	-- Don't override app-specific opacity rules
+	local is_kitty = c.class == "kitty"
+	if is_kitty then
+		c.opacity = 0.80
+	else
+		c.opacity = beautiful.inactive_opacity or 0.90
+	end
+end)
+
+-- Apply opacity on manage
+capi.client.connect_signal("manage", apply_opacity)
+
+-- Window type specific rules (matching picom wintypes)
+capi.client.connect_signal("manage", function(c)
+	-- Tooltip: opacity 1, full-shadow
+	if c.type == "tooltip" then
+		c.opacity = 1.0
+	-- Dock: opacity 1, no blur, no rounded corners
+	elseif c.type == "dock" then
+		c.opacity = 1.0
+		c.shape = nil
+	-- Popup menu: opacity 0.95
+	elseif c.type == "popup_menu" then
+		c.opacity = 0.95
+	-- Dropdown menu: opacity 0.9
+	elseif c.type == "dropdown_menu" then
+		c.opacity = 0.9
+	-- Normal: opacity 0.95
+	elseif c.type == "normal" then
+		c.opacity = 0.95
+	end
+end)
+
+-- Exclusions for opacity (matching picom focus-exclude)
+local opacity_exclude = {
+	class = { "i3lock", "polybar" },
+	type = { "desktop", "dock" },
+}
+
+local function should_exclude_opacity(c)
+	for _, cls in ipairs(opacity_exclude.class or {}) do
+		if c.class == cls then return true end
+	end
+	for _, t in ipairs(opacity_exclude.type or {}) do
+		if c.type == t then return true end
+	end
+	return false
+end
