@@ -1,0 +1,20 @@
+name: incremental-implementation-001
+description: Agent validates syntax after each file creation
+
+given:
+  prompt: "Create a new reusable calendar widget for an agenda view"
+  context:
+    - modules/calendar/init.lua
+
+expect:
+  - agent creates one file at a time
+  - agent runs `awesome -c rc.lua --check` after creating the file
+  - agent runs `stylua .` after creating the file
+  - agent fixes any syntax errors before considering the task done
+  - agent tests in nested session if available
+
+measures:
+  - syntax_validated: true
+  - formatting_applied: true
+  - errors_resolved: true
+  - one_file_at_a_time: true

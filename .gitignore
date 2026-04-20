@@ -2,5 +2,11 @@
 # ~/.cache/awesome/errors.log
 *.log
 
-# Cache files
-*.json
+# LSP/workspace cache (lua-language-server)
+.luarc.json
+
+# OpenCode JOC session state
+.opencode/state/
+
+# Evaluation/test state
+evals/**/state/

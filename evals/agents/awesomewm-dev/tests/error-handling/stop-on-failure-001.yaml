@@ -1,0 +1,20 @@
+name: stop-on-failure-001
+description: Agent stops and reports when awesome syntax check fails
+
+given:
+  prompt: "Create a service that reads GPU temperature from /sys/class/thermal/thermal_zone1/temp"
+  context:
+    - service/battery.lua
+
+expect:
+  - agent runs `awesome -c rc.lua --check` after writing code
+  - if syntax check fails, agent reports the error clearly
+  - agent does not silently proceed past syntax errors
+  - agent attempts to fix the error before giving up
+  - if unfixable, agent reports what failed and why
+
+measures:
+  - error_detected: true
+  - error_reported: true
+  - fix_attempted: true
+  - no_silent_progression: true
