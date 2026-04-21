@@ -14,7 +14,7 @@ local icons_path = theme_path .. "icons/"
 local theme = {}
 
 -- Icon theme configuration for consistent icon lookup across all components
-theme.icon_theme = "Honor-grey-dark"
+theme.icon_theme = "Colloid-Dark"
 
 theme.font_name = "OperatorUltraNerdFontComplete Nerd Font Propo "
 theme.taglist_font = "awesomewm-font 10"
