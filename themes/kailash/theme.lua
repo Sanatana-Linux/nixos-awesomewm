@@ -85,11 +85,7 @@ theme.bg_alt = "#2a2a2A"
 theme.bg_urg = "#30303c"
 
 -- Backdrop for popups (blur matching picom: dual_kawase, strength 6)
-theme.backdrop_color = "#000000"
-theme.backdrop_opacity = 0.5
-theme.backdrop_blur_radius = 8
-theme.backdrop_blur_enabled = true
-theme.backdrop_dual_pass = true -- provides a more picom like experience with the picom like frustrations
+theme.backdrop_color = "#00000080"
 
 theme.fg_alt = "#8c8c98"
 theme.fg = "#f7f1ff"
