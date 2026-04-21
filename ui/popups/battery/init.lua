@@ -27,14 +27,14 @@ local function new()
     local ret = {}
     ret._private = {}
     local wp = ret._private
-    
+
     -- Initialize state
     wp.shown = false
 
     -- Get services
     local battery = battery_service.get_default()
     local sysinfo = system_info.get_default()
-    
+
     -- Create arc charts for system metrics with larger sizing
     ret.cpu_chart = arc_chart.new({
         value = 0,
@@ -43,23 +43,23 @@ local function new()
         thickness = dpi(12), -- Thicker arc (doubled)
         margins = dpi(24), -- More margin for label space (doubled)
     })
-    
+
     ret.ram_chart = arc_chart.new({
         value = 0,
-        label = "RAM", 
+        label = "RAM",
         color = beautiful.blue or "#7aa2f7",
         thickness = dpi(12),
         margins = dpi(24),
     })
-    
+
     ret.swap_chart = arc_chart.new({
         value = 0,
         label = "SWAP",
-        color = beautiful.yellow or "#e0af68", 
+        color = beautiful.yellow or "#e0af68",
         thickness = dpi(12),
         margins = dpi(24),
     })
-    
+
     ret.disk_chart = arc_chart.new({
         value = 0,
         label = "DISK",
@@ -67,7 +67,7 @@ local function new()
         thickness = dpi(12),
         margins = dpi(24),
     })
-    
+
     ret.gpu_chart = arc_chart.new({
         value = 0,
         label = "GPU",
@@ -79,7 +79,7 @@ local function new()
     -- Enhanced Battery Indicator Widget
     local function create_battery_indicator()
         local battery = battery_service.get_default()
-        
+
         -- Large battery shape with level indicator
         local battery_body = wibox.widget({
             widget = wibox.widget.progressbar,
@@ -95,7 +95,7 @@ local function new()
             color = beautiful.green, -- Will be updated based on level
             paddings = dpi(4),
         })
-        
+
         -- Battery terminal (small cap on the right)
         local battery_terminal = wibox.widget({
             widget = wibox.container.background,
@@ -104,7 +104,7 @@ local function new()
             bg = beautiful.fg_normal or beautiful.fg,
             shape = shapes.rrect(4),
         })
-        
+
         -- Large percentage text overlay
         local percentage_text = wibox.widget({
             widget = wibox.widget.textbox,
@@ -113,17 +113,18 @@ local function new()
             align = "center",
             valign = "center",
         })
-        
+
         -- Charging indicator icon
         local charging_icon = wibox.widget({
             widget = wibox.widget.textbox,
-            markup = beautiful.text_icons and beautiful.text_icons.bolt or "⚡",
+            markup = beautiful.text_icons and beautiful.text_icons.bolt
+                or "⚡",
             font = beautiful.font_name .. " 20",
             align = "center",
             valign = "center",
             visible = battery.is_charging or false,
         })
-        
+
         -- Stack the text and charging icon over the battery
         local battery_display = wibox.widget({
             layout = wibox.layout.stack,
@@ -135,27 +136,29 @@ local function new()
                     widget = wibox.container.place,
                     valign = "center",
                     battery_terminal,
-                }
+                },
             },
             percentage_text,
             charging_icon,
         })
-        
+
         -- Detailed info text
         local status_text = wibox.widget({
             widget = wibox.widget.textbox,
             font = beautiful.font_name .. " Bold 14",
             align = "center",
-            markup = "<span foreground='" .. (beautiful.fg_normal or beautiful.fg) .. "'>Battery Status</span>",
+            markup = "<span foreground='"
+                .. (beautiful.fg_normal or beautiful.fg)
+                .. "'>Battery Status</span>",
         })
-        
+
         local details_text = wibox.widget({
             widget = wibox.widget.textbox,
             font = beautiful.font_name .. " 11",
             align = "left",
             markup = "Loading battery information...",
         })
-        
+
         -- Time remaining indicator
         local time_remaining = wibox.widget({
             widget = wibox.widget.textbox,
@@ -163,7 +166,7 @@ local function new()
             align = "center",
             markup = "",
         })
-        
+
         -- Complete battery indicator widget
         local battery_indicator = wibox.widget({
             layout = wibox.layout.fixed.vertical,
@@ -177,7 +180,7 @@ local function new()
             details_text,
             time_remaining,
         })
-        
+
         -- Update function
         local function update_battery_display()
             local level = battery.level or 0
@@ -185,7 +188,7 @@ local function new()
             local health = battery.health or "Unknown"
             local voltage = battery.voltage
             local power = battery.power
-            
+
             -- Update battery level and color
             battery_body:set_value(level)
             if level > 70 then
@@ -197,28 +200,35 @@ local function new()
             else
                 battery_body.color = beautiful.red or "#f7768e"
             end
-            
+
             -- Update percentage text
             percentage_text:set_text(level .. "%")
-            
+
             -- Update charging state
             charging_icon.visible = is_charging
             percentage_text.visible = not is_charging
-            
+
             -- Update status text
-            local status_color = is_charging and (beautiful.green or "#9ece6a") or (beautiful.blue or "#7aa2f7")
+            local status_color = is_charging and (beautiful.green or "#9ece6a")
+                or (beautiful.blue or "#7aa2f7")
             local status_msg = is_charging and "Charging" or "On Battery"
-            status_text:set_markup("<span foreground='" .. status_color .. "'>" .. status_msg .. "</span>")
-            
+            status_text:set_markup(
+                "<span foreground='"
+                    .. status_color
+                    .. "'>"
+                    .. status_msg
+                    .. "</span>"
+            )
+
             -- Build detailed info
             local details = {}
             table.insert(details, "Level: " .. level .. "%")
             table.insert(details, "Health: " .. health)
-            
+
             if voltage then
                 table.insert(details, "Voltage: " .. voltage .. "V")
             end
-            
+
             if power then
                 if is_charging then
                     table.insert(details, "Charge Rate: " .. power .. "W")
@@ -226,25 +236,32 @@ local function new()
                     table.insert(details, "Discharge Rate: " .. power .. "W")
                 end
             end
-            
+
             details_text:set_markup(table.concat(details, "\n"))
-            
+
             -- Calculate and show time remaining (more accurate estimation)
-            if power and power > 0 and battery.energy_full and battery.energy_now then
+            if
+                power
+                and power > 0
+                and battery.energy_full
+                and battery.energy_now
+            then
                 local time_hours
                 if is_charging then
                     -- Time to full charge = (energy_full - energy_now) / power
-                    local energy_needed = battery.energy_full - battery.energy_now
+                    local energy_needed = battery.energy_full
+                        - battery.energy_now
                     time_hours = energy_needed / power
                 else
                     -- Time remaining = energy_now / power
                     time_hours = battery.energy_now / power
                 end
-                
+
                 if time_hours > 0 and time_hours < 24 then -- Reasonable time range
                     local hours = math.floor(time_hours)
                     local minutes = math.floor((time_hours - hours) * 60)
-                    local time_str = is_charging and "Time to Full: " or "Time Remaining: "
+                    local time_str = is_charging and "Time to Full: "
+                        or "Time Remaining: "
                     if hours > 0 then
                         time_str = time_str .. hours .. "h " .. minutes .. "m"
                     else
@@ -261,14 +278,15 @@ local function new()
                     -- Estimate time to full charge (rough calculation)
                     time_hours = ((100 - level) / 100) * 4 -- Assume ~4 hours for full charge
                 else
-                    -- Estimate time remaining (rough calculation)  
+                    -- Estimate time remaining (rough calculation)
                     time_hours = (level / 100) * 8 -- Assume ~8 hours total battery life
                 end
-                
+
                 if time_hours > 0 then
                     local hours = math.floor(time_hours)
                     local minutes = math.floor((time_hours - hours) * 60)
-                    local time_str = is_charging and "Time to Full: ~" or "Time Remaining: ~"
+                    local time_str = is_charging and "Time to Full: ~"
+                        or "Time Remaining: ~"
                     if hours > 0 then
                         time_str = time_str .. hours .. "h " .. minutes .. "m"
                     else
@@ -282,7 +300,7 @@ local function new()
                 time_remaining:set_markup("")
             end
         end
-        
+
         -- Connect to battery service signals
         battery:connect_signal("property::level", update_battery_display)
         battery:connect_signal("property::is_charging", update_battery_display)
@@ -291,24 +309,24 @@ local function new()
         battery:connect_signal("property::power", update_battery_display)
         battery:connect_signal("property::energy_full", update_battery_display)
         battery:connect_signal("property::energy_now", update_battery_display)
-        
+
         -- Initial update
         update_battery_display()
-        
+
         return battery_indicator
     end
-    
+
     ret.battery_indicator = create_battery_indicator()
 
     -- Main popup widget with larger size
     ret.widget = wibox.widget({
         widget = wibox.container.constraint,
-        width = dpi(1100),  -- Increased width significantly (more than doubled)
+        width = dpi(1100), -- Increased width significantly (more than doubled)
         height = dpi(600), -- Much smaller now without system details section
         {
             widget = wibox.container.background,
-            bg = beautiful.bg .. "bb",  -- Match control center semi-transparent style
-            shape = shapes.rrect(20),  -- Match control center radius
+            bg = beautiful.bg .. "bb", -- Match control center semi-transparent style
+            shape = shapes.rrect(20), -- Match control center radius
             border_width = beautiful.border_width,
             border_color = beautiful.border_color_normal,
             {
@@ -345,7 +363,7 @@ local function new()
                                 border_color = beautiful.border_color_normal,
                                 buttons = {
                                     awful.button({}, 1, function()
-                                        awful.spawn("kitty htop")
+                                        awful.spawn({ "kitty", "-e", "htop" })
                                     end),
                                 },
                                 {
@@ -365,7 +383,7 @@ local function new()
                                 border_color = beautiful.border_color_normal,
                                 buttons = {
                                     awful.button({}, 1, function()
-                                        awful.spawn("kitty htop")
+                                        awful.spawn({ "kitty", "-e", "htop" })
                                     end),
                                 },
                                 {
@@ -385,7 +403,7 @@ local function new()
                                 border_color = beautiful.border_color_normal,
                                 buttons = {
                                     awful.button({}, 1, function()
-                                        awful.spawn("kitty htop")
+                                        awful.spawn({ "kitty", "-e", "htop" })
                                     end),
                                 },
                                 {
@@ -405,7 +423,7 @@ local function new()
                                 border_color = beautiful.border_color_normal,
                                 buttons = {
                                     awful.button({}, 1, function()
-                                        awful.spawn("kitty yazi")
+                                        awful.spawn({ "kitty", "-e", "yazi" })
                                     end),
                                 },
                                 {
@@ -425,7 +443,7 @@ local function new()
                                 border_color = beautiful.border_color_normal,
                                 buttons = {
                                     awful.button({}, 1, function()
-                                        awful.spawn("kitty nvtop")
+                                        awful.spawn({ "kitty", "-e", "nvtop" })
                                     end),
                                 },
                                 {
@@ -467,15 +485,17 @@ local function new()
         widget = ret.widget,
         visible = false,
         ontop = true,
+        type = "utility",
+        bg = "#00000000",
         placement = function(c)
             return awful.placement.bottom_right(c, {
                 margins = {
-                    bottom = dpi(50), -- Reduced bottom margin for smaller popup
+                    bottom = dpi(50),
                     right = dpi(20),
-                }
+                },
             })
         end,
-        shape = shapes.rrect(20),  -- Match control center shape
+        shape = shapes.rrect(20),
         border_width = 0,
     })
 
@@ -486,46 +506,48 @@ local function new()
     function ret:_update_charts()
         -- Update arc charts with current values
         self.cpu_chart:set_value(sysinfo:get_cpu_usage())
-        
+
         local ram_usage = sysinfo:get_ram_usage()
         self.ram_chart:set_value(ram_usage)
-        
+
         local swap_usage = sysinfo:get_swap_usage()
         self.swap_chart:set_value(swap_usage)
-        
+
         local disk_usage = sysinfo:get_disk_usage()
         self.disk_chart:set_value(disk_usage)
-        
+
         local gpu_usage = sysinfo:get_gpu_usage()
         self.gpu_chart:set_value(gpu_usage)
     end
 
     function ret:show()
-        if wp.shown then return end
-        
+        if wp.shown then
+            return
+        end
+
         -- Update charts before showing
         self:_update_charts()
-        
+
         -- Show backdrop
         backdrop.show(self.popup)
-        
+
         wp.shown = true
         self.popup.opacity = 0
         self.popup.visible = true
-        
+
         gtimer.delayed_call(function()
             local placement_func = self.popup.placement
             if placement_func then
                 placement_func(self.popup)
             end
-            
+
             gtimer.delayed_call(function()
                 self.popup:emit_signal("widget::layout_changed")
-                
+
                 local final_y = self.popup.y
                 local start_y = final_y + dpi(20)
                 self.popup.y = start_y
-                
+
                 anim.animate({
                     start = 0,
                     target = 1,
@@ -544,13 +566,15 @@ local function new()
     end
 
     function ret:hide()
-        if not wp.shown then return end
-        
+        if not wp.shown then
+            return
+        end
+
         wp.shown = false
-        
+
         local start_y = self.popup.y
         local final_y = start_y + dpi(20)
-        
+
         anim.animate({
             start = 1,
             target = 0,
@@ -562,33 +586,7 @@ local function new()
             end,
             complete = function()
                 self.popup.visible = false
-                -- Hide backdrop after popup is hidden
                 backdrop.hide()
-                self.popup:emit_signal("property::shown", wp.shown)
-            end,
-        })
-    end
-
-    function ret:hide()
-        if not wp.shown then return end
-        
-        wp.shown = false
-        
-        local start_y = self.popup.y
-        local final_y = start_y + dpi(20)
-        
-        anim.animate({
-            start = 1,
-            target = 0,
-            duration = 0.3,
-            easing = anim.easing.quadratic,
-            update = function(progress)
-                self.popup.opacity = progress
-                self.popup.y = final_y - (final_y - start_y) * progress
-            end,
-            complete = function()
-                self.popup.visible = false
-                backdrop.hide()  -- Hide backdrop when popup hides
                 self.popup:emit_signal("property::shown", wp.shown)
             end,
         })
@@ -608,25 +606,25 @@ local function new()
             ret:_update_charts()
         end
     end)
-    
+
     sysinfo:connect_signal("property::ram_usage", function()
         if wp.shown then
             ret:_update_charts()
         end
     end)
-    
+
     sysinfo:connect_signal("property::swap_usage", function()
         if wp.shown then
-            ret:_update_charts() 
+            ret:_update_charts()
         end
     end)
-    
+
     sysinfo:connect_signal("property::disk_usage", function()
         if wp.shown then
             ret:_update_charts()
         end
     end)
-    
+
     sysinfo:connect_signal("property::gpu_usage", function()
         if wp.shown then
             ret:_update_charts()
