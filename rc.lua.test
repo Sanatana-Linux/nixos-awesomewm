@@ -26,6 +26,13 @@ package.path = config_dir
     .. "/upstream/?/init.lua;"
     .. package.path
 
+-- Add lib directory to package.cpath for native modules (surface_filters, etc.)
+package.cpath = config_dir
+    .. "/lib/?.so;"
+    .. config_dir
+    .. "/lib/?/?.so;"
+    .. package.cpath
+
 -- Enable debug output if in debug mode
 if DEBUG_MODE then
     require("naughty").notify({

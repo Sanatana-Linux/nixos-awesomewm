@@ -806,18 +806,28 @@ end)
 - [x] DONE clearing notifications produces an error creating 2 more notifications.
 
 - [ ] TODO system info popup shown from clicking the battery bar is still only showing RAM and CPU still needs:
-  - [ ] TODO GPU Info Arc Chart (and accommodating service/ file)
-  - [ ] TODO Disk Usage Arc Chart (and accommodating service/ file)
-  - [ ] TODO Swap Usage Arc Chart (and accommodating service/ file)
+  - [ ] TODO GPU Info Arc Chart (and accommodating service/ file that determines load on the component)
+  - [ ] TODO CPU Info Arc Chart (not working currently)
+- [ ] TODO RAM Info Arc Chart (not working currently)
+  - [ ] TODO Disk Usage Arc Chart (and accommodating service/ file that determines load on the component)
+  - [ ] TODO Swap Usage Arc Chart (and accommodating service/ file that determines load on the component)
   - [ ] TODO Battery/Power Information print out of dynamic height (and accommodating service/ file)
-  - [ ] TODO to be wider to accomodate the extra charts in rows of 2 charts per row
-  - [ ] TODO clicking a chart should open a terminal to HTOP for CPU/RAM/Swap, nvtop for GPU, Yazi for Disk Space
+  - [ ] TODO clicking a chart should open a terminal to HTOP for CPU/RAM/Swap, nvtop for GPU, Yazi for Disk Space (currently the terminal opens but freezes before loading anything which is not helpful)
 
-  - [x] TODO in ui/popups/ there is screenshot_popup.lua that should be screenshot_popup/init.luia
+  - [x] DONE in ui/popups/ there is screenshot_popup.lua that should be screenshot_popup/init.luia
   - [ ] TODO there is a configuration/notification and a ui/notification, this is redundant and annoying, consolidate them into a single location at ui/notification without removing any functionality of either
   - [x] DONE there is a configuration/screen.lua that should instead be configuration/screen/init.lua
 
-- [ ] TODO the services/ directory uses [functionality].lua files that should all instead be [functionality]/init.lua
-- [x] TODO surface_filters to apply blur behind the clients and backdrop
+- [x] DONE the services/ directory uses [functionality].lua files that should all instead be [functionality]/init.lua
+- [ ] TODO surface_filters to apply blur behind the clients and backdrop(partially implemented but still not functional)
   - [ ] TODO replace picom provided shadows with those provided by surface_filters.so
   - [x] DONE go through the picom nixos configuration and insure the same windows and values are assigned to achieve parity between the picom setup and that enabled by this configuration's modules and settings (obviously the blur kernel is going to be different which is fine) then commemnt out the autostart for picom in configuration/autostart/init.lua
+
+- [ ] TODO make the titlebar's background the same as the control panel popup
+- [ ] TODO to indicate the focused windpw the border should be the same color and width as the control_panel popup then become darker when not focused
+
+- [ ] TODO modify the keybinding list to gave the following traits both by modifying the hotkeys_popup lua file and by insuring the hotkeys are appropriately categorized in their actual definitions:
+  - [ ] TODO reimplement the group labeling for the hotkeys
+  - [ ] TODO Give each group its own page which are navigated between when the popup is opened with the arrow left and arrow right keys as well as the j and k keys
+  - [ ] TODO the popup's label for each group should have the background be one of the colors in theme (not gray) and the foreground be the popup's background without the transparency
+  - [ ] TODO the popup should have the same transparent background + blur and shadow as is seen with. It should use the same border as the control panel popup

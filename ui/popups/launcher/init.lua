@@ -153,7 +153,7 @@ function launcher:update_entries()
         for i, app in ipairs(wp.filtered) do
             if i >= wp.start_index and i <= wp.start_index + wp.rows - 1 then
                 -- Use placeholder icon initially for fast rendering
-                local placeholder_icon = beautiful.text_icons.search or beautiful.text_icons.apps
+                local placeholder_icon = icon_lookup.get_fallback_icon()
                 
                 -- Create imagebox widget that we can update later
                 local icon_widget = wibox.widget({
@@ -236,7 +236,9 @@ function launcher:update_entries()
                 -- Load real icon asynchronously after widget is added
                 gtimer.delayed_call(function()
                     local icon_path = icon_lookup.get_app_icon(app)
-                    icon_widget.image = icon_path
+                    if icon_path and icon_path ~= "" then
+                        icon_widget.image = icon_path
+                    end
                 end)
             end
         end

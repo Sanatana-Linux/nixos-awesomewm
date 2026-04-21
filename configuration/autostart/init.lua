@@ -8,7 +8,7 @@ gc_service.start()
 -- List of shell commands to autostart when AwesomeWM starts
 local autostart_commands = {
 -- "xrdb -merge ~/.Xresources", -- Merge X resources
--- "picom", -- Compositor disabled: using native AwesomeWM blur/shadows via surface_filters
+"picom", -- Compositor for blur, shadows, and animations
 "xrandr --output eDP-1-1 --mode 2560x1600 --rate 144",
 "clipse --listen &",
 }
