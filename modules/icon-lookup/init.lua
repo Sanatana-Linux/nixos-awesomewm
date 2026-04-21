@@ -18,7 +18,7 @@ local DEFAULT_ICON_THEME = "Colloid-Dark"
 
 -- Fallback icon path
 local FALLBACK_ICON =
-    "/home/tlh/.config/awesome/themes/kailash/icons/desktop/fallback_icon.svg"
+    "/run/current-system/sw/share/icons/Colloid-Dark/mimetypes/scalable/application-executable.svg"
 
 -- Enhanced application class to icon name mappings
 -- Based on available icons in common icon themes

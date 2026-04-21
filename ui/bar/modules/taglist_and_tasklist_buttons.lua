@@ -55,8 +55,11 @@ local function create_single_tag(tag, s)
                 -- Create the client icon with proper fallback chain using centralized icon lookup
                 local icon_widget
                 local system_icon_path = icon_lookup.get_client_icon(c)
-                
-                if system_icon_path and icon_lookup.is_readable(system_icon_path) then
+
+                if
+                    system_icon_path
+                    and icon_lookup.is_readable(system_icon_path)
+                then
                     -- 1. Use system theme icon (preferred)
                     icon_widget = wibox.widget.imagebox()
                     icon_widget.image = system_icon_path
@@ -92,7 +95,7 @@ local function create_single_tag(tag, s)
         string.lower(tag.name)
     )
     local fallback_icon_path =
-        "/home/tlh/.config/awesome/themes/kailash/icons/fallback_icon.svg"
+        "/run/current-system/sw/share/icons/Colloid-Dark/mimetypes/scalable/application-executable.svg"
 
     -- Check if the specific tag icon exists, otherwise use a fallback
     if gears.filesystem.file_readable(tag_icon_path) then
