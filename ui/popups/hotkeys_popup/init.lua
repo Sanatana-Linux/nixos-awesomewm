@@ -20,6 +20,7 @@ local shapes = require("modules.shapes")
 local backdrop = require("modules.backdrop")
 local click_to_hide = require("modules.click_to_hide")
 
+local capi = { screen = screen, client = client }
 local matcher = require("gears.matcher")()
 
 local widget = { group_rules = {} }
