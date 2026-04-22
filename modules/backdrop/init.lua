@@ -104,6 +104,11 @@ function backdrop.update_properties(properties)
     end
 end
 
+-- Get all backdrop wiboxes (for click handlers)
+function backdrop.get_wiboxes()
+    return backdrop_wiboxes
+end
+
 -- Clean up backdrop
 function backdrop.cleanup()
     for s, bw in pairs(backdrop_wiboxes) do

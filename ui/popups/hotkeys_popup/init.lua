@@ -18,7 +18,6 @@ local gstring = require("gears.string")
 local dpi = beautiful.xresources.apply_dpi
 local shapes = require("modules.shapes")
 local backdrop = require("modules.backdrop")
-local click_to_hide = require("modules.click_to_hide")
 
 local capi = { screen = screen, client = client }
 local matcher = require("gears.matcher")()
@@ -492,21 +491,19 @@ function widget.new(args)
         popup.buttons = {
             awful.button({}, 1, function()
                 instance_obj:hide()
+                awful.keygrabber.stop(keygrabber)
             end),
             awful.button({}, 3, function()
                 instance_obj:hide()
+                awful.keygrabber.stop(keygrabber)
             end),
         }
-
-        click_to_hide.popup(popup, function()
-            instance_obj:hide()
-        end, { outside_only = true })
 
         instance_obj:show()
         return keygrabber
     end
 
-    function widget:add_hotkeys(hotkeys)
+    function instance:add_hotkeys(hotkeys)
         for group, bindings in pairs(hotkeys) do
             for _, binding in ipairs(bindings) do
                 local modifiers = binding.modifiers
@@ -523,7 +520,7 @@ function widget.new(args)
         self:_sort_hotkeys(self._additional_hotkeys)
     end
 
-    function widget:add_group_rules(group, data)
+    function instance:add_group_rules(group, data)
         self.group_rules[group] = data
     end
 
