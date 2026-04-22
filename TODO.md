@@ -826,8 +826,8 @@ end)
 - [ ] TODO make the titlebar's background the same as the control panel popup
 - [ ] TODO to indicate the focused windpw the border should be the same color and width as the control_panel popup then become darker when not focused
 
-- [ ] TODO modify the keybinding list to gave the following traits both by modifying the hotkeys_popup lua file and by insuring the hotkeys are appropriately categorized in their actual definitions:
-  - [ ] TODO reimplement the group labeling for the hotkeys
-  - [ ] TODO Give each group its own page which are navigated between when the popup is opened with the arrow left and arrow right keys as well as the j and k keys
-  - [ ] TODO the popup's label for each group should have the background be one of the colors in theme (not gray) and the foreground be the popup's background without the transparency
-  - [ ] TODO the popup should have the same transparent background + blur and shadow as is seen with. It should use the same border as the control panel popup
+- [x] DONE modify the keybinding list to gave the following traits both by modifying the hotkeys_popup lua file and by insuring the hotkeys are appropriately categorized in their actual definitions:
+  - [x] DONE reimplement the group labeling for the hotkeys
+  - [x] DONE Give each group its own page which are navigated between when the popup is opened with the arrow left and arrow right keys as well as the j and k keys
+  - [x] DONE the popup's label for each group should have the background be one of the colors in theme (not gray) and the foreground be the popup's background without the transparency
+  - [x] DONE the popup should have the same transparent background + blur and shadow as is seen with. It should use the same border as the control panel popup
