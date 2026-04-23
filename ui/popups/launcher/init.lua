@@ -20,9 +20,9 @@ local capi = { screen = screen }
 local powermenu = require("ui.popups.powermenu").get_default()
 local icon_lookup = require("modules.icon-lookup") -- Centralized icon resolution
 local crop_surface = require("modules.crop_surface")
+local click_to_hide = require("modules.click_to_hide")
 local launcher = {}
 local shapes = require("modules.shapes.init")
-local backdrop = require("modules.backdrop")
 
 local lock_icon_path = gfs.get_configuration_dir() .. "ui/popups/launcher/icons/lock-line.svg"
 local power_icon_path = gfs.get_configuration_dir() .. "ui/popups/launcher/icons/shut-down-line.svg"
@@ -263,9 +263,6 @@ function launcher:show()
         return
     end
 
-    -- Show backdrop first
-    backdrop.show(self)
-
     wp.shown = true
 
     -- Reset to show all apps (lightweight filtering)
@@ -342,7 +339,6 @@ function launcher:hide()
         end,
         complete = function()
             self.visible = false
-            backdrop.hide() -- Hide backdrop when popup hides
             self:emit_signal("property::shown", wp.shown)
         end,
     })
@@ -362,6 +358,7 @@ local function new()
         visible = false,
         screen = capi.screen.primary,
         bg = "#00000000",
+        name = "awesome-popup",
         placement = function(d)
             awful.placement.bottom_left(d, {
                 honor_workarea = true,
@@ -618,6 +615,10 @@ icon_source = power_icon_path,
             ret:hide()
         end
     end)
+
+    click_to_hide.popup(ret, function()
+        ret:hide()
+    end, { outside_only = true, exclusive = true })
 
     return ret
 end

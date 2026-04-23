@@ -4,8 +4,8 @@
   Each keybind group gets its own page. Navigate with:
     - Left/Right arrows or j/k to switch pages
     - Escape, Enter, or any unmatched key to close
-  
-  Uses backdrop for blur, themed colors from beautiful,
+
+  Uses popup_manager for Escape/click-to-close, themed colors from beautiful,
   and matches the control panel's visual style.
 --]]
 
@@ -17,9 +17,9 @@ local gtable = require("gears.table")
 local gstring = require("gears.string")
 local dpi = beautiful.xresources.apply_dpi
 local shapes = require("modules.shapes")
-local backdrop = require("modules.backdrop")
+local click_to_hide = require("modules.click_to_hide")
 
-local capi = { screen = screen, client = client }
+local capi = { screen = screen, client = client, awesome = awesome }
 local matcher = require("gears.matcher")()
 
 local widget = { group_rules = {} }
@@ -212,7 +212,6 @@ function widget.new(args)
             or beautiful.fg_alt
             or beautiful.fg_normal
         local icon = group_icons[group] or "◦"
-        local line_height = beautiful.get_font_height(beautiful.font)
 
         local header = wibox.widget({
             layout = wibox.layout.fixed.horizontal,
@@ -240,7 +239,11 @@ function widget.new(args)
             },
         })
 
-        local key_widgets = {}
+        local content = wibox.layout.fixed.vertical()
+        content:set_spacing(dpi(2))
+        content:add(header)
+        content:add(wibox.container.margin({ top = dpi(12) }))
+
         for _, key in ipairs(keys) do
             local mod_text = ""
             if key.mod and key.mod ~= "none" then
@@ -251,37 +254,25 @@ function widget.new(args)
                     .. "+</span>"
             end
             local desc_text = key.description or ""
-            local row = wibox.widget({
-                layout = wibox.layout.fixed.horizontal,
-                spacing = dpi(8),
-                {
-                    widget = wibox.widget.textbox,
-                    markup = mod_text
-                        .. "<span font='"
-                        .. beautiful.font_name
-                        .. " Bold 12' foreground='"
-                        .. (beautiful.fg or beautiful.fg_normal)
-                        .. "'>"
-                        .. (key.key or "")
-                        .. "</span>",
-                    forced_width = dpi(220),
-                },
-                {
-                    widget = wibox.widget.textbox,
-                    text = desc_text,
-                    forced_width = dpi(600),
-                },
-            })
-            table.insert(key_widgets, row)
+            local row = wibox.layout.fixed.horizontal()
+            row:set_spacing(dpi(8))
+            row:add(wibox.widget.textbox({
+                markup = mod_text
+                    .. "<span font='"
+                    .. beautiful.font_name
+                    .. " Bold 12' foreground='"
+                    .. (beautiful.fg or beautiful.fg_normal)
+                    .. "'>"
+                    .. (key.key or "")
+                    .. "</span>",
+                forced_width = dpi(220),
+            }))
+            row:add(wibox.widget.textbox({
+                text = desc_text,
+                forced_width = dpi(600),
+            }))
+            content:add(row)
         end
-
-        local content = wibox.widget({
-            layout = wibox.layout.fixed.vertical,
-            spacing = dpi(2),
-            header,
-            { widget = wibox.container.margin, top = dpi(12) },
-            wibox.widget(table.unpack(key_widgets)),
-        })
 
         return wibox.widget({
             widget = wibox.container.margin,
@@ -352,9 +343,6 @@ function widget.new(args)
         end
 
         local current_page = 1
-        local popup_width = dpi(1100)
-        local popup_height = dpi(700)
-
         local page_indicator
         local popup_widget
 
@@ -424,6 +412,7 @@ function widget.new(args)
             ontop = true,
             type = "utility",
             bg = "#00000000",
+            name = "awesome-popup",
             placement = function(c)
                 awful.placement.centered(c, { honor_workarea = true })
             end,
@@ -437,7 +426,6 @@ function widget.new(args)
             if self._shown then
                 return
             end
-            backdrop.show(popup)
             self._shown = true
             popup.visible = true
             popup:emit_signal("property::shown", true)
@@ -449,7 +437,6 @@ function widget.new(args)
             end
             self._shown = false
             popup.visible = false
-            backdrop.hide()
             popup:emit_signal("property::shown", false)
         end
 
@@ -499,6 +486,11 @@ function widget.new(args)
             end),
         }
 
+        click_to_hide.popup(popup, function()
+            instance_obj:hide()
+            awful.keygrabber.stop(keygrabber)
+        end, { enable_escape = false })
+
         instance_obj:show()
         return keygrabber
     end
@@ -535,6 +527,12 @@ local function get_default()
     end
     return default_instance
 end
+
+capi.awesome.connect_signal("exit", function(reason_restart)
+    if reason_restart then
+        default_instance = nil
+    end
+end)
 
 function widget.show_help(...)
     return get_default():show_help(...)

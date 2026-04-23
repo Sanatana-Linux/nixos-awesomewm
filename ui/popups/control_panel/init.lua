@@ -17,7 +17,7 @@ local bluetooth_button =
     require("ui.popups.control_panel.bluetooth_applet.button")
 local bluetooth_page = require("ui.popups.control_panel.bluetooth_applet.page")
 local audio = require("service.audio").get_default()
-local backdrop = require("modules.backdrop")
+local click_to_hide = require("modules.click_to_hide")
 
 local control_panel = {}
 
@@ -66,9 +66,6 @@ function control_panel:show()
     if wp.shown then
         return
     end
-
-    -- Show backdrop first
-    backdrop.show(self)
 
     wp.shown = true
 
@@ -132,7 +129,6 @@ function control_panel:hide()
         end,
         complete = function()
             self.visible = false
-            backdrop.hide() -- Hide backdrop when popup hides
             self:emit_signal("property::shown", wp.shown)
         end,
     })
@@ -152,6 +148,7 @@ local function new()
         ontop = true,
         screen = capi.screen.primary,
         bg = "#00000000",
+        name = "awesome-popup",
         placement = function(c)
             awful.placement.bottom_right(c, {
                 honor_workarea = true,
@@ -213,6 +210,10 @@ local function new()
             ret:setup_main_page()
         end),
     })
+
+    click_to_hide.popup(ret, function()
+        ret:hide()
+    end, { outside_only = true, exclusive = true })
 
     return ret
 end

@@ -84,8 +84,8 @@ theme.bg = "#1f1f1F"
 theme.bg_alt = "#2a2a2A"
 theme.bg_urg = "#30303c"
 
--- Backdrop for popups (blur matching picom: dual_kawase, strength 6)
-theme.backdrop_color = "#00000080"
+-- Backdrop for popups (fully transparent — picom applies blur only, no tint)
+theme.backdrop_color = "#00000000"
 
 theme.fg_alt = "#8c8c98"
 theme.fg = "#f7f1ff"

@@ -1,24 +1,11 @@
--- Centralized popup management module
--- Handles click-to-hide on backdrop, escape key, and exclusive popup behavior
-
 local awful = require("awful")
-local backdrop = require("modules.backdrop")
+local beautiful = require("beautiful")
 
 local popup_manager = {}
 
--- Track all registered popups
 local registered_popups = {}
 local active_popup = nil
 local escape_grabber = nil
-
-local function hide_all_popups()
-    for popup, data in pairs(registered_popups) do
-        if data.hide_function then
-            data.hide_function()
-        end
-    end
-    active_popup = nil
-end
 
 local function stop_escape_listener()
     if escape_grabber then
@@ -31,60 +18,72 @@ local function start_escape_listener()
     stop_escape_listener()
     escape_grabber = awful.keygrabber.run(function(_, key, event)
         if event == "press" and key == "Escape" then
-            hide_all_popups()
+            if active_popup and registered_popups[active_popup] then
+                registered_popups[active_popup].hide_function()
+            end
             stop_escape_listener()
         end
     end)
 end
 
--- Set up click-to-hide on the backdrop wibox
-local function setup_backdrop_click(hide_fct)
-    for s, bw in pairs(backdrop.get_wiboxes()) do
-        if bw then
-            bw.buttons = {
-                awful.button({}, 1, hide_fct),
-                awful.button({}, 2, hide_fct),
-                awful.button({}, 3, hide_fct),
-            }
+local function hide_all_popups()
+    for popup, data in pairs(registered_popups) do
+        if data.hide_function then
+            data.hide_function()
         end
     end
+    active_popup = nil
+    stop_escape_listener()
 end
 
-local function clear_backdrop_click()
-    for s, bw in pairs(backdrop.get_wiboxes()) do
-        if bw then
-            bw.buttons = {}
+local function activate_popup(widget)
+    if active_popup == widget then
+        return
+    end
+
+    for popup, data in pairs(registered_popups) do
+        if popup ~= widget and popup.visible and data.exclusive then
+            data.hide_function()
         end
+    end
+
+    active_popup = widget
+    start_escape_listener()
+end
+
+local function deactivate_popup(widget)
+    if active_popup == widget then
+        active_popup = nil
+        stop_escape_listener()
     end
 end
 
 local function click_to_hide(widget, hide_fct, options)
     options = options or {}
     local exclusive = options.exclusive ~= false
-    local disable_escape = options.disable_escape or false
+    local enable_escape = options.enable_escape ~= false
+    local popup_name = options.popup_name or "awesome-popup"
 
     hide_fct = hide_fct or function()
         widget.visible = false
     end
 
-    -- Register this popup
     registered_popups[widget] = {
         hide_function = hide_fct,
         exclusive = exclusive,
-        disable_escape = disable_escape,
+        enable_escape = enable_escape,
     }
 
-    -- Handle visibility changes
+    if widget.set_name then
+        widget:set_name(popup_name)
+    elseif widget.name then
+        widget.name = popup_name
+    end
+
     widget:connect_signal("property::visible", function(w)
         if not w.visible then
-            -- Popup being hidden
-            if active_popup == widget then
-                active_popup = nil
-                stop_escape_listener()
-                clear_backdrop_click()
-            end
+            deactivate_popup(widget)
         else
-            -- Popup being shown
             if exclusive then
                 for popup, data in pairs(registered_popups) do
                     if popup ~= widget and popup.visible and data.exclusive then
@@ -92,69 +91,44 @@ local function click_to_hide(widget, hide_fct, options)
                     end
                 end
             end
-
-            active_popup = widget
-
-            if not disable_escape then
-                start_escape_listener()
-            end
-
-            setup_backdrop_click(hide_fct)
+            activate_popup(widget)
         end
     end)
 
-    -- Clean up when widget is destroyed
     widget:connect_signal("widget::destroyed", function()
         registered_popups[widget] = nil
-        if active_popup == widget then
-            active_popup = nil
-            stop_escape_listener()
-        end
+        deactivate_popup(widget)
     end)
 end
 
--- Popup variant
 popup_manager.popup = click_to_hide
 
--- Menu variant
-popup_manager.menu = function(menu, hide_fct, options)
+popup_manager.menu = function(menu_obj, hide_fct, options)
     options = options or {}
     local exclusive = options.exclusive ~= false
-    local disable_escape = options.disable_escape or false
 
     hide_fct = hide_fct or function()
-        menu:hide()
+        menu_obj:hide()
     end
 
-    registered_popups[menu] = {
+    registered_popups[menu_obj] = {
         hide_function = hide_fct,
         exclusive = exclusive,
-        disable_escape = disable_escape,
+        enable_escape = true,
     }
 
-    menu:connect_signal("property::visible", function(w)
+    menu_obj:connect_signal("property::visible", function(w)
         if not w.visible then
-            if active_popup == menu then
-                active_popup = nil
-                stop_escape_listener()
-                clear_backdrop_click()
-            end
+            deactivate_popup(menu_obj)
         else
             if exclusive then
                 for popup, data in pairs(registered_popups) do
-                    if popup ~= menu and popup.visible and data.exclusive then
+                    if popup ~= menu_obj and popup.visible and data.exclusive then
                         data.hide_function()
                     end
                 end
             end
-
-            active_popup = menu
-
-            if not disable_escape then
-                start_escape_listener()
-            end
-
-            setup_backdrop_click(hide_fct)
+            activate_popup(menu_obj)
         end
     end)
 end
@@ -171,15 +145,10 @@ popup_manager.is_any_visible = function()
     end
     return false
 end
-popup_manager.register = function(widget, hide_function, options)
-    click_to_hide(widget, hide_function, options)
-end
+popup_manager.register = click_to_hide
 popup_manager.unregister = function(widget)
     registered_popups[widget] = nil
-    if active_popup == widget then
-        active_popup = nil
-        stop_escape_listener()
-    end
+    deactivate_popup(widget)
 end
 
 return popup_manager

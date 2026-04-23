@@ -10,7 +10,6 @@ local dpi = beautiful.xresources.apply_dpi
 local capi = { awesome = awesome, screen = screen }
 local shapes = require("modules.shapes")
 local click_to_hide = require("modules.click_to_hide")
-local backdrop = require("modules.backdrop")
 
 local icons_dir = gfs.get_configuration_dir() .. "ui/popups/powermenu/icons/"
 
@@ -152,7 +151,6 @@ function powermenu:show()
         return
     end
     wp.shown = true
-    backdrop.show(self) -- Show backdrop before popup
     self.visible = true
     self:emit_signal("property::shown", wp.shown)
     wp.select_index = 1
@@ -172,7 +170,6 @@ function powermenu:hide()
     end
     wp.select_index = 1
     self.visible = false
-    backdrop.hide() -- Hide backdrop when popup hides
     self:emit_signal("property::shown", wp.shown)
 end
 
@@ -191,6 +188,7 @@ local function new()
         type = "tooltip",
         screen = capi.screen.primary,
         bg = "#00000000",
+        name = "awesome-popup",
         placement = awful.placement.centered,
         widget = {
             widget = wibox.container.background,

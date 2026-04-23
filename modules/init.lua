@@ -11,7 +11,6 @@
     - menu: Custom menu widget
     - dropdown: Dropdown selection widget
     - snap_edge: Window edge snapping functionality
-    - backdrop: Backdrop component for popups
 ]]
 
 return {
@@ -24,5 +23,4 @@ text_input = require("modules.text_input"),
 menu = require("modules.menu"),
 dropdown = require("modules.dropdown"),
 snap_edge = require("modules.snap_edge"),
-backdrop = require("modules.backdrop"),
 }

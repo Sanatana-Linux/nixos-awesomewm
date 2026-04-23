@@ -12,7 +12,6 @@ local gtimer = require("gears.timer")
 local dpi = beautiful.xresources.apply_dpi
 local anim = require("modules.animations")
 local click_to_hide = require("modules.click_to_hide")
-local backdrop = require("modules.backdrop")
 
 local battery_service = require("service.battery")
 local system_info = require("service.system_info")
@@ -487,6 +486,7 @@ local function new()
         ontop = true,
         type = "utility",
         bg = "#00000000",
+        name = "awesome-popup",
         placement = function(c)
             return awful.placement.bottom_right(c, {
                 margins = {
@@ -527,9 +527,6 @@ local function new()
 
         -- Update charts before showing
         self:_update_charts()
-
-        -- Show backdrop
-        backdrop.show(self.popup)
 
         wp.shown = true
         self.popup.opacity = 0
@@ -586,7 +583,6 @@ local function new()
             end,
             complete = function()
                 self.popup.visible = false
-                backdrop.hide()
                 self.popup:emit_signal("property::shown", wp.shown)
             end,
         })

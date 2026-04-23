@@ -10,7 +10,6 @@ local gears = require("gears")
 local beautiful = require("beautiful")
 local dpi = beautiful.xresources.apply_dpi
 local anim = require("modules.animations")
-local backdrop = require("modules.backdrop")
 local modules = require("modules")
 local shapes = require("modules.shapes")
 local icon_lookup = require("modules.icon-lookup") -- Centralized icon resolution
@@ -26,7 +25,7 @@ local switcher = {}
 -- Settings
 local settings = {
     preview_box = true,
-    preview_box_bg = beautiful.backdrop_color or beautiful.bg .. "66", -- More transparent (40% opacity instead of 80%)
+    preview_box_bg = beautiful.bg .. "66",
     preview_box_border = beautiful.border_color_normal or beautiful.fg .. "88",
     preview_box_fps = 30,
     preview_box_delay = 150,
