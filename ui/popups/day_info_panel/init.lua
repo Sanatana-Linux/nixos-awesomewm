@@ -101,7 +101,6 @@ local function new()
                 },
             })
         end,
-        hide_on_unfocus = true,
 
         widget = {
             widget = wibox.container.background,

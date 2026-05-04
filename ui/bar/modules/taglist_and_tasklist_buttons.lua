@@ -131,7 +131,7 @@ local function create_single_tag(tag, s)
             right = dpi(12),
             widget = wibox.container.margin,
         },
-        shape = shapes.rrect(beautiful.border_radius or dpi(8)),
+        shape = shapes.rrect(dpi(6)),
         border_width = dpi(0),
         border_color = beautiful.border_color_active,
         widget = wibox.container.background,
@@ -149,7 +149,7 @@ local function create_single_tag(tag, s)
             right = dpi(1),
             widget = wibox.container.margin,
         },
-        shape = shapes.rrect(beautiful.border_radius or dpi(8)),
+        shape = shapes.rrect(dpi(6)),
         border_width = dpi(1),
         border_color = "transparent",
         widget = wibox.container.background,
@@ -202,6 +202,7 @@ local function create_single_tag(tag, s)
     container:connect_signal("mouse::enter", function()
         inner_container.bg = beautiful.bg_gradient_recessed
         container.bg = beautiful.bg_gradient_recessed
+        container.border_color = beautiful.fg .. "66"
     end)
     container:connect_signal("mouse::leave", function()
         update_tag_status() -- Revert to selected/unselected state

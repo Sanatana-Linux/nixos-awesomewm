@@ -11,29 +11,22 @@ local modkey = "Mod4"
 awful.keyboard.append_global_keybindings({
     -- -------------------------------------------------------------------------- --
     -- CLIENT SWAPPING KEYBINDINGS --
-    -- Swap current client with next client in stack
     awful.key({ modkey, "Shift" }, "j", function()
-        awful.client.swap.byidx(1) -- Move current window down in client stack
-    end, { description = "swap with next client by index", group = "client" }),
+        awful.client.swap.byidx(1)
+    end, { description = "swap with next client by index", group = "Layout" }),
 
-    -- Swap current client with previous client in stack
-    awful.key(
-        { modkey, "Shift" },
-        "k",
-        function()
-            awful.client.swap.byidx(-1) -- Move current window up in client stack
-        end,
-        { description = "swap with previous client by index", group = "client" }
-    ),
+    awful.key({ modkey, "Shift" }, "k", function()
+        awful.client.swap.byidx(-1)
+    end, { description = "swap with previous client by index", group = "Layout" }),
 
     -- -------------------------------------------------------------------------- --
 
-    -- Jump to urgent client (window requesting attention)
+    -- Jump to urgent client
     awful.key(
         { modkey },
         "u",
-        awful.client.urgent.jumpto, -- Built-in function to focus urgent window
-        { description = "jump to urgent client", group = "client" }
+        awful.client.urgent.jumpto,
+        { description = "jump to urgent client", group = "Layout" }
     ),
 
     -- -------------------------------------------------------------------------- --
@@ -41,13 +34,12 @@ awful.keyboard.append_global_keybindings({
     -- MASTER AREA WIDTH CONTROLS --
     -- Mod4 + h: Decrease master area width by 5%
     awful.key({ modkey }, "h", function()
-        awful.tag.incmwfact(-0.05) -- Shrink master window area
-    end, { description = "decrease master width factor", group = "layout" }),
+        awful.tag.incmwfact(-0.05)
+    end, { description = "decrease master width factor", group = "Layout" }),
 
-    -- Mod4 + l: Increase master area width by 5%
     awful.key({ modkey }, "l", function()
-        awful.tag.incmwfact(0.05) -- Expand master window area
-    end, { description = "increase master width factor", group = "layout" }),
+        awful.tag.incmwfact(0.05)
+    end, { description = "increase master width factor", group = "Layout" }),
 
     -- -------------------------------------------------------------------------- --
 
@@ -57,14 +49,13 @@ awful.keyboard.append_global_keybindings({
         awful.tag.incnmaster(1, nil, true) -- Add one more master client
     end, {
         description = "increase the number of master clients",
-        group = "layout",
+        group = "Layout",
     }),
-    -- Mod4 + Shift + l: Decrease number of windows in master area
     awful.key({ modkey, "Shift" }, "l", function()
-        awful.tag.incnmaster(-1, nil, true) -- Remove one master client
+        awful.tag.incnmaster(-1, nil, true)
     end, {
         description = "decrease the number of master clients",
-        group = "layout",
+        group = "Layout",
     }),
 
     -- -------------------------------------------------------------------------- --
@@ -72,13 +63,12 @@ awful.keyboard.append_global_keybindings({
     -- COLUMN COUNT CONTROLS --
     -- Increase number of columns in non-master area
     awful.key({ modkey, "Control" }, "h", function()
-        awful.tag.incncol(1, nil, true) -- Add one more column for stacked clients
-    end, { description = "increase the number of columns", group = "layout" }),
+        awful.tag.incncol(1, nil, true)
+    end, { description = "increase the number of columns", group = "Layout" }),
 
-    --  Decrease number of columns in non-master area
     awful.key({ modkey, "Control" }, "l", function()
-        awful.tag.incncol(-1, nil, true) -- Remove one column for stacked clients
-    end, { description = "decrease the number of columns", group = "layout" }),
+        awful.tag.incncol(-1, nil, true)
+    end, { description = "decrease the number of columns", group = "Layout" }),
 
     -- -------------------------------------------------------------------------- --
 
@@ -86,10 +76,9 @@ awful.keyboard.append_global_keybindings({
     -- Mod4 + Space: Switch to next layout in rotation
     awful.key({ modkey }, "space", function()
         awesome.emit_signal("layout::changed:next")
-    end, { description = "select next layout", group = "layout" }),
+    end, { description = "select next layout", group = "Layout" }),
 
-    -- Mod4 + Shift + Space: Switch to previous layout in rotation
     awful.key({ modkey, "Shift" }, "space", function()
         awesome.emit_signal("layout::changed:prev")
-    end, { description = "select previous layout", group = "layout" }),
+    end, { description = "select previous layout", group = "Layout" }),
 })

@@ -10,12 +10,19 @@ local modules = require("modules")
 local beautiful = require("beautiful")
 local shapes = require("modules.shapes")
 local ncr = naughty.notification_closed_reason
+local capi = { awesome = awesome }
 local dpi = beautiful.xresources.apply_dpi
 local create_markup = require("lib").create_markup
 local remove_nonindex = require("lib").remove_nonindex
 local notification_cache = require("ui.notification.cache")
 
 local close_icon = gfs.get_configuration_dir() .. "ui/titlebar/icons/close.svg"
+
+capi.awesome.connect_signal("exit", function()
+    naughty.destroy_all_notifications(nil, ncr.silent)
+end)
+
+require("ui.notification.battery")
 
 local notifications = {}
 
@@ -112,12 +119,12 @@ local function create_notification_popup(n)
             return { 0, 0 }
         end,
         widget = {
-		widget = wibox.container.background,
-		bg = beautiful.bg .. "99",
-		fg = beautiful.fg,
-		border_color = beautiful.border_color_normal,
-		border_width = beautiful.border_width,
-		shape = shapes.rrect_20,
+            widget = wibox.container.background,
+            bg = beautiful.bg .. "99",
+            fg = beautiful.fg,
+            border_color = beautiful.border_color_normal,
+            border_width = beautiful.border_width,
+            shape = shapes.rrect_20,
             {
                 widget = wibox.container.margin,
                 margins = dpi(15),
@@ -151,29 +158,32 @@ local function create_notification_popup(n)
                                     { fg = beautiful.fg_alt }
                                 ),
                             },
-					{
-						{
-							{
-								id = "close",
-								image = gears.color.recolor_image(close_icon, beautiful.fg),
-								resize = true,
-								forced_width = dpi(10),
-								forced_height = dpi(10),
-								align = "center",
-								valign = "center",
-								widget = wibox.widget.imagebox,
-							},
-							left = dpi(4),
-							right = dpi(4),
-							widget = wibox.container.margin,
-						},
-						shape = shapes.rrect(2),
-						border_width = dpi(1),
-						border_color = beautiful.fg_alt .. "aa",
-						bg = beautiful.bg_gradient_button,
-						id = "close_bg",
-						widget = wibox.container.background,
-					},
+                            {
+                                {
+                                    {
+                                        id = "close",
+                                        image = gears.color.recolor_image(
+                                            close_icon,
+                                            beautiful.fg
+                                        ),
+                                        resize = true,
+                                        forced_width = dpi(10),
+                                        forced_height = dpi(10),
+                                        align = "center",
+                                        valign = "center",
+                                        widget = wibox.widget.imagebox,
+                                    },
+                                    left = dpi(4),
+                                    right = dpi(4),
+                                    widget = wibox.container.margin,
+                                },
+                                shape = shapes.rrect(2),
+                                border_width = dpi(1),
+                                border_color = beautiful.fg_alt .. "aa",
+                                bg = beautiful.bg_gradient_button,
+                                id = "close_bg",
+                                widget = wibox.container.background,
+                            },
                         },
                     },
                     {
@@ -238,22 +248,25 @@ local function create_notification_popup(n)
         },
     })
 
-	local close = popup_widget.widget:get_children_by_id("close")[1]
-	local close_bg = popup_widget.widget:get_children_by_id("close_bg")[1]
-	close_bg:add_button(awful.button({}, 1, function()
-		n:destroy(ncr.silent)
-	end))
-	close_bg:connect_signal("mouse::enter", function()
-		-- Red gradient background like power menu toggle
-		close_bg.bg = "linear:0,0:0,32:0," .. beautiful.red .. ":1," .. "#b61442"
-		-- Change icon to white
-		close.image = gcolor.recolor_image(close_icon, beautiful.bg)
-	end)
-	close_bg:connect_signal("mouse::leave", function()
-		close_bg.bg = beautiful.bg_gradient_button
-		-- Revert icon to red
-		close.image = gcolor.recolor_image(close_icon, beautiful.red)
-	end)
+    local close = popup_widget.widget:get_children_by_id("close")[1]
+    local close_bg = popup_widget.widget:get_children_by_id("close_bg")[1]
+    close_bg:add_button(awful.button({}, 1, function()
+        n:destroy(ncr.silent)
+    end))
+    close_bg:connect_signal("mouse::enter", function()
+        -- Red gradient background like power menu toggle
+        close_bg.bg = "linear:0,0:0,32:0,"
+            .. beautiful.red
+            .. ":1,"
+            .. "#b61442"
+        -- Change icon to white
+        close.image = gcolor.recolor_image(close_icon, beautiful.bg)
+    end)
+    close_bg:connect_signal("mouse::leave", function()
+        close_bg.bg = beautiful.bg_gradient_button
+        -- Revert icon to red
+        close.image = gcolor.recolor_image(close_icon, beautiful.red)
+    end)
 
     return popup_widget
 end
@@ -262,10 +275,10 @@ function notifications.display(n)
     if not n then
         return
     end
-    
+
     -- Cache the notification
     notification_cache.add(n)
-    
+
     local notification_popup = create_notification_popup(n)
     local display_timer
 

@@ -1,5 +1,6 @@
 local awful = require("awful")
 local beautiful = require("beautiful")
+local gears = require("gears")
 local wibox = require("wibox")
 local dpi = beautiful.xresources.apply_dpi
 local shapes = require("modules.shapes")
@@ -24,35 +25,44 @@ local styled_button = {}
 -- @return widget The styled button widget
 function styled_button.create(args)
     args = args or {}
-    
-    -- Content widget - center the provided content in a fixed-size container
-    local content_container = wibox.widget({
-        args.content,
-        widget = wibox.container.place,
-        halign = "center",
-        valign = "center",
-        width = args.width or dpi(26),
-        height = args.height or dpi(26),
-    })
 
-    -- Inner container with main styling (gradient background, rounded corners)
+    local button_shape = args.shape
+        or shapes.rrect(beautiful.border_radius or dpi(8))
+
+    local content_widget
+    if args.width and args.height then
+        content_widget = wibox.widget({
+            {
+                args.content,
+                widget = wibox.container.place,
+                halign = "center",
+                valign = "center",
+            },
+            width = args.width,
+            height = args.height,
+            widget = wibox.container.constraint,
+        })
+    else
+        content_widget = args.content
+    end
+
     local inner_container = wibox.widget({
         {
-            content_container,
+            content_widget,
             top = args.margin_top or dpi(2),
             bottom = args.margin_bottom or dpi(2),
             left = args.margin_left or dpi(12),
             right = args.margin_right or dpi(12),
             widget = wibox.container.margin,
         },
-        shape = shapes.rrect(beautiful.border_radius or dpi(8)),
+        shape = button_shape,
         border_width = dpi(0),
         border_color = beautiful.border_color_active,
-        bg = args.selected and beautiful.bg_gradient_button_alt or beautiful.bg_gradient_button,
+        bg = args.selected and beautiful.bg_gradient_button_alt
+            or beautiful.bg_gradient_button,
         widget = wibox.container.background,
     })
 
-    -- Outer container for transparent border effect (provides 3D depth)
     local outer_container = wibox.widget({
         {
             inner_container,
@@ -62,27 +72,31 @@ function styled_button.create(args)
             right = dpi(1),
             widget = wibox.container.margin,
         },
-        shape = shapes.rrect(beautiful.border_radius or dpi(8)),
+        shape = button_shape,
         border_width = dpi(1),
-        border_color = args.selected and (beautiful.fg .. "66") or "transparent",
-        bg = args.selected and beautiful.bg_gradient_button_alt or beautiful.bg_gradient_button,
+        border_color = args.selected and (beautiful.fg .. "66")
+            or "transparent",
+        bg = args.selected and beautiful.bg_gradient_button_alt
+            or beautiful.bg_gradient_button,
         widget = wibox.container.background,
     })
 
     -- Store containers for external access
     outer_container._inner_container = inner_container
-    outer_container._content_container = content_container
-    
+    outer_container._content_widget = content_widget
+
     -- Function to update button state (for selected/unselected appearance)
     function outer_container:set_selected(selected)
         if selected then
             inner_container.bg = beautiful.bg_gradient_button_alt
-            inner_container.border_color = beautiful.border_color_active or beautiful.fg_alt
+            inner_container.border_color = beautiful.border_color_active
+                or beautiful.fg_alt
             outer_container.bg = beautiful.bg_gradient_button_alt
             outer_container.border_color = beautiful.fg .. "66"
         else
             inner_container.bg = beautiful.bg_gradient_button
-            inner_container.border_color = beautiful.border_color_normal or beautiful.bg_urg
+            inner_container.border_color = beautiful.border_color_normal
+                or beautiful.bg_urg
             outer_container.bg = beautiful.bg_gradient_button
             outer_container.border_color = "transparent"
         end
@@ -97,11 +111,12 @@ function styled_button.create(args)
     outer_container:connect_signal("mouse::enter", function()
         inner_container.bg = beautiful.bg_gradient_recessed
         outer_container.bg = beautiful.bg_gradient_recessed
+        outer_container.border_color = beautiful.fg .. "66"
         if args.on_hover then
             args.on_hover()
         end
     end)
-    
+
     outer_container:connect_signal("mouse::leave", function()
         revert_to_state() -- Revert to selected/unselected state
         if args.on_leave then
@@ -120,35 +135,55 @@ function styled_button.create(args)
     return outer_container
 end
 
--- Convenience function to create an icon button with the styled button appearance
--- @param args Table with the following fields:
---   - icon: Path to icon file (required)
---   - icon_size: Size of the icon (default: dpi(18))
---   - buttons: Button bindings table (default: {})
---   - selected: Whether button should appear selected (default: false)
---   - All other args from styled_button.create
--- @return widget The styled icon button widget
 function styled_button.create_icon_button(args)
     args = args or {}
-    
+
+    local sz = args.icon_size or dpi(32)
+    local pad = args.padding or dpi(3)
     local icon_widget = wibox.widget({
         widget = wibox.widget.imagebox,
         image = args.icon,
         resize = true,
-        forced_width = args.icon_size or dpi(18),
-        forced_height = args.icon_size or dpi(18),
+        forced_width = sz,
+        forced_height = sz,
     })
-    
-    -- Remove icon-specific args and pass the rest to create()
-    local button_args = {}
-    for key, value in pairs(args) do
-        if key ~= "icon" and key ~= "icon_size" then
-            button_args[key] = value
-        end
+
+    local btn = wibox.widget({
+        {
+            {
+                icon_widget,
+                left = pad + dpi(2),
+                right = pad + dpi(1),
+                top = pad,
+                bottom = pad,
+                widget = wibox.container.margin,
+            },
+            layout = wibox.layout.fixed.horizontal,
+        },
+        shape = function(cr, w, h)
+            gears.shape.rounded_rect(cr, w, h, dpi(6))
+        end,
+        border_width = dpi(1),
+        border_color = beautiful.fg .. "00",
+        bg = beautiful.bg_gradient_button,
+        widget = wibox.container.background,
+    })
+
+    btn:connect_signal("mouse::enter", function()
+        btn.bg = beautiful.bg_gradient_button_alt
+        btn.border_color = beautiful.fg .. "66"
+    end)
+
+    btn:connect_signal("mouse::leave", function()
+        btn.bg = beautiful.bg_gradient_button
+        btn.border_color = beautiful.fg .. "00"
+    end)
+
+    if args.buttons and #args.buttons > 0 then
+        btn:buttons(args.buttons)
     end
-    button_args.content = icon_widget
-    
-    return styled_button.create(button_args)
+
+    return btn
 end
 
 -- Convenience function to create a text button with the styled button appearance
@@ -161,7 +196,7 @@ end
 -- @return widget The styled text button widget
 function styled_button.create_text_button(args)
     args = args or {}
-    
+
     local text_widget = wibox.widget({
         widget = wibox.widget.textbox,
         text = args.text,
@@ -169,7 +204,7 @@ function styled_button.create_text_button(args)
         align = "center",
         valign = "center",
     })
-    
+
     -- Remove text-specific args and pass the rest to create()
     local button_args = {}
     for key, value in pairs(args) do
@@ -178,7 +213,7 @@ function styled_button.create_text_button(args)
         end
     end
     button_args.content = text_widget
-    
+
     return styled_button.create(button_args)
 end
 

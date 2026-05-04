@@ -48,7 +48,10 @@ local function activate_popup(widget)
     end
 
     active_popup = widget
-    start_escape_listener()
+    local popup_data = registered_popups[widget]
+    if popup_data and popup_data.enable_escape then
+        start_escape_listener()
+    end
 end
 
 local function deactivate_popup(widget)

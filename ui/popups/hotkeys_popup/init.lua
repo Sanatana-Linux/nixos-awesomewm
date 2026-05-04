@@ -27,25 +27,27 @@ widget.hide_without_description = true
 widget.merge_duplicates = true
 
 local group_colors = {
-    awesome = beautiful.accent or "#bb9af7",
-    Client = beautiful.blue or "#7aa2f7",
-    client = beautiful.blue or "#7aa2f7",
+    System = beautiful.accent or "#bb9af7",
+    Launcher = beautiful.green or "#9ece6a",
+    Window = beautiful.blue or "#7aa2f7",
     Focus = beautiful.cyan or "#7dcfff",
-    Tags = beautiful.green or "#9ece6a",
-    layout = beautiful.orange or "#ff9e64",
-    hardware = beautiful.yellow or "#e0af68",
-    utility = beautiful.red or "#f7768e",
+    Tags = beautiful.green or "#fc618d",
+    Layout = beautiful.orange or "#ff9e64",
+    Hardware = beautiful.yellow or "#Fce566",
+}
+
+local group_icon_fonts = {
+    Window = "Font_Awesome_6_Pro-Regular-400",
 }
 
 local group_icons = {
-    awesome = "⌨",
-    Client = "□",
-    client = "□",
-    Focus = "→",
-    Tags = "◈",
-    layout = "◫",
-    hardware = "⚙",
-    utility = "⊞",
+    System = "⌨",
+    Launcher = "",
+    Window = "",
+    Focus = "",
+    Tags = "",
+    Layout = "",
+    Hardware = "⚙",
 }
 
 local key_labels = {
@@ -212,6 +214,7 @@ function widget.new(args)
             or beautiful.fg_alt
             or beautiful.fg_normal
         local icon = group_icons[group] or "◦"
+        local icon_font = group_icon_fonts[group] or beautiful.font_name
 
         local header = wibox.widget({
             layout = wibox.layout.fixed.horizontal,
@@ -219,12 +222,16 @@ function widget.new(args)
             {
                 widget = wibox.widget.textbox,
                 markup = "<span font='"
+                    .. icon_font
+                    .. " 24' foreground='"
+                    .. color
+                    .. "'>"
+                    .. icon
+                    .. " </span><span font='"
                     .. beautiful.font_name
                     .. " Bold 24' foreground='"
                     .. color
                     .. "'>"
-                    .. icon
-                    .. " "
                     .. group:gsub("^%l", string.upper)
                     .. "</span>",
             },
@@ -242,7 +249,9 @@ function widget.new(args)
         local content = wibox.layout.fixed.vertical()
         content:set_spacing(dpi(2))
         content:add(header)
-        content:add(wibox.container.margin({ top = dpi(12) }))
+        local spacer = wibox.container.margin()
+        spacer:set_top(dpi(12))
+        content:add(spacer)
 
         for _, key in ipairs(keys) do
             local mod_text = ""
@@ -256,21 +265,22 @@ function widget.new(args)
             local desc_text = key.description or ""
             local row = wibox.layout.fixed.horizontal()
             row:set_spacing(dpi(8))
-            row:add(wibox.widget.textbox({
-                markup = mod_text
-                    .. "<span font='"
-                    .. beautiful.font_name
-                    .. " Bold 12' foreground='"
-                    .. (beautiful.fg or beautiful.fg_normal)
-                    .. "'>"
-                    .. (key.key or "")
-                    .. "</span>",
-                forced_width = dpi(220),
-            }))
-            row:add(wibox.widget.textbox({
-                text = desc_text,
-                forced_width = dpi(600),
-            }))
+            local key_markup = mod_text
+                .. "<span font='"
+                .. beautiful.font_name
+                .. " Bold 12' foreground='"
+                .. (beautiful.fg or beautiful.fg_normal)
+                .. "'>"
+                .. (key.key or "")
+                .. "</span>"
+            local key_box = wibox.widget.textbox()
+            key_box:set_markup(key_markup)
+            key_box.forced_width = dpi(220)
+            row:add(key_box)
+            local desc_box = wibox.widget.textbox()
+            desc_box:set_text(desc_text)
+            desc_box.forced_width = dpi(600)
+            row:add(desc_box)
             content:add(row)
         end
 
@@ -352,6 +362,13 @@ function widget.new(args)
                 or beautiful.fg
                 or beautiful.fg_normal
 
+            -- Update border color to match current group
+            local border_container =
+                popup_widget:get_children_by_id("popup-border")[1]
+            if border_container then
+                border_container.border_color = color
+            end
+
             local total_dots = ""
             for i = 1, #pages do
                 if i == current_page then
@@ -374,13 +391,14 @@ function widget.new(args)
             content_area:set_widget(page.widget)
         end
 
-        page_indicator = wibox.widget.textbox({ id = "page_indicator" })
+        page_indicator = wibox.widget.textbox()
 
         popup_widget = wibox.widget({
             layout = wibox.layout.fixed.vertical,
             {
+                id = "popup-border",
                 widget = wibox.container.background,
-                bg = beautiful.bg or "#1f1f1F",
+                bg = beautiful.bg .. "33" or "#1c1c1c33",
                 shape = shapes.rrect(20),
                 border_width = dpi(2),
                 border_color = beautiful.border_color
@@ -420,6 +438,8 @@ function widget.new(args)
             border_width = 0,
         })
 
+        local keygrabber
+
         local instance_obj = { popup = popup, current_page = current_page }
 
         function instance_obj:show()
@@ -429,6 +449,31 @@ function widget.new(args)
             self._shown = true
             popup.visible = true
             popup:emit_signal("property::shown", true)
+            -- Start keygrabber AFTER visible so it sits on top
+            -- of click_to_hide's escape listener in the stack
+            keygrabber = awful.keygrabber.run(function(_, key, event)
+                if event == "release" then
+                    return
+                end
+                if not key then
+                    return
+                end
+                if key == "Right" or key == "j" then
+                    current_page = math.min(current_page + 1, #pages)
+                    update_page()
+                elseif key == "Left" or key == "k" then
+                    current_page = math.max(current_page - 1, 1)
+                    update_page()
+                elseif key == "Next" then
+                    current_page = math.min(current_page + 1, #pages)
+                    update_page()
+                elseif key == "Prior" then
+                    current_page = math.max(current_page - 1, 1)
+                    update_page()
+                elseif key == "Escape" then
+                    instance_obj:hide()
+                end
+            end)
         end
 
         function instance_obj:hide()
@@ -436,6 +481,10 @@ function widget.new(args)
                 return
             end
             self._shown = false
+            if keygrabber then
+                awful.keygrabber.stop(keygrabber)
+                keygrabber = nil
+            end
             popup.visible = false
             popup:emit_signal("property::shown", false)
         end
@@ -450,49 +499,21 @@ function widget.new(args)
 
         update_page()
 
-        local keygrabber = awful.keygrabber.run(function(_, key, event)
-            if event == "release" then
-                return
-            end
-            if not key then
-                return
-            end
-            if key == "Right" or key == "j" then
-                current_page = math.min(current_page + 1, #pages)
-                update_page()
-            elseif key == "Left" or key == "k" then
-                current_page = math.max(current_page - 1, 1)
-                update_page()
-            elseif key == "Next" then
-                current_page = math.min(current_page + 1, #pages)
-                update_page()
-            elseif key == "Prior" then
-                current_page = math.max(current_page - 1, 1)
-                update_page()
-            else
-                instance_obj:hide()
-                awful.keygrabber.stop(keygrabber)
-            end
-        end)
-
         popup.buttons = {
             awful.button({}, 1, function()
                 instance_obj:hide()
-                awful.keygrabber.stop(keygrabber)
             end),
             awful.button({}, 3, function()
                 instance_obj:hide()
-                awful.keygrabber.stop(keygrabber)
             end),
         }
 
         click_to_hide.popup(popup, function()
             instance_obj:hide()
-            awful.keygrabber.stop(keygrabber)
-        end, { enable_escape = false })
+        end, { enable_escape = true })
 
         instance_obj:show()
-        return keygrabber
+        return instance_obj
     end
 
     function instance:add_hotkeys(hotkeys)

@@ -14,6 +14,8 @@ local launcher = require("ui.popups.launcher").get_default()
 local powermenu = require("ui.popups.powermenu").get_default()
 local control_panel = require("ui.popups.control_panel").get_default()
 local screenshot_popup = require("ui.popups.screenshot_popup").get_default()
+local day_info_panel = require("ui.popups.day_info_panel").get_default()
+local battery = require("ui.popups.battery").get_default()
 
 -- Load lockscreen
 require("ui.lockscreen")
@@ -140,6 +142,8 @@ local function click_hideaway()
     powermenu:hide()
     control_panel:hide()
     screenshot_popup:hide()
+    day_info_panel:hide()
+    battery:hide()
     -- Hide lockscreen if visible
     awesome.emit_signal("lockscreen::visible", false)
 end

@@ -46,12 +46,12 @@ local function create(c, focused_bool, buttons)
     -- Add tooltip with full window title
     local tooltip = awful.tooltip({
         objects = { wid_temp },
-        text = function() 
-            return c.name or c.class or "Unknown Window"
-        end,
+        text = c.name or c.class or "Unknown Window",
         delay_show = 0.5,
         margins_topbottom = dpi(8),
         margins_leftright = dpi(12),
+        bg = beautiful.bg .. "33",
+        fg = beautiful.fg,
     })
 
     -- Update tooltip when client name changes

@@ -71,9 +71,8 @@ function arc_chart.new(args)
     ret._current_value = args.value or 0
     ret._animation = nil
 
-    -- Animation settings
     ret._animate_duration = args.animate_duration or 0.3
-    ret._animate_easing = args.animate_easing or "outQuad"
+    ret._animate_easing = args.animate_easing or animations.easing.quadratic
 
     function ret:set_value(value, animate)
         value = math.max(self.min_value, math.min(self.max_value, value or 0))
@@ -90,7 +89,7 @@ function arc_chart.new(args)
                 target = value,
                 duration = self._animate_duration,
                 easing = self._animate_easing,
-                update = function(_, val)
+                update = function(val)
                     local rounded_val = math.floor(val + 0.5)
                     self.values = { val }
                     self._percentage_text:set_text(tostring(rounded_val) .. "%")

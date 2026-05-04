@@ -8,7 +8,7 @@ local capi = {
 local awful = require("awful")
 
 local function mouse_resize_handler(m, c)
-    awful.client.incwfact(0, c) -- needed to fix normalization at start
+    awful.client.incwfact(0, c)
     local start = m(capi.mouse.coords())
     local x, y = start.x, start.y
     local wa = m(c.screen.workarea)
@@ -25,14 +25,12 @@ local function mouse_resize_handler(m, c)
         local v_border = 0.2 * g.height
 
         if idx.idx > 1 and y >= g.y and y <= g.y + v_border then
-            -- we are near the top edge of the window
             c_above = awful.client.next(-1, c)
             c_below = c
             jump_to.y = g.y
             idx_above = idx.idx - 1
             idx_below = idx.idx
         elseif idx.idx < idx.num and y >= g.y + g.height - v_border then
-            -- we are near the bottom edge of the window
             c_above = c
             c_below = awful.client.next(1, c)
             idx_above = idx.idx
@@ -109,7 +107,7 @@ local function mouse_resize_handler(m, c)
                 local colfact = data[idx.col] or {}
                 colfact[idx_above] = wfact_above + factor_delta
                 colfact[idx_below] = wfact_below - factor_delta
-                awful.client.incwfact(0, c_above) -- just in case
+                awful.client.incwfact(0, c_above)
             end
             return true
         else
@@ -130,14 +128,3 @@ awful.layout.suit.tile.bottom.mouse_resize_handler = function(c)
         return { x = q.y, y = q.x, width = q.height, height = q.width }
     end, c)
 end
-
--- local old_coords = mouse.coords
-
--- mouse.coords = function(...)
---    if select(1, ...) and not(select(1, ...).blah) then
---       print("set mouse!!!")
---       print(debug.traceback())
-
---    end
---    return old_coords(...)
--- end

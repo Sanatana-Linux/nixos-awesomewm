@@ -11,6 +11,7 @@ local hover_bar = {}
 
 -- Configuration constants
 local TRIGGER_ZONE_HEIGHT = dpi(3)
+local SHOW_DELAY_SECONDS = 0.3
 local HIDE_DELAY_SECONDS = 3
 local ANIMATION_DURATION = 0.25
 local BAR_HEIGHT_PRIMARY = dpi(30)
@@ -31,6 +32,7 @@ function hover_bar.create(args)
 	local state = {
 		is_visible = false,
 		is_animating = false,
+		show_timer = nil,
 		hide_timer = nil,
 	}
 
@@ -70,6 +72,14 @@ function hover_bar.create(args)
 
 	-- Forward declare hide_bar (needed for timer callback closure)
 	local hide_bar
+
+	-- Helper: cancel show timer
+	local function cancel_show_timer()
+		if state.show_timer then
+			state.show_timer:stop()
+			state.show_timer = nil
+		end
+	end
 
 	-- Helper: cancel hide timer
 	local function cancel_hide_timer()
@@ -126,17 +136,21 @@ function hover_bar.create(args)
 		animate_to(target_y)
 	end
 
-	-- Trigger zone mouse enter: show bar
+	-- Trigger zone mouse enter: show bar after delay
 	trigger_zone:connect_signal("mouse::enter", function()
 		cancel_hide_timer()
 		if not state.is_visible then
-			state.is_visible = true
-			animate_to(visible_y)
+			state.show_timer = gtimer.start_new(SHOW_DELAY_SECONDS, function()
+				state.is_visible = true
+				animate_to(visible_y)
+				return false
+			end)
 		end
 	end)
 
-	-- Trigger zone mouse leave: start hide timer
+	-- Trigger zone mouse leave: cancel show timer, start hide timer
 	trigger_zone:connect_signal("mouse::leave", function()
+		cancel_show_timer()
 		start_hide_timer()
 	end)
 

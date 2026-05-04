@@ -46,8 +46,6 @@ local preview_widgets = {}
 local alt_tab_table = {}
 local alt_tab_index = 1
 local keygrabber_instance = nil
-local hover_timer = nil
-local hover_target_index = nil
 
 -- Helper function for counting table length
 local function table_length(t)
@@ -184,40 +182,6 @@ local function client_opacity()
         client.focus.opacity = opacity_focus
         alt_tab_table[alt_tab_index].client.opacity = opacity_selected
     end
-end
-
--- Handle hover auto-selection
-local function start_hover_timer(target_index)
-    -- Stop existing timer if running
-    if hover_timer and hover_timer.started then
-        hover_timer:stop()
-    end
-    
-    hover_target_index = target_index
-    
-    -- Create new timer for 2-second delay
-    hover_timer = gears.timer({
-        timeout = 2.0, -- 2 seconds
-        single_shot = true,
-        callback = function()
-            if hover_target_index and hover_target_index ~= alt_tab_index then
-                cycle(hover_target_index - alt_tab_index)
-            end
-            hover_timer = nil
-            hover_target_index = nil
-        end,
-        autostart = false
-    })
-    
-    hover_timer:start()
-end
-
-local function stop_hover_timer()
-    if hover_timer and hover_timer.started then
-        hover_timer:stop()
-    end
-    hover_timer = nil
-    hover_target_index = nil
 end
 
 -- Update preview display
@@ -465,24 +429,11 @@ function switcher.preview()
             end
         end
 
-        -- Add mouse handlers for hover auto-selection
-        preview_widgets[i]:connect_signal("mouse::enter", function()
-            local target_index = left_right_tab_to_alt_tab_index[i]
-            if target_index ~= alt_tab_index then
-                start_hover_timer(target_index)
-            end
-        end)
-        
-        preview_widgets[i]:connect_signal("mouse::leave", function()
-            stop_hover_timer()
-        end)
-        
-        -- Immediate selection on click
+        -- Mouse click to select
         preview_widgets[i]:connect_signal("button::press", function(_, _, _, button)
             if button == 1 then -- Left click
                 local target_index = left_right_tab_to_alt_tab_index[i]
                 if target_index ~= alt_tab_index then
-                    stop_hover_timer()
                     cycle(target_index - alt_tab_index)
                 end
             end
@@ -534,6 +485,8 @@ end
 
 -- Hide the switcher and clean up
 local function hide_switcher()
+    awesome.emit_signal("window_switcher::turn_off")
+
     if preview_wbox then
         preview_wbox.visible = false
     end
@@ -541,9 +494,6 @@ local function hide_switcher()
     if preview_live_timer then
         preview_live_timer:stop()
     end
-    
-    -- Stop hover timer
-    stop_hover_timer()
     
     if keygrabber_instance then
         awful.keygrabber.stop(keygrabber_instance)
@@ -566,6 +516,12 @@ local function hide_switcher()
         c.minimized = false
         client.focus = c
         c:raise()
+        -- Move mouse to center of selected client
+        local geo = c:geometry()
+        capi.mouse.coords({
+            x = geo.x + geo.width / 2,
+            y = geo.y + geo.height / 2,
+        })
     end
 
     alt_tab_table = {}
@@ -575,6 +531,8 @@ end
 
 -- Cancel switching and restore original focus
 local function cancel_switcher()
+    awesome.emit_signal("window_switcher::turn_off")
+
     if preview_wbox then
         preview_wbox.visible = false
     end
@@ -582,9 +540,6 @@ local function cancel_switcher()
     if preview_live_timer then
         preview_live_timer:stop()
     end
-    
-    -- Stop hover timer
-    stop_hover_timer()
     
     if keygrabber_instance then
         awful.keygrabber.stop(keygrabber_instance)

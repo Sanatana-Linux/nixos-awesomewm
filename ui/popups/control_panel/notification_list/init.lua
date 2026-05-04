@@ -96,14 +96,14 @@ local function create_actions_widget(n)
             {
                 widget = modules.hover_button({
                     label = action.name,
+                    font = beautiful.font_h0,
                     margins = {
                         left = dpi(10),
                         right = dpi(10),
-                        top = dpi(5),
-                        bottom = dpi(5),
+                        top = dpi(8),
+                        bottom = dpi(8),
                     },
-                    bg_normal = beautiful.bg_urg,
-                    shape = shapes.rrect(10),
+                    shape = shapes.rrect(8),
                     buttons = {
                         awful.button({}, 1, function()
                             action:invoke()

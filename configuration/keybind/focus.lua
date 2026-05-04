@@ -35,12 +35,11 @@ end, { description = "go back", group = "Focus" }),
         awful.screen.focus_relative(-1)
     end, { description = "focus the previous screen", group = "Focus" }),
 
-    -- Restore the most recently minimized client (client control, but global binding)
+    -- Restore the most recently minimized client
     awful.key({ modkey, "Control" }, "n", function()
         local c = awful.client.restore()
-        -- Focus and raise the restored client if it exists
         if c then
             c:activate({ raise = true, context = "key.unminimize" })
         end
-    end, { description = "restore minimized", group = "Client" }),
+    end, { description = "restore minimized", group = "Focus" }),
 })

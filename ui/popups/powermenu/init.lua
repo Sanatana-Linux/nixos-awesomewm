@@ -29,7 +29,9 @@ local function run_keygrabber(self)
         if event ~= "press" then
             return
         end
-        if gtable.hasitem(keys.up, key) then
+        if key == "Escape" then
+            self:hide()
+        elseif gtable.hasitem(keys.up, key) then
             self:next()
             self:update_elements()
         elseif gtable.hasitem(keys.down, key) then

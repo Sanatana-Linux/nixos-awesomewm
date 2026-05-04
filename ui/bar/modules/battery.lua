@@ -1,20 +1,25 @@
--- ui/bar/modules/battery.lua
--- This module defines the graphical battery widget for the wibar, combining a
--- visual progressbar with a text overlay, button styling, and a themed tooltip.
-
 local wibox = require("wibox")
 local beautiful = require("beautiful")
 local awful = require("awful")
 local gears = require("gears")
-local naughty = require("naughty")
 local dpi = beautiful.xresources.apply_dpi
-local battery_service = require("service.battery").get_default()
-local battery_popup = require("ui.popups.battery").get_default()
 local modules = require("modules")
 local text_icons = beautiful.text_icons
 local shapes = require("modules.shapes.init")
 
-return function()
+local function has_battery()
+    local handle = io.open("/sys/class/power_supply/BAT0/capacity", "r")
+    if handle then
+        handle:close()
+        return true
+    end
+    return false
+end
+
+local function create_battery_widget()
+    local battery_service = require("service.battery").get_default()
+    local battery_popup = require("ui.popups.battery").get_default()
+
     local battery_tooltip = awful.tooltip({
         align = "left",
         mode = "outside",
@@ -27,7 +32,6 @@ return function()
         font = beautiful.font,
     })
 
-    -- The progressbar that acts as the battery body
     local progressbar = wibox.widget({
         id = "progressbar",
         widget = wibox.widget.progressbar,
@@ -38,10 +42,9 @@ return function()
         bar_shape = shapes.rrect(2),
         border_color = beautiful.fg .. "99",
         background_color = beautiful.bg_alt,
-        color = beautiful.blue, -- Default color
+        color = beautiful.blue,
     })
 
-    -- The text label for the percentage, overlaid on the progressbar
     local percentage_label = wibox.widget({
         id = "percentage",
         font = beautiful.font_name .. dpi(9),
@@ -51,18 +54,16 @@ return function()
         widget = wibox.widget.textbox,
     })
 
-    -- The icon to show when charging, also overlaid
     local charging_icon = wibox.widget({
         id = "charging_icon",
-        markup = text_icons.bolt or "",
+        markup = text_icons.bolt or "",
         color = beautiful.bg,
-        visible = false, -- Initially hidden
+        visible = false,
         align = "center",
         valign = "center",
         widget = wibox.widget.textbox,
     })
 
-    -- Use a stack layout to overlay the text and charging icon on the progressbar
     local stacked_layout = wibox.widget({
         layout = wibox.layout.stack,
         forced_height = dpi(22),
@@ -72,7 +73,6 @@ return function()
         charging_icon,
     })
 
-    -- The small widget representing the battery terminal
     local terminal = wibox.widget({
         widget = wibox.container.place,
         valign = "center",
@@ -85,10 +85,12 @@ return function()
         },
     })
 
-    -- Create the main button container using hover_button for styling and effects
     local widget = modules.hover_button({
         bg_normal = beautiful.bg_gradient_button,
         bg_hover = beautiful.bg_gradient_button_alt,
+        border_width = dpi(1),
+        border_color_normal = beautiful.fg .. "00",
+        border_hover = beautiful.fg .. "66",
         shape = shapes.rrect(8),
         child_widget = {
             widget = wibox.container.margin,
@@ -107,22 +109,18 @@ return function()
         },
     })
 
-    -- Attach the tooltip to the main widget
     battery_tooltip:add_to_object(widget)
 
-    -- Add click handler to show/hide battery popup
     widget:connect_signal("button::press", function(_, _, _, button)
-        if button == 1 then -- Left click
+        if button == 1 then
             battery_popup:toggle()
         end
     end)
 
-    -- Function to update all visual elements and the tooltip
     local function update_all()
         local level = battery_service.level or 0
         local is_charging = battery_service.is_charging or false
 
-        -- Update progressbar value and color
         progressbar:set_value(level)
         if level > 70 then
             progressbar.color = beautiful.green
@@ -132,25 +130,86 @@ return function()
             progressbar.color = beautiful.red
         end
 
-        -- Update text/icon visibility
         charging_icon.visible = is_charging
         percentage_label.visible = not is_charging
         percentage_label:set_text(string.format("%d%%", level))
 
-        -- Update tooltip text
         local status_text = is_charging and "Charging" or "Discharging"
         battery_tooltip:set_text(
             string.format("Status: %s\nLevel: %d%%", status_text, level)
         )
     end
 
-    -- Connect signals to update the widget
     battery_service:connect_signal("property::level", update_all)
     battery_service:connect_signal("property::is_charging", update_all)
 
-    -- Initial update
     battery_service:update()
     gears.timer.delayed_call(update_all)
 
     return widget
+end
+
+local function create_cpu_widget()
+    local system_info = require("service.system_info").get_default()
+    local battery_popup = require("ui.popups.battery").get_default()
+    local arc_chart = require("modules.arc_chart")
+
+    local cpu_chart = arc_chart.new({
+        value = 0,
+        label = "CPU",
+        color = beautiful.red or "#f7768e",
+        thickness = dpi(6),
+        margins = dpi(2),
+    })
+
+    local cpu_tooltip = awful.tooltip({
+        align = "left",
+        mode = "outside",
+        preferred_positions = { "top" },
+        bg = beautiful.bg_normal,
+        fg = beautiful.fg_normal,
+        shape = shapes.rrect(8),
+        border_width = beautiful.border_width,
+        border_color = beautiful.border_color,
+        font = beautiful.font,
+    })
+
+    local widget = modules.hover_button({
+        bg_normal = beautiful.bg_gradient_button,
+        bg_hover = beautiful.bg_gradient_button_alt,
+        border_width = dpi(1),
+        border_color_normal = beautiful.fg .. "00",
+        border_hover = beautiful.fg .. "66",
+        shape = shapes.rrect(8),
+        child_widget = {
+            widget = wibox.container.margin,
+            margins = dpi(2),
+            cpu_chart,
+        },
+    })
+
+    cpu_tooltip:add_to_object(widget)
+    cpu_tooltip:set_text("No battery detected — showing CPU usage")
+
+    widget:connect_signal("button::press", function(_, _, _, button)
+        if button == 1 then
+            battery_popup:toggle()
+        end
+    end)
+
+    local function update_chart()
+        local cpu = system_info:get_cpu_usage()
+        cpu_chart:set_value(cpu, false)
+    end
+
+    system_info:connect_signal("property::cpu_usage", update_chart)
+    gears.timer.delayed_call(update_chart)
+
+    return widget
+end
+
+if has_battery() then
+    return create_battery_widget
+else
+    return create_cpu_widget
 end

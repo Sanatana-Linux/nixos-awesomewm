@@ -9,11 +9,20 @@ screenshot:connect_signal("saved", function(_, dir, name)
     local notification
 
     -- Define the actions with improved names and tooltips
-    local view_file = naughty.action({ name = "👁 View", tooltip = "Open screenshot in image viewer" })
-    local open_dir = naughty.action({ name = "📁 Folder", tooltip = "Open containing folder" })
-    local copy = naughty.action({ name = "📋 Copy", tooltip = "Copy image to clipboard" })
-    local annotate = naughty.action({ name = "✏️ Annotate", tooltip = "Edit screenshot with Satty" })
-    local delete = naughty.action({ name = "🗑️ Delete", tooltip = "Remove screenshot file" })
+    local view_file = naughty.action({
+        name = "👁",
+        tooltip = "Open screenshot in image viewer",
+    })
+    local open_dir =
+        naughty.action({ name = "📁", tooltip = "Open containing folder" })
+    local copy =
+        naughty.action({ name = "📋", tooltip = "Copy image to clipboard" })
+    local annotate = naughty.action({
+        name = "✏️",
+        tooltip = "Edit screenshot with Satty",
+    })
+    local delete =
+        naughty.action({ name = "🗑️", tooltip = "Remove screenshot file" })
 
     -- Connect signals to the actions
     view_file:connect_signal("invoked", function()

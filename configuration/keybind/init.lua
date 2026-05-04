@@ -16,9 +16,10 @@ awful.mouse.snap.edge_enabled = true
 
 -- Function to load and initialize all keybinding modules
 local function set_keybindings()
-    require("configuration.keybind.awesome") -- AwesomeWM system keybindings
-    require("configuration.keybind.hardware_functions") -- Hardware control keybindings (volume, brightness, etc.)
-    require("configuration.keybind.client") -- Window/client management keybindings
+    require("configuration.keybind.system") -- AwesomeWM system keybindings
+    require("configuration.keybind.launcher") -- App and terminal launching
+    require("configuration.keybind.hardware") -- Hardware control keybindings (volume, brightness, etc.)
+    require("configuration.keybind.window") -- Window/client management keybindings
     require("configuration.keybind.focus") -- Window focus navigation keybindings
     require("configuration.keybind.layout") -- Layout switching and management keybindings
     require("configuration.keybind.mouse") -- Mouse button and gesture bindings

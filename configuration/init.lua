@@ -3,7 +3,6 @@
 -- Each require statement loads a specific aspect of the configuration:
 --   - autostart: Handles applications and scripts to run on startup
 --   - theme: Theme and appearance settings
---   - notification: Notification system configuration and error handling
 --   - tag: Virtual desktop (tag) management
 --   - client: Window (client) management rules and signals
 --   - keybind: Global and client keybindings
@@ -11,7 +10,6 @@
 
 require("configuration.autostart")
 require("configuration.theme")
-require("configuration.notification")
 require("configuration.tag")
 require("configuration.client")
 require("configuration.keybind")

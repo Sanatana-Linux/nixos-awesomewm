@@ -30,6 +30,8 @@ return function()
         widget = wibox.container.background,
         bg = beautiful.bg_gradient_button,
         shape = shapes.rrect(8),
+        border_width = dpi(1),
+        border_color = beautiful.fg .. "00",
         {
             widget = wibox.container.margin,
             margins = { left = dpi(4), right = dpi(4) },
@@ -77,11 +79,13 @@ return function()
     widget:connect_signal("mouse::enter", function(w)
         beautiful.bg_systray = beautiful.bg_gradient_button_alt
         w:set_bg(beautiful.bg_gradient_button_alt)
+        w:set_border_color(beautiful.fg .. "66")
     end)
 
     widget:connect_signal("mouse::leave", function(w)
         beautiful.bg_systray = beautiful.bg_gradient_button
         w:set_bg(beautiful.bg_gradient_button)
+        w:set_border_color(beautiful.fg .. "00")
     end)
 
     return widget

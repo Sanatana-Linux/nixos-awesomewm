@@ -1,4 +1,4 @@
--- configuration/notification/battery.lua
+-- ui/notification/battery.lua
 -- Low battery notification service that monitors battery levels and shows
 -- warnings when the battery is getting low or critically low.
 
@@ -8,7 +8,6 @@ local battery = require("service.battery")
 local lowNotified = false
 local criticalNotified = false
 
--- Connect to battery level changes
 local battery_service = battery.get_default()
 
 battery_service:connect_signal("property::level", function(_, percent)
@@ -40,7 +39,6 @@ battery_service:connect_signal("property::level", function(_, percent)
     end
 end)
 
--- Reset notification flags when charging begins
 battery_service:connect_signal("property::is_charging", function(_, is_charging)
     if is_charging then
         lowNotified = false

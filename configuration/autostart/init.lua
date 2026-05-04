@@ -1,16 +1,19 @@
 -- Import the awful library for window management and spawning processes
 local awful = require("awful")
 
+require("configuration.autostart.error_handling")
+
 -- Start garbage collection service to manage memory usage
 local gc_service = require("service.garbage_collection")
 gc_service.start()
 
 -- List of shell commands to autostart when AwesomeWM starts
 local autostart_commands = {
--- "xrdb -merge ~/.Xresources", -- Merge X resources
-"picom", -- Compositor for blur, shadows, and animations
-"xrandr --output eDP-1-1 --mode 2560x1600 --rate 144",
-"clipse --listen &",
+    -- "xrdb -merge ~/.Xresources", -- Merge X resources
+    "picom", -- Compositor for blur, shadows, and animations
+    "xrandr --output eDP-1-1 --mode 2560x1600 --rate 144",
+    --   "xrandr --output eDP-1-1 --mode 2560x1600 --rate 60",
+    "clipse --listen &",
 }
 
 --- Checks if AwesomeWM was restarted in this session.

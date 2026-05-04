@@ -16,6 +16,8 @@ return function()
         widget = wibox.container.background,
         bg = beautiful.bg_gradient_button,
         shape = shapes.rrect(8),
+        border_width = dpi(1),
+        border_color = beautiful.fg .. "00",
         buttons = {
             awful.button({}, 1, function()
                 day_info_panel:toggle()
@@ -44,10 +46,12 @@ return function()
     -- Hover effects
     widget:connect_signal("mouse::enter", function(w)
         w:set_bg(beautiful.bg_gradient_button_alt)
+        w.border_color = beautiful.fg .. "66"
     end)
 
     widget:connect_signal("mouse::leave", function(w)
         w:set_bg(beautiful.bg_gradient_button)
+        w.border_color = beautiful.fg .. "00"
     end)
 
     return widget

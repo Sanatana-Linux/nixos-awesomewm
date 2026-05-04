@@ -80,8 +80,8 @@ theme.magenta = "#948ae3"
 theme.cyan = "#5ad4e6"
 theme.orange = "#fd9353"
 
-theme.bg = "#1f1f1F"
-theme.bg_alt = "#2a2a2A"
+theme.bg = "#1c1c1c"
+theme.bg_alt = "#222222"
 theme.bg_urg = "#30303c"
 
 -- Backdrop for popups (fully transparent — picom applies blur only, no tint)
@@ -93,19 +93,19 @@ theme.fg = "#f7f1ff"
 theme.ac = "#5f5f6a"
 theme.rounded = true
 
--- Corner radius (matching picom: corner-radius = 12)
+-- Corner radius
 theme.border_width = dpi(1)
 theme.border_radius = dpi(12)
 theme.separator_thickness = dpi(1)
 theme.useless_gap = dpi(5)
 
--- Shadow settings (matching picom: shadow-radius = 8, shadow-opacity = 0.6)
+-- Shadow settings
 theme.shadow_radius = 8
 theme.shadow_opacity = 0.6
 theme.shadow_offset_x = 12
 theme.shadow_offset_y = 12
 
--- Window opacity settings (matching picom: inactive-opacity = 0.90, active-opacity = 1.0)
+-- Window opacity settings
 theme.inactive_opacity = 0.90
 theme.active_opacity = 1.0
 theme.frame_opacity = 0.9
@@ -195,6 +195,7 @@ theme.systray_icon_size = dpi(22)
 theme.systray_icon_margin = dpi(4)
 
 theme.wallpaper = theme_path .. "wallpaper/wallpaper.png"
+theme.wallpaper_unbranded = theme_path .. "wallpaper/wallpaper-unbranded.png"
 
 theme.layout_fairh =
     gcolor.recolor_image(icons_path .. "/layouts/fairh.svg", theme.fg)

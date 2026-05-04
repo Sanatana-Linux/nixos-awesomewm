@@ -24,8 +24,10 @@ local click_to_hide = require("modules.click_to_hide")
 local launcher = {}
 local shapes = require("modules.shapes.init")
 
-local lock_icon_path = gfs.get_configuration_dir() .. "ui/popups/launcher/icons/lock-line.svg"
-local power_icon_path = gfs.get_configuration_dir() .. "ui/popups/launcher/icons/shut-down-line.svg"
+local lock_icon_path = gfs.get_configuration_dir()
+    .. "ui/popups/launcher/icons/lock-line.svg"
+local power_icon_path = gfs.get_configuration_dir()
+    .. "ui/popups/launcher/icons/shut-down-line.svg"
 
 local function launch_app(app)
     if not app then
@@ -154,7 +156,7 @@ function launcher:update_entries()
             if i >= wp.start_index and i <= wp.start_index + wp.rows - 1 then
                 -- Use placeholder icon initially for fast rendering
                 local placeholder_icon = icon_lookup.get_fallback_icon()
-                
+
                 -- Create imagebox widget that we can update later
                 local icon_widget = wibox.widget({
                     widget = wibox.widget.imagebox,
@@ -200,17 +202,19 @@ function launcher:update_entries()
                                         },
                                     },
                                     app:get_description()
-                                        and {
-                                            widget = wibox.container.constraint,
-                                            strategy = "max",
-                                            height = 25,
-                                            {
-                                                widget = wibox.widget.textbox,
-                                                markup = '<span size="smaller">'
-                                                    .. lua_escape(app:get_description())
-                                                    .. "</span>",
-                                            },
-                                        }
+                                            and {
+                                                widget = wibox.container.constraint,
+                                                strategy = "max",
+                                                height = 25,
+                                                {
+                                                    widget = wibox.widget.textbox,
+                                                    markup = '<span size="smaller">'
+                                                        .. lua_escape(
+                                                            app:get_description()
+                                                        )
+                                                        .. "</span>",
+                                                },
+                                            }
                                         or nil,
                                 },
                             },
@@ -224,15 +228,18 @@ function launcher:update_entries()
                 end
 
                 -- Add click handler
-                entry_widget:connect_signal("button::press", function(_, _, _, button)
-                    if button == 1 then
-                        launch_app(app)
-                        self:hide()
+                entry_widget:connect_signal(
+                    "button::press",
+                    function(_, _, _, button)
+                        if button == 1 then
+                            launch_app(app)
+                            self:hide()
+                        end
                     end
-                end)
+                )
 
                 entries_container:add(entry_widget)
-                
+
                 -- Load real icon asynchronously after widget is added
                 gtimer.delayed_call(function()
                     local icon_path = icon_lookup.get_app_icon(app)
@@ -381,10 +388,9 @@ local function new()
                     {
                         widget = wibox.container.background,
                         forced_width = dpi(50),
-                        bg = beautiful.bg_alt .. "99",
-                        border_width = beautiful.border_width,
-                        border_color = beautiful.border_color_normal,
-
+                        id = "sidebar-strip",
+                        border_width = dpi(1),
+                        border_color = beautiful.fg .. "33",
                         shape = shapes.rrect(10),
                         {
                             layout = wibox.layout.align.vertical,
@@ -406,17 +412,24 @@ local function new()
                                 },
                             },
                             {
+                                widget = wibox.container.margin,
+                                left = dpi(4),
+                                right = dpi(4),
+                                bottom = dpi(4),
                                 {
-                                    id = "lock-button",
-                                    widget = modules.hover_button({
-                                        forced_width = dpi(50),
-                                        forced_height = dpi(50),
-                                        fg_normal = beautiful.fg,
-                                        bg_hover = beautiful.bg_gradient_button_alt,
-                                        shape = shapes.rrect(10),
-                                        child_widget = {
-                                            widget = wibox.container.margin,
-                                            margins = dpi(10),
+                                    {
+                                        id = "lock-button",
+                                        widget = wibox.container.background,
+                                        shape = gears.shape.rounded_rect,
+                                        forced_width = dpi(40),
+                                        forced_height = dpi(40),
+                                        border_width = dpi(1),
+                                        border_color = beautiful.fg .. "00",
+                                        bg = beautiful.bg_gradient_button,
+                                        {
+                                            widget = wibox.container.place,
+                                            halign = "center",
+                                            valign = "center",
                                             {
                                                 widget = wibox.widget.imagebox,
                                                 image = gcolor.recolor_image(
@@ -424,41 +437,40 @@ local function new()
                                                     beautiful.fg
                                                 ),
                                                 resize = true,
+                                                forced_width = dpi(22),
+                                                forced_height = dpi(22),
                                             },
                                         },
-                                    }),
-                                },
-
-                                {
-                                    id = "powermenu-button",
-                                    widget = modules.hover_button({
-                                        forced_width = dpi(50),
-                                        forced_height = dpi(50),
-                                        fg_normal = beautiful.red,
-                                        bg_hover = "linear:0,0:0,32:0,"
-                                            .. beautiful.red
-                                            .. ":1,"
-                                            .. "#b61442",
-                                        shape = shapes.rrect(10),
-icon_source = power_icon_path,
-                icon_normal_color = beautiful.red,
-                icon_hover_color = beautiful.bg,
-                                        child_widget = {
-                                            widget = wibox.container.margin,
-                                            margins = dpi(10),
+                                    },
+                                    {
+                                        id = "powermenu-button",
+                                        widget = wibox.container.background,
+                                        shape = gears.shape.rounded_rect,
+                                        forced_width = dpi(40),
+                                        forced_height = dpi(40),
+                                        border_width = dpi(1),
+                                        border_color = beautiful.fg .. "00",
+                                        bg = beautiful.bg_gradient_button,
+                                        {
+                                            widget = wibox.container.place,
+                                            halign = "center",
+                                            valign = "center",
                                             {
+                                                id = "power-icon",
                                                 widget = wibox.widget.imagebox,
                                                 image = gcolor.recolor_image(
                                                     power_icon_path,
                                                     beautiful.red
                                                 ),
                                                 resize = true,
+                                                forced_width = dpi(22),
+                                                forced_height = dpi(22),
                                             },
                                         },
-                                    }),
+                                    },
+                                    layout = wibox.layout.fixed.vertical,
+                                    spacing = dpi(12),
                                 },
-                                layout = wibox.layout.fixed.vertical,
-                                spacing = dpi(12),
                             },
                         },
                     },
@@ -478,7 +490,7 @@ icon_source = power_icon_path,
                                         image = crop_surface(
                                             3.42,
                                             gears.surface.load_uncached(
-                                                beautiful.wallpaper
+                                                beautiful.wallpaper_unbranded
                                             )
                                         ),
                                         opacity = 0.9,
@@ -507,7 +519,8 @@ icon_source = power_icon_path,
                                                         cursor_bg = beautiful.bg,
                                                         cursor_fg = beautiful.fg,
                                                         placeholder_fg = beautiful.fg_alt,
-                                                        font = beautiful.font_name .. "14",
+                                                        font = beautiful.font_name
+                                                            .. "14",
                                                     }),
                                                 },
                                             },
@@ -540,8 +553,21 @@ icon_source = power_icon_path,
     gtable.crush(ret, launcher, true)
     local wp = ret._private
 
+    local sidebar_strip = ret.widget:get_children_by_id("sidebar-strip")[1]
+    sidebar_strip.bg = "linear:0,0:50,0:0,"
+        .. beautiful.bg_alt
+        .. "aa:0.35,"
+        .. beautiful.bg
+        .. "77:0.5,"
+        .. beautiful.bg
+        .. "aa:0.65,"
+        .. beautiful.bg
+        .. "77:1,"
+        .. beautiful.bg_alt
+        .. "aa"
+
     wp.rows = 6
-    
+
     -- Pre-load apps at initialization to avoid heavy operations during show
     local status, apps = pcall(function()
         return Gio.AppInfo.get_all()
@@ -557,13 +583,37 @@ icon_source = power_icon_path,
             powermenu:show()
         end),
     })
+    powermenu_button:connect_signal("mouse::enter", function(w)
+        w.bg = "linear:0,0:0,32:0," .. beautiful.red .. ":1,#b61442"
+        w.border_color = beautiful.fg .. "66"
+        local icon = w:get_children_by_id("power-icon")[1]
+        if icon then
+            icon.image = gcolor.recolor_image(power_icon_path, beautiful.bg)
+        end
+    end)
+    powermenu_button:connect_signal("mouse::leave", function(w)
+        w.bg = beautiful.bg_gradient_button
+        w.border_color = beautiful.fg .. "00"
+        local icon = w:get_children_by_id("power-icon")[1]
+        if icon then
+            icon.image = gcolor.recolor_image(power_icon_path, beautiful.red)
+        end
+    end)
 
     local lock_button = ret.widget:get_children_by_id("lock-button")[1]
     lock_button:buttons({
         awful.button({}, 1, function()
-            awful.spawn("/home/tlh/.config/awesome/bin/glitchlock.sh")
+            awesome.emit_signal("lockscreen::visible", true)
         end),
     })
+    lock_button:connect_signal("mouse::enter", function(w)
+        w.bg = beautiful.bg_gradient_button_alt
+        w.border_color = beautiful.fg .. "66"
+    end)
+    lock_button:connect_signal("mouse::leave", function(w)
+        w.bg = beautiful.bg_gradient_button
+        w.border_color = beautiful.fg .. "00"
+    end)
 
     local entries_container =
         ret.widget:get_children_by_id("entries-container")[1]

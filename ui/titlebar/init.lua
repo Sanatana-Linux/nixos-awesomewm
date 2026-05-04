@@ -188,10 +188,9 @@ client.connect_signal("request::titlebars", function(c)
     -- Function to update the background based on focus state
     local function update_background()
         if c.focused then
-            titlebar.widget.bg = beautiful.bg_gradient_titlebar
+            titlebar.widget.bg = beautiful.bg .. "22"
         else
-            -- Use a different background when the window is not focused
-            titlebar.widget.bg = beautiful.bg_titlebar_alt or beautiful.bg_alt
+            titlebar.widget.bg = beautiful.bg_alt .. "22"
         end
     end
 
