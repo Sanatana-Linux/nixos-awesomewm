@@ -10,7 +10,7 @@ A modern, feature-rich AwesomeWM configuration with custom UI components, animat
 
 - **Custom UI Components**: Modern control panels, popups, and notification system
 - **Comprehensive Theming**: Yerba Buena theme with (pseudo-)3D button gradients, rounded corners, transparency and consistent styling
-- **Advanced Window Management**: Custom taglist/tasklist, window switcher, and client management
+- **Advanced Window Management**: Custom taglist/tasklist, Alt+Tab client menu, and client management
 - **System Integration**: Audio, brightness, network, Bluetooth, and battery status widgets
 - **Animations**: Smooth transitions and visual feedback throughout the interface
 - **Multiple Layouts**: Support for various window layouts with on-screen display
@@ -72,8 +72,7 @@ for picom, especially for the blur effect between transparent surfaces and the w
 │ │ ├── control_panel/ # System control panel
 │ │ ├── launcher/ # Application launcher
 │ │ ├── on_screen_display/ # Volume/brightness OSD
-│ │ ├── powermenu/ # Power management
-│ │ └── window_switcher/ # Alt-tab style window switcher
+│ │ └── powermenu/ # Power management
 │ ├── tabbar/ # Window tab bar
 │ ├── titlebar/ # Window title bars
 │ └── wallpaper/ # Dynamic wallpaper management

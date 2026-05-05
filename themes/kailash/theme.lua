@@ -227,8 +227,10 @@ theme.layout_cornersw =
     gcolor.recolor_image(icons_path .. "/layouts/cornersw.svg", theme.fg)
 theme.layout_cornerse =
     gcolor.recolor_image(icons_path .. "/layouts/cornerse.svg", theme.fg)
-theme.layout_center =
-    gcolor.recolor_image(icons_path .. "/layouts/centermaster.svg", theme.fg)
+theme.layout_centerwork =
+    gcolor.recolor_image(icons_path .. "/layouts/centerwork.svg", theme.fg)
+theme.layout_centerworkh =
+    gcolor.recolor_image(icons_path .. "/layouts/centerworkh.svg", theme.fg)
 theme.layout_stackLeft =
     gcolor.recolor_image(icons_path .. "/layouts/stack_left.svg", theme.fg)
 theme.layout_stack =
@@ -237,12 +239,18 @@ theme.layout_cascade =
     gcolor.recolor_image(icons_path .. "/layouts/cascade.svg", theme.fg)
 theme.layout_cascadetile =
     gcolor.recolor_image(icons_path .. "/layouts/cascadetile.svg", theme.fg)
+theme.layout_termfair =
+    gcolor.recolor_image(icons_path .. "/layouts/tile.svg", theme.fg)
+theme.layout_centerfair =
+    gcolor.recolor_image(icons_path .. "/layouts/centerfair.svg", theme.fg)
+theme.layout_grid =
+    gcolor.recolor_image(icons_path .. "/layouts/grid.svg", theme.fg)
+theme.layout_usermap =
+    gcolor.recolor_image(icons_path .. "/layouts/map.svg", theme.fg)
 theme.layout_floating =
     gcolor.recolor_image(icons_path .. "/layouts/floating.svg", theme.fg)
 theme.layout_thrizen =
     gcolor.recolor_image(icons_path .. "/layouts/thrizen.svg", theme.fg)
-theme.layout_horizon =
-    gcolor.recolor_image(icons_path .. "/layouts/horizon.svg", theme.fg)
 theme.layout_equalarea =
     gcolor.recolor_image(icons_path .. "/layouts/equalarea.svg", theme.fg)
 theme.layout_deck =

@@ -5,7 +5,7 @@ local shapes = require("modules.shapes")
 local dpi = beautiful.xresources.apply_dpi
 local capi = { client = client, tag = tag, mouse = mouse }
 local awesome = awesome
-
+local gears = require("upstream.gears")
 require("awful.autofocus")
 
 local function center_and_keep_on_screen(c, opts)
@@ -49,18 +49,7 @@ local function activate_under_pointer()
     end
 end
 
-local gears = require("gears")
-
-local window_switcher_active = false
-awesome.connect_signal("window_switcher::turn_on", function()
-    window_switcher_active = true
-end)
-awesome.connect_signal("window_switcher::turn_off", function()
-    window_switcher_active = false
-end)
-
 local function activate_under_pointer()
-    if window_switcher_active then return end
     local c = capi.mouse.current_client
     if c then
         c:activate({ context = "mouse_enter", raise = false })

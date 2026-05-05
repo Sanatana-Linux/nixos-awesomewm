@@ -7,6 +7,7 @@ local dpi = beautiful.xresources.apply_dpi
 local day_info_panel = require("ui.popups.day_info_panel").get_default()
 local control_panel = require("ui.popups.control_panel").get_default()
 local powermenu = require("ui.popups.powermenu").get_default()
+local window_switcher = require("ui.popups.window_switcher").get_default()
 local modkey = "Mod4"
 
 awful.keyboard.append_global_keybindings({
@@ -113,6 +114,7 @@ awful.keyboard.append_global_keybindings({
             awesome.emit_signal("window_switcher::turn_on")
         end,
         stop_callback = function()
+            awesome.emit_signal("window_switcher::turn_off")
             if client.focus then
                 client.focus:raise()
             end

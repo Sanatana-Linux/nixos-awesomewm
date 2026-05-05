@@ -19,7 +19,7 @@ Popup overlays — modal dialogs that appear over the desktop with a backdrop. E
 | `on_screen_display/` | OSD overlays for volume, brightness, layout (see `on_screen_display/AGENTS.md`) |
 | `powermenu/` | Power/logout/sleep/restart popup (see `powermenu/AGENTS.md`) |
 | `screenshot_popup/` | Screenshot mode selection popup (see `screenshot_popup/AGENTS.md`) |
-| `window_switcher/` | Alt-tab window switcher (see `window_switcher/AGENTS.md`) |
+| `window_switcher/` | Alt+Tab window switcher — horizontal client icon buttons (see `window_switcher/AGENTS.md`) |
 
 ## For AI Agents
 

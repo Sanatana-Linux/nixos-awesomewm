@@ -2,28 +2,25 @@
 local awful = require("awful") -- AwesomeWM core functionality
 local capi = { tag = tag } -- Capture global tag API
 
--- Import custom layout modules
-local center = require("configuration.tag.layouts.center") -- Center layout for focused windows
-local thrizen = require("configuration.tag.layouts.thrizen") -- Three-column layout
-local horizon = require("configuration.tag.layouts.horizon") -- Horizontal split layout
-local equalarea = require("configuration.tag.layouts.equalarea") -- Equal area distribution layout
-local deck = require("configuration.tag.layouts.deck") -- Deck/stacked layout with specific padding
-local mstab = require("configuration.tag.layouts.mstab") -- Master-stack tabbed layout
-local cascade = require("configuration.tag.layouts.cascade") -- Cascading window layout
+-- Import custom layout modules (from modules/layouts/ aggregator)
+local layouts = require("modules.layouts")
 local beautiful = require("beautiful") -- Theme system
 
 -- Configure default layouts when requested by the tag system
 capi.tag.connect_signal("request::default_layouts", function()
     awful.layout.append_default_layouts({
         -- CUSTOM LAYOUTS (ordered by priority/usefulness)
-        mstab, -- Master-stack with tabbed secondary windows
-        cascade.tile, -- Tiled cascade variant
-        deck, -- Stacked layout with custom padding/margins
-        cascade, -- Standard cascading windows
-        center, -- Centered master window layout
-        thrizen, -- Three-column balanced layout
-        horizon, -- Horizontal master/stack split
-        equalarea, -- Equal area distribution among windows
+        layouts.mstab,       -- Master-stack with tabbed secondary windows
+        layouts.cascade,     -- Cascading window layout
+        layouts.cascade.tile, -- Cascading tile layout (master column + slave cascade)
+        layouts.centerwork,  -- Center-focused layout (vertical master, replaces vertical.lua)
+        layouts.centerwork.horizontal, -- Center-focused layout (horizontal master, replaces horizon.lua)
+        layouts.deck,        -- Stacked layout with custom padding/margins
+        layouts.thrizen,     -- Three-column balanced layout
+        layouts.equalarea,   -- Equal area distribution among windows
+        layouts.termfair,    -- Terminal-friendly fair distribution
+        layouts.grid,        -- Floating layout with discrete geometry grid
+        layouts.map,         -- Tiling layout with user-defined geometry groups
 
         -- BUILT-IN LAYOUTS (commented out - available but not used)
         -- awful.layout.suit.max,                 -- Maximized single window

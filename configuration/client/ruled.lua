@@ -38,12 +38,13 @@ rclient.connect_signal("request::rules", function()
             max_height = 800,
             size_hints_honor = true,
             titlebars_enabled = false,
+            special = true,
             floating = true,
             raise = true,
             centered = true,
             screen = awful.screen.preferred,
             placement = signals.center_and_keep_on_screen,
-            ontop = true,
+            ontop = false,
         },
     })
 

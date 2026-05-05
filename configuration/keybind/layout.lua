@@ -72,6 +72,34 @@ awful.keyboard.append_global_keybindings({
 
     -- -------------------------------------------------------------------------- --
 
+    -- DIRECTIONAL CLIENT SWAPPING --
+    awful.key({ modkey }, "Up", function()
+        awful.client.swap.bydirection("up")
+    end, { description = "swap client up", group = "Layout" }),
+
+    awful.key({ modkey }, "Down", function()
+        awful.client.swap.bydirection("down")
+    end, { description = "swap client down", group = "Layout" }),
+
+    awful.key({ modkey }, "Left", function()
+        awful.client.swap.bydirection("left")
+    end, { description = "swap client left", group = "Layout" }),
+
+    awful.key({ modkey }, "Right", function()
+        awful.client.swap.bydirection("right")
+    end, { description = "swap client right", group = "Layout" }),
+
+    -- -------------------------------------------------------------------------- --
+
+    -- SET CLIENT AS MASTER --
+    awful.key({ modkey, "Control" }, "Return", function()
+        if client.focus then
+            awful.client.setmaster(client.focus)
+        end
+    end, { description = "set focused client as master", group = "Layout" }),
+
+    -- -------------------------------------------------------------------------- --
+
     -- LAYOUT SWITCHING CONTROLS --
     -- Mod4 + Space: Switch to next layout in rotation
     awful.key({ modkey }, "space", function()
