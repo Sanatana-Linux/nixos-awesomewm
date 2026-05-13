@@ -2,19 +2,19 @@
 
 A modern, feature-rich AwesomeWM configuration with custom UI components, animations, and comprehensive system integration.
 
-<img src="./assets/dreams.gif" width="100%" alt="AwesomeWM Configuration Preview"/>
+<img src="./assets/awesome-3x3-topographic.svg" width="100%" alt="AwesomeWM Configuration Logo"/>
 
 ---
 
 ## Features
 
-- **Custom UI Components**: Modern control panels, popups, and notification system
-- **Comprehensive Theming**: Yerba Buena theme with (pseudo-)3D button gradients, rounded corners, transparency and consistent styling
-- **Advanced Window Management**: Custom taglist/tasklist, Alt+Tab client menu, and client management
-- **System Integration**: Audio, brightness, network, Bluetooth, and battery status widgets
-- **Animations**: Smooth transitions and visual feedback throughout the interface
-- **Multiple Layouts**: Support for various window layouts with on-screen display
-- **Modular Architecture**: Well-organized codebase with clear separation of concerns and preference for keeping assets with the widgets that use them
+- **Custom UI Components**: Modern control panels, popups, hotkeys help overlay, and notification system
+- **Comprehensive Theming**: Kailash theme with Monokai Pro Spectrum palette, (pseudo-)3D button gradients, rounded corners, transparency and consistent styling
+- **Advanced Window Management**: Custom taglist/tasklist, Alt+Tab window switcher, and client management with 13 custom layouts
+- **System Integration**: Audio (PulseAudio/PipeWire), brightness, network (NetworkManager), Bluetooth (BlueZ), battery, and system info services
+- **Popups & Overlays**: Control panel, application launcher, window switcher, power menu, screenshot selection, battery details, day info panel, and paginated hotkeys reference
+- **Animations**: Smooth slide/fade transitions and visual feedback throughout the interface
+- **Modular Architecture**: Well-organized codebase with clear separation of concerns and reusable UI module library
 
 ## Installation
 
@@ -31,111 +31,164 @@ written in lua, but this process is a work in progress and not guaranteed to com
 for picom, especially for the blur effect between transparent surfaces and the wallpaper.
 
 ```
+```
 
 ## Project Structure
 
 ```
-
-├── core/ # Core AwesomeWM functionality
-│ ├── autostart/ # Auto-start applications
-│ ├── client/ # Client (window) management
-│ ├── error/ # Error handling and notifications
-│ ├── keybind/ # Keybinding definitions
-│ ├── notification/ # Notification system
-│ ├── tag/ # Tag (workspace) management
-│ └── theme/ # Theme initialization
-├── lib/ # Utility libraries
-│ ├── dbus_proxy/ # D-Bus communication
-│ ├── inspect.lua # Debug inspection utility
-│ └── json.lua # JSON handling
-├── modules/ # Reusable UI modules
-│ ├── animations/ # Animation framework
-│ ├── dropdown/ # Dropdown terminal
-│ ├── hover_button/ # Interactive button widget
-│ ├── menu/ # Context menu system
-│ ├── shapes/ # Custom shape definitions
-│ └── text_input/ # Text input widgets
-├── service/ # System service integrations
-│ ├── audio.lua # Audio/volume control
-│ ├── battery.lua # Battery status
-│ ├── bluetooth.lua # Bluetooth management
-│ ├── brightness.lua # Screen brightness
-│ ├── network.lua # Network connectivity
-│ └── screenshot.lua # Screenshot functionality
-├── themes/ # Visual themes
-│ └── yerba_buena/ # Main theme with icons and styling
-├── ui/ # User interface components
-│ ├── bar/ # Top panel/bar
-│ ├── lockscreen/ # Screen lock interface
-│ ├── notification/ # Notification display
-│ ├── popups/ # Various popup interfaces
-│ │ ├── control_panel/ # System control panel
-│ │ ├── launcher/ # Application launcher
-│ │ ├── on_screen_display/ # Volume/brightness OSD
-│ │ └── powermenu/ # Power management
-│ ├── tabbar/ # Window tab bar
-│ ├── titlebar/ # Window title bars
-│ └── wallpaper/ # Dynamic wallpaper management
-└── wibox/ # Custom wibox widgets
-├── layout/ # Custom layouts
-└── widget/ # Enhanced widgets
-
-````
+├── configuration/          # Core AwesomeWM functionality
+│   ├── autostart/          # Auto-start applications and error handling
+│   ├── client/             # Client (window) management, rules, and signals
+│   ├── keybind/            # Keybinding definitions (10 organized files)
+│   ├── screen/             # Screen management and primary screen override
+│   ├── tag/                # Tag (workspace) management with custom layouts
+│   └── theme/              # Theme initialization
+├── lib/                    # Utility libraries
+│   ├── dbus_proxy/         # D-Bus communication layer
+│   ├── inspect.lua         # Debug inspection utility
+│   ├── json.lua            # JSON handling
+│   └── surface_filters/    # C-based surface filtering (blur, etc.)
+├── modules/                # Reusable UI modules
+│   ├── animations/         # Animation framework (slide, fade, easing)
+│   ├── applet_button/      # Reusable applet toggle/launcher button
+│   ├── applet_pages/       # Page container with applet integration
+│   ├── arc_chart/          # Arc chart widget for progress display
+│   ├── backdrop/           # Semi-transparent overlay behind popups
+│   ├── button_patterns/    # Standard button behavior patterns
+│   ├── button_styles/      # Named button style definitions
+│   ├── calendar/           # Instantiable calendar widget
+│   ├── click_to_hide/      # Click-outside-to-dismiss popup behavior
+│   ├── container_styles/   # Named container style definitions
+│   ├── crop_surface/       # Surface cropping utilities
+│   ├── dropdown/           # Dropdown selection widget
+│   ├── hover_button/       # Button widget with hover effects
+│   ├── icon-lookup/        # Icon theme lookup across system/custom paths
+│   ├── layouts/            # 13 custom layout implementations
+│   ├── menu/               # Context menu system
+│   ├── page_container/     # Swipeable page container for multi-view popups
+│   ├── popup_animations/   # Popup-specific animation helpers
+│   ├── remote_watch/       # Watch remote resources for changes
+│   ├── shapes/             # Shape function library
+│   ├── snap_edge/          # Window edge snapping with preview
+│   ├── styled_button/      # Themed button combining styles and patterns
+│   ├── text_input/         # Text input widget with cursor and selection
+│   └── ui_constants/       # Shared UI dimension and color constants
+├── service/                # System service integrations (directory per service)
+│   ├── audio/              # PulseAudio/PipeWire volume control
+│   ├── battery/            # Battery level and charging state
+│   ├── bluetooth/          # Bluetooth management via BlueZ D-Bus
+│   ├── brightness/         # Screen brightness via sysfs
+│   ├── caps/               # Caps lock state detection
+│   ├── garbage_collection/ # Periodic Lua GC to prevent memory leaks
+│   ├── network/            # NetworkManager D-Bus integration
+│   ├── screenshot/         # Screenshot capture utility
+│   └── system_info/        # Kernel, uptime, CPU, memory info
+├── themes/                 # Visual themes
+│   └── kailash/            # Active theme — Monokai Pro Spectrum palette
+├── ui/                     # User interface components
+│   ├── bar/                # Hover-reveal top panel with module widgets
+│   ├── lockscreen/         # Screen locker with PAM authentication and word clock
+│   ├── notification/       # Notification daemon replacement (screenshot-aware)
+│   ├── popups/             # Popup overlays
+│   │   ├── battery/        # Battery detail popup
+│   │   ├── control_panel/  # System controls (audio, brightness, WiFi, BT, notifications)
+│   │   ├── day_info_panel/ # Day/date info popup
+│   │   ├── hotkeys_popup/  # Paginated keyboard shortcut reference
+│   │   ├── launcher/       # Application launcher with search
+│   │   ├── menu/           # Right-click desktop menu
+│   │   ├── on_screen_display/ # OSD for volume, brightness, layout
+│   │   ├── powermenu/      # Power/logout/sleep/restart
+│   │   ├── screenshot_popup/ # Screenshot mode selection
+│   │   └── window_switcher/ # Alt+Tab client switcher with icons
+│   ├── tabbar/             # Window tab bar
+│   ├── titlebar/           # Window title bars with close/maximize buttons
+│   └── wallpaper/          # Dynamic wallpaper management
+└── upstream/               # Modified AwesomeWM builtin libraries (awful, beautiful, gears, etc.)
+```
 
 ## Key Components
 
 ### Core Systems
-- **Client Management**: Advanced window placement, rules, and focus handling
-- **Keybindings**: Comprehensive keyboard shortcuts organized by category
-- **Tag Management**: Custom workspace handling with dynamic layouts
+- **Client Management**: Advanced window placement, rules, signals, resize helpers, and client restoration
+- **Keybindings**: Comprehensive keyboard shortcuts organized into 10 categories (focus, hardware, launcher, layout, mouse, system, tags, window, etc.)
+- **Tag Management**: Custom workspace handling with dynamic layout switching
 - **Error Handling**: Robust error reporting with notification integration
+- **Custom Layouts**: 13 hand-crafted layouts (cascade, centerwork, deck, equalarea, grid, map, mstab, navigator, stack, termfair, thrizen, and more)
 
 ### User Interface
-- **Control Panel**: System settings, audio/brightness controls, notification center
-- **Application Launcher**: Modern app launcher with search functionality
-- **Window Switcher**: Alt-tab style window navigation with previews
-- **On-Screen Display**: Volume and brightness indicators
-- **Power Menu**: System power management interface
+- **Control Panel**: System settings with audio sliders, brightness, WiFi applet, Bluetooth applet, and notification center
+- **Application Launcher**: Modern app launcher with search functionality and SVG icons
+- **Window Switcher**: Alt+Tab style window navigation with client icon buttons
+- **Hotkeys Popup**: Paginated keyboard shortcut reference with themed colors and backdrop
+- **On-Screen Display**: Volume, brightness, and layout indicators
+- **Power Menu**: System power management interface (power off, reboot, sleep, lock)
+- **Screenshot Popup**: Quick mode selection (fullscreen, selection, delayed)
+- **Battery Popup**: Detailed battery status with arc chart visualization
+- **Day Info Panel**: Date and calendar information
 
 ### Services
-- **Audio Service**: PulseAudio integration for volume and device management
-- **Brightness Service**: Screen brightness control with smooth transitions
-- **Network Service**: WiFi and connection status monitoring
-- **Bluetooth Service**: Device pairing and connection management
-- **Battery Service**: Power status and charging indicators
+- **Audio Service**: PulseAudio/PipeWire integration for volume and device management
+- **Brightness Service**: Screen brightness control via sysfs with smooth transitions
+- **Network Service**: NetworkManager D-Bus integration for WiFi and connection status
+- **Bluetooth Service**: BlueZ D-Bus integration with rfkill-aware adapter management
+- **Battery Service**: Power status and charging indicators with 15s polling
+- **Screenshot Service**: Capture utility with fullscreen, selection, and delayed modes
+- **Caps Lock Service**: Keyboard LED state detection
+- **System Info Service**: Kernel, uptime, CPU, and memory information
+- **Garbage Collection Service**: Periodic Lua memory management
 
 ### Theming
-- **Yerba Buena Theme**: Modern design with gradients and rounded corners
-- **Icon System**: Comprehensive icon set with fallback handling
-- **Typography**: Custom font stack with multiple weight variants
-- **Color Palette**: Consistent color scheme across all components
+- **Kailash Theme**: Modern design based on Monokai Pro Spectrum palette with vibrant accent colors
+- **Icon System**: Multi-source icon lookup across system icon themes and custom SVG sets (Colloid-Dark)
+- **Typography**: Custom font stack with Nerd Font glyphs for text icons
+- **Color Palette**: Consistent 8-char hex color scheme with alpha transparency across all components
+- **Gradients**: Radial and linear gradient support for depth and visual flair
 
 ## Configuration
 
+### Entry Point
+The configuration loads via `rc.lua`, which:
+1. Initializes luarocks (if available)
+2. Adds the `upstream/` directory to `package.path` for modified builtin libraries
+3. Adds `lib/` to `package.cpath` for native modules
+4. Requires `configuration` (core functionality) and `ui` (interface components)
+
 ### Keybindings
-See [documentation/keybindings.md](.github/documentation/keybindings.md) for the complete keybinding reference.
+See [documentation/keybindings.md](.documentation/keybindings.md) for the complete keybinding reference.
 
 ### Theme Customization
-Modify `themes/yerba_buena/theme.lua` to customize:
-- Colors and gradients
+Modify `themes/kailash/theme.lua` to customize:
+- Monokai Pro Spectrum colors and gradients
 - Fonts and typography
 - Border radius and spacing
-- Icon themes
+- Icon theme paths
+- Wallpaper image
 
 ### Adding Services
-Create new services in the `service/` directory following the existing pattern:
+Create new services in the `service/` directory following the directory pattern:
 ```lua
-local service = {}
+local gobject = require("gears.object")
+local gtable = require("gears.table")
 
-function service:get_default()
-    if not self._instance then
-        self._instance = self:new()
-    end
-    return self._instance
+local module = {}
+
+local function new()
+    local ret = gobject({})
+    gtable.crush(ret, module, true)
+    -- initialization
+    return ret
 end
 
-return service
-````
+local instance
+local function get_default()
+    if not instance then
+        instance = new()
+    end
+    return instance
+end
+
+return { get_default = get_default }
+```
 
 ## Development
 
@@ -147,6 +200,9 @@ return service
 
 # Stop test environment
 ./bin/awmtt-ng.sh stop
+
+# Start with auto-reload
+./bin/awmtt-ng.sh start -R
 
 # Format code
 stylua .
@@ -162,20 +218,24 @@ awesome -c rc.lua --check
 - **Variables**: `snake_case`, always use `local`
 - **Functions**: `snake_case` with clear parameter documentation
 - **Comments**: Document purpose and parameters for complex functions
+- **Quotes**: Prefer double quotes
+- **Requires**: Grouped at top of files (standard → external → local)
 
 ### Adding Features
 
-1. Follow the modular architecture
-2. Use existing services and utilities where possible
-3. Maintain consistent theming and styling
-4. Add appropriate error handling
-5. Test in nested session before deployment
+1. Follow the modular architecture — use existing modules and patterns
+2. Create services as `service/[name]/init.lua` with `gobject` + `get_default()` singleton pattern
+3. Create UI components as popup singletons with mutual-exclusion signal wiring
+4. Maintain consistent theming and styling via `beautiful.*` theme variables
+5. Add appropriate error handling with `pcall()` for potentially failing operations
+6. Test in nested session before deployment
 
 ## Documentation
 
-- [Keybindings Reference](./documentation/keybindings.md)
+- [Keybindings Reference](.documentation/keybindings.md)
 - [Additional Resources](.documentation/Additional-Resources.md)
-- [Credits](.documentation/Credit-Where-It-Is-Due.m)
+- [Credits](.documentation/Credit-Where-It-Is-Due.md)
+- [Icon Lookup Module](modules/icon-lookup/README.md)
 
 ## Contributing
 

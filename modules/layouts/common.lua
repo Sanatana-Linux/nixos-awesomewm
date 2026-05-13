@@ -1,10 +1,11 @@
 local awful = require("awful")
+local naughty = require("naughty")
 local ipairs = ipairs
 local alayout = awful.layout
-local layouts = require("modules.layouts")
 local utils = require("modules.utils")
 local common = { handler = {}, last = {}, tips = {}, keys = {}, mouse = {} }
 common.wfactstep = 0.05
+
 -- default keys
 common.keys.base = {
 	{
@@ -24,7 +25,9 @@ common.keys.base = {
 		{ description = "Exit navigation mode", group = "Action" }
 	},
 	{
-		{ "Mod4" }, "F1", function() redtip:show() end,
+		{ "Mod4" }, "F1", function()
+            naughty.notify({ title = "Layout Hints", text = "Use Mod4 + arrows to move clients, Mod4 + h/l for master size", timeout = 3 })
+        end,
 		{ description = "Show hotkeys helper", group = "Action" }
 	},
 }
@@ -313,44 +316,45 @@ common.handler[alayout.suit.corner.se]   = corner_handler
 common.handler[alayout.suit.corner.sw]   = corner_handler
 common.handler[alayout.suit.spiral.dwindle] = fair_handler
 
--- Custom layout handlers
----------------------------------------------------------------------------------------
--- Master/slave layouts get tile_handler (supports mwfact, nmaster, ncol)
-common.handler[layouts.mstab]                  = tile_handler
-common.handler[layouts.cascade.tile]           = tile_handler
-common.handler[layouts.centerwork]             = tile_handler
-common.handler[layouts.centerwork.horizontal]  = tile_handler
-common.handler[layouts.termfair]               = tile_handler
-common.handler[layouts.termfair.center]        = tile_handler
-common.handler[layouts.thrizen]                = tile_handler
+-- Custom layout handler/tip registration
+-- Called from init.lua after all layouts are loaded (avoids circular dep)
+function common.register_custom_layouts(layouts)
+    -- Master/slave layouts get tile_handler (supports mwfact, nmaster, ncol)
+    common.handler[layouts.mstab]                  = tile_handler
+    common.handler[layouts.cascade.tile]           = tile_handler
+    common.handler[layouts.centerwork]             = tile_handler
+    common.handler[layouts.centerwork.horizontal]  = tile_handler
+    common.handler[layouts.termfair]               = tile_handler
+    common.handler[layouts.termfair.center]        = tile_handler
+    common.handler[layouts.thrizen]                = tile_handler
 
--- Non-master/slave layouts get fair_handler (swap + base only)
-common.handler[layouts.cascade]                = fair_handler
-common.handler[layouts.deck]                   = fair_handler
-common.handler[layouts.equalarea]              = fair_handler
-common.handler[layouts.termfair.stable]        = fair_handler
-common.handler[layouts.grid]                   = fair_handler
-common.handler[layouts.map]                    = fair_handler
-common.handler[layouts.stack]                  = tile_handler
-common.handler[layouts.stack.left]             = tile_handler
+    -- Non-master/slave layouts get fair_handler (swap + base only)
+    common.handler[layouts.cascade]                = fair_handler
+    common.handler[layouts.deck]                   = fair_handler
+    common.handler[layouts.equalarea]              = fair_handler
+    common.handler[layouts.termfair.stable]        = fair_handler
+    common.handler[layouts.grid]                   = fair_handler
+    common.handler[layouts.map]                    = fair_handler
+    common.handler[layouts.stack]                  = tile_handler
+    common.handler[layouts.stack.left]             = tile_handler
 
--- Register tip entries for the hotkey popup
----------------------------------------------------------------------------------------
-common.tips[layouts.mstab]                  = build_tile_tip()
-common.tips[layouts.cascade]                = build_base_tip()
-common.tips[layouts.cascade.tile]           = build_tile_tip()
-common.tips[layouts.centerwork]             = build_tile_tip()
-common.tips[layouts.centerwork.horizontal]  = build_tile_tip()
-common.tips[layouts.termfair]               = build_tile_tip()
-common.tips[layouts.termfair.center]        = build_tile_tip()
-common.tips[layouts.termfair.stable]        = build_base_tip()
-common.tips[layouts.thrizen]                = build_tile_tip()
-common.tips[layouts.deck]                   = build_base_tip()
-common.tips[layouts.equalarea]              = build_base_tip()
-common.tips[layouts.grid]                   = build_base_tip()
-common.tips[layouts.map]                    = build_base_tip()
-common.tips[layouts.stack]                  = build_tile_tip()
-common.tips[layouts.stack.left]             = build_tile_tip()
+    -- Register tip entries for the hotkey popup
+    common.tips[layouts.mstab]                  = build_tile_tip()
+    common.tips[layouts.cascade]                = build_base_tip()
+    common.tips[layouts.cascade.tile]           = build_tile_tip()
+    common.tips[layouts.centerwork]             = build_tile_tip()
+    common.tips[layouts.centerwork.horizontal]  = build_tile_tip()
+    common.tips[layouts.termfair]               = build_tile_tip()
+    common.tips[layouts.termfair.center]        = build_tile_tip()
+    common.tips[layouts.termfair.stable]        = build_base_tip()
+    common.tips[layouts.thrizen]                = build_tile_tip()
+    common.tips[layouts.deck]                   = build_base_tip()
+    common.tips[layouts.equalarea]              = build_base_tip()
+    common.tips[layouts.grid]                   = build_base_tip()
+    common.tips[layouts.map]                    = build_base_tip()
+    common.tips[layouts.stack]                  = build_tile_tip()
+    common.tips[layouts.stack.left]             = build_tile_tip()
+end
 
 -- tip dirty setup
 common:set_keys(nil, "base")

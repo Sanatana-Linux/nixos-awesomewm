@@ -12,7 +12,7 @@ local autostart_commands = {
     -- "xrdb -merge ~/.Xresources", -- Merge X resources
     "picom", -- Compositor for blur, shadows, and animations
     "xrandr --output eDP-1-1 --mode 2560x1600 --rate 144",
-    --   "xrandr --output eDP-1-1 --mode 2560x1600 --rate 60",
+    -- "xrandr --output eDP-1-1 --mode 2560x1600 --rate 60",
     "clipse --listen &",
 }
 

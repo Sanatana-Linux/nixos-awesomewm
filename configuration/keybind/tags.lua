@@ -11,17 +11,17 @@ local modkey = "Mod4" -- Super/Windows key modifier
 awful.keyboard.append_global_keybindings({
 
     -- TAG NAVIGATION KEYBINDINGS --
-    -- Mod4 + Left Arrow: View previous tag in sequence
+    -- Mod4 + Shift + Left Arrow: View previous tag in sequence
     awful.key(
-        { modkey },
+        { modkey, "Shift" },
         "Left",
         awful.tag.viewprev,
         { description = "View Previous Tag", group = "Tags" }
     ),
 
-    -- Mod4 + Right Arrow: View next tag in sequence
+    -- Mod4 + Shift + Right Arrow: View next tag in sequence
     awful.key(
-        { modkey },
+        { modkey, "Shift" },
         "Right",
         awful.tag.viewnext,
         { description = "View Next Tag", group = "Tags" }

@@ -18,6 +18,7 @@ local bell_on_icon = icons_dir .. "bell-on.svg"
 local bell_off_icon = icons_dir .. "bell-off.svg"
 local trash_icon = icons_dir .. "trash.svg"
 local close_icon = icons_dir .. "close.svg"
+local exit_icon = icons_dir .. "close.svg"
 
 local notification_list = {}
 
@@ -29,23 +30,29 @@ local function remove_notification_by_id(self, notification_id)
             print("ERROR: notifications-layout not found")
             return
         end
-        
+
         -- Find widget with matching notification ID
         local widget_to_remove = nil
         for i, child in ipairs(notifs_layout.children or {}) do
-            if child.is_notification and child.notification_id == notification_id then
+            if
+                child.is_notification
+                and child.notification_id == notification_id
+            then
                 widget_to_remove = child
                 break
             end
         end
-        
+
         if widget_to_remove then
             notifs_layout:remove_widgets(widget_to_remove)
         else
-            print("WARNING: Widget with notification ID not found:", notification_id)
+            print(
+                "WARNING: Widget with notification ID not found:",
+                notification_id
+            )
             return
         end
-        
+
         -- Check if we need to add the "No notifications" message
         if #notifs_layout.children == 0 then
             notifs_layout:insert(
@@ -63,10 +70,10 @@ local function remove_notification_by_id(self, notification_id)
                 })
             )
         end
-        
+
         self:update_count()
     end)
-    
+
     if not success then
         print("ERROR: Error removing notification:", err)
     end
@@ -304,7 +311,7 @@ local function create_confirmation_dialog(callback)
         visible = false,
         ontop = false,
         type = "desktop",
-        bg = "#00000088",
+        bg = "#00000033",
         x = screen.geometry.x,
         y = screen.geometry.y,
         width = screen.geometry.width,
@@ -334,35 +341,14 @@ local function create_confirmation_dialog(callback)
         end
     end
 
-    -- Create cancel button
-    local cancel_button = wibox.widget({
+    -- Create confirm button (left side)
+    local confirm_icon = gcolor.recolor_image(trash_icon, beautiful.red)
+    local confirm_icon_hover = gcolor.recolor_image(trash_icon, "#000000")
+    local confirm_button = wibox.widget({
         widget = wibox.container.background,
-        bg = beautiful.bg_alt,
-        shape = shapes.rrect(8),
-        buttons = {
-            awful.button({}, 1, handle_cancel),
-        },
-        {
-            widget = wibox.container.margin,
-            margins = {
-                left = dpi(15),
-                right = dpi(15),
-                top = dpi(8),
-                bottom = dpi(8),
-            },
-            {
-                widget = wibox.widget.textbox,
-                align = "center",
-                markup = "Cancel",
-                font = beautiful.font_name .. " " .. dpi(10),
-            },
-        },
-    })
-
-    -- Create clear all button
-    local clear_button = wibox.widget({
-        widget = wibox.container.background,
-        bg = beautiful.red,
+        bg = "transparent",
+        border_width = dpi(1),
+        border_color = beautiful.red,
         shape = shapes.rrect(8),
         buttons = {
             awful.button({}, 1, handle_clear_all),
@@ -370,19 +356,93 @@ local function create_confirmation_dialog(callback)
         {
             widget = wibox.container.margin,
             margins = {
-                left = dpi(15),
-                right = dpi(15),
-                top = dpi(8),
-                bottom = dpi(8),
+                left = dpi(28),
+                right = dpi(8),
+                top = dpi(12),
+                bottom = dpi(12),
             },
             {
-                widget = wibox.widget.textbox,
-                align = "center",
-                markup = create_markup("Clear All", { fg = beautiful.bg }),
-                font = beautiful.font_name .. " " .. dpi(10),
+                layout = wibox.layout.fixed.horizontal,
+                spacing = dpi(3),
+                {
+                    id = "confirm-icon",
+                    widget = wibox.widget.imagebox,
+                    image = confirm_icon,
+                    resize = true,
+                    forced_width = dpi(24),
+                    forced_height = dpi(24),
+                },
+                {
+                    id = "confirm-label",
+                    widget = wibox.widget.textbox,
+                    align = "center",
+                    markup = create_markup("Confirm", { fg = beautiful.red }),
+                    font = beautiful.font_name .. " " .. dpi(12),
+                },
             },
         },
     })
+    confirm_button:connect_signal("mouse::enter", function(w)
+        w.bg = "linear:0,0:0,32:0,#fc618dcc:1,#b61442cc"
+        w.border_color = "transparent"
+        local icon = w:get_children_by_id("confirm-icon")[1]
+        if icon then icon.image = confirm_icon_hover end
+        local label = w:get_children_by_id("confirm-label")[1]
+        if label then label:set_markup(create_markup("Confirm", { fg = "#000000" })) end
+    end)
+    confirm_button:connect_signal("mouse::leave", function(w)
+        w.bg = "transparent"
+        w.border_color = beautiful.red
+        local icon = w:get_children_by_id("confirm-icon")[1]
+        if icon then icon.image = confirm_icon end
+        local label = w:get_children_by_id("confirm-label")[1]
+        if label then label:set_markup(create_markup("Confirm", { fg = beautiful.red })) end
+    end)
+
+    -- Create cancel button (right side)
+    local cancel_icon = gcolor.recolor_image(exit_icon, beautiful.fg)
+    local cancel_button = wibox.widget({
+        widget = wibox.container.background,
+        bg = beautiful.bg_alt,
+        border_width = dpi(2),
+        border_color = beautiful.fg .. "66",
+        shape = shapes.rrect(8),
+        buttons = {
+            awful.button({}, 1, handle_cancel),
+        },
+        {
+            widget = wibox.container.margin,
+            margins = {
+                left = dpi(36),
+                right = dpi(16),
+                top = dpi(12),
+                bottom = dpi(12),
+            },
+            {
+                layout = wibox.layout.fixed.horizontal,
+                spacing = dpi(3),
+                {
+                    widget = wibox.widget.imagebox,
+                    image = cancel_icon,
+                    resize = true,
+                    forced_width = dpi(24),
+                    forced_height = dpi(24),
+                },
+                {
+                    widget = wibox.widget.textbox,
+                    align = "center",
+                    markup = "Cancel",
+                    font = beautiful.font_name .. " " .. dpi(12),
+                },
+            },
+        },
+    })
+    cancel_button:connect_signal("mouse::enter", function(w)
+        w.bg = beautiful.bg_urg
+    end)
+    cancel_button:connect_signal("mouse::leave", function(w)
+        w.bg = beautiful.bg_alt
+    end)
 
     -- Don't add button functionality separately since it's already in the widget definition
 
@@ -393,46 +453,41 @@ local function create_confirmation_dialog(callback)
         screen = screen,
         bg = "#00000000",
         placement = awful.placement.centered,
-        forced_width = dpi(350),
+
         widget = {
             widget = wibox.container.background,
-            bg = beautiful.bg,
+            bg = beautiful.bg .. "33",
             border_width = dpi(2),
             border_color = beautiful.fg_alt,
             shape = shapes.rrect(15),
             {
                 widget = wibox.container.margin,
-                margins = dpi(20),
+                margins = dpi(10),
                 {
                     layout = wibox.layout.fixed.vertical,
-                    spacing = dpi(15),
+                    spacing = dpi(32),
                     -- Title
                     {
                         widget = wibox.widget.textbox,
                         align = "center",
-                        markup = create_markup("Clear All Notifications", {
-                            size = dpi(14),
-                            weight = "bold",
-                        }),
+                        markup = create_markup("Clear All Notifications"),
+                        font = beautiful.font_name .. " 16",
                     },
                     -- Message
                     {
                         widget = wibox.widget.textbox,
                         align = "center",
                         markup = create_markup(
-                            "This will permanently delete all notification history.\nAre you sure you want to continue?",
-                            {
-                                fg = beautiful.fg_alt,
-                                size = dpi(12),
-                            }
+                            "This will permanently delete all notification history.\nAre you sure you want to continue?"
                         ),
+                        font = beautiful.font_name .. " 10",
                     },
                     -- Buttons
                     {
                         layout = wibox.layout.flex.horizontal,
-                        spacing = dpi(10),
+                        spacing = dpi(12),
+                        confirm_button,
                         cancel_button,
-                        clear_button,
                     },
                 },
             },

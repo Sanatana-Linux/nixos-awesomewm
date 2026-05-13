@@ -27,7 +27,9 @@ local shapes = require("modules.shapes.init")
 local lock_icon_path = gfs.get_configuration_dir()
     .. "ui/popups/launcher/icons/lock-line.svg"
 local power_icon_path = gfs.get_configuration_dir()
-    .. "ui/popups/launcher/icons/shut-down-line.svg"
+    .. "ui/popups/launcher/icons/shut-down-line-fg.svg"
+local power_icon_black_path = gfs.get_configuration_dir()
+    .. "ui/popups/launcher/icons/shut-down-line-black.svg"
 
 local function launch_app(app)
     if not app then
@@ -458,10 +460,7 @@ local function new()
                                             {
                                                 id = "power-icon",
                                                 widget = wibox.widget.imagebox,
-                                                image = gcolor.recolor_image(
-                                                    power_icon_path,
-                                                    beautiful.red
-                                                ),
+                                                image = power_icon_path,
                                                 resize = true,
                                                 forced_width = dpi(22),
                                                 forced_height = dpi(22),
@@ -578,25 +577,24 @@ local function new()
 
     local powermenu_button =
         ret.widget:get_children_by_id("powermenu-button")[1]
+    local power_icon_widget = ret.widget:get_children_by_id("power-icon")[1]
     powermenu_button:buttons({
         awful.button({}, 1, function()
             powermenu:show()
         end),
     })
     powermenu_button:connect_signal("mouse::enter", function(w)
-        w.bg = "linear:0,0:0,32:0," .. beautiful.red .. ":1,#b61442"
+        w.bg = beautiful.red
         w.border_color = beautiful.fg .. "66"
-        local icon = w:get_children_by_id("power-icon")[1]
-        if icon then
-            icon.image = gcolor.recolor_image(power_icon_path, beautiful.bg)
+        if power_icon_widget then
+            power_icon_widget.image = power_icon_black_path
         end
     end)
     powermenu_button:connect_signal("mouse::leave", function(w)
         w.bg = beautiful.bg_gradient_button
         w.border_color = beautiful.fg .. "00"
-        local icon = w:get_children_by_id("power-icon")[1]
-        if icon then
-            icon.image = gcolor.recolor_image(power_icon_path, beautiful.red)
+        if power_icon_widget then
+            power_icon_widget.image = power_icon_path
         end
     end)
 
