@@ -2,6 +2,7 @@ local wibox = require("wibox")
 local beautiful = require("beautiful")
 local awful = require("awful")
 local gears = require("gears")
+local gfs = require("gears.filesystem")
 local dpi = beautiful.xresources.apply_dpi
 local modules = require("modules")
 local text_icons = beautiful.text_icons
@@ -36,6 +37,7 @@ local function create_battery_widget()
         id = "progressbar",
         widget = wibox.widget.progressbar,
         max_value = 100,
+        forced_width = dpi(30),
         paddings = dpi(3),
         border_width = dpi(1.25),
         shape = shapes.rrect(5),
@@ -45,30 +47,36 @@ local function create_battery_widget()
         color = beautiful.blue,
     })
 
+    local bolt_icon = gfs.get_configuration_dir()
+        .. "themes/kailash/icons/wibar/bolt.svg"
+
     local percentage_label = wibox.widget({
         id = "percentage",
         font = beautiful.font_name .. dpi(9),
-        color = beautiful.bg,
+        color = "#ffffff",
         align = "center",
         valign = "center",
         widget = wibox.widget.textbox,
     })
 
     local charging_icon = wibox.widget({
-        id = "charging_icon",
-        markup = text_icons.bolt or "",
-        color = beautiful.bg,
+        widget = wibox.container.place,
         visible = false,
-        align = "center",
+        halign = "center",
         valign = "center",
-        widget = wibox.widget.textbox,
+        {
+            id = "charging_icon_img",
+            image = gears.color.recolor_image(bolt_icon, "#ffffff"),
+            forced_height = dpi(16),
+            forced_width = dpi(16),
+            resize = true,
+            widget = wibox.widget.imagebox,
+        },
     })
 
-    local stacked_layout = wibox.widget({
+    local info_stack = wibox.widget({
         layout = wibox.layout.stack,
-        forced_height = dpi(22),
-        forced_width = dpi(30),
-        progressbar,
+        forced_width = dpi(32),
         percentage_label,
         charging_icon,
     })
@@ -83,6 +91,16 @@ local function create_battery_widget()
             shape = shapes.rrect(10),
             widget = wibox.container.background,
         },
+    })
+
+    local battery_layout = wibox.widget({
+        layout = wibox.layout.fixed.horizontal,
+        spacing = dpi(3),
+        forced_height = dpi(22),
+        forced_width = dpi(72),
+        progressbar,
+        terminal,
+        info_stack,
     })
 
     local widget = modules.hover_button({
@@ -100,12 +118,7 @@ local function create_battery_widget()
                 left = dpi(4),
                 right = dpi(4),
             },
-            {
-                layout = wibox.layout.fixed.horizontal,
-                spacing = dpi(3),
-                stacked_layout,
-                terminal,
-            },
+            battery_layout,
         },
     })
 

@@ -102,7 +102,7 @@ local function create_desktop_menu()
             {
                 label = " web", -- nf-fa-firefox
                 exec = function()
-                    local app = "firefox-nightly"
+                    local app = "firefox-devedition -P tlh"
                     if app then
                         awful.spawn(app)
                     end

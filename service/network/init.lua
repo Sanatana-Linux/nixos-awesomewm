@@ -256,24 +256,29 @@ local function create_access_point_object(path)
 end
 
 function client:get_state()
+    if not self._private.client_proxy then return end
     return self._private.client_proxy.State
 end
 
 function client:get_networking_enabled()
+    if not self._private.client_proxy then return end
     return self._private.client_proxy.NetworkingEnabled
 end
 
 function client:enable(state)
+    if not self._private.client_proxy then return end
     if self._private.client_proxy.EnableAsync then
         self._private.client_proxy:EnableAsync(function() end, {}, state)
     end
 end
 
 function client:get_wireless_enabled()
+    if not self._private.client_proxy then return false end
     return self._private.client_proxy.WirelessEnabled
 end
 
 function client:set_wireless_enabled(state)
+    if not self._private.client_proxy then return end
     if state == true and self:get_networking_enabled() ~= true then
         self:enable(true)
     end
@@ -302,7 +307,7 @@ function client:get_connection(path)
 end
 
 function client:connect_access_point(ap, password, auto_connect)
-    if not ap then
+    if not ap or not self._private.client_proxy then
         return
     end
     password = password or ""
@@ -312,7 +317,7 @@ function client:connect_access_point(ap, password, auto_connect)
 
     local ap_connections = {}
     for _, con in pairs(self.connections) do
-        if string.find(con:get_filename(), ap:get_ssid()) then
+        if con:get_filename() and string.find(con:get_filename(), ap:get_ssid()) then
             table.insert(ap_connections, con)
         end
     end
@@ -342,6 +347,7 @@ function client:connect_access_point(ap, password, auto_connect)
 end
 
 function client:disconnect_active_access_point()
+    if not self._private.client_proxy then return end
     self._private.client_proxy:DeactivateConnectionAsync(
         nil,
         {},
@@ -350,6 +356,7 @@ function client:disconnect_active_access_point()
 end
 
 function client:disconnect_access_point(dev)
+    if not self._private.client_proxy then return end
     if dev and dev._private.device_proxy then
         self._private.client_proxy:DeactivateConnectionAsync(
             nil,
@@ -394,6 +401,7 @@ function wireless:get_access_point(path)
 end
 
 function wireless:get_active_access_point()
+    if not self._private.wireless_proxy then return end
     return self:get_access_point(self._private.wireless_proxy.ActiveAccessPoint)
 end
 
@@ -762,13 +770,31 @@ local function new()
     return ret
 end
 
+local function create_fallback()
+    local ret = gobject({})
+    gtable.crush(ret, client, true)
+    ret._private = {}
+    ret.devices = {}
+    ret.wireless_devices = {}
+    ret.wired_devices = {}
+    ret.connections = {}
+    ret.wired = gobject({})
+    ret.wired._private = {}
+    ret.wireless = gobject({})
+    gtable.crush(ret.wireless, wireless, true)
+    ret.wireless._private = {}
+    ret.wireless.access_points = {}
+    return ret
+end
+
 local instance = nil
 local function get_default()
     if not instance then
         if not _NM_status or not NM then
-            instance = gobject({})
+            instance = create_fallback()
         else
-            instance = new()
+            local ok, result = pcall(new)
+            instance = ok and result or create_fallback()
         end
     end
     return instance

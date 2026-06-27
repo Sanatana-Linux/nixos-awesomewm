@@ -85,6 +85,7 @@ rclient.connect_signal("request::rules", function()
             class = {
                 "vlc",
                 "firefox",
+                "firefox-devedition",
                 "firefoxdeveloperedition",
                 "firefox-nightly",
             },

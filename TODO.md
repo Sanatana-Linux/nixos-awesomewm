@@ -104,3 +104,6 @@
 - [x] DONE NONE OF THE SYSTEM STATUS ARC CHARTS ARE DISPLAYING ANY LIVEFEED LOAD PERCENTAGES, ALL SAY 0% (fixed animation easing function and callback parameter order in arc_chart module)
 - [x] DONE make battery button show the remaining percentage as text overlaid on top of the battery icon
 - [x] DONE if no battery is detected during start up, the icon where the battery is should display an arc chart showing CPU load like the popup clicking it shows
+
+
+- [ ] TODO the buttons for the network and bluetooth panels that open from the control panel need to have tooltips (styled as they are elsewhere with the same bg and fg colors) that describe what the button's function is.  
