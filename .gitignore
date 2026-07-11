@@ -7,6 +7,6 @@
 
 # OpenCode JOC session state
 .opencode/state/
-
+.opencode/cache/
 # Evaluation/test state
 evals/**/state/
