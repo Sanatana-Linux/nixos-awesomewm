@@ -83,11 +83,10 @@ local ipairs = ipairs
 local pairs = pairs
 local math = math
 local table = table
-local capi =
-{
+local capi = {
     screen = screen,
     mouse = mouse,
-    client = client
+    client = client,
 }
 local floating = require("awful.layout.suit.floating")
 local a_screen = require("awful.screen")
@@ -95,7 +94,7 @@ local grect = require("gears.geometry").rectangle
 local gdebug = require("gears.debug")
 local gmath = require("gears.math")
 local gtable = require("gears.table")
-local cairo = require( "lgi" ).cairo
+local cairo = require("lgi").cairo
 local unpack = unpack or table.unpack -- luacheck: globals unpack (compatibility with Lua 5.1)
 
 local function get_screen(s)
@@ -120,7 +119,7 @@ local attach
 local function compose(...)
     local queue = {}
 
-    local nodes = {...}
+    local nodes = { ... }
 
     -- Allow placement.foo + (var == 42 and placement.bar)
     if not nodes[2] then
@@ -146,24 +145,24 @@ local function compose(...)
 
         -- As some functions may have to take into account results from
         -- previously executed ones, add the `composition_results` hint.
-        args = setmetatable({composition_results=rets}, {__index=args})
+        args = setmetatable({ composition_results = rets }, { __index = args })
 
         -- Only apply the geometry once, not once per chain node, to do this,
         -- Force the "pretend" argument and restore the original value for
         -- the last node.
         local attach_real = args.attach
-        args.pretend      = true
-        args.attach       = false
-        args.offset       = {}
+        args.pretend = true
+        args.attach = false
+        args.offset = {}
 
         for k, f in ipairs(queue) do
             if k == #queue then
                 -- Let them fallback to the parent table
                 args.pretend = nil
-                args.offset  = nil
+                args.offset = nil
             end
 
-            local r = {f(d, args, ...)}
+            local r = { f(d, args, ...) }
             last_geo = r[1] or last_geo
             args.override_geometry = last_geo
 
@@ -171,7 +170,7 @@ local function compose(...)
             if f.context then
                 -- When 2 composition queue are executed, merge the return values
                 if f.context == "compose" then
-                    for k2,v in pairs(r) do
+                    for k2, v in pairs(r) do
                         rets[k2] = v
                     end
                 else
@@ -198,17 +197,16 @@ local function compose(...)
 end
 
 wrap_client = function(f, context)
-    return setmetatable(
-        {
-            is_placement= true,
-            context     = context,
-        },
-        {
-            __call = function(_,...) return f(...) end,
-            __add  = compose, -- Composition is usually defined as +
-            __mul  = compose  -- Make sense if you think of the functions as matrices
-        }
-    )
+    return setmetatable({
+        is_placement = true,
+        context = context,
+    }, {
+        __call = function(_, ...)
+            return f(...)
+        end,
+        __add = compose, -- Composition is usually defined as +
+        __mul = compose, -- Make sense if you think of the functions as matrices
+    })
 end
 
 local placement_private = {}
@@ -222,87 +220,185 @@ placement = setmetatable({}, {
     __index = placement_private,
     __newindex = function(_, k, f)
         placement_private[k] = wrap_client(f, k)
-    end
+    end,
 })
 
 -- 3x3 matrix of the valid sides and corners
-local corners3x3 = {{"top_left"   ,   "top"   , "top_right"   },
-                    {"left"       ,    nil    , "right"       },
-                    {"bottom_left",  "bottom" , "bottom_right"}}
+local corners3x3 = {
+    { "top_left", "top", "top_right" },
+    { "left", nil, "right" },
+    { "bottom_left", "bottom", "bottom_right" },
+}
 
 -- 2x2 matrix of the valid sides and corners
-local corners2x2 = {{"top_left"   ,            "top_right"   },
-                    {"bottom_left",            "bottom_right"}}
+local corners2x2 = {
+    { "top_left", "top_right" },
+    { "bottom_left", "bottom_right" },
+}
 
 -- Compute the new `x` and `y`.
 -- The workarea position need to be applied by the caller
 local align_map = {
-    top_left          = function(_ , _ , _ , _ ) return {x=0        , y=0        } end,
-    top_right         = function(sw, _ , dw, _ ) return {x=sw-dw    , y=0        } end,
-    bottom_left       = function(_ , sh, _ , dh) return {x=0        , y=sh-dh    } end,
-    bottom_right      = function(sw, sh, dw, dh) return {x=sw-dw    , y=sh-dh    } end,
-    left              = function(_ , sh, _ , dh) return {x=0        , y=sh/2-dh/2} end,
-    right             = function(sw, sh, dw, dh) return {x=sw-dw    , y=sh/2-dh/2} end,
-    top               = function(sw, _ , dw, _ ) return {x=sw/2-dw/2, y=0        } end,
-    bottom            = function(sw, sh, dw, dh) return {x=sw/2-dw/2, y=sh-dh    } end,
-    centered          = function(sw, sh, dw, dh) return {x=sw/2-dw/2, y=sh/2-dh/2} end,
-    center_vertical   = function(_ , sh, _ , dh) return {x= nil     , y=sh-dh    } end,
-    center_horizontal = function(sw, _ , dw, _ ) return {x=sw/2-dw/2, y= nil     } end,
+    top_left = function(_, _, _, _)
+        return { x = 0, y = 0 }
+    end,
+    top_right = function(sw, _, dw, _)
+        return { x = sw - dw, y = 0 }
+    end,
+    bottom_left = function(_, sh, _, dh)
+        return { x = 0, y = sh - dh }
+    end,
+    bottom_right = function(sw, sh, dw, dh)
+        return { x = sw - dw, y = sh - dh }
+    end,
+    left = function(_, sh, _, dh)
+        return { x = 0, y = sh / 2 - dh / 2 }
+    end,
+    right = function(sw, sh, dw, dh)
+        return { x = sw - dw, y = sh / 2 - dh / 2 }
+    end,
+    top = function(sw, _, dw, _)
+        return { x = sw / 2 - dw / 2, y = 0 }
+    end,
+    bottom = function(sw, sh, dw, dh)
+        return { x = sw / 2 - dw / 2, y = sh - dh }
+    end,
+    centered = function(sw, sh, dw, dh)
+        return { x = sw / 2 - dw / 2, y = sh / 2 - dh / 2 }
+    end,
+    center_vertical = function(_, sh, _, dh)
+        return { x = nil, y = sh - dh }
+    end,
+    center_horizontal = function(sw, _, dw, _)
+        return { x = sw / 2 - dw / 2, y = nil }
+    end,
 }
 
 -- Some parameters to correctly compute the final size
 local resize_to_point_map = {
     -- Corners
-    top_left     = {p1= nil  , p2={1,1}, x_only=false, y_only=false, align="bottom_right"},
-    top_right    = {p1={0,1} , p2= nil , x_only=false, y_only=false, align="bottom_left" },
-    bottom_left  = {p1= nil  , p2={1,0}, x_only=false, y_only=false, align="top_right"   },
-    bottom_right = {p1={0,0} , p2= nil , x_only=false, y_only=false, align="top_left"    },
+    top_left = {
+        p1 = nil,
+        p2 = { 1, 1 },
+        x_only = false,
+        y_only = false,
+        align = "bottom_right",
+    },
+    top_right = {
+        p1 = { 0, 1 },
+        p2 = nil,
+        x_only = false,
+        y_only = false,
+        align = "bottom_left",
+    },
+    bottom_left = {
+        p1 = nil,
+        p2 = { 1, 0 },
+        x_only = false,
+        y_only = false,
+        align = "top_right",
+    },
+    bottom_right = {
+        p1 = { 0, 0 },
+        p2 = nil,
+        x_only = false,
+        y_only = false,
+        align = "top_left",
+    },
 
     -- Sides
-    left         = {p1= nil  , p2={1,1}, x_only=true , y_only=false, align="top_right"   },
-    right        = {p1={0,0} , p2= nil , x_only=true , y_only=false, align="top_left"    },
-    top          = {p1= nil  , p2={1,1}, x_only=false, y_only=true , align="bottom_left" },
-    bottom       = {p1={0,0} , p2= nil , x_only=false, y_only=true , align="top_left"    },
+    left = {
+        p1 = nil,
+        p2 = { 1, 1 },
+        x_only = true,
+        y_only = false,
+        align = "top_right",
+    },
+    right = {
+        p1 = { 0, 0 },
+        p2 = nil,
+        x_only = true,
+        y_only = false,
+        align = "top_left",
+    },
+    top = {
+        p1 = nil,
+        p2 = { 1, 1 },
+        x_only = false,
+        y_only = true,
+        align = "bottom_left",
+    },
+    bottom = {
+        p1 = { 0, 0 },
+        p2 = nil,
+        x_only = false,
+        y_only = true,
+        align = "top_left",
+    },
 }
 
 -- Outer position matrix
 local outer_positions = {
-    left_front    = function(r, w, _) return {x=r.x-w            , y=r.y                }, "front"  end,
-    left_back     = function(r, w, h) return {x=r.x-w            , y=r.y-h+r.height     }, "back"   end,
-    left_middle   = function(r, w, h) return {x=r.x-w            , y=r.y-h/2+r.height/2 }, "middle" end,
-    right_front   = function(r, _, _) return {x=r.x              , y=r.y                }, "front"  end,
-    right_back    = function(r, _, h) return {x=r.x              , y=r.y-h+r.height     }, "back"   end,
-    right_middle  = function(r, _, h) return {x=r.x              , y=r.y-h/2+r.height/2 }, "middle" end,
-    top_front     = function(r, _, h) return {x=r.x              , y=r.y-h              }, "front"  end,
-    top_back      = function(r, w, h) return {x=r.x-w+r.width    , y=r.y-h              }, "back"   end,
-    top_middle    = function(r, w, h) return {x=r.x-w/2+r.width/2, y=r.y-h              }, "middle" end,
-    bottom_front  = function(r, _, _) return {x=r.x              , y=r.y                }, "front"  end,
-    bottom_back   = function(r, w, _) return {x=r.x-w+r.width    , y=r.y                }, "back"   end,
-    bottom_middle = function(r, w, _) return {x=r.x-w/2+r.width/2, y=r.y                }, "middle" end,
+    left_front = function(r, w, _)
+        return { x = r.x - w, y = r.y }, "front"
+    end,
+    left_back = function(r, w, h)
+        return { x = r.x - w, y = r.y - h + r.height }, "back"
+    end,
+    left_middle = function(r, w, h)
+        return { x = r.x - w, y = r.y - h / 2 + r.height / 2 }, "middle"
+    end,
+    right_front = function(r, _, _)
+        return { x = r.x, y = r.y }, "front"
+    end,
+    right_back = function(r, _, h)
+        return { x = r.x, y = r.y - h + r.height }, "back"
+    end,
+    right_middle = function(r, _, h)
+        return { x = r.x, y = r.y - h / 2 + r.height / 2 }, "middle"
+    end,
+    top_front = function(r, _, h)
+        return { x = r.x, y = r.y - h }, "front"
+    end,
+    top_back = function(r, w, h)
+        return { x = r.x - w + r.width, y = r.y - h }, "back"
+    end,
+    top_middle = function(r, w, h)
+        return { x = r.x - w / 2 + r.width / 2, y = r.y - h }, "middle"
+    end,
+    bottom_front = function(r, _, _)
+        return { x = r.x, y = r.y }, "front"
+    end,
+    bottom_back = function(r, w, _)
+        return { x = r.x - w + r.width, y = r.y }, "back"
+    end,
+    bottom_middle = function(r, w, _)
+        return { x = r.x - w / 2 + r.width / 2, y = r.y }, "middle"
+    end,
 }
 
 -- Map the opposite side for a string
 local opposites = {
-    top    = "bottom",
+    top = "bottom",
     bottom = "top",
-    left   = "right",
-    right  = "left",
-    width  = "height",
+    left = "right",
+    right = "left",
+    width = "height",
     height = "width",
-    x      = "y",
-    y      = "x",
+    x = "y",
+    y = "x",
 }
 
 -- List reletvant sides for each orientation.
 local struts_orientation_to_sides = {
-    horizontal = { "top" , "bottom" },
-    vertical   = { "left", "right"  }
+    horizontal = { "top", "bottom" },
+    vertical = { "left", "right" },
 }
 
 -- Map orientation to the length components (width/height).
 local orientation_to_length = {
     horizontal = "width",
-    vertical   = "height"
+    vertical = "height",
 }
 
 --- Add a context to the arguments.
@@ -310,17 +406,24 @@ local orientation_to_length = {
 -- internal helper methods. If there already is a context, it has priority and
 -- is kept.
 local function add_context(args, context)
-    return setmetatable({context = (args or {}).context or context }, {__index=args})
+    return setmetatable(
+        { context = (args or {}).context or context },
+        { __index = args }
+    )
 end
 
-local data = setmetatable({}, { __mode = 'k' })
+local data = setmetatable({}, { __mode = "k" })
 
 --- Store a drawable geometry (per context) in a weak table.
 -- @param d The drawin
 -- @tparam string reqtype The context.
 local function store_geometry(d, reqtype)
-    if not data[d] then data[d] = {} end
-    if not data[d][reqtype] then data[d][reqtype] = {} end
+    if not data[d] then
+        data[d] = {}
+    end
+    if not data[d][reqtype] then
+        data[d][reqtype] = {}
+    end
     data[d][reqtype] = d:geometry()
     data[d][reqtype].screen = d.screen
     data[d][reqtype].sgeo = d.screen and d.screen.geometry or nil
@@ -335,18 +438,24 @@ local function get_decoration(args)
     local offset = args.offset
 
     -- Offset are "blind" values added to the output
-    offset = type(offset) == "number" and {
-        x      = offset,
-        y      = offset,
-        width  = offset,
-        height = offset,
-    } or args.offset or {}
+    offset = type(offset) == "number"
+            and {
+                x = offset,
+                y = offset,
+                width = offset,
+                height = offset,
+            }
+        or args.offset
+        or {}
 
     -- Margins are distances on each side to subtract from the area`
-    local m = type(args.margins) == "table" and args.margins or {
-        left = args.margins or 0 , right  = args.margins or 0,
-        top  = args.margins or 0 , bottom = args.margins or 0
-    }
+    local m = type(args.margins) == "table" and args.margins
+        or {
+            left = args.margins or 0,
+            right = args.margins or 0,
+            top = args.margins or 0,
+            bottom = args.margins or 0,
+        }
 
     return m, offset
 end
@@ -359,18 +468,32 @@ end
 --  mess the pipeline.
 -- @treturn table|nil The new geometry
 local function fix_new_geometry(new_geo, args, force)
-    if (args.pretend and not force) or not new_geo then return nil end
+    if (args.pretend and not force) or not new_geo then
+        return nil
+    end
 
     local m, offset = get_decoration(args)
 
     return {
-        x      = new_geo.x      and (new_geo.x + (offset.x or 0) + (m.left or 0) ),
-        y      = new_geo.y      and (new_geo.y + (offset.y or 0) + (m.top  or 0) ),
-        width  = new_geo.width  and math.max(
-            1, (new_geo.width  + (offset.width  or 0) - (m.left or 0) - (m.right or 0)  )
+        x = new_geo.x and (new_geo.x + (offset.x or 0) + (m.left or 0)),
+        y = new_geo.y and (new_geo.y + (offset.y or 0) + (m.top or 0)),
+        width = new_geo.width and math.max(
+            1,
+            (
+                new_geo.width
+                + (offset.width or 0)
+                - (m.left or 0)
+                - (m.right or 0)
+            )
         ),
         height = new_geo.height and math.max(
-            1, (new_geo.height + (offset.height or 0) - (m.top  or 0) - (m.bottom or 0) )
+            1,
+            (
+                new_geo.height
+                + (offset.height or 0)
+                - (m.top or 0)
+                - (m.bottom or 0)
+            )
         ),
     }
 end
@@ -416,9 +539,9 @@ local function geometry_common(obj, args, new_geo, ignore_border_width)
 
     -- It's a mouse
     if obj.coords then
-        local coords = fix_new_geometry(new_geo, args)
-            and obj.coords(new_geo) or obj.coords()
-        return {x=coords.x, y=coords.y, width=0, height=0}
+        local coords = fix_new_geometry(new_geo, args) and obj.coords(new_geo)
+            or obj.coords()
+        return { x = coords.x, y = coords.y, width = 0, height = 0 }
     elseif obj.geometry then
         if obj.get_bounding_geometry then
             -- It is a screen, it doesn't support setting new sizes.
@@ -427,7 +550,10 @@ local function geometry_common(obj, args, new_geo, ignore_border_width)
 
         -- It is either a drawable or something that implement its API
         local dgeo = area_common(
-            obj, fix_new_geometry(new_geo, args), ignore_border_width, args
+            obj,
+            fix_new_geometry(new_geo, args),
+            ignore_border_width,
+            args
         )
 
         -- Apply the margins
@@ -435,10 +561,10 @@ local function geometry_common(obj, args, new_geo, ignore_border_width)
             local delta = get_decoration(args)
 
             return {
-                x      = dgeo.x      - (delta.left or 0),
-                y      = dgeo.y      - (delta.top  or 0),
-                width  = dgeo.width  + (delta.left or 0) + (delta.right  or 0),
-                height = dgeo.height + (delta.top  or 0) + (delta.bottom or 0),
+                x = dgeo.x - (delta.left or 0),
+                y = dgeo.y - (delta.top or 0),
+                width = dgeo.width + (delta.left or 0) + (delta.right or 0),
+                height = dgeo.height + (delta.top or 0) + (delta.bottom or 0),
             }
         end
 
@@ -463,8 +589,8 @@ local function get_parent_geometry(obj, args)
         return geometry_common(args.parent, {})
     elseif obj.screen then
         return geometry_common(obj.screen, {
-            honor_padding  = args.honor_padding,
-            honor_workarea = args.honor_workarea
+            honor_padding = args.honor_padding,
+            honor_workarea = args.honor_workarea,
         })
     else
         return geometry_common(capi.screen[capi.mouse.screen], args)
@@ -478,7 +604,7 @@ end
 -- @tparam table target The area to move into `source`
 -- @treturn table A table with *x* and *y* keys
 local function move_into_geometry(source, target)
-    local ret = {x = target.x, y = target.y}
+    local ret = { x = target.x, y = target.y }
 
     -- Horizontally
     if ret.x < source.x then
@@ -501,12 +627,12 @@ end
 wibox_update_strut = function(d, position, args)
     -- If the drawable isn't visible, remove the struts
     if not d.visible then
-        d:struts { left = 0, right = 0, bottom = 0, top = 0 }
+        d:struts({ left = 0, right = 0, bottom = 0, top = 0 })
         return
     end
 
     -- Detect horizontal or vertical drawables
-    local geo         = area_common(d)
+    local geo = area_common(d)
     local orientation = geo.width < geo.height and "vertical" or "horizontal"
 
     -- Look into the `position` string to find the relevants sides to crop from
@@ -538,21 +664,29 @@ end
 attach = function(d, position_f, args)
     args = args or {}
 
-    if args.pretend then return end
+    if args.pretend then
+        return
+    end
 
-    if not args.attach then return end
+    if not args.attach then
+        return
+    end
 
     -- Avoid a connection loop
-    args = setmetatable({attach=false}, {__index=args})
+    args = setmetatable({ attach = false }, { __index = args })
 
     d = d or capi.client.focus
-    if not d then return end
+    if not d then
+        return
+    end
 
     if type(position_f) == "string" then
         position_f = placement[position_f]
     end
 
-    if not position_f then return end
+    if not position_f then
+        return
+    end
 
     -- If there is multiple attached function, there is an high risk of infinite
     -- loop. While some combinaisons are harmless, other are very hard to debug.
@@ -568,8 +702,8 @@ attach = function(d, position_f, args)
         position_f(d, args)
     end
 
-    d:connect_signal("property::width"       , tracker)
-    d:connect_signal("property::height"      , tracker)
+    d:connect_signal("property::width", tracker)
+    d:connect_signal("property::height", tracker)
     d:connect_signal("property::border_width", tracker)
 
     local function tracker_struts()
@@ -580,8 +714,8 @@ attach = function(d, position_f, args)
     local parent = args.parent or d.screen
 
     if args.update_workarea then
-        d:connect_signal("property::geometry" , tracker_struts)
-        d:connect_signal("property::visible"  , tracker_struts)
+        d:connect_signal("property::geometry", tracker_struts)
+        d:connect_signal("property::visible", tracker_struts)
         capi.client.connect_signal("property::struts", tracker_struts)
 
         tracker_struts()
@@ -598,16 +732,16 @@ attach = function(d, position_f, args)
     -- If there is a parent drawable, screen, also track it.
     -- Note that tracking the mouse is not supported
     if parent and parent.connect_signal then
-        parent:connect_signal("property::geometry" , tracker)
+        parent:connect_signal("property::geometry", tracker)
     end
 
     -- Create a way to detach a placement function
     function d.detach_callback()
-        d:disconnect_signal("property::width"       , tracker)
-        d:disconnect_signal("property::height"      , tracker)
+        d:disconnect_signal("property::width", tracker)
+        d:disconnect_signal("property::height", tracker)
         d:disconnect_signal("property::border_width", tracker)
         if parent then
-            parent:disconnect_signal("property::geometry" , tracker)
+            parent:disconnect_signal("property::geometry", tracker)
 
             if parent == d.screen then
                 if args.honor_workarea then
@@ -621,8 +755,8 @@ attach = function(d, position_f, args)
         end
 
         if args.update_workarea then
-            d:disconnect_signal("property::geometry" , tracker_struts)
-            d:disconnect_signal("property::visible"  , tracker_struts)
+            d:disconnect_signal("property::geometry", tracker_struts)
+            d:disconnect_signal("property::visible", tracker_struts)
             capi.client.disconnect_signal("property::struts", tracker_struts)
         end
     end
@@ -631,9 +765,9 @@ end
 -- Convert 2 points into a rectangle
 local function rect_from_points(p1x, p1y, p2x, p2y)
     return {
-        x      = p1x,
-        y      = p1y,
-        width  = p2x - p1x,
+        x = p1x,
+        y = p1y,
+        width = p2x - p1x,
         height = p2y - p1y,
     }
 end
@@ -641,7 +775,7 @@ end
 -- Convert a rectangle and matrix info into a point
 local function rect_to_point(rect, corner_i, corner_j)
     return {
-        x = rect.x + corner_i * math.floor(rect.width ),
+        x = rect.x + corner_i * math.floor(rect.width),
         y = rect.y + corner_j * math.floor(rect.height),
     }
 end
@@ -654,68 +788,71 @@ local function get_cross_sections(abs_geo, mode)
         local coords = capi.mouse.coords()
         return {
             h = {
-                x      = abs_geo.drawable_geo.x     ,
-                y      = coords.y                   ,
-                width  = abs_geo.drawable_geo.width ,
-                height = 1                          ,
+                x = abs_geo.drawable_geo.x,
+                y = coords.y,
+                width = abs_geo.drawable_geo.width,
+                height = 1,
             },
             v = {
-                x      = coords.x                   ,
-                y      = abs_geo.drawable_geo.y     ,
-                width  = 1                          ,
+                x = coords.x,
+                y = abs_geo.drawable_geo.y,
+                width = 1,
                 height = abs_geo.drawable_geo.height,
-            }
+            },
         }
     elseif mode == "geometry" then
         -- The widget geometry extended to reach the end of the drawable
         return {
             h = {
-                x      = abs_geo.drawable_geo.x     ,
-                y      = abs_geo.y                  ,
-                width  = abs_geo.drawable_geo.width ,
-                height = abs_geo.height             ,
+                x = abs_geo.drawable_geo.x,
+                y = abs_geo.y,
+                width = abs_geo.drawable_geo.width,
+                height = abs_geo.height,
             },
             v = {
-                x      = abs_geo.x                  ,
-                y      = abs_geo.drawable_geo.y     ,
-                width  = abs_geo.width              ,
+                x = abs_geo.x,
+                y = abs_geo.drawable_geo.y,
+                width = abs_geo.width,
                 height = abs_geo.drawable_geo.height,
-            }
+            },
         }
     elseif mode == "cursor_inside" then
         -- A 1x1 rectangle  centered around the mouse position
 
         local coords = capi.mouse.coords()
-        coords.width,coords.height = 1,1
-        return {h=coords, v=coords}
+        coords.width, coords.height = 1, 1
+        return { h = coords, v = coords }
     elseif mode == "geometry_inside" then
         -- The widget absolute geometry, unchanged
 
-        return {h=abs_geo, v=abs_geo}
+        return { h = abs_geo, v = abs_geo }
     end
 end
 
 -- When a rectangle is embedded into a bigger one, get the regions around
 -- the outline of the bigger rectangle closest to the smaller one (on each side)
 local function get_relative_regions(geo, mode, is_absolute)
-
     -- Use the mouse position and the wibox/client under it
     if not geo then
-        local draw   = capi.mouse.current_wibox
-        geo          = draw and draw:geometry() or capi.mouse.coords()
+        local draw = capi.mouse.current_wibox
+        geo = draw and draw:geometry() or capi.mouse.coords()
         geo.drawable = draw
     elseif is_absolute then
         -- Some signals are a bit inconsistent in their arguments convention.
         -- This little hack tries to mitigate the issue.
 
         geo.drawable = geo -- is a wibox or client, geometry and object are one
-                           -- and the same.
+        -- and the same.
     elseif (not geo.drawable) and geo.x and geo.width then
         local coords = capi.mouse.coords()
 
         -- Check if the mouse is in the rect
-        if coords.x > geo.x and coords.x < geo.x+geo.width and
-          coords.y > geo.y and coords.y < geo.y+geo.height then
+        if
+            coords.x > geo.x
+            and coords.x < geo.x + geo.width
+            and coords.y > geo.y
+            and coords.y < geo.y + geo.height
+        then
             geo.drawable = capi.mouse.current_wibox
         end
 
@@ -727,14 +864,14 @@ local function get_relative_regions(geo, mode, is_absolute)
 
     -- Get the parent geometry using one way or another depending on the object
     -- Type
-    local bw, dgeo = 0, {x=0, y=0, width=1, height=1}
+    local bw, dgeo = 0, { x = 0, y = 0, width = 1, height = 1 }
 
     -- Detect various types of geometry table and (try) to get rid of the
     -- differences so the code below don't have to care anymore.
     if geo.drawin then
         bw, dgeo = geo.drawin._border_width, geo.drawin:geometry()
     elseif geo.drawable and geo.drawable.get_wibox then
-        bw   = geo.drawable.get_wibox().border_width
+        bw = geo.drawable.get_wibox().border_width
         dgeo = geo.drawable.get_wibox():geometry()
     elseif geo.drawable and geo.drawable.drawable then
         bw, dgeo = 0, geo.drawable.drawable:geometry()
@@ -745,54 +882,54 @@ local function get_relative_regions(geo, mode, is_absolute)
     end
 
     -- Add the infamous border size
-    dgeo.width  = dgeo.width  + 2*bw
-    dgeo.height = dgeo.height + 2*bw
+    dgeo.width = dgeo.width + 2 * bw
+    dgeo.height = dgeo.height + 2 * bw
 
     -- Compute the absolute widget geometry
-    local abs_widget_geo = is_absolute and dgeo or {
-        x            = dgeo.x + geo.x + bw,
-        y            = dgeo.y + geo.y + bw,
-        width        = geo.width          ,
-        height       = geo.height         ,
-        drawable     = geo.drawable       ,
-    }
+    local abs_widget_geo = is_absolute and dgeo
+        or {
+            x = dgeo.x + geo.x + bw,
+            y = dgeo.y + geo.y + bw,
+            width = geo.width,
+            height = geo.height,
+            drawable = geo.drawable,
+        }
 
     abs_widget_geo.drawable_geo = geo.drawable and dgeo or geo
 
     -- Get the point for comparison.
-    local center_point = mode:match("cursor") and capi.mouse.coords() or {
-        x = abs_widget_geo.x + abs_widget_geo.width  / 2,
-        y = abs_widget_geo.y + abs_widget_geo.height / 2,
-    }
+    local center_point = mode:match("cursor") and capi.mouse.coords()
+        or {
+            x = abs_widget_geo.x + abs_widget_geo.width / 2,
+            y = abs_widget_geo.y + abs_widget_geo.height / 2,
+        }
 
     -- Get widget regions for both axis
     local cs = get_cross_sections(abs_widget_geo, mode)
 
     -- Get the 4 closest points from `center_point` around the wibox
     local regions = {
-        left   = {x = cs.h.x           , y = cs.h.y            },
-        right  = {x = cs.h.x+cs.h.width, y = cs.h.y            },
-        top    = {x = cs.v.x           , y = cs.v.y            },
-        bottom = {x = cs.v.x           , y = cs.v.y+cs.v.height},
+        left = { x = cs.h.x, y = cs.h.y },
+        right = { x = cs.h.x + cs.h.width, y = cs.h.y },
+        top = { x = cs.v.x, y = cs.v.y },
+        bottom = { x = cs.v.x, y = cs.v.y + cs.v.height },
     }
 
     -- Assume the section is part of a single screen until someone complains.
     -- It is much faster to compute and getting it wrong probably has no side
     -- effects.
-    local s = geo.drawable and geo.drawable.screen or a_screen.getbycoord(
-                                                        center_point.x,
-                                                        center_point.y
-                                                      )
+    local s = geo.drawable and geo.drawable.screen
+        or a_screen.getbycoord(center_point.x, center_point.y)
 
     -- Compute the distance (dp) between the `center_point` and the sides.
     -- This is only relevant for "cursor" and "cursor_inside" modes.
     for _, v in pairs(regions) do
         local dx, dy = v.x - center_point.x, v.y - center_point.y
 
-        v.distance = math.sqrt(dx*dx + dy*dy)
-        v.width    = cs.v.width
-        v.height   = cs.h.height
-        v.screen   = capi.screen[s]
+        v.distance = math.sqrt(dx * dx + dy * dy)
+        v.width = cs.v.width
+        v.height = cs.h.height
+        v.screen = capi.screen[s]
     end
 
     return regions
@@ -812,12 +949,12 @@ end
 -- Check if the proposed geometry fits the screen
 local function fit_in_bounding(obj, geo, args)
     local round_sgeo = round_geometry(get_parent_geometry(obj, args))
-    local region     = cairo.Region.create_rectangle(cairo.RectangleInt(round_sgeo))
+    local region = cairo.Region.create_rectangle(cairo.RectangleInt(round_sgeo))
 
     local round_geo = round_geometry(geo)
-    region:intersect(cairo.Region.create_rectangle(
-        cairo.RectangleInt(round_geo)
-    ))
+    region:intersect(
+        cairo.Region.create_rectangle(cairo.RectangleInt(round_geo))
+    )
 
     local geo2 = region:get_rectangle(0)
 
@@ -827,9 +964,9 @@ end
 
 -- Remove border from drawable geometry
 local function remove_border(drawable, args, geo)
-    local bw    = (not args.ignore_border_width) and drawable.border_width or 0
-    geo.width  = geo.width  - 2*bw
-    geo.height = geo.height - 2*bw
+    local bw = (not args.ignore_border_width) and drawable.border_width or 0
+    geo.width = geo.width - 2 * bw
+    geo.height = geo.height - 2 * bw
 end
 
 --- Move a drawable to the closest corner of the parent geometry (such as the
@@ -853,17 +990,17 @@ function placement.closest_corner(d, args)
     local sgeo = get_parent_geometry(d, args)
     local dgeo = geometry_common(d, args)
 
-    local pos  = move_into_geometry(sgeo, dgeo)
+    local pos = move_into_geometry(sgeo, dgeo)
 
     local corner_i, corner_j, n
 
     -- Use the product of 3 to get the closest point in a NxN matrix
     local function f(dim, mat)
-        n        = dim
+        n = dim
         -- The +1 is required to avoid a rounding error when
         --    pos.x == sgeo.x+sgeo.width
-        corner_i = -math.ceil( ( (sgeo.x - pos.x) * n) / (sgeo.width  + 1))
-        corner_j = -math.ceil( ( (sgeo.y - pos.y) * n) / (sgeo.height + 1))
+        corner_i = -math.ceil(((sgeo.x - pos.x) * n) / (sgeo.width + 1))
+        corner_j = -math.ceil(((sgeo.y - pos.y) * n) / (sgeo.height + 1))
         return mat[corner_j + 1][corner_i + 1]
     end
 
@@ -877,7 +1014,7 @@ function placement.closest_corner(d, args)
     local corner = grid_size == 3 and f(3, corners3x3) or f(2, corners2x2)
 
     -- Transpose the corner back to the original size
-    local new_args = setmetatable({position = corner}, {__index=args})
+    local new_args = setmetatable({ position = corner }, { __index = args })
     local ngeo = placement_private.align(d, new_args)
 
     return fix_new_geometry(ngeo, args, true), corner
@@ -891,13 +1028,12 @@ end
 -- @treturn table The new client geometry.
 -- @staticfct awful.placement.no_offscreen
 function placement.no_offscreen(c, args)
-
     --compatibility with the old API
     if type(args) == "number" or type(args) == "screen" then
         gdebug.deprecate(
-            "awful.placement.no_offscreen screen argument is deprecated"..
-            " use awful.placement.no_offscreen(c, {screen=...})",
-            {deprecated_in=5}
+            "awful.placement.no_offscreen screen argument is deprecated"
+                .. " use awful.placement.no_offscreen(c, {screen=...})",
+            { deprecated_in = 5 }
         )
         args = { screen = args }
     end
@@ -905,18 +1041,28 @@ function placement.no_offscreen(c, args)
     c = c or capi.client.focus
     args = add_context(args, "no_offscreen")
     local geometry = geometry_common(c, args)
-    local screen = get_screen(args.screen or c.screen or a_screen.getbycoord(geometry.x, geometry.y))
+    local screen = get_screen(
+        args.screen or c.screen or a_screen.getbycoord(geometry.x, geometry.y)
+    )
     local screen_geometry = screen.workarea
 
-    if geometry.x + geometry.width > screen_geometry.x + screen_geometry.width then
+    if
+        geometry.x + geometry.width
+        > screen_geometry.x + screen_geometry.width
+    then
         geometry.x = screen_geometry.x + screen_geometry.width - geometry.width
     end
     if geometry.x < screen_geometry.x then
         geometry.x = screen_geometry.x
     end
 
-    if geometry.y + geometry.height > screen_geometry.y + screen_geometry.height then
-        geometry.y = screen_geometry.y + screen_geometry.height - geometry.height
+    if
+        geometry.y + geometry.height
+        > screen_geometry.y + screen_geometry.height
+    then
+        geometry.y = screen_geometry.y
+            + screen_geometry.height
+            - geometry.height
     end
     if geometry.y < screen_geometry.y then
         geometry.y = screen_geometry.y
@@ -970,7 +1116,8 @@ function placement.no_overlap(c, args)
     c = c or capi.client.focus
     args = add_context(args, "no_overlap")
     local geometry = geometry_common(c, args)
-    local screen   = get_screen(c.screen or a_screen.getbycoord(geometry.x, geometry.y))
+    local screen =
+        get_screen(c.screen or a_screen.getbycoord(geometry.x, geometry.y))
     local cls, curlay
     if client_on_selected_tags(c) then
         cls = screen:get_clients(false)
@@ -990,10 +1137,12 @@ function placement.no_overlap(c, args)
     end
     local areas = { screen.workarea }
     for _, cl in pairs(cls) do
-        if cl ~= c
-           and cl.type ~= "desktop"
-           and (cl.floating or curlay == floating)
-           and not (cl.maximized or cl.fullscreen) then
+        if
+            cl ~= c
+            and cl.type ~= "desktop"
+            and (cl.floating or curlay == floating)
+            and not (cl.maximized or cl.fullscreen)
+        then
             areas = grect.area_remove(areas, area_common(cl))
         end
     end
@@ -1002,17 +1151,21 @@ function placement.no_overlap(c, args)
     local found = false
     local new = { x = geometry.x, y = geometry.y, width = 0, height = 0 }
     for _, r in ipairs(areas) do
-        if r.width >= geometry.width
-           and r.height >= geometry.height
-           and r.width * r.height > new.width * new.height then
+        if
+            r.width >= geometry.width
+            and r.height >= geometry.height
+            and r.width * r.height > new.width * new.height
+        then
             found = true
             new = r
             -- Check if the client's current position is available
             -- and prefer that one (why move it around pointlessly?)
-            if     geometry.x >= r.x
-               and geometry.y >= r.y
-               and geometry.x + geometry.width <= r.x + r.width
-               and geometry.y + geometry.height <= r.y + r.height then
+            if
+                geometry.x >= r.x
+                and geometry.y >= r.y
+                and geometry.x + geometry.width <= r.x + r.width
+                and geometry.y + geometry.height <= r.y + r.height
+            then
                 new.x = geometry.x
                 new.y = geometry.y
             end
@@ -1061,7 +1214,7 @@ function placement.under_mouse(d, args)
     local m_coords = capi.mouse.coords()
 
     local ngeo = geometry_common(d, args)
-    ngeo.x = math.floor(m_coords.x - ngeo.width  / 2)
+    ngeo.x = math.floor(m_coords.x - ngeo.width / 2)
     ngeo.y = math.floor(m_coords.y - ngeo.height / 2)
 
     remove_border(d, args, ngeo)
@@ -1082,9 +1235,9 @@ end
 function placement.next_to_mouse(d, args)
     if type(args) == "number" then
         gdebug.deprecate(
-            "awful.placement.next_to_mouse offset argument is deprecated"..
-            " use awful.placement.next_to_mouse(c, {offset={x=...}})",
-            {deprecated_in=4}
+            "awful.placement.next_to_mouse offset argument is deprecated"
+                .. " use awful.placement.next_to_mouse(c, {offset={x=...}})",
+            { deprecated_in = 4 }
         )
         args = nil
     end
@@ -1097,15 +1250,15 @@ function placement.next_to_mouse(d, args)
     local sgeo = get_parent_geometry(d, args)
 
     args.pretend = true
-    args.parent  = capi.mouse
+    args.parent = capi.mouse
 
     local ngeo = placement.left(d, args)
 
-    if ngeo.x + ngeo.width > sgeo.x+sgeo.width then
+    if ngeo.x + ngeo.width > sgeo.x + sgeo.width then
         ngeo = placement.right(d, args)
     else
         -- It is _next_ to mouse, not under_mouse
-        ngeo.x = ngeo.x+1
+        ngeo.x = ngeo.x + 1
     end
 
     args.pretend = old_args.pretend
@@ -1130,11 +1283,11 @@ end
 -- @treturn table The new geometry
 -- @staticfct awful.placement.resize_to_mouse
 function placement.resize_to_mouse(d, args)
-    d    = d or capi.client.focus
+    d = d or capi.client.focus
     args = add_context(args, "resize_to_mouse")
 
     local coords = capi.mouse.coords()
-    local ngeo   = geometry_common(d, args)
+    local ngeo = geometry_common(d, args)
     local h_only = args.axis == "horizontal"
     local v_only = args.axis == "vertical"
 
@@ -1142,29 +1295,31 @@ function placement.resize_to_mouse(d, args)
     -- to decide to use either "north or south" and "east or west" directions.
     -- Otherwise, the result will always be 1x1
     local _, closest_corner = placement.closest_corner(capi.mouse, {
-        parent        = d,
-        pretend       = true,
+        parent = d,
+        pretend = true,
         include_sides = args.include_sides or false,
     })
 
     -- Given "include_sides" wasn't set, it will always return a name
     -- with the 2 axis. If only one axis is needed, adjust the result
     if h_only then
-        closest_corner = closest_corner:match("left") or closest_corner:match("right")
+        closest_corner = closest_corner:match("left")
+            or closest_corner:match("right")
     elseif v_only then
-        closest_corner = closest_corner:match("top")  or closest_corner:match("bottom")
+        closest_corner = closest_corner:match("top")
+            or closest_corner:match("bottom")
     end
 
     -- Use p0 (mouse), p1 and p2 to create a rectangle
     local pts = resize_to_point_map[closest_corner]
-    local p1  = pts.p1 and rect_to_point(ngeo, pts.p1[1], pts.p1[2]) or coords
-    local p2  = pts.p2 and rect_to_point(ngeo, pts.p2[1], pts.p2[2]) or coords
+    local p1 = pts.p1 and rect_to_point(ngeo, pts.p1[1], pts.p1[2]) or coords
+    local p2 = pts.p2 and rect_to_point(ngeo, pts.p2[1], pts.p2[2]) or coords
 
     -- Create top_left and bottom_right points, convert to rectangle
     ngeo = rect_from_points(
-        pts.y_only and ngeo.x               or math.min(p1.x, p2.x),
-        pts.x_only and ngeo.y               or math.min(p1.y, p2.y),
-        pts.y_only and ngeo.x + ngeo.width  or math.max(p2.x, p1.x),
+        pts.y_only and ngeo.x or math.min(p1.x, p2.x),
+        pts.x_only and ngeo.y or math.min(p1.y, p2.y),
+        pts.y_only and ngeo.x + ngeo.width or math.max(p2.x, p1.x),
         pts.x_only and ngeo.y + ngeo.height or math.max(p2.y, p1.y)
     )
 
@@ -1172,10 +1327,7 @@ function placement.resize_to_mouse(d, args)
 
     -- Now, correct the geometry by the given size_hints offset
     if d.apply_size_hints then
-        local w, h = d:apply_size_hints(
-            ngeo.width,
-            ngeo.height
-        )
+        local w, h = d:apply_size_hints(ngeo.width, ngeo.height)
         local offset = align_map[pts.align](w, h, ngeo.width, ngeo.height)
         ngeo.x = ngeo.x - offset.x
         ngeo.y = ngeo.y - offset.y
@@ -1209,25 +1361,27 @@ end
 -- @staticfct awful.placement.align
 function placement.align(d, args)
     args = add_context(args, "align")
-    d    = d or capi.client.focus
+    d = d or capi.client.focus
 
-    if not d or not args.position then return end
+    if not d or not args.position then
+        return
+    end
 
     local sgeo = get_parent_geometry(d, args)
     local dgeo = geometry_common(d, args)
 
-    local pos  = align_map[args.position](
-        sgeo.width ,
+    local pos = align_map[args.position](
+        sgeo.width,
         sgeo.height,
-        dgeo.width ,
+        dgeo.width,
         dgeo.height
     )
 
     local ngeo = {
-        x      = (pos.x and math.ceil(sgeo.x + pos.x) or dgeo.x)       ,
-        y      = (pos.y and math.ceil(sgeo.y + pos.y) or dgeo.y)       ,
-        width  =            math.ceil(dgeo.width    )                  ,
-        height =            math.ceil(dgeo.height   )                  ,
+        x = (pos.x and math.ceil(sgeo.x + pos.x) or dgeo.x),
+        y = (pos.y and math.ceil(sgeo.y + pos.y) or dgeo.y),
+        width = math.ceil(dgeo.width),
+        height = math.ceil(dgeo.height),
     }
     remove_border(d, args, ngeo)
     geometry_common(d, args, ngeo)
@@ -1285,8 +1439,10 @@ end
 function placement.stretch(d, args)
     args = add_context(args, "stretch")
 
-    d    = d or capi.client.focus
-    if not d or not args.direction then return end
+    d = d or capi.client.focus
+    if not d or not args.direction then
+        return
+    end
 
     -- In case there is multiple directions, call `stretch` for each of them
     if type(args.direction) == "table" then
@@ -1300,37 +1456,37 @@ function placement.stretch(d, args)
     local sgeo = get_parent_geometry(d, args)
     local dgeo = geometry_common(d, args)
     local ngeo = geometry_common(d, args, nil, true)
-    local bw   = (not args.ignore_border_width) and d.border_width or 0
+    local bw = (not args.ignore_border_width) and d.border_width or 0
 
     if args.direction == "left" then
-        ngeo.x      = sgeo.x
-        ngeo.width  = dgeo.width + (dgeo.x - ngeo.x)
+        ngeo.x = sgeo.x
+        ngeo.width = dgeo.width + (dgeo.x - ngeo.x)
     elseif args.direction == "right" then
-        ngeo.width  = sgeo.width - ngeo.x - 2*bw
+        ngeo.width = sgeo.width - ngeo.x - 2 * bw
     elseif args.direction == "up" then
-        ngeo.y      = sgeo.y
+        ngeo.y = sgeo.y
         ngeo.height = dgeo.height + (dgeo.y - ngeo.y)
     elseif args.direction == "down" then
-        ngeo.height = sgeo.height - dgeo.y - 2*bw
+        ngeo.height = sgeo.height - dgeo.y - 2 * bw
     else
         assert(false)
     end
 
     -- Avoid negative sizes if args.parent isn't compatible
-    ngeo.width  = math.max(args.minimim_width  or 1, ngeo.width )
+    ngeo.width = math.max(args.minimim_width or 1, ngeo.width)
     ngeo.height = math.max(args.minimim_height or 1, ngeo.height)
 
     geometry_common(d, args, ngeo)
 
-    attach(d, placement["stretch_"..args.direction], args)
+    attach(d, placement["stretch_" .. args.direction], args)
 
     return fix_new_geometry(ngeo, args, true)
 end
 
 -- Add the alias functions
-for _,v in ipairs {"left", "right", "up", "down"} do
-    placement["stretch_"..v] =  function(d, args)
-        args = add_context(args, "stretch_"..v)
+for _, v in ipairs({ "left", "right", "up", "down" }) do
+    placement["stretch_" .. v] = function(d, args)
+        args = add_context(args, "stretch_" .. v)
         args.direction = v
         return placement_private.stretch(d, args)
     end
@@ -1357,22 +1513,24 @@ end
 -- @staticfct awful.placement.maximize
 function placement.maximize(d, args)
     args = add_context(args, "maximize")
-    d    = d or capi.client.focus
+    d = d or capi.client.focus
 
-    if not d then return end
+    if not d then
+        return
+    end
 
     local sgeo = get_parent_geometry(d, args)
     local ngeo = geometry_common(d, args, nil, true)
-    local bw   = (not args.ignore_border_width) and d.border_width or 0
+    local bw = (not args.ignore_border_width) and d.border_width or 0
 
-    if (not args.axis) or args.axis :match "vertical" then
-        ngeo.y      = sgeo.y
-        ngeo.height = sgeo.height - 2*bw
+    if (not args.axis) or args.axis:match("vertical") then
+        ngeo.y = sgeo.y
+        ngeo.height = sgeo.height - 2 * bw
     end
 
-    if (not args.axis) or args.axis :match "horizontal" then
-        ngeo.x      = sgeo.x
-        ngeo.width  = sgeo.width - 2*bw
+    if (not args.axis) or args.axis:match("horizontal") then
+        ngeo.x = sgeo.x
+        ngeo.width = sgeo.width - 2 * bw
     end
 
     geometry_common(d, args, ngeo)
@@ -1383,9 +1541,9 @@ function placement.maximize(d, args)
 end
 
 -- Add the alias functions
-for _, v in ipairs {"vertically", "horizontally"} do
-    placement["maximize_"..v] = function(d2, args)
-        args = add_context(args, "maximize_"..v)
+for _, v in ipairs({ "vertically", "horizontally" }) do
+    placement["maximize_" .. v] = function(d2, args)
+        args = add_context(args, "maximize_" .. v)
         args.axis = v
         return placement_private.maximize(d2, args)
     end
@@ -1411,7 +1569,7 @@ end
 -- @staticfct awful.placement.scale
 function placement.scale(d, args)
     args = add_context(args, "scale_to_percent")
-    d    = d or capi.client.focus
+    d = d or capi.client.focus
 
     local to_percent = args.to_percent
     local by_percent = args.by_percent
@@ -1423,10 +1581,10 @@ function placement.scale(d, args)
     local sgeo = get_parent_geometry(d, args)
     local ngeo = geometry_common(d, args, nil)
 
-    local old_area = {width = ngeo.width, height = ngeo.height}
+    local old_area = { width = ngeo.width, height = ngeo.height }
 
     if (not direction) or direction == "left" or direction == "right" then
-        ngeo.width = (to_percent and sgeo or ngeo).width*percent
+        ngeo.width = (to_percent and sgeo or ngeo).width * percent
 
         if direction == "left" then
             ngeo.x = ngeo.x - (ngeo.width - old_area.width)
@@ -1434,7 +1592,7 @@ function placement.scale(d, args)
     end
 
     if (not direction) or direction == "up" or direction == "down" then
-        ngeo.height = (to_percent and sgeo or ngeo).height*percent
+        ngeo.height = (to_percent and sgeo or ngeo).height * percent
 
         if direction == "up" then
             ngeo.y = ngeo.y - (ngeo.height - old_area.height)
@@ -1494,22 +1652,23 @@ end
 -- @staticfct awful.placement.next_to
 function placement.next_to(d, args)
     args = add_context(args, "next_to")
-    d    = d or capi.client.focus
+    d = d or capi.client.focus
 
-    local osize = type(d.geometry) == "function"  and d:geometry() or d.geometry
-    local original_pos, original_anchors = args.preferred_positions, args.preferred_anchors
+    local osize = type(d.geometry) == "function" and d:geometry() or d.geometry
+    local original_pos, original_anchors =
+        args.preferred_positions, args.preferred_anchors
 
     if type(original_pos) == "string" then
-        original_pos = {original_pos}
+        original_pos = { original_pos }
     end
 
     if type(original_anchors) == "string" then
-        original_anchors = {original_anchors}
+        original_anchors = { original_anchors }
     end
 
     local preferred_positions = {}
-    local preferred_anchors = #(original_anchors or {}) > 0 and
-        original_anchors or {"front", "back", "middle"}
+    local preferred_anchors = #(original_anchors or {}) > 0 and original_anchors
+        or { "front", "back", "middle" }
 
     for k, v in ipairs(original_pos or {}) do
         preferred_positions[v] = k
@@ -1517,7 +1676,7 @@ function placement.next_to(d, args)
 
     local dgeo = geometry_common(d, args)
     local pref_idx, pref_name = 99, nil
-    local mode,wgeo = args.mode
+    local mode, wgeo = args.mode
 
     if args.geometry then
         mode = "geometry"
@@ -1532,7 +1691,9 @@ function placement.next_to(d, args)
         end
     end
 
-    if not wgeo then return end
+    if not wgeo then
+        return
+    end
 
     -- See get_relative_regions comments
     local is_absolute = wgeo.ontop ~= nil
@@ -1540,7 +1701,8 @@ function placement.next_to(d, args)
     local regions = get_relative_regions(wgeo, mode, is_absolute)
 
     -- Order the regions with the preferred_positions, then the defaults
-    local sorted_regions, default_positions = {}, {"left", "right", "bottom", "top"}
+    local sorted_regions, default_positions =
+        {}, { "left", "right", "bottom", "top" }
 
     for _, pos in ipairs(original_pos or {}) do
         for idx, def in ipairs(default_positions) do
@@ -1550,11 +1712,11 @@ function placement.next_to(d, args)
             end
         end
 
-        table.insert(sorted_regions, {name = pos, region = regions[pos]})
+        table.insert(sorted_regions, { name = pos, region = regions[pos] })
     end
 
     for _, pos in ipairs(default_positions) do
-        table.insert(sorted_regions, {name = pos, region = regions[pos]})
+        table.insert(sorted_regions, { name = pos, region = regions[pos] })
     end
 
     -- Check each possible slot around the drawable (8 total), see what fits
@@ -1565,31 +1727,42 @@ function placement.next_to(d, args)
 
         -- Try each anchor until one that fits is found
         for _, anchor in ipairs(preferred_anchors) do
-            geo, dir = outer_positions[pos.name.."_"..anchor](pos.region, dgeo.width, dgeo.height)
+            geo, dir = outer_positions[pos.name .. "_" .. anchor](
+                pos.region,
+                dgeo.width,
+                dgeo.height
+            )
 
             geo.width, geo.height = dgeo.width, dgeo.height
 
             fit = fit_in_bounding(pos.region, geo, args)
 
-            if fit then break end
+            if fit then
+                break
+            end
         end
 
-        does_fit[pos.name] = fit and {geo, dir} or nil
+        does_fit[pos.name] = fit and { geo, dir } or nil
 
         -- preferred_positions is optional
         local better_pos_idx = preferred_positions[pos.name]
-            and preferred_positions[pos.name] < pref_idx or false
+                and preferred_positions[pos.name] < pref_idx
+            or false
 
         if fit and (better_pos_idx or not pref_name) then
-            pref_idx  = preferred_positions[pos.name]
+            pref_idx = preferred_positions[pos.name]
             pref_name = pos.name
         end
 
         -- No need to continue
-        if fit then break end
+        if fit then
+            break
+        end
     end
 
-    if not pref_name then return end
+    if not pref_name then
+        return
+    end
 
     assert(does_fit[pref_name])
 
@@ -1597,7 +1770,9 @@ function placement.next_to(d, args)
 
     -- The requested placement isn't possible due to the lack of space, better
     -- do nothing an try random things
-    if not ngeo then return end
+    if not ngeo then
+        return
+    end
 
     remove_border(d, args, ngeo)
 
@@ -1621,41 +1796,51 @@ end
 -- @treturn boolean If the geometry was restored
 -- @staticfct awful.placement.restore
 function placement.restore(d, args)
-    if not args or not args.context then return false end
+    if not args or not args.context then
+        return false
+    end
     d = d or capi.client.focus
 
-    if not data[d] then return false end
+    if not data[d] then
+        return false
+    end
 
     local memento = data[d][args.context]
 
-    if not memento then return false end
+    if not memento then
+        return false
+    end
 
     local x, y = memento.x, memento.y
 
     -- Some people consider that once moved to another screen, then
     -- the memento needs to be upgraded. For now this is only true for
     -- maximization until someone complains.
-    if memento.sgeo and memento.screen and memento.screen.valid
-      and args.context == "maximize" and d.screen
-      and get_screen(memento.screen) ~= get_screen(d.screen) then
+    if
+        memento.sgeo
+        and memento.screen
+        and memento.screen.valid
+        and args.context == "maximize"
+        and d.screen
+        and get_screen(memento.screen) ~= get_screen(d.screen)
+    then
         -- Use the absolute geometry as the memento also does
         local sgeo = get_screen(d.screen).geometry
 
         x = sgeo.x + (memento.x - memento.sgeo.x)
         y = sgeo.y + (memento.y - memento.sgeo.y)
-
     end
 
     d._border_width = memento.border_width
 
     -- Don't use the memento as it would be "destructive", since `x`, `y`
     -- and `screen` have to be modified.
-    d:geometry {
-        x      = x,
-        y      = y,
-        width  = memento.width,
+    d:geometry({
+        x = x,
+        y = y,
+        width = memento.width,
         height = memento.height,
-    }
+    })
 
     return true
 end
@@ -1671,7 +1856,7 @@ function placement.skip_fullscreen(d, args)
     d = d or capi.client.focus
 
     if d.fullscreen then
-        return {get_screen(d.screen).geometry, {}, true}
+        return { get_screen(d.screen).geometry, {}, true }
     else
         local ngeo = geometry_common(d, args)
         remove_border(d, args, ngeo)

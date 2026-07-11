@@ -11,19 +11,19 @@
 -- @supermodule awful.popup
 ----------------------------------------------------------------------------
 
-local capi       = {screen=screen}
-local beautiful  = require("beautiful")
-local gtimer     = require("gears.timer")
-local gtable     = require("gears.table")
-local wibox      = require("wibox")
-local popup      = require("awful.popup")
-local awcommon   = require("awful.widget.common")
-local placement  = require("awful.placement")
-local abutton    = require("awful.button")
-local ascreen    = require("awful.screen")
-local gpcall     = require("gears.protected_call")
-local dpi        = require("beautiful").xresources.apply_dpi
-local cst        = require("naughty.constants")
+local capi = { screen = screen }
+local beautiful = require("beautiful")
+local gtimer = require("gears.timer")
+local gtable = require("gears.table")
+local wibox = require("wibox")
+local popup = require("awful.popup")
+local awcommon = require("awful.widget.common")
+local placement = require("awful.placement")
+local abutton = require("awful.button")
+local ascreen = require("awful.screen")
+local gpcall = require("gears.protected_call")
+local dpi = require("beautiful").xresources.apply_dpi
+local cst = require("naughty.constants")
 
 local default_widget = require("naughty.widget._default")
 
@@ -33,15 +33,25 @@ local box, by_position = {}, {}
 -- than when notifications are added to simplify the code.
 
 local function init_screen(s)
-    if not s.valid then return end
+    if not s.valid then
+        return
+    end
 
-    if by_position[s] then return by_position[s] end
+    if by_position[s] then
+        return by_position[s]
+    end
 
-    by_position[s] = setmetatable({},{__mode = "k"})
+    by_position[s] = setmetatable({}, { __mode = "k" })
 
-    for _, pos in ipairs { "top_left"   , "top_middle"   , "top_right",
-                           "bottom_left", "bottom_middle", "bottom_right" } do
-        by_position[s][pos] = setmetatable({},{__mode = "v"})
+    for _, pos in ipairs({
+        "top_left",
+        "top_middle",
+        "top_right",
+        "bottom_left",
+        "bottom_middle",
+        "bottom_right",
+    }) do
+        by_position[s][pos] = setmetatable({}, { __mode = "v" })
     end
 
     return by_position[s]
@@ -51,14 +61,11 @@ local function disconnect(self)
     local n = self._private.notification[1]
 
     if n then
-        n:disconnect_signal("destroyed",
-            self._private.destroy_callback)
+        n:disconnect_signal("destroyed", self._private.destroy_callback)
 
-        n:disconnect_signal("property::margin",
-            self._private.update)
+        n:disconnect_signal("property::margin", self._private.update)
 
-        n:disconnect_signal("property::suspended",
-            self._private.hide)
+        n:disconnect_signal("property::suspended", self._private.hide)
     end
 end
 
@@ -75,34 +82,34 @@ end)
 
 local function get_spacing()
     local margin = beautiful.notification_spacing or dpi(2)
-    return {top = margin, bottom = margin}
+    return { top = margin, bottom = margin }
 end
 
 local function get_offset(position, preset)
     preset = preset or {}
     local margin = preset.padding or beautiful.notification_spacing or dpi(4)
-    if position:match('_right') then
-        return {x = -margin}
-    elseif position:match('_left') then
-        return {x = margin}
+    if position:match("_right") then
+        return { x = -margin }
+    elseif position:match("_left") then
+        return { x = margin }
     end
     return {}
 end
 
 -- Leverage `awful.placement` to create the stacks.
 local function update_position(position, preset)
-    local pref  = position:match("top_") and "bottom" or "top"
-    local align = position:match("_(.*)")
-        :gsub("left", "front"):gsub("right", "back")
+    local pref = position:match("top_") and "bottom" or "top"
+    local align =
+        position:match("_(.*)"):gsub("left", "front"):gsub("right", "back")
 
     for _, pos in pairs(by_position) do
         for k, wdg in ipairs(pos[position]) do
             local args = {
-                geometry            = pos[position][k-1],
-                preferred_positions = {pref },
-                preferred_anchors   = {align},
-                margins             = get_spacing(),
-                honor_workarea      = true,
+                geometry = pos[position][k - 1],
+                preferred_positions = { pref },
+                preferred_anchors = { align },
+                margins = get_spacing(),
+                honor_workarea = true,
             }
             if k == 1 then
                 args.offset = get_offset(position, preset)
@@ -110,7 +117,10 @@ local function update_position(position, preset)
 
             -- The first entry is aligned to the workarea, then the following to the
             -- previous widget.
-            placement[k==1 and position:gsub("_middle", "") or "next_to"](wdg, args)
+            placement[k == 1 and position:gsub("_middle", "") or "next_to"](
+                wdg,
+                args
+            )
         end
     end
 end
@@ -215,7 +225,8 @@ end)
 --  resulting widget.
 
 local function generate_widget(args, n)
-    local w = gpcall(wibox.widget.base.make_widget_from_value,
+    local w = gpcall(
+        wibox.widget.base.make_widget_from_value,
         args.widget_template or (n and n.widget_template) or default_widget
     )
 
@@ -247,14 +258,17 @@ end
 local function init(self, notification)
     local preset = notification.preset or {}
 
-    local position = self._private.position or notification.position or
-        preset.position or beautiful.notification_position or "top_right"
+    local position = self._private.position
+        or notification.position
+        or preset.position
+        or beautiful.notification_position
+        or "top_right"
 
     if not self.widget then
         self.widget = generate_widget(self._private, notification)
     end
 
-    local bg = self._private.widget:get_children_by_id( "background_role" )[1]
+    local bg = self._private.widget:get_children_by_id("background_role")[1]
 
     -- Make sure the border isn't set twice, favor the widget one since it is
     -- shared by the notification list and the notification box.
@@ -272,13 +286,15 @@ local function init(self, notification)
     assert(s)
 
     -- Add the notification to the active list
-    assert(init_screen(s)[position], "Invalid position "..position)
+    assert(init_screen(s)[position], "Invalid position " .. position)
 
     self:_apply_size_now()
 
     table.insert(init_screen(s)[position], self)
 
-    self._private.update = function() update_position(position, preset) end
+    self._private.update = function()
+        update_position(position, preset)
+    end
     self._private.hide = function(_, value)
         if value then
             finish(self)
@@ -288,7 +304,10 @@ local function init(self, notification)
     self:connect_signal("property::geometry", self._private.update)
     notification:weak_connect_signal("property::margin", self._private.update)
     notification:weak_connect_signal("property::suspended", self._private.hide)
-    notification:weak_connect_signal("destroyed", self._private.destroy_callback)
+    notification:weak_connect_signal(
+        "destroyed",
+        self._private.destroy_callback
+    )
 
     update_position(position, preset)
 
@@ -296,13 +315,15 @@ local function init(self, notification)
 end
 
 function box:set_notification(notif)
-    if self._private.notification[1] == notif then return end
+    if self._private.notification[1] == notif then
+        return
+    end
 
     disconnect(self)
 
     init(self, notif)
 
-    self._private.notification = setmetatable({notif}, {__mode="v"})
+    self._private.notification = setmetatable({ notif }, { __mode = "v" })
 
     self:emit_signal("property::notification", notif)
 end
@@ -338,12 +359,14 @@ local function new(args)
 
     -- Set the default wibox values
     local new_args = {
-        ontop        = true,
-        visible      = false,
-        bg           = args.bg or beautiful.notification_bg,
-        fg           = args.fg or beautiful.notification_fg,
-        shape        = args.shape or beautiful.notification_shape,
-        border_width = args.border_width or beautiful.notification_border_width or 1,
+        ontop = true,
+        visible = false,
+        bg = args.bg or beautiful.notification_bg,
+        fg = args.fg or beautiful.notification_fg,
+        shape = args.shape or beautiful.notification_shape,
+        border_width = args.border_width
+            or beautiful.notification_border_width
+            or 1,
         border_color = args.border_color or beautiful.notification_border_color,
     }
 
@@ -352,16 +375,18 @@ local function new(args)
 
     -- Add a weak-table layer for the screen.
     local weak_args = setmetatable({
-        screen = args.notification and args.notification.screen or nil
-    }, {__mode="v"})
+        screen = args.notification and args.notification.screen or nil,
+    }, { __mode = "v" })
 
-    setmetatable(new_args, {__index = weak_args})
+    setmetatable(new_args, { __index = weak_args })
 
     -- Generate the box before the popup is created to avoid the size changing
     new_args.widget = generate_widget(new_args, new_args.notification)
 
     -- It failed, request::fallback will be used, there is nothing left to do.
-    if not new_args.widget then return nil end
+    if not new_args.widget then
+        return nil
+    end
 
     local ret = popup(new_args)
     ret._private.notification = {}
@@ -380,7 +405,7 @@ local function new(args)
 
     --TODO remove
     local function hide(reason)
-        return function ()
+        return function()
             local n = ret._private.notification[1]
 
             if n then
@@ -390,14 +415,24 @@ local function new(args)
     end
 
     -- On right click, close the notification without triggering the default action
-    ret:buttons(gtable.join(
-        abutton({ }, 1, hide(cst.notification_closed_reason.dismissed_by_user)),
-        abutton({ }, 3, hide(cst.notification_closed_reason.silent))
-    ))
+    ret:buttons(
+        gtable.join(
+            abutton(
+                {},
+                1,
+                hide(cst.notification_closed_reason.dismissed_by_user)
+            ),
+            abutton({}, 3, hide(cst.notification_closed_reason.silent))
+        )
+    )
 
     gtable.crush(ret, box, false)
 
     return ret
 end
 
-return setmetatable(box, {__call = function(_, args) return new(args) end})
+return setmetatable(box, {
+    __call = function(_, args)
+        return new(args)
+    end,
+})

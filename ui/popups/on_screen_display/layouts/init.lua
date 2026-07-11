@@ -74,16 +74,36 @@ layout_popup.timer:connect_signal("timeout", function()
 end)
 layout_popup.screen = mouse.screen
 
+-- Cooldown lock to prevent rapid layout switching
+-- Gives clients time to rearrange before the next change
+local layout_lock = false
+local LAYOUT_COOLDOWN = 1.5
+local unlock_timer = gears.timer({
+    timeout = LAYOUT_COOLDOWN,
+    single_shot = true,
+    autostart = false,
+    callback = function()
+        layout_lock = false
+    end,
+})
+
+local function change_layout(dir)
+    if layout_lock then
+        return
+    end
+    layout_lock = true
+    unlock_timer:start()
+    awful.layout.inc(dir)
+    layout_popup.visible = true
+    layout_popup.timer:start()
+end
+
 -- Connect signals for layout change events
 awesome.connect_signal("layout::changed:next", function()
-    awful.layout.inc(1)
-    layout_popup.visible = true
-    layout_popup.timer:start()
+    change_layout(1)
 end)
 awesome.connect_signal("layout::changed:prev", function()
-    awful.layout.inc(-1)
-    layout_popup.visible = true
-    layout_popup.timer:start()
+    change_layout(-1)
 end)
 
 -- Optimized table iteration function

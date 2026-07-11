@@ -6,7 +6,13 @@
 
 local gstring = {}
 
-local xml_entity_names = { ["'"] = "&apos;", ["\""] = "&quot;", ["<"] = "&lt;", [">"] = "&gt;", ["&"] = "&amp;" };
+local xml_entity_names = {
+    ["'"] = "&apos;",
+    ['"'] = "&quot;",
+    ["<"] = "&lt;",
+    [">"] = "&gt;",
+    ["&"] = "&amp;",
+}
 
 --- Escape a string from XML char.
 -- Useful to set raw text in textbox.
@@ -17,8 +23,16 @@ function gstring.xml_escape(text)
     return text and text:gsub("['&<>\"]", xml_entity_names) or nil
 end
 
-local xml_entity_chars = { lt = "<", gt = ">", nbsp = " ", quot = "\"", apos = "'", ndash = "-", mdash = "-",
-                           amp = "&" };
+local xml_entity_chars = {
+    lt = "<",
+    gt = ">",
+    nbsp = " ",
+    quot = '"',
+    apos = "'",
+    ndash = "-",
+    mdash = "-",
+    amp = "&",
+}
 
 --- Unescape a string from entities.
 -- @tparam string text Text to unescape.
@@ -34,7 +48,7 @@ end
 -- @treturn int Number of lines.
 -- @staticfct gears.string.linecount
 function gstring.linecount(text)
-    return select(2, text:gsub('\n', '\n')) + 1
+    return select(2, text:gsub("\n", "\n")) + 1
 end
 
 --- Split a string into multiple lines.
@@ -50,13 +64,12 @@ function gstring.linewrap(text, width, indent)
     indent = indent or 0
 
     local pos = 1
-    return text:gsub("(%s+)()(%S+)()",
-        function(_, st, word, fi)
-            if fi - pos > width then
-                pos = st
-                return "\n" .. string.rep(" ", indent) .. word
-            end
-        end)
+    return text:gsub("(%s+)()(%S+)()", function(_, st, word, fi)
+        if fi - pos > width then
+            pos = st
+            return "\n" .. string.rep(" ", indent) .. word
+        end
+    end)
 end
 
 --- Escape all special pattern-matching characters so that lua interprets them
@@ -68,7 +81,7 @@ end
 -- @staticfct gears.string.quote_pattern
 function gstring.quote_pattern(s)
     -- All special characters escaped in a string: %%, %^, %$, ...
-    local patternchars = '['..("%^$().[]*+-?"):gsub("(.)", "%%%1")..']'
+    local patternchars = "[" .. ("%^$().[]*+-?"):gsub("(.)", "%%%1") .. "]"
     return string.gsub(s, patternchars, "%%%1")
 end
 
@@ -79,14 +92,11 @@ end
 function gstring.query_to_pattern(q)
     local s = gstring.quote_pattern(q)
     -- Poor man's case-insensitive character matching.
-    s = string.gsub(s, "%a",
-                    function (c)
-                        return string.format("[%s%s]", string.lower(c),
-                                             string.upper(c))
-                    end)
+    s = string.gsub(s, "%a", function(c)
+        return string.format("[%s%s]", string.lower(c), string.upper(c))
+    end)
     return s
 end
-
 
 --- Split separates a string containing a delimiter into the list of
 -- substrings between that delimiter.
@@ -98,19 +108,20 @@ function gstring.split(str, delimiter)
     delimiter = delimiter or "\n"
     local result = {}
     if gstring.startswith(str, delimiter) then
-        result[#result+1] = ""
+        result[#result + 1] = ""
     end
     local pattern = string.format("([^%s]+)", delimiter)
-    str:gsub(pattern, function(c) result[#result+1] = c end)
+    str:gsub(pattern, function(c)
+        result[#result + 1] = c
+    end)
     if gstring.endswith(str, delimiter) then
-        result[#result+1] = ""
+        result[#result + 1] = ""
     end
     if #result == 0 then
-        result[#result+1] = str
+        result[#result + 1] = str
     end
     return result
 end
-
 
 --- Pattern split separates a string by a pattern to the table of substrings.
 -- @tparam string str String to be splitted
@@ -123,20 +134,19 @@ function gstring.psplit(str, pattern)
     local result = {}
     if #pattern == 0 then
         for index = 1, #str do
-            result[#result+1] = str:sub(index, index)
+            result[#result + 1] = str:sub(index, index)
         end
         return result
     end
     local pos = 1
     for match in str:gmatch(pattern) do
         local start_pos, end_pos = str:find(match, pos, true)
-        result[#result+1] = str:sub(pos, start_pos-1)
-        pos = end_pos+1
+        result[#result + 1] = str:sub(pos, start_pos - 1)
+        pos = end_pos + 1
     end
-    result[#result+1] = str:sub(pos, #str)
+    result[#result + 1] = str:sub(pos, #str)
     return result
 end
-
 
 --- Check if a string starts with another string.
 -- @DOC_text_gears_string_startswith_EXAMPLE@
@@ -155,7 +165,8 @@ end
 -- @treturn boolean `true` if string ends with specified string
 -- @staticfct gears.string.endswith
 function gstring.endswith(str, sub)
-    return str and (sub == "" or string.sub(str,-string.len(sub)) == sub) or false
+    return str and (sub == "" or string.sub(str, -string.len(sub)) == sub)
+        or false
 end
 
 return gstring

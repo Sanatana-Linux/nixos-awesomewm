@@ -38,7 +38,7 @@ end
 -- @return[1] A cairo context that the wallpaper should be drawn to.
 -- @deprecated gears.wallpaper.prepare_context
 function wallpaper.prepare_context(s)
-    debug.deprecate("Use `awful.wallpaper`", {deprecated_in=5})
+    debug.deprecate("Use `awful.wallpaper`", { deprecated_in = 5 })
 
     s = get_screen(s)
 
@@ -49,7 +49,8 @@ function wallpaper.prepare_context(s)
     if not pending_wallpaper then
         -- Prepare a pending wallpaper
         source = surface(root.wallpaper())
-        target = source:create_similar(cairo.Content.COLOR, root_width, root_height)
+        target =
+            source:create_similar(cairo.Content.COLOR, root_width, root_height)
 
         -- Set the wallpaper (delayed)
         timer.delayed_call(function()
@@ -58,10 +59,14 @@ function wallpaper.prepare_context(s)
             wallpaper.set(paper.surface)
             paper.surface:finish()
         end)
-    elseif root_width > pending_wallpaper.width or root_height > pending_wallpaper.height then
+    elseif
+        root_width > pending_wallpaper.width
+        or root_height > pending_wallpaper.height
+    then
         -- The root window was resized while a wallpaper is pending
         source = pending_wallpaper.surface
-        target = source:create_similar(cairo.Content.COLOR, root_width, root_height)
+        target =
+            source:create_similar(cairo.Content.COLOR, root_width, root_height)
     else
         -- Draw to the already-pending wallpaper
         source = nil
@@ -82,7 +87,7 @@ function wallpaper.prepare_context(s)
     pending_wallpaper = {
         surface = target,
         width = root_width,
-        height = root_height
+        height = root_height,
     }
 
     -- Only draw to the selected area
@@ -99,7 +104,7 @@ end
 -- @see gears.color
 -- @deprecated gears.wallpaper.set
 function wallpaper.set(pattern)
-    debug.deprecate("Use `awful.wallpaper`", {deprecated_in=5})
+    debug.deprecate("Use `awful.wallpaper`", { deprecated_in = 5 })
 
     if cairo.Surface:is_type_of(pattern) then
         pattern = cairo.Pattern.create_for_surface(pattern)
@@ -123,7 +128,7 @@ end
 -- @see gears.color
 -- @deprecated gears.wallpaper.centered
 function wallpaper.centered(surf, s, background, scale)
-    debug.deprecate("Use `awful.wallpaper`", {deprecated_in=5})
+    debug.deprecate("Use `awful.wallpaper`", { deprecated_in = 5 })
 
     local geom, cr = wallpaper.prepare_context(s)
     local original_surf = surf
@@ -142,7 +147,10 @@ function wallpaper.centered(surf, s, background, scale)
 
     -- Now center the surface
     local w, h = surface.get_size(surf)
-    cr:translate((geom.width - (w * scale)) / 2, (geom.height - (h * scale)) / 2)
+    cr:translate(
+        (geom.width - (w * scale)) / 2,
+        (geom.height - (h * scale)) / 2
+    )
     cr:rectangle(0, 0, (w * scale), (h * scale))
 
     cr:clip()
@@ -165,7 +173,7 @@ end
 -- @param offset This can be set to a table with entries x and y.
 -- @deprecated gears.wallpaper.tiled
 function wallpaper.tiled(surf, s, offset)
-    debug.deprecate("Use `awful.wallpaper`", {deprecated_in=5})
+    debug.deprecate("Use `awful.wallpaper`", { deprecated_in = 5 })
 
     local _, cr = wallpaper.prepare_context(s)
 
@@ -197,7 +205,7 @@ end
 -- @param offset This can be set to a table with entries x and y.
 -- @deprecated gears.wallpaper.maximized
 function wallpaper.maximized(surf, s, ignore_aspect, offset)
-    debug.deprecate("Use `awful.wallpaper`", {deprecated_in=5})
+    debug.deprecate("Use `awful.wallpaper`", { deprecated_in = 5 })
 
     local geom, cr = wallpaper.prepare_context(s)
     local original_surf = surf
@@ -240,7 +248,7 @@ end
 -- @see gears.color
 -- @deprecated gears.wallpaper.fit
 function wallpaper.fit(surf, s, background)
-    debug.deprecate("Use `awful.wallpaper`", {deprecated_in=5})
+    debug.deprecate("Use `awful.wallpaper`", { deprecated_in = 5 })
 
     local geom, cr = wallpaper.prepare_context(s)
     local original_surf = surf
@@ -256,9 +264,12 @@ function wallpaper.fit(surf, s, background)
     local w, h = surface.get_size(surf)
     local scale = geom.width / w
     if h * scale > geom.height then
-       scale = geom.height / h
+        scale = geom.height / h
     end
-    cr:translate((geom.width - (w * scale)) / 2, (geom.height - (h * scale)) / 2)
+    cr:translate(
+        (geom.width - (w * scale)) / 2,
+        (geom.height - (h * scale)) / 2
+    )
     cr:rectangle(0, 0, w * scale, h * scale)
     cr:clip()
     cr:scale(scale, scale)

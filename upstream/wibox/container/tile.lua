@@ -14,11 +14,15 @@ local cairo = require("lgi").cairo
 local widget = require("wibox.widget")
 local gtable = require("gears.table")
 
-local module = {mt = {}}
+local module = { mt = {} }
 
 function module:draw(context, cr, width, height)
-    if not self._private.tiled then return end
-    if not self._private.widget then return end
+    if not self._private.tiled then
+        return
+    end
+    if not self._private.widget then
+        return
+    end
 
     local x, y, w, h = self:_layout(context, width, height)
 
@@ -29,20 +33,28 @@ function module:draw(context, cr, width, height)
     -- redraw independently from the container redraw. However it is nearly a
     -- 1:1 march, so there's little reasons to do it.
     if not self._private.surface then
-        self._private.surface = cairo.ImageSurface(cairo.Format.ARGB32, w+hspace, h+vspace)
+        self._private.surface =
+            cairo.ImageSurface(cairo.Format.ARGB32, w + hspace, h + vspace)
         self._private.cr = cairo.Context(self._private.surface)
         self._private.cr:set_source(cr:get_source())
-        self._private.pattern = cairo.Pattern.create_for_surface(self._private.surface)
+        self._private.pattern =
+            cairo.Pattern.create_for_surface(self._private.surface)
         self._private.pattern.extend = cairo.Extend.REPEAT
         self._private.cr:translate(math.ceil(hspace), math.ceil(vspace))
     else
         self._private.cr:set_operator(cairo.Operator.CLEAR)
-        self._private.cr:set_source_rgba(0,0,0,1)
+        self._private.cr:set_source_rgba(0, 0, 0, 1)
         self._private.cr:paint()
         self._private.cr:set_operator(cairo.Operator.SOURCE)
     end
 
-    widget.draw_to_cairo_context(self._private.widget, self._private.cr, w, h, context)
+    widget.draw_to_cairo_context(
+        self._private.widget,
+        self._private.cr,
+        w,
+        h,
+        context
+    )
 
     cr:save()
 
@@ -53,31 +65,34 @@ function module:draw(context, cr, width, height)
 
     -- Avoid painting incomplete tiles
     if hcrop and x ~= 0 then
-        x0 = x - math.floor(x/(w+hspace))*(w+hspace)
+        x0 = x - math.floor(x / (w + hspace)) * (w + hspace)
     end
 
     if hcrop then
-        width = x + w + hspace + math.floor((width - (x + w + hspace))/(w+hspace))*(w+hspace)
+        width = x
+            + w
+            + hspace
+            + math.floor((width - (x + w + hspace)) / (w + hspace)) * (w + hspace)
     end
 
     if vcrop and y ~= 0 then
-        y0 = y - math.floor(y/(h+vspace))*(h+vspace)
+        y0 = y - math.floor(y / (h + vspace)) * (h + vspace)
     end
 
     if vcrop then
-        height = (y+h+vspace) + math.floor((height - (y+h+vspace))/(h+vspace))*(h+vspace)
+        height = (y + h + vspace)
+            + math.floor((height - (y + h + vspace)) / (h + vspace)) * (h + vspace)
     end
 
     -- Create a clip around the "real" widget in case there is some transparency.
-    cr:rectangle(x0, y0, width-x0, y-y0)
-    cr:rectangle(x0, y0, x-hspace-x0, height-y0)
-    cr:rectangle(x+hspace+w, y0, width - (x+w+hspace), height-y0)
-    cr:rectangle(x, y+vspace+h, w+hspace, height - (y+h+vspace))
+    cr:rectangle(x0, y0, width - x0, y - y0)
+    cr:rectangle(x0, y0, x - hspace - x0, height - y0)
+    cr:rectangle(x + hspace + w, y0, width - (x + w + hspace), height - y0)
+    cr:rectangle(x, y + vspace + h, w + hspace, height - (y + h + vspace))
     cr:clip()
 
     -- Make sure the tiles are aligned with the child widget.
     cr:translate(x - hspace, y - vspace)
-
 
     -- Use OVER rather than SOURCE to preserve the alpha.
     cr.operator = cairo.Operator.OVER
@@ -137,20 +152,19 @@ end
 
 local defaults = {
     horizontal_spacing = 0,
-    vertical_spacing   = 0,
-    tiled              = true,
-    horizontal_crop    = false,
-    vertical_crop      = false,
+    vertical_spacing = 0,
+    tiled = true,
+    horizontal_crop = false,
+    vertical_crop = false,
 }
 
 for prop in pairs(defaults) do
-
-    module["set_"..prop] = function(self, value)
+    module["set_" .. prop] = function(self, value)
         self._private[prop] = value
         self:emit_signal("widget::redraw_needed", value)
     end
 
-    module["get_"..prop] = function(self)
+    module["get_" .. prop] = function(self)
         if self._private[prop] == nil then
             return defaults[prop]
         end

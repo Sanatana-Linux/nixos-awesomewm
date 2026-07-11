@@ -7,8 +7,7 @@
 ---------------------------------------------------------------------------
 local grect = require("gears.geometry").rectangle
 
-local capi =
-{
+local capi = {
     screen = screen,
     client = client,
 }
@@ -21,7 +20,7 @@ do
             screen = require("awful.screen")
             return screen[k]
         end,
-        __newindex = error -- Just to be sure in case anything ever does this
+        __newindex = error, -- Just to be sure in case anything ever does this
     })
 end
 
@@ -32,11 +31,11 @@ do
             client = require("awful.client")
             return client[k]
         end,
-        __newindex = error -- Just to be sure in case anything ever does this
+        __newindex = error, -- Just to be sure in case anything ever does this
     })
 end
 
-local focus = {history = {list = {}}}
+local focus = { history = { list = {} } }
 
 local function get_screen(s)
     return s and capi.screen[s]
@@ -67,8 +66,11 @@ end
 function focus.byidx(i, c)
     local target = client.next(i, c)
     if target then
-        target:emit_signal("request::activate", "client.focus.byidx",
-                           {raise=true})
+        target:emit_signal(
+            "request::activate",
+            "client.focus.byidx",
+            { raise = true }
+        )
     end
 end
 
@@ -80,10 +82,12 @@ end
 -- @return The same client if it's ok, nil otherwise.
 -- @function awful.client.focus.filter
 function focus.filter(c)
-    if c.type == "desktop"
+    if
+        c.type == "desktop"
         or c.type == "dock"
         or c.type == "splash"
-        or not c.focusable then
+        or not c.focusable
+    then
         return nil
     end
     return c
@@ -152,8 +156,11 @@ function focus.history.previous()
     local s = sel and sel.screen or screen.focused()
     local c = focus.history.get(s, 1)
     if c then
-        c:emit_signal("request::activate", "client.focus.history.previous",
-                      {raise=false})
+        c:emit_signal(
+            "request::activate",
+            "client.focus.history.previous",
+            { raise = false }
+        )
     end
 end
 
@@ -173,7 +180,7 @@ function focus.bydirection(dir, c, stacked)
     if sel then
         local cltbl = client.visible(sel.screen, stacked)
         local geomtbl = {}
-        for i,cl in ipairs(cltbl) do
+        for i, cl in ipairs(cltbl) do
             if focus.filter(cl) then
                 geomtbl[i] = cl:geometry()
             end
@@ -183,8 +190,11 @@ function focus.bydirection(dir, c, stacked)
 
         -- If we found a client to focus, then do it.
         if target then
-            cltbl[target]:emit_signal("request::activate",
-                                      "client.focus.bydirection", {raise=false})
+            cltbl[target]:emit_signal(
+                "request::activate",
+                "client.focus.bydirection",
+                { raise = false }
+            )
         end
     end
 end
@@ -212,7 +222,7 @@ function focus.global_bydirection(dir, c, stacked)
         if scr ~= get_screen(screen.focused()) then
             local cltbl = client.visible(screen.focused(), stacked)
             local geomtbl = {}
-            for i,cl in ipairs(cltbl) do
+            for i, cl in ipairs(cltbl) do
                 if focus.filter(cl) then
                     geomtbl[i] = cl:geometry()
                 end
@@ -220,9 +230,11 @@ function focus.global_bydirection(dir, c, stacked)
             local target = grect.get_in_direction(dir, geomtbl, scr.geometry)
 
             if target then
-                cltbl[target]:emit_signal("request::activate",
-                                          "client.focus.global_bydirection",
-                                          {raise=false})
+                cltbl[target]:emit_signal(
+                    "request::activate",
+                    "client.focus.global_bydirection",
+                    { raise = false }
+                )
             end
         end
     end
@@ -246,7 +258,6 @@ end
 -- @treturn int The internal value of `disabled_count` (calls to this
 --   function without calling `awful.client.focus.history.enable_tracking`).
 -- @function awful.client.focus.history.disable_tracking
-
 
 return focus
 

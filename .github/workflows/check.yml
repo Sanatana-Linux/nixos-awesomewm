@@ -1,0 +1,38 @@
+name: Check Awesome Config
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  syntax-check:
+    name: Awesome syntax check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install AwesomeWM and dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y awesome awesome-extra x11-utils
+
+      - name: Validate rc.lua
+        run: awesome -c rc.lua --check
+
+  stylua-lint:
+    name: StyLua formatting check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install StyLua
+        run: |
+          wget -qO /tmp/stylua.zip https://github.com/JohnnyMorganz/StyLua/releases/latest/download/stylua-linux-x86_64.zip
+          unzip -o /tmp/stylua.zip -d /usr/local/bin/
+          chmod +x /usr/local/bin/stylua
+
+      - name: Check formatting
+        run: stylua --check .

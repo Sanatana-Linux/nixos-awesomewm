@@ -50,7 +50,15 @@ function margin:layout(_, width, height)
         local resulting_height = height - y - h
 
         if resulting_width >= 0 and resulting_height >= 0 then
-            return { base.place_widget_at(self._private.widget, x, y, resulting_width, resulting_height) }
+            return {
+                base.place_widget_at(
+                    self._private.widget,
+                    x,
+                    y,
+                    resulting_width,
+                    resulting_height
+                ),
+            }
         end
     end
 end
@@ -61,7 +69,13 @@ function margin:fit(context, width, height)
     local extra_h = self._private.top + self._private.bottom
     local w, h = 0, 0
     if self._private.widget then
-        w, h = base.fit_widget(self, context, self._private.widget, width - extra_w, height - extra_h)
+        w, h = base.fit_widget(
+            self,
+            context,
+            self._private.widget,
+            width - extra_w,
+            height - extra_h
+        )
     end
 
     if self._private.draw_empty == false and (w == 0 or h == 0) then
@@ -84,7 +98,7 @@ function margin:get_widget()
 end
 
 function margin:get_children()
-    return {self._private.widget}
+    return { self._private.widget }
 end
 
 function margin:set_children(children)
@@ -106,23 +120,24 @@ end
 -- @propemits false false
 
 function margin:set_margins(val)
-
     if type(val) == "number" or not val then
-        if self._private.left   == val and
-           self._private.right  == val and
-           self._private.top    == val and
-           self._private.bottom == val then
+        if
+            self._private.left == val
+            and self._private.right == val
+            and self._private.top == val
+            and self._private.bottom == val
+        then
             return
         end
 
-        self._private.left   = val
-        self._private.right  = val
-        self._private.top    = val
+        self._private.left = val
+        self._private.right = val
+        self._private.top = val
         self._private.bottom = val
     elseif type(val) == "table" then
-        self._private.left   = val.left   or self._private.left
-        self._private.right  = val.right  or self._private.right
-        self._private.top    = val.top    or self._private.top
+        self._private.left = val.left or self._private.left
+        self._private.right = val.right or self._private.right
+        self._private.top = val.top or self._private.top
         self._private.bottom = val.bottom or self._private.bottom
     end
 
@@ -211,10 +226,12 @@ end
 -- Create setters for each direction
 for _, v in pairs({ "left", "right", "top", "bottom" }) do
     margin["set_" .. v] = function(layout, val)
-        if layout._private[v] == val then return end
+        if layout._private[v] == val then
+            return
+        end
         layout._private[v] = val
         layout:emit_signal("widget::layout_changed")
-        layout:emit_signal("property::".. v, val)
+        layout:emit_signal("property::" .. v, val)
     end
 
     margin["get_" .. v] = function(layout)
@@ -234,7 +251,7 @@ end
 -- @treturn table A new margin container
 -- @constructorfct wibox.container.margin
 local function new(widget, left, right, top, bottom, color, draw_empty)
-    local ret = base.make_widget(nil, nil, {enable_properties = true})
+    local ret = base.make_widget(nil, nil, { enable_properties = true })
 
     gtable.crush(ret, margin, true)
 

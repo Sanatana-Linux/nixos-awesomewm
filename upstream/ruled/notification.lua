@@ -23,9 +23,9 @@
 -- @ruleslib ruled.notifications
 ---------------------------------------------------------------------------
 
-local capi = {screen = screen, client = client, awesome = awesome}
+local capi = { screen = screen, client = client, awesome = awesome }
 local matcher = require("gears.matcher")
-local gtable  = require("gears.table")
+local gtable = require("gears.table")
 local gobject = require("gears.object")
 
 --- The notification is attached to the focused client.
@@ -80,7 +80,9 @@ local nrules = matcher()
 local function client_match_common(n, prop, value)
     local clients = n.clients
 
-    if #clients == 0 then return false end
+    if #clients == 0 then
+        return false
+    end
 
     for _, c in ipairs(clients) do
         if c[prop] == value then
@@ -102,7 +104,9 @@ end)
 nrules:add_property_matcher("has_focus", function(n)
     local clients = n.clients
 
-    if #clients == 0 then return false end
+    if #clients == 0 then
+        return false
+    end
 
     for _, c in ipairs(clients) do
         if c == capi.client.focus then
@@ -120,7 +124,7 @@ end)
 
 nrules:add_property_setter("implicit_timeout", function(n, value)
     -- Check if there is an explicit timeout.
-    if (not n._private.timeout) and (not n._private.never_timeout) then
+    if (not n._private.timeout) and not n._private.never_timeout then
         n.timeout = value
     end
 end)

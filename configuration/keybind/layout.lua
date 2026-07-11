@@ -15,9 +15,14 @@ awful.keyboard.append_global_keybindings({
         awful.client.swap.byidx(1)
     end, { description = "swap with next client by index", group = "Layout" }),
 
-    awful.key({ modkey, "Shift" }, "k", function()
-        awful.client.swap.byidx(-1)
-    end, { description = "swap with previous client by index", group = "Layout" }),
+    awful.key(
+        { modkey, "Shift" },
+        "k",
+        function()
+            awful.client.swap.byidx(-1)
+        end,
+        { description = "swap with previous client by index", group = "Layout" }
+    ),
 
     -- -------------------------------------------------------------------------- --
 
@@ -97,6 +102,14 @@ awful.keyboard.append_global_keybindings({
             awful.client.setmaster(client.focus)
         end
     end, { description = "set focused client as master", group = "Layout" }),
+
+    -- -------------------------------------------------------------------------- --
+
+    -- LAYOUT NAVIGATION MODE --
+    -- Mod4 + F2: Enter layout navigation mode (numbered overlays on clients)
+    awful.key({ modkey }, "F2", function()
+        require("modules.layouts.widgets.navigator"):run()
+    end, { description = "layout navigation mode", group = "Layout" }),
 
     -- -------------------------------------------------------------------------- --
 

@@ -10,13 +10,13 @@
 -- @see awful.widget.common
 ----------------------------------------------------------------------------
 
-local wibox    = require("wibox")
+local wibox = require("wibox")
 local awcommon = require("awful.widget.common")
-local abutton  = require("awful.button")
-local gtable   = require("gears.table")
-local gtimer   = require("gears.timer")
-local beautiful= require("beautiful")
-local naughty  = require("naughty.core")
+local abutton = require("awful.button")
+local gtable = require("gears.table")
+local gtimer = require("gears.timer")
+local beautiful = require("beautiful")
+local naughty = require("naughty.core")
 
 local default_widget = require("naughty.widget._default")
 
@@ -89,26 +89,36 @@ local module = {}
 -- @see gears.surface
 
 local default_buttons = gtable.join(
-    abutton({ }, 1, function(n) n:destroy() end),
-    abutton({ }, 3, function(n) n:destroy() end)
+    abutton({}, 1, function(n)
+        n:destroy()
+    end),
+    abutton({}, 3, function(n)
+        n:destroy()
+    end)
 )
 
-local props = {"shape_border_color", "bg_image" , "fg",
-               "shape_border_width", "shape"    , "bg",
-               "icon_size"}
+local props = {
+    "shape_border_color",
+    "bg_image",
+    "fg",
+    "shape_border_width",
+    "shape",
+    "bg",
+    "icon_size",
+}
 
 -- Use a cached loop instead of an large function like the taglist and tasklist
 local function update_style(self)
     self._private.style_cache = self._private.style_cache or {}
 
-    for _, state in ipairs {"normal", "selected"} do
+    for _, state in ipairs({ "normal", "selected" }) do
         local s = {}
 
         for _, prop in ipairs(props) do
-            if self._private.style[prop.."_"..state] ~= nil then
-                s[prop] = self._private.style[prop.."_"..state]
+            if self._private.style[prop .. "_" .. state] ~= nil then
+                s[prop] = self._private.style[prop .. "_" .. state]
             else
-                s[prop] = beautiful["notification_"..prop.."_"..state]
+                s[prop] = beautiful["notification_" .. prop .. "_" .. state]
             end
         end
 
@@ -120,18 +130,29 @@ local function wb_label(notification, self)
     -- Get the title
     local title = notification.title
 
-    local style = self._private.style_cache[notification.selected and "selected" or "normal"]
+    local style =
+        self._private.style_cache[notification.selected and "selected" or "normal"]
 
     if notification.fg or style.fg then
-        title = "<span color='" .. (notification.fg or style.fg) .. "'>" .. title .. "</span>"
+        title = "<span color='"
+            .. (notification.fg or style.fg)
+            .. "'>"
+            .. title
+            .. "</span>"
     end
 
-    return title, notification.bg or style.bg, style.bg_image, notification.icon, {
-        shape              = notification.shape         or style.shape,
-        shape_border_width =  notification.border_width or style.shape_border_width,
-        shape_border_color =  notification.border_color or style.shape_border_color,
-        icon_size          =  style.icon_size,
-    }
+    return title,
+        notification.bg or style.bg,
+        style.bg_image,
+        notification.icon,
+        {
+            shape = notification.shape or style.shape,
+            shape_border_width = notification.border_width
+                or style.shape_border_width,
+            shape_border_color = notification.border_color
+                or style.shape_border_color,
+            icon_size = style.icon_size,
+        }
 end
 
 -- Remove some callback boilerplate from the user provided templates.
@@ -141,17 +162,21 @@ end
 
 local function update(self)
     -- Checking style_cache helps to avoid useless redraw during initialization
-    if not self._private.base_layout or not self._private.style_cache then return end
+    if not self._private.base_layout or not self._private.style_cache then
+        return
+    end
 
     awcommon.list_update(
         self._private.base_layout,
         default_buttons,
-        function(o) return wb_label(o, self) end,
+        function(o)
+            return wb_label(o, self)
+        end,
         self._private.data,
         naughty.active,
         {
             create_callback = create_callback,
-            widget_template = self._private.widget_template or default_widget
+            widget_template = self._private.widget_template or default_widget,
         }
     )
 end
@@ -233,7 +258,15 @@ end
 
 function notificationlist:layout(_, width, height)
     if self._private.base_layout then
-        return { wibox.widget.base.place_widget_at(self._private.base_layout, 0, 0, width, height) }
+        return {
+            wibox.widget.base.place_widget_at(
+                self._private.base_layout,
+                0,
+                0,
+                width,
+                height
+            ),
+        }
     end
 end
 
@@ -242,7 +275,13 @@ function notificationlist:fit(context, width, height)
         return 0, 0
     end
 
-    return wibox.widget.base.fit_widget(self, context, self._private.base_layout, width, height)
+    return wibox.widget.base.fit_widget(
+        self,
+        context,
+        self._private.base_layout,
+        width,
+        height
+    )
 end
 
 --- A function to prevent some notifications from being added to the list.
@@ -254,18 +293,18 @@ end
 --  it is rejected.
 -- @propemits true false
 
-for _, prop in ipairs { "filter", "base_layout" } do
-    notificationlist["set_"..prop] = function(self, value)
+for _, prop in ipairs({ "filter", "base_layout" }) do
+    notificationlist["set_" .. prop] = function(self, value)
         self._private[prop] = value
 
         update(self)
 
         self:emit_signal("widget::layout_changed")
         self:emit_signal("widget::redraw_needed")
-        self:emit_signal("property::"..prop, value)
+        self:emit_signal("property::" .. prop, value)
     end
 
-    notificationlist["get_"..prop] = function(self)
+    notificationlist["get_" .. prop] = function(self)
         return self._private[prop]
     end
 end
@@ -317,7 +356,9 @@ local function new(_, args)
 
         if not wdg._private.base_layout then
             wdg._private.base_layout = wibox.layout.flex.horizontal()
-            wdg._private.base_layout:set_spacing(beautiful.notification_spacing or 0)
+            wdg._private.base_layout:set_spacing(
+                beautiful.notification_spacing or 0
+            )
             wdg:emit_signal("widget::layout_changed")
             wdg:emit_signal("widget::redraw_needed")
         end
@@ -328,11 +369,16 @@ local function new(_, args)
 
         -- Prevent multiple updates due to the many signals.
         local function f()
-            if is_scheduled then return end
+            if is_scheduled then
+                return
+            end
 
             is_scheduled = true
 
-            gtimer.delayed_call(function() update(wdg); is_scheduled = false end)
+            gtimer.delayed_call(function()
+                update(wdg)
+                is_scheduled = false
+            end)
         end
 
         -- Yes, this will cause 2 updates when a new notification arrives, but
@@ -367,7 +413,7 @@ end
 -- @treturn boolean Always returns true because it doesn't filter anything at all.
 -- @filterfunction naughty.list.notifications.filter.most_recent
 function module.filter.most_recent(n, count)
-    for i=1, count or 1 do
+    for i = 1, count or 1 do
         if n == naughty.active[i] then
             return true
         end
@@ -378,6 +424,6 @@ end
 
 --@DOC_object_COMMON@
 
-return setmetatable(module, {__call = new})
+return setmetatable(module, { __call = new })
 
 -- vim: filetype=lua:expandtab:shiftwidth=4:tabstop=8:softtabstop=4:textwidth=80

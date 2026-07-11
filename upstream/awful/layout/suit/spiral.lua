@@ -42,7 +42,8 @@ local function do_spiral(p, is_spiral)
         if k == 1 and n ~= 1 then
             wa.width, old_width = math.floor((wa.width / 2) * mwfact), wa.width
         elseif k == 2 then
-            wa.width, old_width = math.ceil((old_width / 2) * (2 - mwfact)), wa.width
+            wa.width, old_width =
+                math.ceil((old_width / 2) * (2 - mwfact)), wa.width
             if k ~= n then
                 wa.height, old_height = math.floor(wa.height / 2), wa.height
             end
@@ -78,7 +79,7 @@ local function do_spiral(p, is_spiral)
             x = wa.x,
             y = wa.y,
             width = wa.width,
-            height = wa.height
+            height = wa.height,
         }
         p.geometries[c] = g
     end

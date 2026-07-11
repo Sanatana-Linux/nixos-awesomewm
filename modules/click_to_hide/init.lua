@@ -126,7 +126,11 @@ popup_manager.menu = function(menu_obj, hide_fct, options)
         else
             if exclusive then
                 for popup, data in pairs(registered_popups) do
-                    if popup ~= menu_obj and popup.visible and data.exclusive then
+                    if
+                        popup ~= menu_obj
+                        and popup.visible
+                        and data.exclusive
+                    then
                         data.hide_function()
                     end
                 end

@@ -17,16 +17,23 @@ local hierarchy = require("wibox.hierarchy")
 local ceil = math.ceil
 
 -- Keep this in sync with build-utils/lgi-check.c!
-local ver_major, ver_minor, ver_patch = string.match(require('lgi.version'), '(%d)%.(%d)%.(%d)')
-if tonumber(ver_major) <= 0 and (tonumber(ver_minor) < 8 or (tonumber(ver_minor) == 8 and tonumber(ver_patch) < 0)) then
+local ver_major, ver_minor, ver_patch =
+    string.match(require("lgi.version"), "(%d)%.(%d)%.(%d)")
+if
+    tonumber(ver_major) <= 0
+    and (
+        tonumber(ver_minor) < 8
+        or (tonumber(ver_minor) == 8 and tonumber(ver_patch) < 0)
+    )
+then
     error("lgi too old, need at least version 0.8.0")
 end
 
 local surface = { mt = {} }
-local surface_cache = setmetatable({}, { __mode = 'v' })
+local surface_cache = setmetatable({}, { __mode = "v" })
 
 local function get_default(arg)
-    if type(arg) == 'nil' then
+    if type(arg) == "nil" then
         return cairo.ImageSurface(cairo.Format.ARGB32, 0, 0)
     end
     return arg
@@ -94,15 +101,18 @@ function surface.load_silently(self, default)
 end
 
 local function do_load_and_handle_errors(self, func)
-    if type(self) == 'nil' then
+    if type(self) == "nil" then
         return get_default()
     end
     local result, err = func(self, false)
     if result then
         return result
     end
-    gdebug.print_error(debug.traceback(
-        "Failed to load '" .. tostring(self) .. "': " .. tostring(err)))
+    gdebug.print_error(
+        debug.traceback(
+            "Failed to load '" .. tostring(self) .. "': " .. tostring(err)
+        )
+    )
     return get_default()
 end
 
@@ -176,7 +186,14 @@ end
 -- @param[opt="#00000000"] bg_color The surface background color
 -- @treturn cairo.surface the new surface
 -- @staticfct load_from_shape
-function surface.load_from_shape(width, height, shape, shape_color, bg_color, ...)
+function surface.load_from_shape(
+    width,
+    height,
+    shape,
+    shape_color,
+    bg_color,
+    ...
+)
     color = color or require("gears.color")
 
     local img = cairo.ImageSurface(cairo.Format.ARGB32, width, height)
@@ -204,29 +221,29 @@ end
 -- @staticfct apply_shape_bounding
 -- @noreturn
 function surface.apply_shape_bounding(draw, shape, ...)
-  local geo = draw:geometry()
+    local geo = draw:geometry()
 
-  local img = cairo.ImageSurface(cairo.Format.A1, geo.width, geo.height)
-  local cr = cairo.Context(img)
+    local img = cairo.ImageSurface(cairo.Format.A1, geo.width, geo.height)
+    local cr = cairo.Context(img)
 
-  cr:set_operator(cairo.Operator.CLEAR)
-  cr:set_source_rgba(0,0,0,1)
-  cr:paint()
-  cr:set_operator(cairo.Operator.SOURCE)
-  cr:set_source_rgba(1,1,1,1)
+    cr:set_operator(cairo.Operator.CLEAR)
+    cr:set_source_rgba(0, 0, 0, 1)
+    cr:paint()
+    cr:set_operator(cairo.Operator.SOURCE)
+    cr:set_source_rgba(1, 1, 1, 1)
 
-  shape(cr, geo.width, geo.height, ...)
+    shape(cr, geo.width, geo.height, ...)
 
-  cr:fill()
+    cr:fill()
 
-  draw.shape_bounding = img._native
-  img:finish()
+    draw.shape_bounding = img._native
+    img:finish()
 end
 
 local function no_op() end
 
 local function run_in_hierarchy(self, cr, width, height)
-    local context = {dpi=96}
+    local context = { dpi = 96 }
     local h = hierarchy.new(context, self, width, height, no_op, no_op, {})
     h:draw(context, cr)
     return h
@@ -245,8 +262,11 @@ end
 -- @see wibox.widget.draw_to_svg_file
 -- @see wibox.widget.draw_to_image_surface
 function surface.widget_to_svg(widget, path, width, height)
-    gdebug.deprecate("Use wibox.widget.draw_to_svg_file instead of "..
-        "gears.surface.widget_to_svg", {deprecated_in=5})
+    gdebug.deprecate(
+        "Use wibox.widget.draw_to_svg_file instead of "
+            .. "gears.surface.widget_to_svg",
+        { deprecated_in = 5 }
+    )
     local img = cairo.SvgSurface.create(path, width, height)
     local cr = cairo.Context(img)
 
@@ -271,8 +291,11 @@ end
 -- @see wibox.widget.draw_to_svg_file
 -- @see wibox.widget.draw_to_image_surface
 function surface.widget_to_surface(widget, width, height, format)
-    gdebug.deprecate("Use wibox.widget.draw_to_image_surface instead of "..
-        "gears.surface.render_to_surface", {deprecated_in=5})
+    gdebug.deprecate(
+        "Use wibox.widget.draw_to_image_surface instead of "
+            .. "gears.surface.render_to_surface",
+        { deprecated_in = 5 }
+    )
     local img = cairo.ImageSurface(format or cairo.Format.ARGB32, width, height)
     local cr = cairo.Context(img)
 
@@ -309,15 +332,15 @@ function surface.crop_surface(args)
     local target_ratio = args.ratio
 
     local w, h = surface.get_size(surf)
-    local offset_w, offset_h =  0, 0
+    local offset_w, offset_h = 0, 0
 
-    if (args.top or args.right or args.bottom or args.left) then
+    if args.top or args.right or args.bottom or args.left then
         local left = args.left or 0
         local right = args.right or 0
         local top = args.top or 0
         local bottom = args.bottom or 0
 
-        if (top < 0 or right < 0 or bottom < 0 or left < 0) then
+        if top < 0 or right < 0 or bottom < 0 or left < 0 then
             error("negative offsets are not supported for crop_surface")
         end
 
@@ -325,8 +348,8 @@ function surface.crop_surface(args)
         h = h - top - bottom
 
         -- the offset needs to be negative
-        offset_w = - left
-        offset_h = - top
+        offset_w = -left
+        offset_h = -top
 
         -- breaking stuff with cairo crashes awesome with no way to restart in place
         -- so here are checks for user error
@@ -337,16 +360,16 @@ function surface.crop_surface(args)
     end
 
     if target_ratio and target_ratio > 0 then
-        local prev_ratio = w/h
+        local prev_ratio = w / h
         if prev_ratio ~= target_ratio then
-            if (prev_ratio < target_ratio) then
+            if prev_ratio < target_ratio then
                 local old_h = h
-                h = ceil(w * (1/target_ratio))
-                offset_h = offset_h - ceil((old_h - h)/2)
+                h = ceil(w * (1 / target_ratio))
+                offset_h = offset_h - ceil((old_h - h) / 2)
             else
                 local old_w = w
                 w = ceil(h * target_ratio)
-                offset_w = offset_w - ceil((old_w - w)/2)
+                offset_w = offset_w - ceil((old_w - w) / 2)
             end
         end
     end

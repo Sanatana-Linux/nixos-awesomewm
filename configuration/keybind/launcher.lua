@@ -2,6 +2,7 @@
 local awful = require("awful")
 local dropdown = require("modules.dropdown")
 local launcher = require("ui.popups.launcher").get_default()
+local control_panel = require("ui.popups.control_panel").get_default()
 local menubar = require("menubar")
 local modkey = "Mod4"
 
@@ -24,6 +25,11 @@ awful.keyboard.append_global_keybindings({
     end, { description = "open application launch menu", group = "Launcher" }),
 
     awful.key({ modkey }, "p", function()
+        control_panel:toggle()
+    end, { description = "toggle control panel", group = "Launcher" }),
+
+    awful.key({ modkey, "Shift" }, "p", function()
         menubar.show()
     end, { description = "show the menubar", group = "Launcher" }),
+
 })

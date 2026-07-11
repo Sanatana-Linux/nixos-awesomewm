@@ -35,7 +35,7 @@ local function fmax(p, fs)
             x = area.x,
             y = area.y,
             width = area.width,
-            height = area.height
+            height = area.height,
         }
         p.geometries[c] = g
     end

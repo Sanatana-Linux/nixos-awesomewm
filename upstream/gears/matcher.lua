@@ -80,10 +80,14 @@ local matcher = {}
 
 local function default_matcher(a, b)
     local result = a == b
-    if result then return true end
+    if result then
+        return true
+    end
     if type(a) == "string" and type(b) == "string" then
-      result = a:match(b)
-      if result == '' then return false end
+        result = a:match(b)
+        if result == "" then
+            return false
+        end
     end
     return result
 end
@@ -102,7 +106,9 @@ end
 -- @treturn boolean True if it matches, false otherwise.
 -- @method _match
 function matcher:_match(o, rule, matcher_f)
-    if not rule then return false end
+    if not rule then
+        return false
+    end
 
     matcher_f = matcher_f or default_matcher
 
@@ -124,7 +130,7 @@ local function field_matcher(self, o, field, value, matcher_f)
 
     if pm and pm(o, value, field) then
         return true
-    elseif matcher_f(o[field] , value) then
+    elseif matcher_f(o[field], value) then
         return true
     end
 
@@ -137,15 +143,15 @@ end
 -- @treturn boolean True if at least one rule is matched, false otherwise.
 -- @method _match_any
 function matcher:_match_any(o, rule)
-    if not rule then return false end
+    if not rule then
+        return false
+    end
     for field, values in pairs(rule) do
         if o[field] then
-
             -- Special case, "all"
             if type(values) == "boolean" and values then
                 return true
             end
-
 
             for _, value in ipairs(values) do
                 if field_matcher(self, o, field, value) then
@@ -166,7 +172,9 @@ end
 -- @treturn boolean True if all rules are matched.
 -- @method _match_every
 function matcher:_match_every(o, rule)
-    if not rule then return true end
+    if not rule then
+        return true
+    end
 
     for field, values in pairs(rule) do
         local found = false
@@ -192,23 +200,38 @@ end
 -- @treturn boolean If `o` matches `entry`.
 -- @method matches_rule
 function matcher:matches_rule(o, entry)
-    local match = self:_match(o, entry.rule) or self:_match_any(o, entry.rule_any)
+    local match = self:_match(o, entry.rule)
+        or self:_match_any(o, entry.rule_any)
 
     -- If there was `rule` or `rule_any` and they failed to match, look no further.
-    if (not match) and (entry.rule or entry.rule_any) then return false end
-
-    if not self:_match_every(o, entry.rule_every) then return false end
-
-    -- Negative matching.
-    if entry.except and self:_match(o, entry.except) then return false end
-    if entry.except_any and self:_match_any(o, entry.except_any) then return false end
-
-    -- Other operators.
-    if entry.rule_greater and not self:_match(o, entry.rule_greater, greater_matcher) then
+    if (not match) and (entry.rule or entry.rule_any) then
         return false
     end
 
-    if entry.rule_lesser and not self:_match(o, entry.rule_lesser, lesser_matcher) then
+    if not self:_match_every(o, entry.rule_every) then
+        return false
+    end
+
+    -- Negative matching.
+    if entry.except and self:_match(o, entry.except) then
+        return false
+    end
+    if entry.except_any and self:_match_any(o, entry.except_any) then
+        return false
+    end
+
+    -- Other operators.
+    if
+        entry.rule_greater
+        and not self:_match(o, entry.rule_greater, greater_matcher)
+    then
+        return false
+    end
+
+    if
+        entry.rule_lesser
+        and not self:_match(o, entry.rule_lesser, lesser_matcher)
+    then
         return false
     end
 
@@ -227,7 +250,6 @@ end
 -- @method matching_rules
 -- @treturn table The matching rules.
 function matcher:matching_rules(o, rules)
-
     -- Match all sources.
     if not rules then
         local ret = {}
@@ -302,7 +324,10 @@ end
 -- end)
 --
 function matcher:add_property_matcher(name, f)
-    assert(not self._private.prop_matchers[name], name .. " already has a matcher")
+    assert(
+        not self._private.prop_matchers[name],
+        name .. " already has a matcher"
+    )
 
     self._private.prop_matchers[name] = f
 
@@ -319,7 +344,10 @@ end
 -- @tparam string name The property name.
 -- @tparam function f The setter function.
 function matcher:add_property_setter(name, f)
-    assert(not self._private.prop_setters[name], name .. " already has a matcher")
+    assert(
+        not self._private.prop_setters[name],
+        name .. " already has a matcher"
+    )
 
     self._private.prop_setters[name] = f
 
@@ -389,10 +417,10 @@ end
 -- @treturn boolean Returns false if a dependency conflict was found.
 -- @method add_matching_function
 function matcher:add_matching_function(name, callback, depends_on, precede)
-    depends_on = depends_on  or {}
-    precede    = precede or {}
-    assert(type( depends_on ) == "table")
-    assert(type( precede    ) == "table")
+    depends_on = depends_on or {}
+    precede = precede or {}
+    assert(type(depends_on) == "table")
+    assert(type(precede) == "table")
 
     for _, v in ipairs(self._matching_source) do
         -- Names must be unique
@@ -404,13 +432,13 @@ function matcher:add_matching_function(name, callback, depends_on, precede)
 
     local new_sources = self._rule_source_sort:clone()
 
-    new_sources:prepend(name, precede    )
-    new_sources:append (name, depends_on )
+    new_sources:prepend(name, precede)
+    new_sources:append(name, depends_on)
 
     local res, err = new_sources:sort()
 
     if err then
-        gdebug.print_warning("Failed to add the rule source: "..err)
+        gdebug.print_warning("Failed to add the rule source: " .. err)
         return false
     end
 
@@ -433,7 +461,7 @@ function matcher:add_matching_function(name, callback, depends_on, precede)
         if callbacks[v] then
             table.insert(self._matching_source, 1, {
                 callback = callbacks[v],
-                name     = v
+                name = v,
             })
         end
     end
@@ -461,7 +489,6 @@ function matcher:remove_matching_source(name)
             return true
         end
     end
-
 
     self._matching_rules[name] = nil
 
@@ -524,7 +551,12 @@ function matcher:append_rule(source, rule)
         self:add_matching_rules(source, {}, {}, {})
     end
     table.insert(self._matching_rules[source], rule)
-    self:emit_signal("rule::appended", rule, source, self._matching_rules[source])
+    self:emit_signal(
+        "rule::appended",
+        rule,
+        source,
+        self._matching_rules[source]
+    )
 end
 
 --- Add a new rules to the default set.
@@ -544,12 +576,19 @@ end
 -- @treturn boolean If the rule was removed.
 -- @method remove_rule
 function matcher:remove_rule(source, rule)
-    if not self._matching_rules[source] then return end
+    if not self._matching_rules[source] then
+        return
+    end
 
     for k, v in ipairs(self._matching_rules[source]) do
         if v == rule or v.id == rule then
             table.remove(self._matching_rules[source], k)
-            self:emit_signal("rule::removed", rule, source, self._matching_rules[source])
+            self:emit_signal(
+                "rule::removed",
+                rule,
+                source,
+                self._matching_rules[source]
+            )
             return true
         end
     end
@@ -567,7 +606,9 @@ local function new()
     local ret = gobject()
 
     rawset(ret, "_private", {
-        rules = {}, prop_matchers = {}, prop_setters = {}
+        rules = {},
+        prop_matchers = {},
+        prop_setters = {},
     })
 
     -- Contains the sources.
@@ -588,4 +629,4 @@ end
 
 --@DOC_object_COMMON@
 
-return setmetatable(module, {__call = new})
+return setmetatable(module, { __call = new })

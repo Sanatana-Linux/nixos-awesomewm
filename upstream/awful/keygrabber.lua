@@ -65,7 +65,7 @@
 
 local ipairs = ipairs
 local table = table
-local gdebug = require('gears.debug')
+local gdebug = require("gears.debug")
 local akey = require("awful.key")
 local unpack = unpack or table.unpack -- luacheck: globals unpack (compatibility with Lua 5.1)
 local gtable = require("gears.table")
@@ -82,7 +82,7 @@ local grabbers = {}
 local keygrabbing = false
 
 local keygrabber = {
-    object = {}
+    object = {},
 }
 
 -- Instead of checking for every modifiers, check the key directly.
@@ -93,7 +93,9 @@ local conversion = nil
 
 -- Read the modifiers name and map their keysyms to the modkeys
 local function generate_conversion_map()
-    if conversion then return conversion end
+    if conversion then
+        return conversion
+    end
 
     local mods = capi.awesome._modifiers
     assert(mods)
@@ -110,11 +112,14 @@ local function generate_conversion_map()
     return conversion
 end
 
-capi.awesome.connect_signal("xkb::map_changed"  , function() conversion = nil end)
+capi.awesome.connect_signal("xkb::map_changed", function()
+    conversion = nil
+end)
 
 local function add_root_keybindings(self, list)
     assert(
-        list, "`add_root_keybindings` needs to be called with a list of keybindings"
+        list,
+        "`add_root_keybindings` needs to be called with a list of keybindings"
     )
 
     for _, kb in ipairs(list) do
@@ -159,7 +164,10 @@ local function stop(self, stop_key, stop_mods)
 
     if self.stop_callback then
         self.stop_callback(
-            self.current_instance, stop_key, stop_mods, self.sequence
+            self.current_instance,
+            stop_key,
+            stop_mods,
+            self.sequence
         )
     end
 
@@ -173,8 +181,11 @@ local function runner(self, modifiers, key, event)
     local converted = generate_conversion_map()[key]
 
     -- Stop the keygrabber with the `stop_key`
-    if (key == self.stop_key or (converted and converted == self.stop_key))
-      and event == self.stop_event and self.stop_key then
+    if
+        (key == self.stop_key or (converted and converted == self.stop_key))
+        and event == self.stop_event
+        and self.stop_key
+    then
         stop(self, key, modifiers)
         return false
     end
@@ -208,16 +219,18 @@ local function runner(self, modifiers, key, event)
     -- Record the key sequence
     if key == "BackSpace" and seq_len > 0 and event == "release" then
         self.sequence = glib.utf8_substring(self.sequence, 0, seq_len - 1)
-    elseif glib.utf8_strlen(key, -1) == 1 and  event == "release" then
-        self.sequence = self.sequence..key
+    elseif glib.utf8_strlen(key, -1) == 1 and event == "release" then
+        self.sequence = self.sequence .. key
     end
 
     -- Convert index array to hash table
     local mod = {}
-    for _, v in ipairs(modifiers) do mod[v] = true end
+    for _, v in ipairs(modifiers) do
+        mod[v] = true
+    end
 
     -- Emit some signals so the user can connect to a single type of event.
-    self:emit_signal(key.."::"..event, modifiers, mod)
+    self:emit_signal(key .. "::" .. event, modifiers, mod)
 
     local filtered_modifiers = {}
 
@@ -230,10 +243,10 @@ local function runner(self, modifiers, key, event)
             end
         end
 
-        for _,v in ipairs(self._private.keybindings[key]) do
+        for _, v in ipairs(self._private.keybindings[key]) do
             if #filtered_modifiers == #v.modifiers then
                 local match = true
-                for _,v2 in ipairs(v.modifiers) do
+                for _, v2 in ipairs(v.modifiers) do
                     match = match and mod[v2]
                 end
 
@@ -287,7 +300,11 @@ function keygrab.stop(g)
         end
     end
 
-    if g and keygrab.current_instance and keygrab.current_instance.grabber == g then
+    if
+        g
+        and keygrab.current_instance
+        and keygrab.current_instance.grabber == g
+    then
         keygrab.current_instance = nil
     end
 
@@ -464,12 +481,12 @@ function keygrabber:start()
     self.current_instance = setmetatable({}, {
         __index = self,
         __newindex = function(tab, key, value)
-            if keygrabber["set_"..key] then
+            if keygrabber["set_" .. key] then
                 self[key](self, value)
             else
                 rawset(tab, key, value)
             end
-        end
+        end,
     })
 
     self.sequence = ""
@@ -478,20 +495,22 @@ function keygrabber:start()
         self.start_callback(self.current_instance)
     end
 
-    self.grabber = keygrab.run(function(...) return runner(self, ...) end)
+    self.grabber = keygrab.run(function(...)
+        return runner(self, ...)
+    end)
 
     -- Ease making keygrabber that won't hang forever if no action is taken.
     if self.timeout and not self._private.timer then
-        self._private.timer = gtimer {
-            timeout     = self.timeout,
+        self._private.timer = gtimer({
+            timeout = self.timeout,
             single_shot = true,
-            callback    = function()
+            callback = function()
                 if self.timeout_callback then
                     pcall(self.timeout_callback, self)
                 end
                 self:stop()
-            end
-        }
+            end,
+        })
     end
 
     if self._private.timer then
@@ -518,17 +537,17 @@ end
 function keygrabber:stop(stop_key, stop_mods)
     if stop_key then
         gdebug.deprecate(
-            "The `stop_key` is deprecated. Overriding callback parameters "..
-            "is an anti-pattern and might confuse third party modules.",
-            {deprecated_in=5}
+            "The `stop_key` is deprecated. Overriding callback parameters "
+                .. "is an anti-pattern and might confuse third party modules.",
+            { deprecated_in = 5 }
         )
     end
 
     if stop_mods then
         gdebug.deprecate(
-            "The `stop_mods` is deprecated. Overriding callback parameters "..
-            "is an anti-pattern and might confuse third party modules.",
-            {deprecated_in=5}
+            "The `stop_mods` is deprecated. Overriding callback parameters "
+                .. "is an anti-pattern and might confuse third party modules.",
+            { deprecated_in = 5 }
         )
     end
 
@@ -555,30 +574,32 @@ function keygrabber:add_keybinding(key, keycode, callback, description)
     local mods = not key._is_awful_key and key or nil
 
     if mods then
-        gdebug.deprecate(":add_keybinding now takes `awful.key` objects instead"
-            .. " of multiple parameters",
-            {deprecated_in=5}
+        gdebug.deprecate(
+            ":add_keybinding now takes `awful.key` objects instead"
+                .. " of multiple parameters",
+            { deprecated_in = 5 }
         )
 
-        key = akey {
-            modifiers   = mods,
-            key         = keycode,
+        key = akey({
+            modifiers = mods,
+            key = keycode,
             description = description,
-            on_press    = callback
-        }
+            on_press = callback,
+        })
     elseif keycode or callback or description then
         gdebug.deprecate(
-            ":add_keybinding only accept a single parameter. All "..
-            "other were ignored.",
-            {deprecated_in=4}
+            ":add_keybinding only accept a single parameter. All "
+                .. "other were ignored.",
+            { deprecated_in = 4 }
         )
     end
 
-    self._private.keybindings[key.key] = self._private.keybindings[key.key] or {}
+    self._private.keybindings[key.key] = self._private.keybindings[key.key]
+        or {}
     table.insert(self._private.keybindings[key.key], key)
 
     if self.export_keybindings then
-        add_root_keybindings(self, {key})
+        add_root_keybindings(self, { key })
     end
 end
 
@@ -611,20 +632,24 @@ function keygrabber:set_root_keybindings(keys)
         if key._is_awful_key then
             table.insert(real_keys, key)
         else
-            gdebug.deprecate(":set_root_keybindings now takes `awful.key` "
-                .. " objects instead of tables",
-                {deprecated_in=5}
+            gdebug.deprecate(
+                ":set_root_keybindings now takes `awful.key` "
+                    .. " objects instead of tables",
+                { deprecated_in = 5 }
             )
 
             local mods, keycode, press, release, data = unpack(key)
 
-            table.insert(real_keys, akey {
-                modifiers   = mods,
-                key         = keycode,
-                description = (data or {}).description,
-                on_press    = press,
-                on_release  = release,
-            })
+            table.insert(
+                real_keys,
+                akey({
+                    modifiers = mods,
+                    key = keycode,
+                    description = (data or {}).description,
+                    on_press = press,
+                    on_release = release,
+                })
+            )
         end
     end
 
@@ -745,10 +770,10 @@ end
 function keygrab.run_with_keybindings(args)
     args = args or {}
 
-    local ret = gobject {
-        enable_properties   = true,
-        enable_auto_signals = true
-    }
+    local ret = gobject({
+        enable_properties = true,
+        enable_auto_signals = true,
+    })
 
     rawset(ret, "_private", {})
 
@@ -764,37 +789,39 @@ function keygrab.run_with_keybindings(args)
     ret.stop_event = args.stop_event or "press"
 
     -- Build the hook map
-    for _,v in ipairs(args.keybindings or {}) do
+    for _, v in ipairs(args.keybindings or {}) do
         if v._is_awful_key then
-            ret._private.keybindings[v.key] = ret._private.keybindings[v.key] or {}
+            ret._private.keybindings[v.key] = ret._private.keybindings[v.key]
+                or {}
             table.insert(ret._private.keybindings[v.key], v)
         elseif #v >= 3 and #v <= 4 then
-            gdebug.deprecate("keybindings now contains `awful.key` objects"
-                .. "instead of multiple tables",
-                {deprecated_in=5}
+            gdebug.deprecate(
+                "keybindings now contains `awful.key` objects"
+                    .. "instead of multiple tables",
+                { deprecated_in = 5 }
             )
 
             local modifiers, key, callback = unpack(v)
             if type(callback) == "function" then
-
-                local k = akey {
+                local k = akey({
                     modifiers = modifiers,
-                    key       = key,
-                    on_press  = callback,
-                }
+                    key = key,
+                    on_press = callback,
+                })
 
-                ret._private.keybindings[key] = ret._private.keybindings[key] or {}
+                ret._private.keybindings[key] = ret._private.keybindings[key]
+                    or {}
                 table.insert(ret._private.keybindings[key], k)
             else
                 gdebug.print_warning(
-                    "The hook's 3rd parameter has to be a function. " ..
-                        gdebug.dump_return(v or {})
+                    "The hook's 3rd parameter has to be a function. "
+                        .. gdebug.dump_return(v or {})
                 )
             end
         else
             gdebug.print_warning(
-                "The keybindings should be awful.key objects" ..
-                        gdebug.dump_return(v or {})
+                "The keybindings should be awful.key objects"
+                    .. gdebug.dump_return(v or {})
             )
         end
     end
@@ -945,7 +972,9 @@ end
 --@DOC_object_COMMON@
 
 return setmetatable(keygrab, {
-    __call = function(_, args) return keygrab.run_with_keybindings(args) end
+    __call = function(_, args)
+        return keygrab.run_with_keybindings(args)
+    end,
 })
 
 -- vim: filetype=lua:expandtab:shiftwidth=4:tabstop=8:softtabstop=4:textwidth=80

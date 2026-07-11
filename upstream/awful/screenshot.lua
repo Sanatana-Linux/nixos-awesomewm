@@ -26,23 +26,23 @@
 
 -- Grab environment we need
 local capi = {
-    root         = root,
-    screen       = screen,
-    client       = client,
-    mousegrabber = mousegrabber
+    root = root,
+    screen = screen,
+    client = client,
+    mousegrabber = mousegrabber,
 }
 
-local gears     = require("gears")
+local gears = require("gears")
 local beautiful = require("beautiful")
-local wibox     = require("wibox")
-local cairo     = require("lgi").cairo
-local abutton   = require("awful.button")
-local akey      = require("awful.key")
+local wibox = require("wibox")
+local cairo = require("lgi").cairo
+local abutton = require("awful.button")
+local akey = require("awful.key")
 local akgrabber = require("awful.keygrabber")
-local gtimer    = require("gears.timer")
-local glib      = require("lgi").GLib
-local datetime  = glib.DateTime
-local timezone  = glib.TimeZone
+local gtimer = require("gears.timer")
+local glib = require("lgi").GLib
+local datetime = glib.DateTime
+local timezone = glib.TimeZone
 
 -- The module to be returned
 local module = { mt = {}, _screenshot_methods = {} }
@@ -89,14 +89,17 @@ function screenshot_validation.directory(directory)
     -- manager this should be the same thing to the extent that anything else
     -- is arguably unexpected behavior.
     if string.find(directory, "^~/") then
-        directory = string.gsub(directory, "^~/",
-                              string.gsub(os.getenv("HOME"), "/*$", "/", 1))
+        directory = string.gsub(
+            directory,
+            "^~/",
+            string.gsub(os.getenv("HOME"), "/*$", "/", 1)
+        )
     elseif string.find(directory, "^[^/]") then
         directory = string.gsub(os.getenv("HOME"), "/*$", "/", 1) .. directory
     end
 
     -- Assure that we return exactly one trailing slash
-    directory = string.gsub(directory, '/*$', '/', 1)
+    directory = string.gsub(directory, "/*$", "/", 1)
 
     -- Add a trailing "/" if none is present.
     if directory:sub(-1) ~= "/" then
@@ -104,8 +107,11 @@ function screenshot_validation.directory(directory)
     end
 
     -- If the directory eixsts, but cannot be used, print and error.
-    if gears.filesystem.is_dir(directory) and not gears.filesystem.dir_writable(directory) then
-        gears.debug.print_error("`"..directory.. "` is not writable.")
+    if
+        gears.filesystem.is_dir(directory)
+        and not gears.filesystem.dir_writable(directory)
+    then
+        gears.debug.print_error("`" .. directory .. "` is not writable.")
     end
 
     return directory
@@ -116,8 +122,11 @@ end
 -- Currently only strips all path separators ('/'). Allows for empty prefix.
 function screenshot_validation.prefix(prefix)
     if prefix:match("[/.]") then
-        gears.debug.print_error("`"..prefix..
-            "` is not a valid prefix because it contains `/` or `.`")
+        gears.debug.print_error(
+            "`"
+                .. prefix
+                .. "` is not a valid prefix because it contains `/` or `.`"
+        )
     end
 
     return prefix
@@ -126,7 +135,7 @@ end
 -- Internal routine to verify that a file_path is valid.
 function screenshot_validation.file_path(file_path)
     if gears.filesystem.file_readable(file_path) then
-        gears.debug.print_error("`"..file_path.."` already exist.")
+        gears.debug.print_error("`" .. file_path .. "` already exist.")
     end
 
     return file_path
@@ -134,10 +143,11 @@ end
 
 -- Warn about invalid geometries.
 function screenshot_validation.geometry(geo)
-    for _, part in ipairs {"x", "y", "width", "height" } do
+    for _, part in ipairs({ "x", "y", "width", "height" }) do
         if not geo[part] then
-            gears.debug.print_error("The screenshot geometry must be a table with "..
-                "`x`, `y`, `width` and `height`"
+            gears.debug.print_error(
+                "The screenshot geometry must be a table with "
+                    .. "`x`, `y`, `width` and `height`"
             )
             break
         end
@@ -152,12 +162,13 @@ end
 
 local function make_file_name(self, method)
     local date_time = get_date(self.date_format)
-    method = method and method.."_" or ""
+    method = method and method .. "_" or ""
     return self.prefix .. "_" .. method .. date_time .. ".png"
 end
 
 local function make_file_path(self, method)
-    return self.directory .. (self._private.file_name or make_file_name(self, method))
+    return self.directory
+        .. (self._private.file_name or make_file_name(self, method))
 end
 
 -- Internal function to do the actual work of taking a cropped screenshot
@@ -167,7 +178,8 @@ end
 -- run by the mousegrabber and the programmatically defined snip function,
 -- though there may be other uses.
 local function crop_shot(source, geo)
-    local target = source:create_similar(cairo.Content.COLOR, geo.width, geo.height)
+    local target =
+        source:create_similar(cairo.Content.COLOR, geo.width, geo.height)
 
     local cr = cairo.Context(target)
     cr:set_source_surface(source, -geo.x, -geo.y)
@@ -187,8 +199,8 @@ end
 -- confuse the change.
 local function show_frame(self, surface, geo)
     local col = self._private.frame_color
-          or beautiful.screenshot_frame_color
-          or "#ff0000"
+        or beautiful.screenshot_frame_color
+        or "#ff0000"
 
     local shape = self.frame_shape
         or beautiful.screenshot_frame_shape
@@ -196,39 +208,41 @@ local function show_frame(self, surface, geo)
 
     local w, h = root.size()
 
-    self._private.selection_widget = wibox.widget {
-        border_width  = 3,
-        border_color  = col,
-        shape         = shape,
-        color         = "transparent",
-        visible       = false,
-        widget        = wibox.widget.separator
-    }
-    self._private.selection_widget.point = {x=0, y=0}
-    self._private.selection_widget.fit = function() return 0,0 end
+    self._private.selection_widget = wibox.widget({
+        border_width = 3,
+        border_color = col,
+        shape = shape,
+        color = "transparent",
+        visible = false,
+        widget = wibox.widget.separator,
+    })
+    self._private.selection_widget.point = { x = 0, y = 0 }
+    self._private.selection_widget.fit = function()
+        return 0, 0
+    end
 
-    self._private.canvas_widget = wibox.widget {
-        widget = wibox.layout.manual
-    }
+    self._private.canvas_widget = wibox.widget({
+        widget = wibox.layout.manual,
+    })
 
-    self._private.imagebox = wibox.widget {
-        image  = surface,
-        widget = wibox.widget.imagebox
-    }
+    self._private.imagebox = wibox.widget({
+        image = surface,
+        widget = wibox.widget.imagebox,
+    })
 
     self._private.imagebox.point = geo
     self._private.canvas_widget:add(self._private.imagebox)
     self._private.canvas_widget:add(self._private.selection_widget)
 
-    self._private.frame = wibox {
-        ontop   = true,
-        x       = 0,
-        y       = 0,
-        width   = w,
-        height  = h,
-        widget  = self._private.canvas_widget,
+    self._private.frame = wibox({
+        ontop = true,
+        x = 0,
+        y = 0,
+        width = w,
+        height = h,
+        widget = self._private.canvas_widget,
         visible = true,
-    }
+    })
 end
 
 --- Emitted when the interactive snipping starts.
@@ -300,14 +314,17 @@ local function start_snipping(self, surface, geometry, method)
             local max_y = math.max(self._private.mg_first_pnt[2], mouse_data.y)
 
             self._private.selected_geometry = {
-                x       = min_x,
-                y       = min_y,
-                width   = max_x - min_x,
-                height  = max_y - min_y,
-                method  = method,
+                x = min_x,
+                y = min_y,
+                width = max_x - min_x,
+                height = max_y - min_y,
+                method = method,
                 surface = surface,
             }
-            self:emit_signal("property::selected_geometry", self._private.selected_geometry)
+            self:emit_signal(
+                "property::selected_geometry",
+                self._private.selected_geometry
+            )
 
             if not accept then
                 -- Released
@@ -317,9 +334,12 @@ local function start_snipping(self, surface, geometry, method)
                 self._private.selection_widget.point.x = min_x
                 self._private.selection_widget.point.y = min_y
                 self._private.selection_widget.fit = function()
-                    return self._private.selected_geometry.width, self._private.selected_geometry.height
+                    return self._private.selected_geometry.width,
+                        self._private.selected_geometry.height
                 end
-                self._private.selection_widget:emit_signal("widget::layout_changed")
+                self._private.selection_widget:emit_signal(
+                    "widget::layout_changed"
+                )
                 self._private.canvas_widget:emit_signal("widget::redraw_needed")
             end
         elseif accept then
@@ -342,7 +362,8 @@ end
 -- Internal function exected when a root window screenshot is taken.
 function module._screenshot_methods.root()
     local w, h = root.size()
-    return to_surface(capi.root.content(), w, h),  {x = 0, y = 0, width = w, height = h}
+    return to_surface(capi.root.content(), w, h),
+        { x = 0, y = 0, width = w, height = h }
 end
 
 -- Internal function executed when a physical screen screenshot is taken.
@@ -363,13 +384,14 @@ function module._screenshot_methods.client(self)
     local c_geo = c:geometry()
 
     local actual_geo = {
-        x      = c_geo.x + left_size + bw,
-        y      = c_geo.y + top_size + bw,
-        width  = c_geo.width - right_size - left_size,
+        x = c_geo.x + left_size + bw,
+        y = c_geo.y + top_size + bw,
+        width = c_geo.width - right_size - left_size,
         height = c_geo.height - bottom_size - top_size,
     }
 
-    return to_surface(c.content, actual_geo.width, actual_geo.height), actual_geo
+    return to_surface(c.content, actual_geo.width, actual_geo.height),
+        actual_geo
 end
 
 -- Internal function executed when a snip screenshow (a defined geometry) is
@@ -377,14 +399,16 @@ end
 function module._screenshot_methods.geometry(self)
     local root_w, root_h = root.size()
 
-    local root_intrsct = gears.geometry.rectangle.get_intersection(self.geometry, {
-        x      = 0,
-        y      = 0,
-        width  = root_w,
-        height = root_h
-    })
+    local root_intrsct =
+        gears.geometry.rectangle.get_intersection(self.geometry, {
+            x = 0,
+            y = 0,
+            width = root_w,
+            height = root_h,
+        })
 
-    return crop_shot(module._screenshot_methods.root(self), root_intrsct), root_intrsct
+    return crop_shot(module._screenshot_methods.root(self), root_intrsct),
+        root_intrsct
 end
 
 -- Various accessors for the screenshot object returned by any public
@@ -597,32 +621,49 @@ end
 -- @propertydefault Autogenerated on first access.
 
 local defaults = {
-    prefix                  = "Screenshot-",
-    directory               = screenshot_validation.directory(os.getenv("HOME")),
-    cursor                  = "crosshair",
-    date_format             = "%Y%m%d%H%M%S",
-    interactive             = false,
-    reject_buttons          = {abutton({}, 3)},
-    accept_buttons          = {abutton({}, 1)},
-    reject_keys             = {akey({}, "Escape")},
-    accept_keys             = {akey({}, "Return")},
-    minimum_size            = {width = 3, height = 3},
+    prefix = "Screenshot-",
+    directory = screenshot_validation.directory(os.getenv("HOME")),
+    cursor = "crosshair",
+    date_format = "%Y%m%d%H%M%S",
+    interactive = false,
+    reject_buttons = { abutton({}, 3) },
+    accept_buttons = { abutton({}, 1) },
+    reject_keys = { akey({}, "Escape") },
+    accept_keys = { akey({}, "Return") },
+    minimum_size = { width = 3, height = 3 },
     auto_save_tick_duration = 1,
 }
 
 -- Create the standard properties.
-for _, prop in ipairs { "frame_color", "geometry", "screen", "client", "date_format",
-                        "prefix", "directory", "file_path", "file_name", "auto_save_delay",
-                        "interactive", "reject_buttons", "accept_buttons", "cursor",
-                        "reject_keys", "accept_keys", "frame_shape", "minimum_size",
-                        "auto_save_tick_duration" } do
-    module["set_"..prop] = function(self, value)
+for _, prop in ipairs({
+    "frame_color",
+    "geometry",
+    "screen",
+    "client",
+    "date_format",
+    "prefix",
+    "directory",
+    "file_path",
+    "file_name",
+    "auto_save_delay",
+    "interactive",
+    "reject_buttons",
+    "accept_buttons",
+    "cursor",
+    "reject_keys",
+    "accept_keys",
+    "frame_shape",
+    "minimum_size",
+    "auto_save_tick_duration",
+}) do
+    module["set_" .. prop] = function(self, value)
         self._private[prop] = screenshot_validation[prop]
-            and screenshot_validation[prop](value) or value
-        self:emit_signal("property::"..prop, value)
+                and screenshot_validation[prop](value)
+            or value
+        self:emit_signal("property::" .. prop, value)
     end
 
-    module["get_"..prop] = function(self)
+    module["get_" .. prop] = function(self)
         return self._private[prop] or defaults[prop]
     end
 end
@@ -659,19 +700,26 @@ function module:get_surface()
 end
 
 function module:get_keygrabber()
-    if self._private.keygrabber then return  self._private.keygrabber end
+    if self._private.keygrabber then
+        return self._private.keygrabber
+    end
 
-    self._private.keygrabber = akgrabber {
-        stop_key = self.reject_buttons
-    }
-    self._private.keygrabber:connect_signal("keybinding::triggered", function(_, key, event)
-        if event == "press" then return end
-        if self._private.accept_keys_set[key] then
-            self:accept()
-        elseif self._private.reject_keys_set[key] then
-            self:reject()
+    self._private.keygrabber = akgrabber({
+        stop_key = self.reject_buttons,
+    })
+    self._private.keygrabber:connect_signal(
+        "keybinding::triggered",
+        function(_, key, event)
+            if event == "press" then
+                return
+            end
+            if self._private.accept_keys_set[key] then
+                self:accept()
+            elseif self._private.reject_keys_set[key] then
+                self:reject()
+            end
         end
-    end)
+    )
 
     -- Reload the keys.
     self.accept_keys, self.reject_keys = self.accept_keys, self.reject_keys
@@ -680,10 +728,10 @@ function module:get_keygrabber()
 end
 
 -- Put the key in a set rather than a list and add/remove them from the keygrabber.
-for _, prop in ipairs {"accept_keys", "reject_keys"} do
-    local old = module["set_"..prop]
+for _, prop in ipairs({ "accept_keys", "reject_keys" }) do
+    local old = module["set_" .. prop]
 
-    module["set_"..prop] = function(self, new_keys)
+    module["set_" .. prop] = function(self, new_keys)
         -- Remove old keys.
         if self._private.keygrabber then
             for _, key in ipairs(self._private[prop] or {}) do
@@ -692,7 +740,7 @@ for _, prop in ipairs {"accept_keys", "reject_keys"} do
         end
 
         local new_set = {}
-        self._private[prop.."_set"] = new_set
+        self._private[prop .. "_set"] = new_set
 
         for _, key in ipairs(new_keys) do
             self.keygrabber:add_keybinding(key)
@@ -705,7 +753,7 @@ end
 
 function module:set_minimum_size(size)
     if size and type(size) ~= "table" then
-        size = {width = math.ceil(size), height = math.ceil(size)}
+        size = { width = math.ceil(size), height = math.ceil(size) }
     end
     self._private.minimum_size = size
     self:emit_signal("property::minimum_size", size)
@@ -735,7 +783,7 @@ function module:set_auto_save_delay(value)
 
     if not self._private.timer then
         local dur = self.auto_save_tick_duration
-        self._private.timer = gtimer {timeout = dur}
+        self._private.timer = gtimer({ timeout = dur })
         local fct
         fct = function()
             self._private.current_delay = self._private.current_delay - dur
@@ -793,7 +841,7 @@ function module:refresh()
     end
 
     -- Fallback to a screenshot of everything.
-    methods = #methods > 0 and methods or {"root"}
+    methods = #methods > 0 and methods or { "root" }
 
     for _, method in ipairs(methods) do
         local surface, geo = module._screenshot_methods[method](self)
@@ -801,7 +849,8 @@ function module:refresh()
         if self.interactive then
             start_snipping(self, surface, geo, method)
         else
-            self._private.surfaces[method] = {surface = surface, geometry = geo}
+            self._private.surfaces[method] =
+                { surface = surface, geometry = geo }
         end
     end
 
@@ -831,12 +880,17 @@ end
 -- @emits saved
 -- @see refresh
 function module:save(file_path)
-    if not self._private.surfaces then self:refresh() end
+    if not self._private.surfaces then
+        self:refresh()
+    end
 
     for method, surface in pairs(self._private.surfaces) do
         file_path = file_path
             or self._private.file_path
-            or make_file_path(self, #self._private.surfaces > 1 and method or nil)
+            or make_file_path(
+                self,
+                #self._private.surfaces > 1 and method or nil
+            )
 
         surface.surface:write_to_png(file_path)
         self:emit_signal("file::saved", file_path, method)
@@ -853,7 +907,9 @@ end
 
 function module:accept()
     -- Nothing to do.
-    if not self.interactive then return true end
+    if not self.interactive then
+        return true
+    end
 
     local new_geo = self._private.selected_geometry
     local min_size = self.minimum_size
@@ -864,7 +920,10 @@ function module:accept()
     end
 
     -- This may fail gracefully anyway but require a minimum 3x3 of pixels
-    if min_size and new_geo.width < min_size.width or  new_geo.height < min_size.height then
+    if
+        min_size and new_geo.width < min_size.width
+        or new_geo.height < min_size.height
+    then
         self:reject("too_small")
         return false
     end
@@ -872,8 +931,8 @@ function module:accept()
     self._private.selection_widget.visible = false
 
     self._private.surfaces[new_geo.method] = {
-        surface  = crop_shot(new_geo.surface, new_geo),
-        geometry = new_geo
+        surface = crop_shot(new_geo.surface, new_geo),
+        geometry = new_geo,
     }
 
     self:emit_signal("snipping::success")
@@ -896,7 +955,9 @@ end
 
 function module:reject(reason)
     -- Nothing to do.
-    if not self.interactive then return end
+    if not self.interactive then
+        return
+    end
 
     if self._private.frame then
         self._private.frame.visible = false
@@ -930,7 +991,7 @@ local function new(_, args)
     args = (type(args) == "table" and args) or {}
     local self = gears.object({
         enable_auto_signals = true,
-        enable_properties   = true
+        enable_properties = true,
     })
 
     self._private = {}
@@ -940,5 +1001,5 @@ local function new(_, args)
     return self
 end
 
-return setmetatable(module, {__call = new})
+return setmetatable(module, { __call = new })
 -- vim: filetype=lua:expandtab:shiftwidth=4:tabstop=8:softtabstop=4:textwidth=80

@@ -32,7 +32,7 @@ local utils = {}
 
 --- Terminal which applications that need terminal would open in.
 -- @param[opt="xterm"] string
-utils.terminal = 'xterm'
+utils.terminal = "xterm"
 
 --- The default icon for applications that don't provide any icon in
 -- their .desktop files.
@@ -115,17 +115,17 @@ do
 end
 
 local all_icon_sizes = {
-    'scalable',
-    '128x128',
-    '96x96',
-    '72x72',
-    '64x64',
-    '48x48',
-    '36x36',
-    '32x32',
-    '24x24',
-    '22x22',
-    '16x16'
+    "scalable",
+    "128x128",
+    "96x96",
+    "72x72",
+    "64x64",
+    "48x48",
+    "36x36",
+    "32x32",
+    "24x24",
+    "22x22",
+    "16x16",
 }
 
 --- List of supported icon exts.
@@ -136,10 +136,14 @@ local icon_lookup_path = nil
 --- Get a list of icon lookup paths.
 -- @treturn table A list of directories, without trailing slash.
 local function get_icon_lookup_path()
-    if icon_lookup_path then return icon_lookup_path end
+    if icon_lookup_path then
+        return icon_lookup_path
+    end
 
     local function ensure_args(t, paths)
-        if type(paths) == 'string' then paths = { paths } end
+        if type(paths) == "string" then
+            paths = { paths }
+        end
         return t or {}, paths
     end
 
@@ -166,31 +170,38 @@ local function get_icon_lookup_path()
     end
 
     icon_lookup_path = {}
-    local theme_priority = { 'hicolor' }
-    if theme.icon_theme then table.insert(theme_priority, 1, theme.icon_theme) end
+    local theme_priority = { "hicolor" }
+    if theme.icon_theme then
+        table.insert(theme_priority, 1, theme.icon_theme)
+    end
 
-    local paths = add_with_dir({}, glib.get_home_dir(), '.icons')
+    local paths = add_with_dir({}, glib.get_home_dir(), ".icons")
     add_with_dir(paths, {
-        glib.get_user_data_dir(),           -- $XDG_DATA_HOME, typically $HOME/.local/share
-        unpack(glib.get_system_data_dirs()) -- $XDG_DATA_DIRS, typically /usr/{,local/}share
-    }, 'icons')
-    add_with_dir(paths, glib.get_system_data_dirs(), 'pixmaps')
+        glib.get_user_data_dir(), -- $XDG_DATA_HOME, typically $HOME/.local/share
+        unpack(glib.get_system_data_dirs()), -- $XDG_DATA_DIRS, typically /usr/{,local/}share
+    }, "icons")
+    add_with_dir(paths, glib.get_system_data_dirs(), "pixmaps")
 
     local icon_theme_paths = {}
     for _, theme_dir in ipairs(theme_priority) do
-        add_if_readable(icon_theme_paths,
-                        add_with_dir({}, paths, theme_dir))
+        add_if_readable(icon_theme_paths, add_with_dir({}, paths, theme_dir))
     end
 
     local app_in_theme_paths = {}
     for _, icon_theme_directory in ipairs(icon_theme_paths) do
         for _, size in ipairs(all_icon_sizes) do
-            table.insert(app_in_theme_paths,
-                         glib.build_filenamev({ icon_theme_directory,
-                                                size, 'apps' }))
-            table.insert(app_in_theme_paths,
-                         glib.build_filenamev({ icon_theme_directory,
-                                                size, 'categories' }))
+            table.insert(
+                app_in_theme_paths,
+                glib.build_filenamev({ icon_theme_directory, size, "apps" })
+            )
+            table.insert(
+                app_in_theme_paths,
+                glib.build_filenamev({
+                    icon_theme_directory,
+                    size,
+                    "categories",
+                })
+            )
         end
     end
     add_if_readable(icon_lookup_path, app_in_theme_paths)
@@ -203,7 +214,9 @@ end
 -- @staticfct menubar.utils.rtrim
 -- @treturn string The trimmed string.
 function utils.rtrim(s)
-    if not s then return end
+    if not s then
+        return
+    end
     if string.byte(s, #s) == 13 then
         return string.sub(s, 1, #s - 1)
     end
@@ -220,7 +233,9 @@ function utils.lookup_icon_uncached(icon_file)
     end
 
     local icon_file_ext = icon_file:match(".+%.(.*)$")
-    if icon_file:sub(1, 1) == '/' and supported_icon_file_exts[icon_file_ext] then
+    if
+        icon_file:sub(1, 1) == "/" and supported_icon_file_exts[icon_file_ext]
+    then
         -- If the path to the icon is absolute do not perform a lookup [nil if unsupported ext or missing]
         return gfs.file_readable(icon_file) and icon_file or nil
     else
@@ -228,7 +243,10 @@ function utils.lookup_icon_uncached(icon_file)
         for _, directory in ipairs(get_icon_lookup_path()) do
             local possible_file = directory .. "/" .. icon_file
             -- Check to see if file exists if requested with a valid extension
-            if supported_icon_file_exts[icon_file_ext] and gfs.file_readable(possible_file) then
+            if
+                supported_icon_file_exts[icon_file_ext]
+                and gfs.file_readable(possible_file)
+            then
                 return possible_file
             else
                 -- Find files with any supported extension if icon specified without, eg: 'firefox'
@@ -277,14 +295,17 @@ function utils.parse_desktop_file(file)
     end
 
     for _, key in pairs(keyfile:get_keys("Desktop Entry")) do
-        local getter = keys_getters[key] or function(kf, k)
-            return kf:get_string("Desktop Entry", k)
-        end
+        local getter = keys_getters[key]
+            or function(kf, k)
+                return kf:get_string("Desktop Entry", k)
+            end
         program[key] = getter(keyfile, key)
     end
 
     -- In case the (required) 'Name' entry was not found
-    if not program.Name or program.Name == '' then return nil end
+    if not program.Name or program.Name == "" then
+        return nil
+    end
 
     -- Don't show program if NoDisplay attribute is true
     if program.NoDisplay then
@@ -333,18 +354,18 @@ function utils.parse_desktop_file(file)
         -- Substitute Exec special codes as specified in
         -- http://standards.freedesktop.org/desktop-entry-spec/1.1/ar01s06.html
         if program.Name == nil then
-            program.Name = '['.. file:match("([^/]+)%.desktop$") ..']'
+            program.Name = "[" .. file:match("([^/]+)%.desktop$") .. "]"
         end
-        local cmdline = program.Exec:gsub('%%c', program.Name)
-        cmdline = cmdline:gsub('%%[fuFU]', '')
-        cmdline = cmdline:gsub('%%k', program.file)
+        local cmdline = program.Exec:gsub("%%c", program.Name)
+        cmdline = cmdline:gsub("%%[fuFU]", "")
+        cmdline = cmdline:gsub("%%k", program.file)
         if program.icon_path then
-            cmdline = cmdline:gsub('%%i', '--icon ' .. program.icon_path)
+            cmdline = cmdline:gsub("%%i", "--icon " .. program.icon_path)
         else
-            cmdline = cmdline:gsub('%%i', '')
+            cmdline = cmdline:gsub("%%i", "")
         end
         if program.Terminal == true then
-            cmdline = utils.terminal .. ' -e ' .. cmdline
+            cmdline = utils.terminal .. " -e " .. cmdline
         end
         program.cmdline = cmdline
     end
@@ -360,40 +381,52 @@ end
 -- @staticfct menubar.utils.parse_dir
 -- @noreturn
 function utils.parse_dir(dir_path, callback)
-
     local function get_readable_path(file)
         return file:get_path() or file:get_uri()
     end
 
     local function parser(file, programs)
         -- Except for "NONE" there is also NOFOLLOW_SYMLINKS
-        local query = gio.FILE_ATTRIBUTE_STANDARD_NAME .. "," .. gio.FILE_ATTRIBUTE_STANDARD_TYPE
-        local enum, err = file:async_enumerate_children(query, gio.FileQueryInfoFlags.NONE)
+        local query = gio.FILE_ATTRIBUTE_STANDARD_NAME
+            .. ","
+            .. gio.FILE_ATTRIBUTE_STANDARD_TYPE
+        local enum, err =
+            file:async_enumerate_children(query, gio.FileQueryInfoFlags.NONE)
         if not enum then
-            gdebug.print_warning(get_readable_path(file) .. ": " .. tostring(err))
+            gdebug.print_warning(
+                get_readable_path(file) .. ": " .. tostring(err)
+            )
             return
         end
         local files_per_call = 100 -- Actual value is not that important
         while true do
             local list, enum_err = enum:async_next_files(files_per_call)
             if enum_err then
-                gdebug.print_error(get_readable_path(file) .. ": " .. tostring(enum_err))
+                gdebug.print_error(
+                    get_readable_path(file) .. ": " .. tostring(enum_err)
+                )
                 return
             end
             for _, info in ipairs(list) do
                 local file_type = info:get_file_type()
                 local file_child = enum:get_child(info)
-                if file_type == 'REGULAR' then
+                if file_type == "REGULAR" then
                     local path = file_child:get_path()
                     if path then
-                        local success, program = pcall(utils.parse_desktop_file, path)
+                        local success, program =
+                            pcall(utils.parse_desktop_file, path)
                         if not success then
-                            gdebug.print_error("Error while reading '" .. path .. "': " .. program)
+                            gdebug.print_error(
+                                "Error while reading '"
+                                    .. path
+                                    .. "': "
+                                    .. program
+                            )
                         elseif program then
                             table.insert(programs, program)
                         end
                     end
-                elseif file_type == 'DIRECTORY' then
+                elseif file_type == "DIRECTORY" then
                     parser(file_child, programs)
                 end
             end
@@ -414,15 +447,21 @@ end
 -- luacov: disable
 
 function utils.compute_textbox_width(textbox, s)
-    gdebug.deprecate("Use 'width, _ = textbox:get_preferred_size(s)' directly.", {deprecated_in=4})
+    gdebug.deprecate(
+        "Use 'width, _ = textbox:get_preferred_size(s)' directly.",
+        { deprecated_in = 4 }
+    )
     s = screen[s or mouse.screen]
     local w, _ = textbox:get_preferred_size(s)
     return w
 end
 
 function utils.compute_text_width(text, s, font)
-    gdebug.deprecate("Use 'width = textbox.get_markup_geometry(text, s, font)['width']'.", {deprecated_in=4})
-    return w_textbox.get_markup_geometry(text, s, font)['width']
+    gdebug.deprecate(
+        "Use 'width = textbox.get_markup_geometry(text, s, font)['width']'.",
+        { deprecated_in = 4 }
+    )
+    return w_textbox.get_markup_geometry(text, s, font)["width"]
 end
 
 -- luacov: enable

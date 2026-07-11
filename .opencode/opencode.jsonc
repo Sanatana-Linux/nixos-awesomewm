@@ -1,23 +1,27 @@
 {
-    "$schema": "https://opencode.ai/config.json",
-    "model": "ollama/deepseek-v4-flash:cloud",
-    "default_agent": "hubs",
-    "permission": {
-        "edit": {
-            "configuration/**": "allow",
-            "ui/**": "allow",
-            "modules/**": "allow",
-            "service/**": "allow",
-            "lib/**": "allow",
-            "themes/**": "allow",
-            "bin/**": "allow",
-            "rc.lua": "allow",
-            "rc.lua.test": "allow",
-            ".opencode/**": "allow"
-        }
-    },
-    "instructions": [
-        "AGENTS.md",
-        ".opencode/rules/*"
-    ]
+  "$schema": "https://opencode.ai/config.json",
+  "model": "ollama/deepseek-v4-flash:cloud",
+  "default_agent": "hubs",
+  "permission": {
+    "edit": {
+      "configuration/**": "allow",
+      "ui/**": "allow",
+      "modules/**": "allow",
+      "service/**": "allow",
+      "lib/**": "allow",
+      "themes/**": "allow",
+      "upstream/**": "allow",
+      "wibox/**": "allow",
+      "awful/**": "allow",
+      "bin/**": "allow",
+      "rc.lua": "allow",
+      "rc.lua.test": "allow",
+      ".opencode/**": "allow"
+    }
+  },
+  "instructions": [
+    "AGENTS.md",
+    ".opencode/rules/*"
+  ]
 }
+

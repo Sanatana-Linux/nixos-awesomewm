@@ -36,7 +36,7 @@ local wibox = require("wibox")
 local pcommon = require("awful.permissions._common")
 
 local permissions = {
-    generic_activate_filters    = {},
+    generic_activate_filters = {},
     contextual_activate_filters = {},
 }
 
@@ -73,16 +73,21 @@ local permissions = {
 local repair_geometry_lock = false
 
 local function repair_geometry(window)
-    if repair_geometry_lock then return end
+    if repair_geometry_lock then
+        return
+    end
     repair_geometry_lock = true
 
     -- Re-apply the geometry locking properties to what they should be.
-    for _, prop in ipairs {
-        "fullscreen", "maximized", "maximized_vertical", "maximized_horizontal"
-    } do
+    for _, prop in ipairs({
+        "fullscreen",
+        "maximized",
+        "maximized_vertical",
+        "maximized_horizontal",
+    }) do
         if window[prop] then
             window:emit_signal("request::geometry", prop, {
-                store_geometry = false
+                store_geometry = false,
             })
             break
         end
@@ -99,19 +104,22 @@ end
 --
 -- @param obj An object that should have a .screen property.
 local function check_focus(obj)
-    if (not obj.screen) or not obj.screen.valid then return end
+    if (not obj.screen) or not obj.screen.valid then
+        return
+    end
     -- When no visible client has the focus...
     if not client.focus or not client.focus:isvisible() then
-        local c = aclient.focus.history.get(screen[obj.screen], 0, filter_sticky)
+        local c =
+            aclient.focus.history.get(screen[obj.screen], 0, filter_sticky)
         if not c then
-            c = aclient.focus.history.get(screen[obj.screen], 0, aclient.focus.filter)
+            c = aclient.focus.history.get(
+                screen[obj.screen],
+                0,
+                aclient.focus.filter
+            )
         end
         if c then
-            c:emit_signal(
-                "request::autoactivate",
-                "history",
-                {raise=false}
-            )
+            c:emit_signal("request::autoactivate", "history", { raise = false })
         end
     end
 end
@@ -119,7 +127,7 @@ end
 --- Check client focus (delayed).
 -- @param obj An object that should have a .screen property.
 local function check_focus_delayed(obj)
-    timer.delayed_call(check_focus, {screen = obj.screen})
+    timer.delayed_call(check_focus, { screen = obj.screen })
 end
 
 --- Give focus on tag selection change.
@@ -127,7 +135,9 @@ end
 -- @tparam tag t A tag object
 local function check_focus_tag(t)
     local s = t.screen
-    if (not s) or (not s.valid) then return end
+    if (not s) or not s.valid then
+        return
+    end
     s = screen[s]
     check_focus({ screen = s })
     if client.focus and screen[client.focus.screen] ~= s then
@@ -139,7 +149,7 @@ local function check_focus_tag(t)
             c:emit_signal(
                 "request::autoactivate",
                 "switch_tag",
-                {raise=false}
+                { raise = false }
             )
         end
     end
@@ -165,9 +175,11 @@ end
 --  with the client.
 -- @sourcesignal client request::activate
 function permissions.activate(c, context, hints) -- luacheck: no unused args
-    if not pcommon.check(c, "client", "activate", context) then return end
+    if not pcommon.check(c, "client", "activate", context) then
+        return
+    end
 
-    hints = hints or  {}
+    hints = hints or {}
 
     if c.focusable == false and not hints.force then
         if hints.raise then
@@ -180,16 +192,21 @@ function permissions.activate(c, context, hints) -- luacheck: no unused args
     local found, ret = false
 
     -- Execute the filters until something handle the request
-    for _, tab in ipairs {
+    for _, tab in ipairs({
         permissions.contextual_activate_filters[context] or {},
-        permissions.generic_activate_filters
-    } do
-        for i=#tab, 1, -1 do
+        permissions.generic_activate_filters,
+    }) do
+        for i = #tab, 1, -1 do
             ret = tab[i](c, context, hints)
-            if ret ~= nil then found=true; break end
+            if ret ~= nil then
+                found = true
+                break
+            end
         end
 
-        if found then break end
+        if found then
+            break
+        end
     end
 
     -- Minimized clients can be requested to have focus by, for example, 3rd
@@ -214,7 +231,11 @@ function permissions.activate(c, context, hints) -- luacheck: no unused args
     -- The rules use `switchtotag`. For consistency and code re-use, support it,
     -- but keep undocumented. --TODO v5 remove switchtotag
     if hints.switchtotag or hints.switch_to_tag or hints.switch_to_tags then
-        atag.viewmore(c:tags(), c.screen, (not hints.switch_to_tags) and 0 or nil)
+        atag.viewmore(
+            c:tags(),
+            c.screen,
+            (not hints.switch_to_tags) and 0 or nil
+        )
     end
 end
 
@@ -250,8 +271,8 @@ function permissions.add_activate_filter(f, context)
     if not context then
         table.insert(permissions.generic_activate_filters, f)
     else
-        permissions.contextual_activate_filters[context] =
-            permissions.contextual_activate_filters[context] or {}
+        permissions.contextual_activate_filters[context] = permissions.contextual_activate_filters[context]
+            or {}
 
         table.insert(permissions.contextual_activate_filters[context], f)
     end
@@ -267,7 +288,8 @@ end
 -- @see add_activate_filter
 -- @staticfct awful.permissions.remove_activate_filter
 function permissions.remove_activate_filter(f, context)
-    local tab = context and (permissions.contextual_activate_filters[context] or {})
+    local tab = context
+            and (permissions.contextual_activate_filters[context] or {})
         or permissions.generic_activate_filters
 
     for k, v in ipairs(tab) do
@@ -310,14 +332,18 @@ end
 -- @sourcesignal client request::tag
 function permissions.tag(c, t, hints) --luacheck: no unused
     -- There is nothing to do
-    if not t and #get_valid_tags(c, c.screen) > 0 then return end
+    if not t and #get_valid_tags(c, c.screen) > 0 then
+        return
+    end
 
     if not t then
         if c.transient_for and not (hints and hints.reason == "screen") then
             c.screen = c.transient_for.screen
             if not c.sticky then
                 local tags = c.transient_for:tags()
-                c:tags(#tags > 0 and tags or c.transient_for.screen.selected_tags)
+                c:tags(
+                    #tags > 0 and tags or c.transient_for.screen.selected_tags
+                )
             end
         else
             c:to_selected_tags()
@@ -336,17 +362,17 @@ end
 -- @tparam boolean urgent If the client should be urgent
 -- @sourcesignal client request::urgent
 function permissions.urgent(c, urgent)
-    if c ~= client.focus and not aclient.property.get(c,"ignore_urgent") then
+    if c ~= client.focus and not aclient.property.get(c, "ignore_urgent") then
         c.urgent = urgent
     end
 end
 
 -- Map the state to the action name
 local context_mapper = {
-    maximized_vertical   = "maximize_vertically",
+    maximized_vertical = "maximize_vertically",
     maximized_horizontal = "maximize_horizontally",
-    maximized            = "maximize",
-    fullscreen           = "maximize"
+    maximized = "maximize",
+    fullscreen = "maximize",
 }
 
 --- Move and resize the client.
@@ -363,24 +389,28 @@ local context_mapper = {
 --  or other desktop decoration when applying the geometry.
 -- @sourcesignal client request::geometry
 function permissions.geometry(c, context, hints)
-    if not pcommon.check(c, "client", "geometry", context) then return end
+    if not pcommon.check(c, "client", "geometry", context) then
+        return
+    end
 
     -- Don't update geometry if rules haven't been applied yet (e.g. when processing
     -- EWMH client hints during client initialization), since a titlebar may perturb
     -- the intended geometry later
-    if not c._border_geometry_rules_applied then return end
+    if not c._border_geometry_rules_applied then
+        return
+    end
 
     local layout = c.screen.selected_tag and c.screen.selected_tag.layout or nil
 
     context = context or ""
 
     -- Setting the geometry will not work unless the client is floating.
-    if (
-            (context ~= "fullscreen")
-            and (context ~= "maximized")
-            and (not c.floating)
-            and (layout ~= asuit.floating)
-    ) then
+    if
+        (context ~= "fullscreen")
+        and (context ~= "maximized")
+        and not c.floating
+        and (layout ~= asuit.floating)
+    then
         return
     end
 
@@ -390,13 +420,13 @@ function permissions.geometry(c, context, hints)
     context = context_mapper[context] or context
 
     local props = gtable.clone(hints or {}, false)
-    props.store_geometry = props.store_geometry==nil and true or props.store_geometry
+    props.store_geometry = props.store_geometry == nil and true
+        or props.store_geometry
 
     -- If it is a known placement function, then apply it, otherwise let
     -- other potential handler resize the client (like in-layout resize or
     -- floating client resize)
     if aplace[context] then
-
         -- Check if it corresponds to a boolean property.
         local state = c[original_context]
 
@@ -405,7 +435,7 @@ function permissions.geometry(c, context, hints)
         if state == false then
             local original = repair_geometry_lock
             repair_geometry_lock = true
-            aplace.restore(c, {context=context})
+            aplace.restore(c, { context = context })
             repair_geometry_lock = original
             return
         end
@@ -416,12 +446,24 @@ function permissions.geometry(c, context, hints)
             props.honor_workarea = honor_default
         end
 
-        if props.honor_padding == nil and props.honor_workarea and context:match("maximize") then
+        if
+            props.honor_padding == nil
+            and props.honor_workarea
+            and context:match("maximize")
+        then
             props.honor_padding = beautiful.maximized_honor_padding ~= false
         end
 
-        if (original_context == "fullscreen" and beautiful.fullscreen_hide_border ~= false) or
-           (original_context == "maximized" and beautiful.maximized_hide_border == true) then
+        if
+            (
+                original_context == "fullscreen"
+                and beautiful.fullscreen_hide_border ~= false
+            )
+            or (
+                original_context == "maximized"
+                and beautiful.maximized_hide_border == true
+            )
+        then
             props.ignore_border_width = true
             props.zap_border_width = true
         end
@@ -447,7 +489,9 @@ end
 -- @tparam[opt] integer hints.height The wibox height.
 -- @sourcesignal client request::geometry
 function permissions.wibox_geometry(w, context, hints)
-    if not pcommon.check(w, "wibox", "geometry", context) then return end
+    if not pcommon.check(w, "wibox", "geometry", context) then
+        return
+    end
 
     w:geometry(hints)
 end
@@ -467,9 +511,14 @@ end
 --  than set it to `true`.
 -- @sourcesignal client request::geometry
 function permissions.merge_maximization(c, context, hints)
-    if not pcommon.check(c, "client", "geometry", context) then return end
+    if not pcommon.check(c, "client", "geometry", context) then
+        return
+    end
 
-    if context ~= "client_maximize_horizontal" and context ~= "client_maximize_vertical" then
+    if
+        context ~= "client_maximize_horizontal"
+        and context ~= "client_maximize_vertical"
+    then
         return
     end
 
@@ -509,26 +558,28 @@ function permissions.merge_maximization(c, context, hints)
             end
         end
 
-        timer {
-            timeout     = 1/60,
-            autostart   = true,
+        timer({
+            timeout = 1 / 60,
+            autostart = true,
             single_shot = true,
-            callback    = function()
-                if not c.valid then return end
+            callback = function()
+                if not c.valid then
+                    return
+                end
 
                 c._delay_maximization(c)
                 c._delay_maximization = nil
                 c._delayed_max_h = nil
                 c._delayed_max_v = nil
-            end
-        }
+            end,
+        })
     end
 
     local function get_value(suffix, long_suffix)
-        if hints.toggle and c["_delayed_max_"..suffix] ~= nil then
-            return not c["_delayed_max_"..suffix]
+        if hints.toggle and c["_delayed_max_" .. suffix] ~= nil then
+            return not c["_delayed_max_" .. suffix]
         elseif hints.toggle then
-            return not (c["maximized"] or c["maximized_"..long_suffix])
+            return not (c["maximized"] or c["maximized_" .. long_suffix])
         else
             return hints.status
         end
@@ -555,7 +606,9 @@ end
 -- @tparam[opt] integer hints.height The client height.
 -- @sourcesignal client request::geometry
 function permissions.client_geometry_requests(c, context, hints)
-    if not pcommon.check(c, "client", "geometry", context) then return end
+    if not pcommon.check(c, "client", "geometry", context) then
+        return
+    end
 
     if context == "ewmh" and hints then
         if c.immobilized_horizontal then
@@ -574,8 +627,10 @@ end
 
 -- The magnifier layout doesn't work with focus follow mouse.
 permissions.add_activate_filter(function(c)
-    if alayout.get(c.screen) ~= alayout.suit.magnifier
-      and aclient.focus.filter(c) then
+    if
+        alayout.get(c.screen) ~= alayout.suit.magnifier
+        and aclient.focus.filter(c)
+    then
         return nil
     else
         return false
@@ -658,7 +713,9 @@ end, "mouse_enter")
 -- @see client.border_color
 
 function permissions.update_border(c, context)
-    if not pcommon.check(c, "client", "border", context) then return end
+    if not pcommon.check(c, "client", "border", context) then
+        return
+    end
 
     local suffix, fallback1, fallback2 = "", ""
 
@@ -683,9 +740,9 @@ function permissions.update_border(c, context)
     end
 
     if not c._private._user_border_width then
-        local bw = beautiful["border_width"..suffix]
-            or beautiful["border_width"..fallback1]
-            or beautiful["border_width"..fallback2]
+        local bw = beautiful["border_width" .. suffix]
+            or beautiful["border_width" .. fallback1]
+            or beautiful["border_width" .. fallback2]
 
         -- The default `awful.permissions.geometry` handler removes the border.
         if (not bw) and (c.fullscreen or c.maximized) then
@@ -707,34 +764,34 @@ function permissions.update_border(c, context)
             elseif beautiful.border_marked then
                 gdebug.deprecate(
                     "Use `beautiful.border_color_marked` instead of `beautiful.border_marked`",
-                    {deprecated_in=5}
+                    { deprecated_in = 5 }
                 )
                 c._border_color = beautiful.border_marked
                 return
             end
         end
 
-        local tv = beautiful["border_color"..suffix]
+        local tv = beautiful["border_color" .. suffix]
 
         if (not tv) and fallback1 ~= "" then
-            tv = beautiful["border_color"..fallback1]
+            tv = beautiful["border_color" .. fallback1]
         end
 
         if (not tv) and (fallback2 ~= "") then
-            tv = beautiful["border_color"..fallback2]
+            tv = beautiful["border_color" .. fallback2]
         end
 
         -- The old theme variable did not have "color" in its name.
-        if (not tv) and beautiful.border_normal and (not c.active) then
+        if (not tv) and beautiful.border_normal and not c.active then
             gdebug.deprecate(
                 "Use `beautiful.border_color_normal` instead of `beautiful.border_normal`",
-                {deprecated_in=5}
+                { deprecated_in = 5 }
             )
             tv = beautiful.border_normal
         elseif (not tv) and beautiful.border_focus then
             gdebug.deprecate(
                 "Use `beautiful.border_color_active` instead of `beautiful.border_focus`",
-                {deprecated_in=5}
+                { deprecated_in = 5 }
             )
             tv = beautiful.border_focus
         end
@@ -749,14 +806,14 @@ function permissions.update_border(c, context)
     end
 
     if not c._private._user_opacity then
-        local tv = beautiful["opacity"..suffix]
+        local tv = beautiful["opacity" .. suffix]
 
         if fallback1 ~= "" and not tv then
-            tv = beautiful["opacity"..fallback1]
+            tv = beautiful["opacity" .. fallback1]
         end
 
         if fallback2 ~= "" and not tv then
-            tv = beautiful["opacity"..fallback2]
+            tv = beautiful["opacity" .. fallback2]
         end
 
         if tv then
@@ -767,8 +824,8 @@ end
 
 local activate_context_map = {
     mouse_enter = "mouse.enter",
-    switch_tag  = "autofocus.check_focus_tag",
-    history     = "autofocus.check_focus"
+    switch_tag = "autofocus.check_focus_tag",
+    history = "autofocus.check_focus",
 }
 
 --- Default handler for the `request::autoactivate` signal.
@@ -788,34 +845,36 @@ local activate_context_map = {
 -- @see activate
 -- @see client:activate
 function permissions.autoactivate(c, context, args)
-    if not pcommon.check(c, "client", "autoactivate", context) then return end
+    if not pcommon.check(c, "client", "autoactivate", context) then
+        return
+    end
 
-    local ctx = activate_context_map[context] and
-        activate_context_map[context] or context
+    local ctx = activate_context_map[context] and activate_context_map[context]
+        or context
 
     c:emit_signal("request::activate", ctx, args)
 end
 
-client.connect_signal("request::autoactivate"  , permissions.autoactivate)
-client.connect_signal("request::border"        , permissions.update_border)
-client.connect_signal("request::activate"      , permissions.activate)
-client.connect_signal("request::tag"           , permissions.tag)
-client.connect_signal("request::urgent"        , permissions.urgent)
-client.connect_signal("request::geometry"      , permissions.geometry)
-client.connect_signal("request::geometry"      , permissions.merge_maximization)
-client.connect_signal("request::geometry"      , permissions.client_geometry_requests)
-client.connect_signal("property::border_width" , repair_geometry)
-client.connect_signal("property::screen"       , repair_geometry)
-client.connect_signal("request::unmanage"      , check_focus_delayed)
-client.connect_signal("tagged"                 , check_focus_delayed)
-client.connect_signal("untagged"               , check_focus_delayed)
-client.connect_signal("property::hidden"       , check_focus_delayed)
-client.connect_signal("property::minimized"    , check_focus_delayed)
-client.connect_signal("property::sticky"       , check_focus_delayed)
+client.connect_signal("request::autoactivate", permissions.autoactivate)
+client.connect_signal("request::border", permissions.update_border)
+client.connect_signal("request::activate", permissions.activate)
+client.connect_signal("request::tag", permissions.tag)
+client.connect_signal("request::urgent", permissions.urgent)
+client.connect_signal("request::geometry", permissions.geometry)
+client.connect_signal("request::geometry", permissions.merge_maximization)
+client.connect_signal("request::geometry", permissions.client_geometry_requests)
+client.connect_signal("property::border_width", repair_geometry)
+client.connect_signal("property::screen", repair_geometry)
+client.connect_signal("request::unmanage", check_focus_delayed)
+client.connect_signal("tagged", check_focus_delayed)
+client.connect_signal("untagged", check_focus_delayed)
+client.connect_signal("property::hidden", check_focus_delayed)
+client.connect_signal("property::minimized", check_focus_delayed)
+client.connect_signal("property::sticky", check_focus_delayed)
 
-wibox.connect_signal("request::geometry"       , permissions.wibox_geometry)
+wibox.connect_signal("request::geometry", permissions.wibox_geometry)
 
-tag.connect_signal("property::selected", function (t)
+tag.connect_signal("property::selected", function(t)
     timer.delayed_call(check_focus_tag, t)
 end)
 
@@ -831,7 +890,7 @@ if awesome.api_level > 4 then
     -- cannot know if the user removed it to disable sloppy focus or because
     -- they want to use the permissions to manage it.
     client.connect_signal("mouse::enter", function(c)
-        c:emit_signal("request::autoactivate", "mouse_enter", {raise=false})
+        c:emit_signal("request::autoactivate", "mouse_enter", { raise = false })
     end)
 end
 

@@ -22,10 +22,10 @@
 -- @widgetmod wibox.widget.separator
 -- @supermodule wibox.widget.base
 ---------------------------------------------------------------------------
-local beautiful = require( "beautiful"         )
-local base      = require( "wibox.widget.base" )
-local color     = require( "gears.color"       )
-local gtable    = require( "gears.table"       )
+local beautiful = require("beautiful")
+local base = require("wibox.widget.base")
+local color = require("gears.color")
+local gtable = require("gears.table")
 
 local separator = {}
 
@@ -130,12 +130,14 @@ local separator = {}
 -- @see gears.shape
 
 local function draw_shape(self, _, cr, width, height, shape)
-    local bw = self._private.border_width or beautiful.separator_border_width or 0
+    local bw = self._private.border_width
+        or beautiful.separator_border_width
+        or 0
     local bc = self._private.border_color or beautiful.separator_border_color
 
-    cr:translate(bw/2, bw/2)
+    cr:translate(bw / 2, bw / 2)
 
-    shape(cr, width-bw, height-bw)
+    shape(cr, width - bw, height - bw)
 
     if bw == 0 then
         cr:fill()
@@ -148,19 +150,22 @@ local function draw_shape(self, _, cr, width, height, shape)
 end
 
 local function draw_line(self, _, cr, width, height)
-    local thickness = self._private.thickness or beautiful.separator_thickness or 1
+    local thickness = self._private.thickness
+        or beautiful.separator_thickness
+        or 1
 
-    local orientation = self._private.orientation ~= "auto" and
-        self._private.orientation or (width > height and "horizontal" or "vertical")
+    local orientation = self._private.orientation ~= "auto"
+            and self._private.orientation
+        or (width > height and "horizontal" or "vertical")
 
     local span_ratio = self.span_ratio or 1
 
     if orientation == "horizontal" then
-        local w = width*span_ratio
-        cr:rectangle((width-w)/2, height/2 - thickness/2, w, thickness)
+        local w = width * span_ratio
+        cr:rectangle((width - w) / 2, height / 2 - thickness / 2, w, thickness)
     else
-        local h = height*span_ratio
-        cr:rectangle(width/2 - thickness/2, (height-h)/2, thickness, h)
+        local h = height * span_ratio
+        cr:rectangle(width / 2 - thickness / 2, (height - h) / 2, thickness, h)
     end
 
     cr:fill()
@@ -192,15 +197,22 @@ local function fit(_, _, width, height)
     return width, height
 end
 
-for _, prop in ipairs {"orientation", "color", "thickness", "span_ratio",
-                       "border_width", "border_color", "shape" } do
-    separator["set_"..prop] = function(self, value)
+for _, prop in ipairs({
+    "orientation",
+    "color",
+    "thickness",
+    "span_ratio",
+    "border_width",
+    "border_color",
+    "shape",
+}) do
+    separator["set_" .. prop] = function(self, value)
         self._private[prop] = value
-        self:emit_signal("property::"..prop, value)
+        self:emit_signal("property::" .. prop, value)
         self:emit_signal("widget::redraw_needed")
     end
-    separator["get_"..prop] = function(self)
-        return self._private[prop] or beautiful["separator_"..prop]
+    separator["get_" .. prop] = function(self)
+        return self._private[prop] or beautiful["separator_" .. prop]
     end
 end
 
@@ -222,10 +234,14 @@ local function new(args)
     gtable.crush(ret, separator, true)
     gtable.crush(ret, args or {})
     ret._private.orientation = ret._private.orientation or "auto"
-    rawset(ret, "fit" , fit )
+    rawset(ret, "fit", fit)
     rawset(ret, "draw", draw)
     return ret
 end
 
-return setmetatable(separator, { __call = function(_, ...) return new(...) end })
+return setmetatable(separator, {
+    __call = function(_, ...)
+        return new(...)
+    end,
+})
 -- vim: filetype=lua:expandtab:shiftwidth=4:tabstop=8:softtabstop=4:textwidth=80

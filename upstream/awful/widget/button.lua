@@ -40,7 +40,11 @@ function button.new(args)
 
     function w:set_image(image)
         img_release = surface.load(image)
-        img_press = img_release:create_similar(cairo.Content.COLOR_ALPHA, img_release.width, img_release.height)
+        img_press = img_release:create_similar(
+            cairo.Content.COLOR_ALPHA,
+            img_release.width,
+            img_release.height
+        )
         local cr = cairo.Context(img_press)
         cr:set_source_surface(img_release, 2, 2)
         cr:paint()
@@ -50,14 +54,20 @@ function button.new(args)
 
     local btns = gtable.clone(args.buttons or {}, false)
 
-    table.insert(btns,
-        abutton({}, 1, function () orig_set_image(w, img_press) end,
-                       function () orig_set_image(w, img_release) end)
+    table.insert(
+        btns,
+        abutton({}, 1, function()
+            orig_set_image(w, img_press)
+        end, function()
+            orig_set_image(w, img_release)
+        end)
     )
 
     w.buttons = btns
 
-    w:connect_signal("mouse::leave", function(self) orig_set_image(self, img_release) end)
+    w:connect_signal("mouse::leave", function(self)
+        orig_set_image(self, img_release)
+    end)
 
     return w
 end

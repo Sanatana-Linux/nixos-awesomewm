@@ -101,7 +101,7 @@
 
 -- Grab environment we need
 
-local capi = {client = client, awesome = awesome, screen = screen, tag = tag}
+local capi = { client = client, awesome = awesome, screen = screen, tag = tag }
 local table = table
 local type = type
 local ipairs = ipairs
@@ -264,7 +264,7 @@ end
 --
 -- @rulesources awful.rules
 
-crules:add_matching_rules("awful.rules", {}, {"awful.spawn"}, {})
+crules:add_matching_rules("awful.rules", {}, { "awful.spawn" }, {})
 
 -- Add startup_id overridden properties
 local function apply_spawn_rules(c, props, callbacks)
@@ -289,7 +289,7 @@ end
 --
 -- @rulesources awful.spawn
 
-module.add_rule_source("awful.spawn", apply_spawn_rules, {}, {"awful.rules"})
+module.add_rule_source("awful.spawn", apply_spawn_rules, {}, { "awful.rules" })
 
 local function apply_singleton_rules(c, props, callbacks)
     local persis_id, info = c.single_instance_id, nil
@@ -301,8 +301,9 @@ local function apply_singleton_rules(c, props, callbacks)
         info = aspawn.single_instance_manager.by_snid[c.startup_id]
         aspawn.single_instance_manager.by_snid[c.startup_id] = nil
     elseif aspawn.single_instance_manager.by_pid[c.pid] then
-        info = aspawn.single_instance_manager.by_pid[c.pid].matcher(c) and
-            aspawn.single_instance_manager.by_pid[c.pid] or nil
+        info = aspawn.single_instance_manager.by_pid[c.pid].matcher(c)
+                and aspawn.single_instance_manager.by_pid[c.pid]
+            or nil
     end
 
     if info then
@@ -331,10 +332,17 @@ end
 --
 -- @rulesources awful.spawn_once
 
-module.add_rule_source("awful.spawn_once", apply_singleton_rules, {"awful.spawn"}, {"awful.rules"})
+module.add_rule_source(
+    "awful.spawn_once",
+    apply_singleton_rules,
+    { "awful.spawn" },
+    { "awful.rules" }
+)
 
 local function add_to_tag(c, t)
-    if not t then return end
+    if not t then
+        return
+    end
 
     local tags = c:tags()
     table.insert(tags, t)
@@ -389,9 +397,18 @@ module.high_priority_properties = {}
 module.delayed_properties = {}
 
 local force_ignore = {
-    titlebars_enabled=true, focus=true, screen=true, x=true,
-    y=true, width=true, height=true, geometry=true,placement=true,
-    border_width=true,floating=true,size_hints_honor=true
+    titlebars_enabled = true,
+    focus = true,
+    screen = true,
+    x = true,
+    y = true,
+    width = true,
+    height = true,
+    geometry = true,
+    placement = true,
+    border_width = true,
+    floating = true,
+    size_hints_honor = true,
 }
 
 function module.high_priority_properties.tag(c, value, props)
@@ -403,8 +420,12 @@ function module.high_priority_properties.tag(c, value, props)
                 value = atag.find_by_name(nil, name)
             end
             if not value then
-                gdebug.print_error("ruled.client-rule specified "
-                    .. "tag = '" .. name .. "', but no such tag exists")
+                gdebug.print_error(
+                    "ruled.client-rule specified "
+                        .. "tag = '"
+                        .. name
+                        .. "', but no such tag exists"
+                )
                 return
             end
         end
@@ -415,17 +436,22 @@ function module.high_priority_properties.tag(c, value, props)
             props.screen = value.screen -- In case another rule query it
         end
 
-        c:tags{ value }
+        c:tags({ value })
     end
 end
 
 function module.delayed_properties.switch_to_tags(c, value)
-    if not value then return end
+    if not value then
+        return
+    end
     atag.viewmore(c:tags(), c.screen)
 end
 
 function module.delayed_properties.switchtotag(c, value)
-    gdebug.deprecate("Use switch_to_tags instead of switchtotag", {deprecated_in=5})
+    gdebug.deprecate(
+        "Use switch_to_tags instead of switchtotag",
+        { deprecated_in = 5 }
+    )
 
     module.delayed_properties.switch_to_tags(c, value)
 end
@@ -434,11 +460,15 @@ function module.extra_properties.geometry(c, _, props)
     local cur_geo = c:geometry()
 
     local new_geo = type(props.geometry) == "function"
-        and props.geometry(c, props) or props.geometry or {}
+            and props.geometry(c, props)
+        or props.geometry
+        or {}
 
-    for _, v in ipairs {"x", "y", "width", "height"} do
+    for _, v in ipairs({ "x", "y", "width", "height" }) do
         new_geo[v] = type(props[v]) == "function" and props[v](c, props)
-            or props[v] or new_geo[v] or cur_geo[v]
+            or props[v]
+            or new_geo[v]
+            or cur_geo[v]
     end
 
     c:geometry(new_geo) --TODO use request::geometry
@@ -450,10 +480,10 @@ function module.high_priority_properties.new_tag(c, value, props)
 
     if ty == "boolean" then
         -- Create a new tag named after the client class
-        t = atag.add(c.class or "N/A", {screen=c.screen, volatile=true})
+        t = atag.add(c.class or "N/A", { screen = c.screen, volatile = true })
     elseif ty == "string" then
         -- Create a tag named after "value"
-        t = atag.add(value, {screen=c.screen, volatile=true})
+        t = atag.add(value, { screen = c.screen, volatile = true })
     elseif ty == "table" then
         -- Assume a table of tags properties. Set the right screen, but
         -- avoid editing the original table
@@ -476,8 +506,10 @@ end
 
 function module.extra_properties.placement(c, value, props)
     -- Avoid problems
-    if capi.awesome.startup and
-      (c.size_hints.user_position or c.size_hints.program_position) then
+    if
+        capi.awesome.startup
+        and (c.size_hints.user_position or c.size_hints.program_position)
+    then
         return
     end
 
@@ -485,12 +517,17 @@ function module.extra_properties.placement(c, value, props)
 
     local args = {
         honor_workarea = props.honor_workarea ~= false,
-        honor_padding  = props.honor_padding ~= false
+        honor_padding = props.honor_padding ~= false,
     }
 
-    if ty == "function" or (ty == "table" and
-        getmetatable(value) and getmetatable(value).__call
-    ) then
+    if
+        ty == "function"
+        or (
+            ty == "table"
+            and getmetatable(value)
+            and getmetatable(value).__call
+        )
+    then
         value(c, args)
     elseif ty == "string" and a_place[value] then
         a_place[value](c, args)
@@ -538,19 +575,25 @@ crules._execute = function(_, c, props, callbacks)
     -- Set the default buttons and keys
     local btns = amouse._get_client_mousebindings()
     local keys = akeyboard._get_client_keybindings()
-    props.keys    = props.keys or keys
+    props.keys = props.keys or keys
     props.buttons = props.buttons or btns
 
     -- Border width will also cause geometry related properties to fail
     if props.border_width then
-        c.border_width = type(props.border_width) == "function" and
-            props.border_width(c, props) or props.border_width
+        c.border_width = type(props.border_width) == "function"
+                and props.border_width(c, props)
+            or props.border_width
     end
 
     -- This has to be done first, as it will impact geometry related props.
-    if props.titlebars_enabled and (type(props.titlebars_enabled) ~= "function"
-            or props.titlebars_enabled(c,props)) then
-        c:emit_signal("request::titlebars", "rules", {properties=props})
+    if
+        props.titlebars_enabled
+        and (
+            type(props.titlebars_enabled) ~= "function"
+            or props.titlebars_enabled(c, props)
+        )
+    then
+        c:emit_signal("request::titlebars", "rules", { properties = props })
         c._request_titlebars_called = true
     end
 
@@ -569,20 +612,23 @@ crules._execute = function(_, c, props, callbacks)
     -- Size hints will be re-applied when setting width/height unless it is
     -- disabled first
     if props.size_hints_honor ~= nil then
-        c.size_hints_honor = type(props.size_hints_honor) == "function" and props.size_hints_honor(c,props)
+        c.size_hints_honor = type(props.size_hints_honor) == "function"
+                and props.size_hints_honor(c, props)
             or props.size_hints_honor
     end
 
     -- Geometry will only work if floating is true, otherwise the "saved"
     -- geometry will be restored.
     if props.floating ~= nil then
-        c.floating = type(props.floating) == "function" and props.floating(c,props)
+        c.floating = type(props.floating) == "function"
+                and props.floating(c, props)
             or props.floating
     end
 
     -- Before requesting a tag, make sure the screen is right
     if props.screen then
-        c.screen = type(props.screen) == "function" and capi.screen[props.screen(c,props)]
+        c.screen = type(props.screen) == "function"
+                and capi.screen[props.screen(c, props)]
             or capi.screen[props.screen]
     end
 
@@ -604,7 +650,7 @@ crules._execute = function(_, c, props, callbacks)
     -- Previously this was done in a second client.manage callback, but caused
     -- a race condition where the order of modules being loaded would change
     -- the outcome.
-    c:emit_signal("request::tag", nil, {reason="rules", screen = c.screen})
+    c:emit_signal("request::tag", nil, { reason = "rules", screen = c.screen })
 
     -- By default, rc.lua uses no_overlap+no_offscreen placement. This has to
     -- be executed before x/y/width/height/geometry as it would otherwise
@@ -621,12 +667,17 @@ crules._execute = function(_, c, props, callbacks)
 
     -- Apply the remaining properties (after known race conditions are handled).
     for property, value in pairs(props) do
-        if property ~= "focus" and property ~= "shape" and type(value) == "function" then
+        if
+            property ~= "focus"
+            and property ~= "shape"
+            and type(value) == "function"
+        then
             value = value(c, props)
         end
 
-        local ignore = module.high_priority_properties[property] or
-            module.delayed_properties[property] or force_ignore[property]
+        local ignore = module.high_priority_properties[property]
+            or module.delayed_properties[property]
+            or force_ignore[property]
 
         if not ignore then
             if module.extra_properties[property] then
@@ -661,11 +712,17 @@ crules._execute = function(_, c, props, callbacks)
 
     -- Do this at last so we do not erase things done by the focus signal.
     if props.focus and (type(props.focus) ~= "function" or props.focus(c)) then
-        c:emit_signal('request::activate', "rules", {raise=not capi.awesome.startup})
+        c:emit_signal(
+            "request::activate",
+            "rules",
+            { raise = not capi.awesome.startup }
+        )
     end
 end
 
-function module.execute(...) crules:_execute(...) end
+function module.execute(...)
+    crules:_execute(...)
+end
 
 -- TODO v5 deprecate this
 function module.completed_with_payload_callback(c, props, callbacks)
@@ -692,7 +749,7 @@ return setmetatable(module, {
         if k == "rules" then
             gdebug.deprecate(
                 "Use ruled.client.append_rules instead of setting awful.rules.rules directly",
-                {deprecated_in=5}
+                { deprecated_in = 5 }
             )
 
             -- Clearing the rule was supported, so it still has to be. This is
@@ -713,9 +770,9 @@ return setmetatable(module, {
     __index = function(_, k)
         if k == "rules" then
             gdebug.deprecate(
-                "Accessing `ruled.rules` isn't recommended, to modify rules, "..
-                "use `ruled.client.remove_rule()` and add a new one.",
-                {deprecated_in=5}
+                "Accessing `ruled.rules` isn't recommended, to modify rules, "
+                    .. "use `ruled.client.remove_rule()` and add a new one.",
+                { deprecated_in = 5 }
             )
 
             if not crules._matching_rules["awful.rules"] then
@@ -724,7 +781,7 @@ return setmetatable(module, {
 
             return crules._matching_rules["awful.rules"]
         end
-    end
+    end,
 })
 
 -- vim: filetype=lua:expandtab:shiftwidth=4:tabstop=8:softtabstop=4:textwidth=80

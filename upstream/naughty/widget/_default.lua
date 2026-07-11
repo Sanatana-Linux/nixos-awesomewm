@@ -6,14 +6,14 @@
 -- @classmod naughty.widget._default
 ----------------------------------------------------------------------------
 
-local wibox      = require("wibox")
+local wibox = require("wibox")
 local actionlist = require("naughty.list.actions")
-local wtitle     = require("naughty.widget.title")
-local wmessage   = require("naughty.widget.message")
-local wicon      = require("naughty.widget.icon")
-local wbg        = require("naughty.container.background")
-local beautiful  = require("beautiful")
-local dpi        = require("beautiful").xresources.apply_dpi
+local wtitle = require("naughty.widget.title")
+local wmessage = require("naughty.widget.message")
+local wicon = require("naughty.widget.icon")
+local wbg = require("naughty.container.background")
+local beautiful = require("beautiful")
+local dpi = require("beautiful").xresources.apply_dpi
 
 -- It is not worth doing a special widget for this.
 local function notif_size()
@@ -22,7 +22,10 @@ local function notif_size()
     constraint:set_width(beautiful.notification_max_width or dpi(500))
 
     rawset(constraint, "set_notification", function(_, notif)
-        constraint._private.notification = setmetatable({notif}, {__mode = "v"})
+        constraint._private.notification = setmetatable(
+            { notif },
+            { __mode = "v" }
+        )
         local s = false
 
         if notif.width and notif.width ~= beautiful.notification_max_width then
@@ -70,20 +73,20 @@ return {
                         wtitle,
                         wmessage,
                         spacing = 4,
-                        layout  = wibox.layout.fixed.vertical,
+                        layout = wibox.layout.fixed.vertical,
                     },
                     fill_space = true,
-                    spacing    = 4,
-                    layout     = wibox.layout.fixed.horizontal,
+                    spacing = 4,
+                    layout = wibox.layout.fixed.horizontal,
                 },
                 actionlist,
                 spacing = 10,
-                layout  = wibox.layout.fixed.vertical,
+                layout = wibox.layout.fixed.vertical,
             },
             widget = notif_margins,
         },
-        id     = "background_role",
+        id = "background_role",
         widget = wbg,
     },
-    widget  = notif_size,
+    widget = notif_size,
 }

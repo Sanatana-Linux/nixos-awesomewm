@@ -8,7 +8,8 @@ local gfs = require("gears.filesystem")
 local dpi = beautiful.xresources.apply_dpi
 local shapes = require("modules.shapes.init")
 
-local icons_dir = gfs.get_configuration_dir() .. "ui/bar/modules/tray_widget/icons/"
+local icons_dir = gfs.get_configuration_dir()
+    .. "ui/bar/modules/tray_widget/icons/"
 local arrow_left = icons_dir .. "arrow-left.svg"
 local arrow_right = icons_dir .. "arrow-right.svg"
 

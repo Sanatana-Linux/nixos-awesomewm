@@ -28,11 +28,11 @@
 -- @see awful.widget.common
 ----------------------------------------------------------------------------
 
-local wibox    = require("wibox")
+local wibox = require("wibox")
 local awcommon = require("awful.widget.common")
-local abutton  = require("awful.button")
-local gtable   = require("gears.table")
-local beautiful= require("beautiful")
+local abutton = require("awful.button")
+local gtable = require("gears.table")
+local beautiful = require("beautiful")
 
 local module = {}
 
@@ -118,22 +118,30 @@ local module = {}
 -- @tparam gears.surface|string action_bgimage_selected
 -- @see gears.surface
 
-local props = {"shape_border_color", "bg_image" , "fg",
-               "shape_border_width", "underline", "bg",
-               "shape",              "icon_size",     }
+local props = {
+    "shape_border_color",
+    "bg_image",
+    "fg",
+    "shape_border_width",
+    "underline",
+    "bg",
+    "shape",
+    "icon_size",
+}
 
 -- Use a cached loop instead of an large function like the taglist and tasklist
 local function update_style(self)
     self._private.style_cache = self._private.style_cache or {}
 
-    for _, state in ipairs {"normal", "selected"} do
+    for _, state in ipairs({ "normal", "selected" }) do
         local s = {}
 
         for _, prop in ipairs(props) do
-            if self._private.style[prop.."_"..state] ~= nil then
-                s[prop] = self._private.style[prop.."_"..state]
+            if self._private.style[prop .. "_" .. state] ~= nil then
+                s[prop] = self._private.style[prop .. "_" .. state]
             else
-                s[prop] = beautiful["notification_action_"..prop.."_"..state]
+                s[prop] =
+                    beautiful["notification_action_" .. prop .. "_" .. state]
             end
         end
 
@@ -149,13 +157,15 @@ local function wb_label(action, self)
     -- Get the name
     local name = action.name
 
-    local style = self._private.style_cache[action.selected and "selected" or "normal"]
+    local style =
+        self._private.style_cache[action.selected and "selected" or "normal"]
 
     -- Add the underline
-    name = style.underline ~= false and
-        ("<u>"..name.."</u>") or name
+    name = style.underline ~= false and ("<u>" .. name .. "</u>") or name
 
-    local icon = beautiful.notification_action_label_only ~= true and action.icon or nil
+    local icon = beautiful.notification_action_label_only ~= true
+            and action.icon
+        or nil
 
     if style.fg then
         name = "<span color='" .. style.fg .. "'>" .. name .. "</span>"
@@ -171,16 +181,20 @@ end
 local function update(self)
     local n = self._private.notification[1]
 
-    if not self._private.layout or not n then return end
+    if not self._private.layout or not n then
+        return
+    end
 
     awcommon.list_update(
         self._private.layout,
         self._private.default_buttons,
-        function(o) return wb_label(o, self) end,
+        function(o)
+            return wb_label(o, self)
+        end,
         self._private.data,
         n.actions,
         {
-            widget_template = self._private.widget_template
+            widget_template = self._private.widget_template,
         }
     )
 end
@@ -245,9 +259,8 @@ local actionlist = {}
 -- @usebeautiful beautiful.notification_action_bgimage_normal Fallback.
 -- @usebeautiful beautiful.notification_action_bgimage_selected Fallback.
 
-
 function actionlist:set_notification(notif)
-    self._private.notification = setmetatable({notif}, {__mode="v"})
+    self._private.notification = setmetatable({ notif }, { __mode = "v" })
 
     if not self._private.layout then
         self._private.layout = wibox.layout.fixed.horizontal()
@@ -300,7 +313,15 @@ end
 
 function actionlist:layout(_, width, height)
     if self._private.layout then
-        return { wibox.widget.base.place_widget_at(self._private.layout, 0, 0, width, height) }
+        return {
+            wibox.widget.base.place_widget_at(
+                self._private.layout,
+                0,
+                0,
+                width,
+                height
+            ),
+        }
     end
 end
 
@@ -309,7 +330,13 @@ function actionlist:fit(context, width, height)
         return 0, 0
     end
 
-    return wibox.widget.base.fit_widget(self, context, self._private.layout, width, height)
+    return wibox.widget.base.fit_widget(
+        self,
+        context,
+        self._private.layout,
+        width,
+        height
+    )
 end
 
 --- Create an action list.
@@ -355,18 +382,16 @@ local function new(_, args)
 
     update_style(wdg)
 
-    wdg._private.default_buttons = gtable.join(
-        abutton({ }, 1, function(a)
-            local notif = wdg._private.notification[1]
-            a:invoke(notif)
-        end)
-    )
+    wdg._private.default_buttons = gtable.join(abutton({}, 1, function(a)
+        local notif = wdg._private.notification[1]
+        a:invoke(notif)
+    end))
 
     return wdg
 end
 
 --@DOC_object_COMMON@
 
-return setmetatable(module, {__call = new})
+return setmetatable(module, { __call = new })
 
 -- vim: filetype=lua:expandtab:shiftwidth=4:tabstop=8:softtabstop=4:textwidth=80

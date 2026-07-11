@@ -31,18 +31,23 @@ end
 local function find_signal(obj, name)
     check(obj)
     if not obj._signals[name] then
-        assert(type(name) == "string", "name must be a string, got: " .. type(name))
+        assert(
+            type(name) == "string",
+            "name must be a string, got: " .. type(name)
+        )
         obj._signals[name] = {
             strong = {},
-            weak = setmetatable({}, { __mode = "kv" })
+            weak = setmetatable({}, { __mode = "kv" }),
         }
     end
     return obj._signals[name]
 end
 
 function object.add_signal()
-    require("gears.debug").deprecate("Use signals without explicitly adding them. This is now done implicitly.",
-                                     {deprecated_in=4})
+    require("gears.debug").deprecate(
+        "Use signals without explicitly adding them. This is now done implicitly.",
+        { deprecated_in = 4 }
+    )
 end
 
 --- Connect to a signal.
@@ -54,9 +59,15 @@ end
 -- @method connect_signal
 -- @noreturn
 function object:connect_signal(name, func)
-    assert(type(func) == "function", "callback must be a function, got: " .. type(func))
+    assert(
+        type(func) == "function",
+        "callback must be a function, got: " .. type(func)
+    )
     local sig = find_signal(self, name)
-    assert(sig.weak[func] == nil, "Trying to connect a strong callback which is already connected weakly")
+    assert(
+        sig.weak[func] == nil,
+        "Trying to connect a strong callback which is already connected weakly"
+    )
     sig.strong[func] = true
 end
 
@@ -108,9 +119,15 @@ end
 -- @method weak_connect_signal
 -- @noreturn
 function object:weak_connect_signal(name, func)
-    assert(type(func) == "function", "callback must be a function, got: " .. type(func))
+    assert(
+        type(func) == "function",
+        "callback must be a function, got: " .. type(func)
+    )
     local sig = find_signal(self, name)
-    assert(sig.strong[func] == nil, "Trying to connect a weak callback which is already connected strongly")
+    assert(
+        sig.strong[func] == nil,
+        "Trying to connect a weak callback which is already connected strongly"
+    )
     sig.weak[func] = make_the_gc_obey(func)
 end
 
@@ -161,12 +178,13 @@ function object._setup_class_signals(t, args)
         function t._emit_signal_if(name, condition, ...)
             assert(name)
             for _, func in pairs(conns[name] or {}) do
-                if condition(...) then return end
+                if condition(...) then
+                    return
+                end
                 func(...)
             end
         end
     end
-
 
     --- Emit a notification signal.
     -- @tparam string name The signal name.
@@ -198,36 +216,42 @@ end
 local function get_miss(self, key)
     local class = rawget(self, "_class")
 
-    if rawget(self, "get_"..key) then
-        return rawget(self, "get_"..key)(self)
-    elseif class and class["get_"..key] then
-        return class["get_"..key](self)
+    if rawget(self, "get_" .. key) then
+        return rawget(self, "get_" .. key)(self)
+    elseif class and class["get_" .. key] then
+        return class["get_" .. key](self)
     elseif class then
         return class[key]
     end
-
 end
 
 local function set_miss(self, key, value)
     local class = rawget(self, "_class")
 
-    if rawget(self, "set_"..key) then
-        return rawget(self, "set_"..key)(self, value)
-    elseif class and class["set_"..key] then
-        return class["set_"..key](self, value)
+    if rawget(self, "set_" .. key) then
+        return rawget(self, "set_" .. key)(self, value)
+    elseif class and class["set_" .. key] then
+        return class["set_" .. key](self, value)
     elseif rawget(self, "_enable_auto_signals") then
         local changed = class[key] ~= value
         class[key] = value
 
         if changed then
-            self:emit_signal("property::"..key, value)
+            self:emit_signal("property::" .. key, value)
         end
-    elseif (not rawget(self, "get_"..key))
-        and not (class and class["get_"..key]) then
+    elseif
+        (not rawget(self, "get_" .. key))
+        and not (class and class["get_" .. key])
+    then
         return rawset(self, key, value)
     else
-        error("Cannot set '" .. tostring(key) .. "' on " .. tostring(self)
-                .. " because it is read-only")
+        error(
+            "Cannot set '"
+                .. tostring(key)
+                .. "' on "
+                .. tostring(self)
+                .. " because it is read-only"
+        )
     end
 end
 
@@ -267,17 +291,18 @@ local function new(args)
     local mt = {}
 
     -- Look for methods in another table
-    ret._class               = args.class
+    ret._class = args.class
     ret._enable_auto_signals = args.enable_auto_signals
 
     -- To catch all changes, a proxy is required
     if args.enable_auto_signals then
-        ret._class = ret._class and setmetatable({}, {__index = args.class}) or {}
+        ret._class = ret._class and setmetatable({}, { __index = args.class })
+            or {}
     end
 
     if args.enable_properties then
         -- Check got existing get_xxxx and set_xxxx
-        mt.__index    = get_miss
+        mt.__index = get_miss
         mt.__newindex = set_miss
     elseif args.class then
         -- Use the class table a miss handler
@@ -304,7 +329,11 @@ end
 -- @treturn string The module name, e.g. "wibox.container.background".
 -- @staticfct gears.object.modulename
 function object.modulename(level)
-    return debug.getinfo(level, "S").source:gsub(".*/lib/", ""):gsub("/", "."):gsub("%.lua", "")
+    return debug
+        .getinfo(level, "S").source
+        :gsub(".*/lib/", "")
+        :gsub("/", ".")
+        :gsub("%.lua", "")
 end
 
 return setmetatable(object, object.mt)

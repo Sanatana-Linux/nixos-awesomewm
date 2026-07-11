@@ -15,79 +15,79 @@ local dpi = beautiful.xresources.apply_dpi
 local ret, no_clear = {}, {}
 
 ret.config = {
-    padding         = dpi(4),
-    spacing         = dpi(1),
-    icon_dirs       = { "/usr/share/pixmaps/", "/usr/share/icons/hicolor" },
-    icon_formats    = { "png", "gif" },
+    padding = dpi(4),
+    spacing = dpi(1),
+    icon_dirs = { "/usr/share/pixmaps/", "/usr/share/icons/hicolor" },
+    icon_formats = { "png", "gif" },
     notify_callback = nil,
 }
 
 no_clear.presets = {
     low = {
-        timeout = 5
+        timeout = 5,
     },
     normal = {},
     critical = {
-        bg      = "#ff0000",
-        fg      = "#ffffff",
+        bg = "#ff0000",
+        fg = "#ffffff",
         timeout = 0,
     },
     ok = {
-        bg      = "#00bb00",
-        fg      = "#ffffff",
+        bg = "#00bb00",
+        fg = "#ffffff",
         timeout = 5,
     },
     info = {
-        bg      = "#0000ff",
-        fg      = "#ffffff",
+        bg = "#0000ff",
+        fg = "#ffffff",
         timeout = 5,
     },
     warn = {
-        bg      = "#ffaa00",
-        fg      = "#000000",
+        bg = "#ffaa00",
+        fg = "#000000",
         timeout = 10,
     },
 }
 
 ret.config._urgency = {
-    low      = "\0",
-    normal   = "\1",
-    critical = "\2"
+    low = "\0",
+    normal = "\1",
+    critical = "\2",
 }
 
 ret.config.mapping = {
-    {{urgency = ret.config._urgency.low     }, no_clear.presets.low}, --compat
-    {{urgency = ret.config._urgency.normal  }, no_clear.presets.normal}, --compat
-    {{urgency = ret.config._urgency.critical}, no_clear.presets.critical}, --compat
-    {{urgency = "low"     }, no_clear.presets.low},
-    {{urgency = "normal"  }, no_clear.presets.normal},
-    {{urgency = "critical"}, no_clear.presets.critical},
+    { { urgency = ret.config._urgency.low }, no_clear.presets.low }, --compat
+    { { urgency = ret.config._urgency.normal }, no_clear.presets.normal }, --compat
+    { { urgency = ret.config._urgency.critical }, no_clear.presets.critical }, --compat
+    { { urgency = "low" }, no_clear.presets.low },
+    { { urgency = "normal" }, no_clear.presets.normal },
+    { { urgency = "critical" }, no_clear.presets.critical },
 }
 
 no_clear.defaults = {
-    timeout      = 5,
-    text         = "",
-    screen       = nil,
-    ontop        = true,
-    margin       = dpi(5),
+    timeout = 5,
+    text = "",
+    screen = nil,
+    ontop = true,
+    margin = dpi(5),
     border_width = dpi(1),
-    position     = "top_right",
-    urgency      = "normal",
-    message      = "",
-    title        = "",
-    app_name     = "",
-    ignore       = false,
+    position = "top_right",
+    urgency = "normal",
+    message = "",
+    title = "",
+    app_name = "",
+    ignore = false,
 }
 
 ret.notification_closed_reason = {
-    too_many_on_screen   = -2,
-    silent               = -1,
-    expired              = 1,
-    dismissedByUser      = 2, --TODO v5 remove this undocumented legacy constant
-    dismissed_by_user    = 2,
-    dismissedByCommand   = 3, --TODO v5 remove this undocumented legacy constant
+    too_many_on_screen = -2,
+    silent = -1,
+    expired = 1,
+    dismissedByUser = 2, --TODO v5 remove this undocumented legacy constant
+    dismissed_by_user = 2,
+    dismissedByCommand = 3, --TODO v5 remove this undocumented legacy constant
     dismissed_by_command = 3,
-    undefined            = 4
+    undefined = 4,
 }
 
 -- Legacy --TODO v5 remove this alias
@@ -107,7 +107,7 @@ setmetatable(ret.config, {
         else
             rawset(ret.config, key, value)
         end
-    end
+    end,
 })
 
 return ret

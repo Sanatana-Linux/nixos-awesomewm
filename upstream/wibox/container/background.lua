@@ -27,14 +27,16 @@ local background = { mt = {} }
 -- number of scaled texture. After the cache grows beyond this number, it
 -- is purged.
 local MAX_CACHE_SIZE = 10
-local global_scaled_pattern_cache = setmetatable({}, {__mode = "k"})
+local global_scaled_pattern_cache = setmetatable({}, { __mode = "k" })
 
 local function clone_stops(input, output)
     local err, count = input:get_color_stop_count()
 
-    if err ~= "SUCCESS" then return end
+    if err ~= "SUCCESS" then
+        return
+    end
 
-    for idx = 0, count-1 do
+    for idx = 0, count - 1 do
         local _, off, r, g, b, a = input:get_color_stop_rgba(idx)
         output:add_color_stop_rgba(off, r, g, b, a)
     end
@@ -48,8 +50,9 @@ local function stretch_lineal_gradient(input, width, height)
         return input
     end
 
-
-    local new_x0, new_y0 = x1 == 0 and 0 or ((x0/x1)*width), y1 == 0 and 0 or ((y0/y1)*height)
+    local new_x0, new_y0 =
+        x1 == 0 and 0 or ((x0 / x1) * width),
+        y1 == 0 and 0 or ((y0 / y1) * height)
 
     local output = cairo.Pattern.create_linear(new_x0, new_y0, width, height)
 
@@ -70,11 +73,17 @@ local function stretch_radial_gradient(input, width, height)
     local y1 = math.max(cy0 + radius0, cy1 + radius1)
 
     -- Now scale this box to `width`x`height`
-    local x_factor, y_factor = width/x1, height/y1
-    local rad_factor = math.sqrt(width^2 + height^2) / math.sqrt(x1^1+y1^2)
+    local x_factor, y_factor = width / x1, height / y1
+    local rad_factor = math.sqrt(width ^ 2 + height ^ 2)
+        / math.sqrt(x1 ^ 1 + y1 ^ 2)
 
     local output = cairo.Pattern.create_radial(
-        cx0*x_factor, cy0*y_factor, radius0*rad_factor, cx1*x_factor, cx1*y_factor, radius1*rad_factor
+        cx0 * x_factor,
+        cy0 * y_factor,
+        radius0 * rad_factor,
+        cx1 * x_factor,
+        cx1 * y_factor,
+        radius1 * rad_factor
     )
 
     clone_stops(input, output)
@@ -97,9 +106,16 @@ local function get_pattern_size(pat)
 end
 
 local function stretch_common(self, width, height)
-    if (not self._private.background) and (not self._private.bgimage) then return end
+    if (not self._private.background) and not self._private.bgimage then
+        return
+    end
 
-    if not (self._private.stretch_horizontally or self._private.stretch_vertically) then
+    if
+        not (
+            self._private.stretch_horizontally
+            or self._private.stretch_vertically
+        )
+    then
         return self._private.background, self._private.bgimage
     end
 
@@ -110,7 +126,9 @@ local function stretch_common(self, width, height)
     -- cairo.RasterSourcePattern. However, this might create some surprising
     -- results. For example switching to a different theme which uses tiled
     -- pattern would change the "meaning" of this property.
-    if not size_w then return end
+    if not size_w then
+        return
+    end
 
     -- Don't try to resize zero-sized patterns. They are used for
     -- generic liear gradient means "there is no gradient in this axis"
@@ -122,13 +140,16 @@ local function stretch_common(self, width, height)
         size_w = width
     end
 
-    local hash = size_w.."x"..size_h
+    local hash = size_w .. "x" .. size_h
 
     if self._private.scale_cache[hash] then
         return self._private.scale_cache[hash]
     end
 
-    if global_scaled_pattern_cache[old] and global_scaled_pattern_cache[old][hash] then
+    if
+        global_scaled_pattern_cache[old]
+        and global_scaled_pattern_cache[old][hash]
+    then
         -- Don't bother clearing the cache, if the pattern is already cached
         -- elsewhere, it will remain in memory anyway.
         self._private.scale_cache[hash] = global_scaled_pattern_cache[old][hash]
@@ -143,7 +164,8 @@ local function stretch_common(self, width, height)
         new = stretch_radial_gradient(old, size_w, size_h)
     end
 
-    global_scaled_pattern_cache[old] = global_scaled_pattern_cache[old] or setmetatable({}, {__mode = "v"})
+    global_scaled_pattern_cache[old] = global_scaled_pattern_cache[old]
+        or setmetatable({}, { __mode = "v" })
     global_scaled_pattern_cache[old][hash] = new
 
     -- Prevent the memory leak.
@@ -164,12 +186,12 @@ end
 -- more widely compatible version.
 function background._use_fallback_algorithm()
     background.before_draw_children = function(self, _, cr, width, height)
-        local bw    = self._private.shape_border_width or 0
+        local bw = self._private.shape_border_width or 0
         local shape = self._private.shape or gshape.rectangle
 
         if bw > 0 then
             cr:translate(bw, bw)
-            width, height = width - 2*bw, height - 2*bw
+            width, height = width - 2 * bw, height - 2 * bw
         end
 
         shape(cr, width, height)
@@ -192,7 +214,7 @@ function background._use_fallback_algorithm()
     end
 
     background.after_draw_children = function(self, _, cr, width, height)
-        local bw    = self._private.shape_border_width or 0
+        local bw = self._private.shape_border_width or 0
         local shape = self._private.shape or gshape.rectangle
 
         if bw > 0 then
@@ -202,8 +224,15 @@ function background._use_fallback_algorithm()
             local mat = cr:get_matrix()
 
             -- Prevent the inner part of the border from being written.
-            local mask = cairo.RecordingSurface(cairo.Content.COLOR_ALPHA,
-                cairo.Rectangle { x = 0, y = 0, width = mat.x0 + width, height = mat.y0 + height })
+            local mask = cairo.RecordingSurface(
+                cairo.Content.COLOR_ALPHA,
+                cairo.Rectangle({
+                    x = 0,
+                    y = 0,
+                    width = mat.x0 + width,
+                    height = mat.y0 + height,
+                })
+            )
 
             local mask_cr = cairo.Context(mask)
             mask_cr:set_matrix(mat)
@@ -217,8 +246,8 @@ function background._use_fallback_algorithm()
             mask_cr:set_operator(cairo.Operator.SOURCE)
             mask_cr:translate(bw, bw)
             mask_cr:set_source_rgba(1, 0, 0, 1)
-            mask_cr:set_line_width(2*bw)
-            shape(mask_cr, width - 2*bw, height - 2*bw)
+            mask_cr:set_line_width(2 * bw)
+            shape(mask_cr, width - 2 * bw, height - 2 * bw)
             mask_cr:stroke_preserve()
 
             -- Remove the inner part.
@@ -227,8 +256,14 @@ function background._use_fallback_algorithm()
             mask_cr:fill()
             mask:flush()
 
-            cr:set_source(color(self._private.shape_border_color or self._private.foreground or beautiful.fg_normal))
-            cr:mask_surface(mask, 0,0)
+            cr:set_source(
+                color(
+                    self._private.shape_border_color
+                        or self._private.foreground
+                        or beautiful.fg_normal
+                )
+            )
+            cr:mask_surface(mask, 0, 0)
             cr:restore()
         end
     end
@@ -244,7 +279,7 @@ end
 
 -- Prepare drawing the children of this widget
 function background:before_draw_children(context, cr, width, height)
-    local bw    = self._private.shape_border_width or 0
+    local bw = self._private.shape_border_width or 0
     local shape = self._private.shape or (bw > 0 and gshape.rectangle or nil)
 
     -- Redirect drawing to a temporary surface if there is a shape
@@ -266,9 +301,16 @@ function background:before_draw_children(context, cr, width, height)
     if bgimage then
         cr:save()
         if type(self._private.bgimage) == "function" then
-            self._private.bgimage(context, cr, width, height,unpack(self._private.bgimage_args))
+            self._private.bgimage(
+                context,
+                cr,
+                width,
+                height,
+                unpack(self._private.bgimage_args)
+            )
         else
-            local pattern = cairo.Pattern.create_for_surface(self._private.bgimage)
+            local pattern =
+                cairo.Pattern.create_for_surface(self._private.bgimage)
             cr:set_source(pattern)
             cr:rectangle(0, 0, width, height)
             cr:fill()
@@ -283,7 +325,7 @@ end
 
 -- Draw the border
 function background:after_draw_children(_, cr, width, height)
-    local bw    = self._private.shape_border_width or 0
+    local bw = self._private.shape_border_width or 0
     local shape = self._private.shape or (bw > 0 and gshape.rectangle or nil)
 
     if not shape then
@@ -293,7 +335,12 @@ function background:after_draw_children(_, cr, width, height)
     -- Okay, there is a shape. Get it as a path.
 
     cr:translate(bw, bw)
-    shape(cr, width - 2*bw, height - 2*bw, unpack(self._private.shape_args or {}))
+    shape(
+        cr,
+        width - 2 * bw,
+        height - 2 * bw,
+        unpack(self._private.shape_args or {})
+    )
     cr:translate(-bw, -bw)
 
     if bw > 0 then
@@ -312,7 +359,13 @@ function background:after_draw_children(_, cr, width, height)
 
         local mask = cr:pop_group()
         -- Now actually draw the border via the mask we just created.
-        cr:set_source(color(self._private.shape_border_color or self._private.foreground or beautiful.fg_normal))
+        cr:set_source(
+            color(
+                self._private.shape_border_color
+                    or self._private.foreground
+                    or beautiful.fg_normal
+            )
+        )
         cr:set_operator(cairo.Operator.SOURCE)
         cr:mask(mask)
 
@@ -348,12 +401,19 @@ end
 -- Layout this widget
 function background:layout(_, width, height)
     if self._private.widget then
-        local bw = self._private.border_strategy == "inner" and
-            self._private.shape_border_width or 0
+        local bw = self._private.border_strategy == "inner"
+                and self._private.shape_border_width
+            or 0
 
-        return { base.place_widget_at(
-            self._private.widget, bw, bw, width-2*bw, height-2*bw
-        ) }
+        return {
+            base.place_widget_at(
+                self._private.widget,
+                bw,
+                bw,
+                width - 2 * bw,
+                height - 2 * bw
+            ),
+        }
     end
 end
 
@@ -363,14 +423,19 @@ function background:fit(context, width, height)
         return 0, 0
     end
 
-    local bw = self._private.border_strategy == "inner" and
-        self._private.shape_border_width or 0
+    local bw = self._private.border_strategy == "inner"
+            and self._private.shape_border_width
+        or 0
 
     local w, h = base.fit_widget(
-        self, context, self._private.widget, width - 2*bw, height - 2*bw
+        self,
+        context,
+        self._private.widget,
+        width - 2 * bw,
+        height - 2 * bw
     )
 
-    return w+2*bw, h+2*bw
+    return w + 2 * bw, h + 2 * bw
 end
 
 --- The widget displayed in the background widget.
@@ -386,7 +451,7 @@ function background:get_widget()
 end
 
 function background:get_children()
-    return {self._private.widget}
+    return { self._private.widget }
 end
 
 function background:set_children(children)
@@ -421,11 +486,11 @@ end
 -- @see bg
 -- @see gears.color
 
-for _, orientation in ipairs {"horizontally", "vertically"} do
-    background["set_stretch_"..orientation] = function(self, value)
-        self._private["stretch_"..orientation] = value
+for _, orientation in ipairs({ "horizontally", "vertically" }) do
+    background["set_stretch_" .. orientation] = function(self, value)
+        self._private["stretch_" .. orientation] = value
         self:emit_signal("widget::redraw_needed")
-        self:emit_signal("property::stretch_"..orientation, value)
+        self:emit_signal("property::stretch_" .. orientation, value)
     end
 end
 
@@ -501,12 +566,14 @@ end
 -- @see gears.shape
 -- @see shape
 function background:set_shape(shape, ...)
-    local args = {...}
+    local args = { ... }
 
-    if shape == self._private.shape and #args == 0 then return end
+    if shape == self._private.shape and #args == 0 then
+        return
+    end
 
     self._private.shape = shape
-    self._private.shape_args = {...}
+    self._private.shape_args = { ... }
     self:emit_signal("widget::redraw_needed")
     self:emit_signal("property::shape", shape)
 end
@@ -539,7 +606,9 @@ end
 -- @see border_color
 
 function background:set_border_width(width)
-    if self._private.shape_border_width == width then return end
+    if self._private.shape_border_width == width then
+        return
+    end
 
     self._private.shape_border_width = width
     self:emit_signal("widget::redraw_needed")
@@ -551,15 +620,19 @@ function background:get_border_width()
 end
 
 function background.get_shape_border_width(...)
-    gdebug.deprecate("Use `border_width` instead of `shape_border_width`",
-        {deprecated_in=5})
+    gdebug.deprecate(
+        "Use `border_width` instead of `shape_border_width`",
+        { deprecated_in = 5 }
+    )
 
     return background.get_border_width(...)
 end
 
 function background.set_shape_border_width(...)
-    gdebug.deprecate("Use `border_width` instead of `shape_border_width`",
-        {deprecated_in=5})
+    gdebug.deprecate(
+        "Use `border_width` instead of `shape_border_width`",
+        { deprecated_in = 5 }
+    )
 
     background.set_border_width(...)
 end
@@ -590,7 +663,9 @@ end
 -- @see border_width
 
 function background:set_border_color(fg)
-    if self._private.shape_border_color == fg then return end
+    if self._private.shape_border_color == fg then
+        return
+    end
 
     self._private.shape_border_color = fg
     self:emit_signal("widget::redraw_needed")
@@ -602,28 +677,38 @@ function background:get_border_color()
 end
 
 function background.get_shape_border_color(...)
-    gdebug.deprecate("Use `border_color` instead of `shape_border_color`",
-        {deprecated_in=5})
+    gdebug.deprecate(
+        "Use `border_color` instead of `shape_border_color`",
+        { deprecated_in = 5 }
+    )
 
     return background.get_border_color(...)
 end
 
 function background.set_shape_border_color(...)
-    gdebug.deprecate("Use `border_color` instead of `shape_border_color`",
-        {deprecated_in=5})
+    gdebug.deprecate(
+        "Use `border_color` instead of `shape_border_color`",
+        { deprecated_in = 5 }
+    )
 
     background.set_border_color(...)
 end
 
 function background:set_shape_clip(value)
-    if value then return end
-    require("gears.debug").print_warning("shape_clip property of background container was removed."
-        .. " Use wibox.layout.stack instead if you want shape_clip=false.")
+    if value then
+        return
+    end
+    require("gears.debug").print_warning(
+        "shape_clip property of background container was removed."
+            .. " Use wibox.layout.stack instead if you want shape_clip=false."
+    )
 end
 
 function background:get_shape_clip()
-    require("gears.debug").print_warning("shape_clip property of background container was removed."
-        .. " Use wibox.layout.stack instead if you want shape_clip=false.")
+    require("gears.debug").print_warning(
+        "shape_clip property of background container was removed."
+            .. " Use wibox.layout.stack instead if you want shape_clip=false."
+    )
     return true
 end
 
@@ -665,8 +750,9 @@ end
 -- @see wibox.layout.stack
 
 function background:set_bgimage(image, ...)
-    self._private.bgimage = type(image) == "function" and image or surface.load(image)
-    self._private.bgimage_args = {...}
+    self._private.bgimage = type(image) == "function" and image
+        or surface.load(image)
+    self._private.bgimage_args = { ... }
     self:emit_signal("widget::redraw_needed")
     self:emit_signal("property::bgimage", image)
 end

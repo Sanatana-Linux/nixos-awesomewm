@@ -1,26 +1,28 @@
-local floor  = math.floor
+local floor = math.floor
 local screen = screen
 local cascade = {
-    name     = "cascade",
-    nmaster  = 0,
+    name = "cascade",
+    nmaster = 0,
     offset_x = 32,
     offset_y = 8,
-    tile     = {
-        name          = "cascadetile",
-        nmaster       = 0,
-        ncol          = 0,
-        mwfact        = 0,
-        offset_x      = 5,
-        offset_y      = 32,
-        extra_padding = 0
-    }
+    tile = {
+        name = "cascadetile",
+        nmaster = 0,
+        ncol = 0,
+        mwfact = 0,
+        offset_x = 5,
+        offset_y = 32,
+        extra_padding = 0,
+    },
 }
 local function do_cascade(p, tiling)
     local t = p.tag or screen[p.screen].selected_tag
     local wa = p.workarea
     local cls = p.clients
 
-    if #cls == 0 then return end
+    if #cls == 0 then
+        return
+    end
 
     if not tiling then
         -- Cascade windows.
@@ -42,17 +44,21 @@ local function do_cascade(p, tiling)
         local current_offset_y = cascade.offset_y * (how_many - 1)
 
         -- Iterate.
-        for i = 1,#cls,1 do
+        for i = 1, #cls, 1 do
             local c = cls[i]
             local g = {}
 
-            g.x      = wa.x + (how_many - i) * cascade.offset_x
-            g.y      = wa.y + (i - 1) * cascade.offset_y
-            g.width  = wa.width - current_offset_x
+            g.x = wa.x + (how_many - i) * cascade.offset_x
+            g.y = wa.y + (i - 1) * cascade.offset_y
+            g.width = wa.width - current_offset_x
             g.height = wa.height - current_offset_y
 
-            if g.width  < 1 then g.width  = 1 end
-            if g.height < 1 then g.height = 1 end
+            if g.width < 1 then
+                g.width = 1
+            end
+            if g.height < 1 then
+                g.height = 1
+            end
 
             p.geometries[c] = g
         end
@@ -98,7 +104,9 @@ local function do_cascade(p, tiling)
         local current_offset_x = cascade.tile.offset_x * (how_many - 1)
         local current_offset_y = cascade.tile.offset_y * (how_many - 1)
 
-        if #cls <= 0 then return end
+        if #cls <= 0 then
+            return
+        end
 
         -- Main column, fixed width and height.
         local c = cls[1]
@@ -125,25 +133,35 @@ local function do_cascade(p, tiling)
         g.x = wa.x
         g.y = wa.y
 
-        if g.width < 1  then g.width  = 1 end
-        if g.height < 1 then g.height = 1 end
+        if g.width < 1 then
+            g.width = 1
+        end
+        if g.height < 1 then
+            g.height = 1
+        end
 
         p.geometries[c] = g
 
         -- Remaining clients stacked in slave column, new ones on top.
-        if #cls <= 1 then return end
-        for i = 2,#cls do
+        if #cls <= 1 then
+            return
+        end
+        for i = 2, #cls do
             c = cls[i]
             g = {}
 
-            g.width  = slavewid - current_offset_x
+            g.width = slavewid - current_offset_x
             g.height = wa.height - current_offset_y
 
             g.x = wa.x + mainwid + (how_many - (i - 1)) * cascade.tile.offset_x
             g.y = wa.y + (i - 2) * cascade.tile.offset_y
 
-            if g.width < 1  then g.width  = 1 end
-            if g.height < 1 then g.height = 1 end
+            if g.width < 1 then
+                g.width = 1
+            end
+            if g.height < 1 then
+                g.height = 1
+            end
 
             p.geometries[c] = g
         end

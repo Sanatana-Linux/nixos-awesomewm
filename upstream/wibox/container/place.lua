@@ -17,15 +17,22 @@ local place = { mt = {} }
 -- Take the widget width/height and compute the position from the full
 -- width/height
 local align_fct = {
-    left   = function(_  , _   ) return 0                         end,
-    center = function(wdg, orig) return math.max(0, (orig-wdg)/2) end,
-    right  = function(wdg, orig) return math.max(0, orig-wdg    ) end,
+    left = function(_, _)
+        return 0
+    end,
+    center = function(wdg, orig)
+        return math.max(0, (orig - wdg) / 2)
+    end,
+    right = function(wdg, orig)
+        return math.max(0, orig - wdg)
+    end,
 }
 align_fct.top, align_fct.bottom = align_fct.left, align_fct.right
 
 -- Shared with some subclasses like the `tiled` and `scaled` modules.
 function place:_layout(context, width, height)
-    local w, h = base.fit_widget(self, context, self._private.widget, width, height)
+    local w, h =
+        base.fit_widget(self, context, self._private.widget, width, height)
 
     if self._private.content_fill_horizontal then
         w = width
@@ -48,7 +55,6 @@ end
 
 -- Layout this layout
 function place:layout(context, width, height)
-
     if not self._private.widget then
         return
     end
@@ -64,12 +70,17 @@ function place:fit(context, width, height)
         return 0, 0
     end
 
-    local w, h = base.fit_widget(self, context, self._private.widget, width, height)
+    local w, h =
+        base.fit_widget(self, context, self._private.widget, width, height)
 
-    return (self._private.fill_horizontal or self._private.content_fill_horizontal)
-        and width or w,
-    (self._private.fill_vertical or self._private.content_fill_vertical)
-        and height or h
+    return (
+        self._private.fill_horizontal or self._private.content_fill_horizontal
+    )
+            and width
+        or w,
+        (self._private.fill_vertical or self._private.content_fill_vertical)
+                and height
+            or h
 end
 
 --- The widget to be placed.
@@ -85,7 +96,7 @@ function place:get_widget()
 end
 
 function place:get_children()
-    return {self._private.widget}
+    return { self._private.widget }
 end
 
 function place:set_children(children)
@@ -202,7 +213,7 @@ end
 -- @treturn table A new place container.
 -- @constructorfct wibox.container.place
 local function new(widget, halign, valign)
-    local ret = base.make_widget(nil, nil, {enable_properties = true})
+    local ret = base.make_widget(nil, nil, { enable_properties = true })
 
     gtable.crush(ret, place, true)
 

@@ -7,8 +7,7 @@
 ---------------------------------------------------------------------------
 
 -- Grab environment we need
-local capi =
-{
+local capi = {
     mouse = mouse,
     screen = screen,
     client = client,
@@ -18,7 +17,7 @@ local capi =
 local gdebug = require("gears.debug")
 local gmath = require("gears.math")
 local object = require("gears.object")
-local grect =  require("gears.geometry").rectangle
+local grect = require("gears.geometry").rectangle
 local gsurf = require("gears.surface")
 local cairo = require("lgi").cairo
 
@@ -29,7 +28,7 @@ end
 -- we use require("awful.client") inside functions to prevent circular dependencies.
 local client
 
-local screen = {object={}}
+local screen = { object = {} }
 
 local data = {}
 data.padding = {}
@@ -40,10 +39,10 @@ data.padding = {}
 -- @treturn table A geometry (width, height, x, y) table.
 local function apply_geometry_adjustments(geo, delta)
     return {
-        x      = geo.x      + (delta.left or 0),
-        y      = geo.y      + (delta.top  or 0),
-        width  = geo.width  - (delta.left or 0) - (delta.right  or 0),
-        height = geo.height - (delta.top  or 0) - (delta.bottom or 0),
+        x = geo.x + (delta.left or 0),
+        y = geo.y + (delta.top or 0),
+        width = geo.width - (delta.left or 0) - (delta.right or 0),
+        height = geo.height - (delta.top or 0) - (delta.bottom or 0),
     }
 end
 
@@ -55,7 +54,10 @@ end
 -- @treturn number The squared distance of the screen to the provided point.
 -- @see screen.get_square_distance
 function screen.getdistance_sq(s, x, y)
-    gdebug.deprecate("Use s:get_square_distance(x, y) instead of awful.screen.getdistance_sq", {deprecated_in=4})
+    gdebug.deprecate(
+        "Use s:get_square_distance(x, y) instead of awful.screen.getdistance_sq",
+        { deprecated_in = 4 }
+    )
     return screen.object.get_square_distance(s, x, y)
 end
 
@@ -96,7 +98,9 @@ end
 --  for this screen should be re-activated.
 function screen.focus(_screen)
     client = client or require("awful.client")
-    if type(_screen) == "number" and _screen > capi.screen.count() then _screen = screen.focused() end
+    if type(_screen) == "number" and _screen > capi.screen.count() then
+        _screen = screen.focused()
+    end
     _screen = get_screen(_screen)
 
     -- screen and pos for current screen
@@ -120,12 +124,12 @@ function screen.focus(_screen)
     -- save pointer position of current screen
     s.mouse_per_screen = capi.mouse.coords()
 
-   -- move cursor without triggering signals mouse::enter and mouse::leave
+    -- move cursor without triggering signals mouse::enter and mouse::leave
     capi.mouse.coords(pos, true)
 
     local c = client.focus.history.get(_screen, 0)
     if c then
-        c:emit_signal("request::activate", "screen.focus", {raise=false})
+        c:emit_signal("request::activate", "screen.focus", { raise = false })
     end
 
     return _screen
@@ -180,8 +184,9 @@ end
 --   focus the next one, -1 to focus the previous one.
 -- @treturn screen The newly focusd screen.
 function screen.focus_relative(offset)
-    return screen.focus(gmath.cycle(capi.screen.count(),
-                                   screen.focused().index + offset))
+    return screen.focus(
+        gmath.cycle(capi.screen.count(), screen.focused().index + offset)
+    )
 end
 
 --- The area where clients can be tiled.
@@ -205,10 +210,10 @@ end
 -- @see get_bounding_geometry
 
 function screen.object.get_tiling_area(s)
-    return s:get_bounding_geometry {
-        honor_padding  = true,
+    return s:get_bounding_geometry({
+        honor_padding = true,
         honor_workarea = true,
-    }
+    })
 end
 
 --- Take a screenshot of the physical screen.
@@ -228,8 +233,8 @@ end
 function screen.object.get_content(s)
     local geo = s.geometry
     local source = gsurf(capi.root.content())
-    local target = source:create_similar(cairo.Content.COLOR, geo.width,
-                                         geo.height)
+    local target =
+        source:create_similar(cairo.Content.COLOR, geo.width, geo.height)
     local cr = cairo.Context(target)
     cr:set_source_surface(source, -geo.x, -geo.y)
     cr:rectangle(0, 0, geo.width, geo.height)
@@ -247,7 +252,10 @@ end
 -- @treturn table A table with left, right, top and bottom number values.
 -- @see padding
 function screen.padding(s, padding)
-    gdebug.deprecate("Use _screen.padding = value instead of awful.screen.padding", {deprecated_in=4})
+    gdebug.deprecate(
+        "Use _screen.padding = value instead of awful.screen.padding",
+        { deprecated_in = 4 }
+    )
     if padding then
         screen.object.set_padding(s, padding)
     end
@@ -277,9 +285,9 @@ function screen.object.get_padding(self)
     local p = data.padding[self] or {}
     -- Create a copy to avoid accidental mutation and nil values.
     return {
-        left   = p.left   or 0,
-        right  = p.right  or 0,
-        top    = p.top    or 0,
+        left = p.left or 0,
+        right = p.right or 0,
+        top = p.top or 0,
         bottom = p.bottom or 0,
     }
 end
@@ -287,9 +295,9 @@ end
 function screen.object.set_padding(self, padding)
     if type(padding) == "number" then
         padding = {
-            left   = padding,
-            right  = padding,
-            top    = padding,
+            left = padding,
+            right = padding,
+            top = padding,
             bottom = padding,
         }
     end
@@ -384,7 +392,8 @@ end
 function screen.focused(args)
     args = args or screen.default_focused_args or {}
     return get_screen(
-        args.client and capi.client.focus and capi.client.focus.screen or capi.mouse.screen
+        args.client and capi.client.focus and capi.client.focus.screen
+            or capi.mouse.screen
     )
 end
 
@@ -421,20 +430,25 @@ function screen.object.get_bounding_geometry(self, args)
 
     self = get_screen(self or capi.mouse.screen)
 
-    local geo = args.bounding_rect or (args.parent and args.parent:geometry()) or
-        self[args.honor_workarea and "workarea" or "geometry"]
+    local geo = args.bounding_rect
+        or (args.parent and args.parent:geometry())
+        or self[args.honor_workarea and "workarea" or "geometry"]
 
-    if (not args.parent) and (not args.bounding_rect) and args.honor_padding then
+    if (not args.parent) and not args.bounding_rect and args.honor_padding then
         local padding = self.padding
         geo = apply_geometry_adjustments(geo, padding)
     end
 
     if args.margins then
-        geo = apply_geometry_adjustments(geo,
-            type(args.margins) == "table" and args.margins or {
-                left = args.margins, right  = args.margins,
-                top  = args.margins, bottom = args.margins,
-            }
+        geo = apply_geometry_adjustments(
+            geo,
+            type(args.margins) == "table" and args.margins
+                or {
+                    left = args.margins,
+                    right = args.margins,
+                    top = args.margins,
+                    bottom = args.margins,
+                }
         )
     end
     return geo
@@ -544,9 +558,11 @@ function screen.object.get_tiled_clients(s, stacked)
     local tclients = {}
     -- Remove floating clients
     for _, c in pairs(clients) do
-        if not c.floating
+        if
+            not c.floating
             and not c.immobilized_horizontal
-            and not c.immobilized_vertical then
+            and not c.immobilized_vertical
+        then
             table.insert(tclients, c)
         end
     end
@@ -645,8 +661,8 @@ local function normalize(ratios, size)
     local sum2 = 0
 
     for k, r in ipairs(ratios) do
-        ret[k] = (r*100)/sum
-        ret[k] = math.floor(size*ret[k]*0.01)
+        ret[k] = (r * 100) / sum
+        ret[k] = math.floor(size * ret[k] * 0.01)
         sum2 = sum2 + ret[k]
     end
 
@@ -682,23 +698,21 @@ function screen.object.split(s, ratios, mode, _geo)
     s = get_screen(s)
 
     _geo = _geo or s.geometry
-    ratios = ratios or {50,50}
+    ratios = ratios or { 50, 50 }
 
     -- In practice, this is almost always what the user wants.
-    mode = mode or (
-        _geo.height > _geo.width and "vertical" or "horizontal"
-    )
+    mode = mode or (_geo.height > _geo.width and "vertical" or "horizontal")
 
     assert(mode == "horizontal" or mode == "vertical")
 
     assert((not s) or s.valid)
     assert(#ratios >= 2)
 
-    local sizes, ret = normalize(
-        ratios, mode == "horizontal" and _geo.width or _geo.height
-    ), {}
+    local sizes, ret =
+        normalize(ratios, mode == "horizontal" and _geo.width or _geo.height),
+        {}
 
-    assert(#sizes >=2)
+    assert(#sizes >= 2)
 
     if s then
         if mode == "horizontal" then
@@ -712,7 +726,7 @@ function screen.object.split(s, ratios, mode, _geo)
     local pos = _geo[mode == "horizontal" and "x" or "y"]
         + (s and sizes[1] or 0)
 
-    for k=2, #sizes do
+    for k = 2, #sizes do
         local ns
 
         if mode == "horizontal" then
@@ -1062,29 +1076,35 @@ capi.screen.connect_signal("_added", function(s)
 end)
 
 -- Resize the wallpaper(s)
-for _, prop in ipairs {"geometry", "dpi" } do
-    capi.screen.connect_signal("property::"..prop, function(s)
+for _, prop in ipairs({ "geometry", "dpi" }) do
+    capi.screen.connect_signal("property::" .. prop, function(s)
         s:emit_signal("request::wallpaper", prop)
     end)
 end
 
 -- Create the bar for existing screens when an handler is added
-capi.screen.connect_signal("request::desktop_decoration::connected", function(new_handler)
-    if capi.screen.automatic_factory then
-        for s in capi.screen do
-            new_handler(s)
+capi.screen.connect_signal(
+    "request::desktop_decoration::connected",
+    function(new_handler)
+        if capi.screen.automatic_factory then
+            for s in capi.screen do
+                new_handler(s)
+            end
         end
     end
-end)
+)
 
 -- Set the wallpaper when an handler is added.
-capi.screen.connect_signal("request::wallpaper::connected", function(new_handler)
-    if capi.screen.automatic_factory then
-        for s in capi.screen do
-            new_handler(s)
+capi.screen.connect_signal(
+    "request::wallpaper::connected",
+    function(new_handler)
+        if capi.screen.automatic_factory then
+            for s in capi.screen do
+                new_handler(s)
+            end
         end
     end
-end)
+)
 
 --- When the tag history changed.
 -- @signal tag::history::update
@@ -1093,7 +1113,7 @@ end)
 object.properties(capi.screen, {
     getter_class = screen.object,
     setter_class = screen.object,
-    auto_emit    = true,
+    auto_emit = true,
 })
 
 --@DOC_object_COMMON@

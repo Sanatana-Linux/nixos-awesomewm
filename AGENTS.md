@@ -214,7 +214,7 @@ markup = beautiful.text_icons.search,
 ## Project Structure
 
 ### Directory Layout
-- `core/` - Core AwesomeWM functionality (autostart, client, keybind, tag, theme, screen, error, notification)
+- `configuration/` - Core AwesomeWM functionality (autostart, client, keybind, tag, theme, screen, error, notification)
 - `ui/` - User interface components (bar, popups, lockscreen, notification, titlebar, tabbar, wallpaper)
 - `modules/` - Reusable UI modules (animations, calendar, dropdown, hover_button, menu, shapes, text_input, snap_edge)
 - `service/` - System service integrations (audio, battery, bluetooth, brightness, network, screenshot, garbage_collection)
@@ -226,7 +226,7 @@ markup = beautiful.text_icons.search,
 
 ### Entry Points
 - `rc.lua` - Main configuration entry point (loads core and ui)
-- `core/init.lua` - Loads all core modules
+- `configuration/init.lua` - Loads all core modules
 - `ui/init.lua` - Initializes UI components, bars, popups
 
 ### Module Organization
@@ -263,7 +263,7 @@ return setmetatable({ new = new }, { __call = function(_, ...) return new(...) e
 5. Test integration with UI components
 
 ### Adding Keybinding
-1. Identify appropriate file in `core/keybind/`
+1. Identify appropriate file in `configuration/keybind/`
 2. Use `awful.key()` or `awful.button()` 
 3. Use `Mod4` (Super) as primary modifier
 4. Test in nested session

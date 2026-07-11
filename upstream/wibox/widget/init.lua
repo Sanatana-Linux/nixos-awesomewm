@@ -12,25 +12,25 @@ local gcolor = require("gears.color")
 local beautiful = nil
 
 local widget = {
-    base = require("wibox.widget.base");
-    textbox = require("wibox.widget.textbox");
-    imagebox = require("wibox.widget.imagebox");
-    background = require("wibox.widget.background");
-    systray = require("wibox.widget.systray");
-    textclock = require("wibox.widget.textclock");
-    progressbar = require("wibox.widget.progressbar");
-    graph = require("wibox.widget.graph");
-    checkbox = require("wibox.widget.checkbox");
-    piechart = require("wibox.widget.piechart");
-    slider = require("wibox.widget.slider");
-    calendar = require("wibox.widget.calendar");
-    separator = require("wibox.widget.separator");
+    base = require("wibox.widget.base"),
+    textbox = require("wibox.widget.textbox"),
+    imagebox = require("wibox.widget.imagebox"),
+    background = require("wibox.widget.background"),
+    systray = require("wibox.widget.systray"),
+    textclock = require("wibox.widget.textclock"),
+    progressbar = require("wibox.widget.progressbar"),
+    graph = require("wibox.widget.graph"),
+    checkbox = require("wibox.widget.checkbox"),
+    piechart = require("wibox.widget.piechart"),
+    slider = require("wibox.widget.slider"),
+    calendar = require("wibox.widget.calendar"),
+    separator = require("wibox.widget.separator"),
 }
 
 setmetatable(widget, {
     __call = function(_, args)
         return widget.base.make_widget_declarative(args)
-    end
+    end,
 })
 
 --- Draw a widget directly to a given cairo context.
@@ -45,7 +45,7 @@ setmetatable(widget, {
 -- @staticfct wibox.widget.draw_to_cairo_context
 function widget.draw_to_cairo_context(wdg, cr, width, height, context)
     local function no_op() end
-    context = context or {dpi=96}
+    context = context or { dpi = 96 }
     local h = hierarchy.new(context, wdg, width, height, no_op, no_op, {})
     h:draw(context, cr)
 end

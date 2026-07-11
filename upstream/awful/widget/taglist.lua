@@ -39,9 +39,7 @@
 ---------------------------------------------------------------------------
 
 -- Grab environment we need
-local capi = { screen = screen,
-               awesome = awesome,
-               client = client }
+local capi = { screen = screen, awesome = awesome, client = client }
 local setmetatable = setmetatable
 local pairs = pairs
 local ipairs = ipairs
@@ -234,12 +232,18 @@ taglist.filter, taglist.source = {}, {}
 local instances = nil
 
 function taglist.taglist_label(t, args)
-    if not args then args = {} end
+    if not args then
+        args = {}
+    end
     local theme = beautiful.get()
     local fg_focus = args.fg_focus or theme.taglist_fg_focus or theme.fg_focus
     local bg_focus = args.bg_focus or theme.taglist_bg_focus or theme.bg_focus
-    local fg_urgent = args.fg_urgent or theme.taglist_fg_urgent or theme.fg_urgent
-    local bg_urgent = args.bg_urgent or theme.taglist_bg_urgent or theme.bg_urgent
+    local fg_urgent = args.fg_urgent
+        or theme.taglist_fg_urgent
+        or theme.fg_urgent
+    local bg_urgent = args.bg_urgent
+        or theme.taglist_bg_urgent
+        or theme.bg_urgent
     local bg_occupied = args.bg_occupied or theme.taglist_bg_occupied
     local fg_occupied = args.fg_occupied or theme.taglist_fg_occupied
     local bg_empty = args.bg_empty or theme.taglist_bg_empty
@@ -247,11 +251,18 @@ function taglist.taglist_label(t, args)
     local bg_volatile = args.bg_volatile or theme.taglist_bg_volatile
     local fg_volatile = args.fg_volatile or theme.taglist_fg_volatile
     local taglist_squares_sel = args.squares_sel or theme.taglist_squares_sel
-    local taglist_squares_unsel = args.squares_unsel or theme.taglist_squares_unsel
-    local taglist_squares_sel_empty = args.squares_sel_empty or theme.taglist_squares_sel_empty
-    local taglist_squares_unsel_empty = args.squares_unsel_empty or theme.taglist_squares_unsel_empty
-    local taglist_squares_resize = theme.taglist_squares_resize or args.squares_resize or "true"
-    local taglist_disable_icon = args.taglist_disable_icon or theme.taglist_disable_icon or false
+    local taglist_squares_unsel = args.squares_unsel
+        or theme.taglist_squares_unsel
+    local taglist_squares_sel_empty = args.squares_sel_empty
+        or theme.taglist_squares_sel_empty
+    local taglist_squares_unsel_empty = args.squares_unsel_empty
+        or theme.taglist_squares_unsel_empty
+    local taglist_squares_resize = theme.taglist_squares_resize
+        or args.squares_resize
+        or "true"
+    local taglist_disable_icon = args.taglist_disable_icon
+        or theme.taglist_disable_icon
+        or false
     local font = args.font or theme.taglist_font or theme.font
     local text = nil
     local sel = capi.client.focus
@@ -259,9 +270,11 @@ function taglist.taglist_label(t, args)
     local fg_color = nil
     local bg_image
     local icon
-    local shape              = args.shape or theme.taglist_shape
-    local shape_border_width = args.shape_border_width or theme.taglist_shape_border_width
-    local shape_border_color = args.shape_border_color or theme.taglist_shape_border_color
+    local shape = args.shape or theme.taglist_shape
+    local shape_border_width = args.shape_border_width
+        or theme.taglist_shape_border_width
+    local shape_border_color = args.shape_border_color
+        or theme.taglist_shape_border_color
     local icon_size = args.icon_size or theme.taglist_icon_size
     -- TODO: Re-implement bg_resize
     local bg_resize = false -- luacheck: ignore
@@ -289,26 +302,42 @@ function taglist.taglist_label(t, args)
                 bg_image = taglist_squares_unsel
                 bg_resize = taglist_squares_resize == "true"
             end
-            if bg_occupied then bg_color = bg_occupied end
-            if fg_occupied then fg_color = fg_occupied end
+            if bg_occupied then
+                bg_color = bg_occupied
+            end
+            if fg_occupied then
+                fg_color = fg_occupied
+            end
         else
             if taglist_squares_unsel_empty then
                 bg_image = taglist_squares_unsel_empty
                 bg_resize = taglist_squares_resize == "true"
             end
-            if bg_empty then bg_color = bg_empty end
-            if fg_empty then fg_color = fg_empty end
+            if bg_empty then
+                bg_color = bg_empty
+            end
+            if fg_empty then
+                fg_color = fg_empty
+            end
 
             if args.shape_empty or theme.taglist_shape_empty then
                 shape = args.shape_empty or theme.taglist_shape_empty
             end
 
-            if args.shape_border_width_empty or theme.taglist_shape_border_width_empty then
-                shape_border_width = args.shape_border_width_empty or theme.taglist_shape_border_width_empty
+            if
+                args.shape_border_width_empty
+                or theme.taglist_shape_border_width_empty
+            then
+                shape_border_width = args.shape_border_width_empty
+                    or theme.taglist_shape_border_width_empty
             end
 
-            if args.shape_border_color_empty or theme.taglist_shape_border_color_empty then
-                shape_border_color = args.shape_border_color_empty or theme.taglist_shape_border_color_empty
+            if
+                args.shape_border_color_empty
+                or theme.taglist_shape_border_color_empty
+            then
+                shape_border_color = args.shape_border_color_empty
+                    or theme.taglist_shape_border_color_empty
             end
         end
     end
@@ -320,52 +349,86 @@ function taglist.taglist_label(t, args)
             shape = args.shape_focus or theme.taglist_shape_focus
         end
 
-        if args.shape_border_width_focus or theme.taglist_shape_border_width_focus then
-            shape_border_width = args.shape_border_width_focus or theme.taglist_shape_border_width_focus
+        if
+            args.shape_border_width_focus
+            or theme.taglist_shape_border_width_focus
+        then
+            shape_border_width = args.shape_border_width_focus
+                or theme.taglist_shape_border_width_focus
         end
 
-        if args.shape_border_color_focus or theme.taglist_shape_border_color_focus then
-            shape_border_color = args.shape_border_color_focus or theme.taglist_shape_border_color_focus
+        if
+            args.shape_border_color_focus
+            or theme.taglist_shape_border_color_focus
+        then
+            shape_border_color = args.shape_border_color_focus
+                or theme.taglist_shape_border_color_focus
         end
-
     elseif tag.getproperty(t, "urgent") then
-        if bg_urgent then bg_color = bg_urgent end
-        if fg_urgent then fg_color = fg_urgent end
+        if bg_urgent then
+            bg_color = bg_urgent
+        end
+        if fg_urgent then
+            fg_color = fg_urgent
+        end
 
         if args.shape_urgent or theme.taglist_shape_urgent then
             shape = args.shape_urgent or theme.taglist_shape_urgent
         end
 
-        if args.shape_border_width_urgent or theme.taglist_shape_border_width_urgent then
-            shape_border_width = args.shape_border_width_urgent or theme.taglist_shape_border_width_urgent
+        if
+            args.shape_border_width_urgent
+            or theme.taglist_shape_border_width_urgent
+        then
+            shape_border_width = args.shape_border_width_urgent
+                or theme.taglist_shape_border_width_urgent
         end
 
-        if args.shape_border_color_urgent or theme.taglist_shape_border_color_urgent then
-            shape_border_color = args.shape_border_color_urgent or theme.taglist_shape_border_color_urgent
+        if
+            args.shape_border_color_urgent
+            or theme.taglist_shape_border_color_urgent
+        then
+            shape_border_color = args.shape_border_color_urgent
+                or theme.taglist_shape_border_color_urgent
         end
-
     elseif t.volatile then
-        if bg_volatile then bg_color = bg_volatile end
-        if fg_volatile then fg_color = fg_volatile end
+        if bg_volatile then
+            bg_color = bg_volatile
+        end
+        if fg_volatile then
+            fg_color = fg_volatile
+        end
 
         if args.shape_volatile or theme.taglist_shape_volatile then
             shape = args.shape_volatile or theme.taglist_shape_volatile
         end
 
-        if args.shape_border_width_volatile or theme.taglist_shape_border_width_volatile then
-            shape_border_width = args.shape_border_width_volatile or theme.taglist_shape_border_width_volatile
+        if
+            args.shape_border_width_volatile
+            or theme.taglist_shape_border_width_volatile
+        then
+            shape_border_width = args.shape_border_width_volatile
+                or theme.taglist_shape_border_width_volatile
         end
 
-        if args.shape_border_color_volatile or theme.taglist_shape_border_color_volatile then
-            shape_border_color = args.shape_border_color_volatile or theme.taglist_shape_border_color_volatile
+        if
+            args.shape_border_color_volatile
+            or theme.taglist_shape_border_color_volatile
+        then
+            shape_border_color = args.shape_border_color_volatile
+                or theme.taglist_shape_border_color_volatile
         end
     end
 
     if not tag.getproperty(t, "icon_only") then
-        text = "<span font_desc='"..(font or "").."'>"
+        text = "<span font_desc='" .. (font or "") .. "'>"
         if fg_color then
-            text = text .. "<span color='" .. gcolor.ensure_pango_color(fg_color) ..
-                "'>" .. (gstring.xml_escape(t.name) or "") .. "</span>"
+            text = text
+                .. "<span color='"
+                .. gcolor.ensure_pango_color(fg_color)
+                .. "'>"
+                .. (gstring.xml_escape(t.name) or "")
+                .. "</span>"
         else
             text = text .. (gstring.xml_escape(t.name) or "")
         end
@@ -378,13 +441,17 @@ function taglist.taglist_label(t, args)
     end
 
     local other_args = {
-        shape              = shape,
+        shape = shape,
         shape_border_width = shape_border_width,
         shape_border_color = shape_border_color,
-        icon_size          = icon_size,
+        icon_size = icon_size,
     }
 
-    return text, bg_color, bg_image, not taglist_disable_icon and icon or nil, other_args
+    return text,
+        bg_color,
+        bg_image,
+        not taglist_disable_icon and icon or nil,
+        other_args
 end
 
 -- Remove some callback boilerplate from the user provided templates.
@@ -392,11 +459,20 @@ local function create_callback(w, t)
     common._set_common_property(w, "tag", t)
 end
 
-local function taglist_update(s, self, buttons, filter, data, style, update_function, args)
+local function taglist_update(
+    s,
+    self,
+    buttons,
+    filter,
+    data,
+    style,
+    update_function,
+    args
+)
     local tags = {}
 
     local source = self._private.source or taglist.source.for_screen or nil
-    local list   = source and source(s, args) or s.tags
+    local list = source and source(s, args) or s.tags
 
     for _, t in ipairs(list) do
         if not tag.getproperty(t, "hide") and filter(t) then
@@ -409,7 +485,9 @@ local function taglist_update(s, self, buttons, filter, data, style, update_func
         self._private.last_count = #tags
     end
 
-    local function label(c) return taglist.taglist_label(c, style) end
+    local function label(c)
+        return taglist.taglist_label(c, style)
+    end
 
     update_function(self._private.base_layout, buttons, label, data, tags, {
         widget_template = self._private.widget_template,
@@ -443,9 +521,8 @@ end
 -- @propemits true false
 
 function taglist:set_base_layout(layout)
-    self._private.base_layout = base.make_widget_from_value(
-        layout or fixed.horizontal
-    )
+    self._private.base_layout =
+        base.make_widget_from_value(layout or fixed.horizontal)
 
     local spacing = self._private.style.spacing or beautiful.taglist_spacing
 
@@ -472,7 +549,15 @@ end
 
 function taglist:layout(_, width, height)
     if self._private.base_layout then
-        return { base.place_widget_at(self._private.base_layout, 0, 0, width, height) }
+        return {
+            base.place_widget_at(
+                self._private.base_layout,
+                0,
+                0,
+                width,
+                height
+            ),
+        }
     end
 end
 
@@ -481,7 +566,13 @@ function taglist:fit(context, width, height)
         return 0, 0
     end
 
-    return base.fit_widget(self, context, self._private.base_layout, width, height)
+    return base.fit_widget(
+        self,
+        context,
+        self._private.base_layout,
+        width,
+        height
+    )
 end
 
 --- An alternative function to configure the content.
@@ -527,9 +618,17 @@ end
 -- @property widget_template
 -- @tparam[opt=nil] template|nil widget_template
 
-for _, prop in ipairs { "filter", "update_function", "widget_template", "source", "screen" } do
-    taglist["set_"..prop] = function(self, value)
-        if value == self._private[prop] then return end
+for _, prop in ipairs({
+    "filter",
+    "update_function",
+    "widget_template",
+    "source",
+    "screen",
+}) do
+    taglist["set_" .. prop] = function(self, value)
+        if value == self._private[prop] then
+            return
+        end
 
         self._private[prop] = value
 
@@ -537,10 +636,10 @@ for _, prop in ipairs { "filter", "update_function", "widget_template", "source"
 
         self:emit_signal("widget::layout_changed")
         self:emit_signal("widget::redraw_needed")
-        self:emit_signal("property::"..prop, value)
+        self:emit_signal("property::" .. prop, value)
     end
 
-    taglist["get_"..prop] = function(self)
+    taglist["get_" .. prop] = function(self)
         return self._private[prop]
     end
 end
@@ -614,16 +713,24 @@ end
 -- @param base_widget **DEPRECATED** use args.base_layout
 -- @constructorfct awful.widget.taglist
 function taglist.new(args, filter, buttons, style, update_function, base_widget)
-
     local screen = nil
 
     local argstype = type(args)
 
     -- Detect the old function signature
-    if argstype == "number" or argstype == "screen" or
-      (argstype == "table" and args.index and args == capi.screen[args.index]) then
-        gdebug.deprecate("The `screen` parameter is deprecated, use `args.screen`.",
-            {deprecated_in=5})
+    if
+        argstype == "number"
+        or argstype == "screen"
+        or (
+            argstype == "table"
+            and args.index
+            and args == capi.screen[args.index]
+        )
+    then
+        gdebug.deprecate(
+            "The `screen` parameter is deprecated, use `args.screen`.",
+            { deprecated_in = 5 }
+        )
 
         screen = get_screen(args)
         args = {}
@@ -631,15 +738,21 @@ function taglist.new(args, filter, buttons, style, update_function, base_widget)
 
     assert(type(args) == "table")
 
-    for k, v in pairs { filter          = filter,
-                        buttons         = buttons,
-                        style           = style,
-                        update_function = update_function,
-                        layout          = base_widget
-    } do
-        gdebug.deprecate("The `awful.widget.taglist()` `"..k
-            .."` parameter is deprecated, use `args."..k.."`.",
-        {deprecated_in=5})
+    for k, v in pairs({
+        filter = filter,
+        buttons = buttons,
+        style = style,
+        update_function = update_function,
+        layout = base_widget,
+    }) do
+        gdebug.deprecate(
+            "The `awful.widget.taglist()` `"
+                .. k
+                .. "` parameter is deprecated, use `args."
+                .. k
+                .. "`.",
+            { deprecated_in = 5 }
+        )
         args[k] = v
     end
 
@@ -654,23 +767,30 @@ function taglist.new(args, filter, buttons, style, update_function, base_widget)
     gtable.crush(w, taglist, true)
 
     gtable.crush(w._private, {
-        style           = args.style or {},
-        buttons         = args.buttons,
-        filter          = args.filter,
+        style = args.style or {},
+        buttons = args.buttons,
+        filter = args.filter,
         update_function = args.update_function,
         widget_template = args.widget_template,
-        source          = args.source,
-        screen          = screen
+        source = args.source,
+        screen = screen,
     })
 
-    local data = setmetatable({}, { __mode = 'k' })
+    local data = setmetatable({}, { __mode = "k" })
 
     local queued_update = {}
 
     function w._do_taglist_update_now()
         if w._private.screen.valid then
             taglist_update(
-                w._private.screen, w, w._private.buttons, w._private.filter, data, args.style, uf, args
+                w._private.screen,
+                w,
+                w._private.buttons,
+                w._private.filter,
+                data,
+                args.style,
+                uf,
+                args
             )
         end
         queued_update[w._private.screen] = false
@@ -700,8 +820,12 @@ function taglist.new(args, filter, buttons, style, update_function, base_widget)
                 end
             end
         end
-        local uc = function (c) return u(c.screen) end
-        local ut = function (t) return u(t.screen) end
+        local uc = function(c)
+            return u(c.screen)
+        end
+        local ut = function(t)
+            return u(t.screen)
+        end
         capi.client.connect_signal("property::active", uc)
         tag.attached_connect_signal(nil, "property::selected", ut)
         tag.attached_connect_signal(nil, "property::icon", ut)

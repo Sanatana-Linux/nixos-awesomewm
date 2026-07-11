@@ -10,26 +10,26 @@
 ---------------------------------------------------------------------------
 
 local aplace = require("awful.placement")
-local capi = {mousegrabber = mousegrabber, client = client}
+local capi = { mousegrabber = mousegrabber, client = client }
 local beautiful = require("beautiful")
 local floating = require("awful.layout.suit.floating")
 
 local module = {}
 
-local mode      = "live"
-local req       = "request::geometry"
-local callbacks = {enter={}, move={}, leave={}}
+local mode = "live"
+local req = "request::geometry"
+local callbacks = { enter = {}, move = {}, leave = {} }
 
 local cursors = {
-    ["mouse.move"               ] = "fleur",
-    ["mouse.resize"             ] = "cross",
-    ["mouse.resize_left"        ] = "sb_h_double_arrow",
-    ["mouse.resize_right"       ] = "sb_h_double_arrow",
-    ["mouse.resize_top"         ] = "sb_v_double_arrow",
-    ["mouse.resize_bottom"      ] = "sb_v_double_arrow",
-    ["mouse.resize_top_left"    ] = "top_left_corner",
-    ["mouse.resize_top_right"   ] = "top_right_corner",
-    ["mouse.resize_bottom_left" ] = "bottom_left_corner",
+    ["mouse.move"] = "fleur",
+    ["mouse.resize"] = "cross",
+    ["mouse.resize_left"] = "sb_h_double_arrow",
+    ["mouse.resize_right"] = "sb_h_double_arrow",
+    ["mouse.resize_top"] = "sb_v_double_arrow",
+    ["mouse.resize_bottom"] = "sb_v_double_arrow",
+    ["mouse.resize_top_left"] = "top_left_corner",
+    ["mouse.resize_top_right"] = "top_right_corner",
+    ["mouse.resize_bottom_left"] = "bottom_left_corner",
     ["mouse.resize_bottom_right"] = "bottom_right_corner",
 }
 
@@ -66,8 +66,8 @@ end
 -- @tparam function cb The callback (or nil)
 -- @tparam[opt="other"] string context The callback context
 function module.add_move_callback(cb, context)
-    context = context or  "other"
-    callbacks.move[context] = callbacks.move[context]  or {}
+    context = context or "other"
+    callbacks.move[context] = callbacks.move[context] or {}
     table.insert(callbacks.move[context], cb)
 end
 
@@ -77,8 +77,8 @@ end
 -- @tparam function cb The callback (or nil)
 -- @tparam[opt="other"] string context The callback context
 function module.add_leave_callback(cb, context)
-    context = context or  "other"
-    callbacks.leave[context] = callbacks.leave[context]  or {}
+    context = context or "other"
+    callbacks.leave[context] = callbacks.leave[context] or {}
     table.insert(callbacks.leave[context], cb)
 end
 
@@ -109,14 +109,11 @@ local function handler(_, client, context, args) --luacheck: no unused_args
     end
 
     -- Extend the table with the default arguments
-    args = setmetatable(
-        {
-            placement = placement or aplace.resize_to_mouse,
-            mode      = args.mode or mode,
-            pretend   = true,
-        },
-        {__index = args or {}}
-    )
+    args = setmetatable({
+        placement = placement or aplace.resize_to_mouse,
+        mode = args.mode or mode,
+        pretend = true,
+    }, { __index = args or {} })
 
     local geo
 
@@ -139,23 +136,26 @@ local function handler(_, client, context, args) --luacheck: no unused_args
     geo = nil
 
     -- Select the cursor
-    local tcontext = context:gsub('[.]', '_')
-    local corner = args.corner and ("_".. args.corner) or ""
+    local tcontext = context:gsub("[.]", "_")
+    local corner = args.corner and ("_" .. args.corner) or ""
 
-    local cursor = beautiful["cursor_"..tcontext]
-        or cursors[context..corner]
+    local cursor = beautiful["cursor_" .. tcontext]
+        or cursors[context .. corner]
         or cursors[context]
         or "fleur"
 
     -- Execute the placement function and use request::geometry
-    capi.mousegrabber.run(function (coords)
-        if not client.valid then return end
+    capi.mousegrabber.run(function(coords)
+        if not client.valid then
+            return
+        end
 
         -- Resize everytime the mouse moves (default behavior) in live mode,
         -- otherwise keep the current geometry
         geo = setmetatable(
-            args.mode == "live" and args.placement(client, args) or client:geometry(),
-            {__index=args}
+            args.mode == "live" and args.placement(client, args)
+                or client:geometry(),
+            { __index = args }
         )
 
         -- Execute the move callbacks. This can be used to add features such as
@@ -179,7 +179,7 @@ local function handler(_, client, context, args) --luacheck: no unused_args
 
         -- In case it was modified
         if geo then
-            setmetatable(geo, {__index=args})
+            setmetatable(geo, { __index = args })
         end
 
         if args.mode == "live" then
@@ -188,8 +188,10 @@ local function handler(_, client, context, args) --luacheck: no unused_args
         end
 
         -- Quit when the button is released
-        for _,v in pairs(coords.buttons) do
-            if v then return true end
+        for _, v in pairs(coords.buttons) do
+            if v then
+                return true
+            end
         end
 
         -- Only resize after the mouse is released, this avoids losing content
@@ -213,10 +215,12 @@ local function handler(_, client, context, args) --luacheck: no unused_args
             geo = args.leave_callback(client, geo, args)
         end
 
-        if not geo then return false end
+        if not geo then
+            return false
+        end
 
         -- In case it was modified
-        setmetatable(geo,{__index=args})
+        setmetatable(geo, { __index = args })
 
         client:emit_signal(req, context, geo)
 
@@ -232,12 +236,12 @@ function module._resize_handler(c, context, hints)
         local lay = t and t.layout or nil
 
         if (lay and lay == floating) or c.floating then
-            c:geometry {
-                x      = hints.x,
-                y      = hints.y,
-                width  = hints.width,
+            c:geometry({
+                x = hints.x,
+                y = hints.y,
+                width = hints.width,
                 height = hints.height,
-            }
+            })
         elseif lay and lay.resize_handler then
             lay.resize_handler(c, context, hints)
         end
@@ -246,6 +250,6 @@ end
 
 capi.client.connect_signal("request::geometry", module._resize_handler)
 
-return setmetatable(module, {__call=handler})
+return setmetatable(module, { __call = handler })
 
 -- vim: filetype=lua:expandtab:shiftwidth=4:tabstop=8:softtabstop=4:textwidth=80

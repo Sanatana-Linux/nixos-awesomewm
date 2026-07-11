@@ -70,7 +70,7 @@
 -- It is possible to create a wallpaper using any widgets. However, keep
 -- in mind that the wallpaper surface is not interactive, so some widgets
 -- like the sliders will render, but will not behave correctly. Also, it
-    -- is not recommanded to update the wallpaper too often. This is very slow.
+-- is not recommanded to update the wallpaper too often. This is very slow.
 --
 --@DOC_awful_wallpaper_widget2_EXAMPLE@
 --
@@ -130,17 +130,17 @@
 -- @popupmod awful.wallpaper
 ---------------------------------------------------------------------------
 require("awful._compat")
-local gtable     = require( "gears.table"               )
-local gobject    = require( "gears.object"              )
-local gcolor     = require( "gears.color"               )
-local gtimer     = require( "gears.timer"               )
-local surface    = require( "gears.surface"             )
-local base       = require( "wibox.widget.base"         )
-local background = require( "wibox.container.background")
-local beautiful  = require( "beautiful"                 )
-local cairo      = require( "lgi" ).cairo
-local draw       = require( "wibox.widget" ).draw_to_cairo_context
-local grect      = require( "gears.geometry" ).rectangle
+local gtable = require("gears.table")
+local gobject = require("gears.object")
+local gcolor = require("gears.color")
+local gtimer = require("gears.timer")
+local surface = require("gears.surface")
+local base = require("wibox.widget.base")
+local background = require("wibox.container.background")
+local beautiful = require("beautiful")
+local cairo = require("lgi").cairo
+local draw = require("wibox.widget").draw_to_cairo_context
+local grect = require("gears.geometry").rectangle
 
 local capi = { screen = screen, root = root }
 
@@ -151,9 +151,9 @@ local function get_screen(s)
 end
 
 -- Screen as key, wallpaper as values.
-local pending_repaint = setmetatable({}, {__mode = 'k'})
+local pending_repaint = setmetatable({}, { __mode = "k" })
 
-local backgrounds = setmetatable({}, {__mode = 'k'})
+local backgrounds = setmetatable({}, { __mode = "k" })
 
 local panning_modes = {}
 
@@ -162,10 +162,13 @@ local function get_rectangles(screens, honor_workarea, honor_padding)
     local ret = {}
 
     for _, s in ipairs(screens) do
-        table.insert(ret, s:get_bounding_geometry {
-            honor_padding  = honor_padding,
-            honor_workarea = honor_workarea
-        })
+        table.insert(
+            ret,
+            s:get_bounding_geometry({
+                honor_padding = honor_padding,
+                honor_workarea = honor_workarea,
+            })
+        )
     end
 
     return ret
@@ -173,63 +176,75 @@ end
 
 -- Outer perimeter of all rectangles.
 function panning_modes.outer(self)
-    local rectangles = get_rectangles(self.screens, self.honor_workarea, self.honor_padding)
-    local p1, p2 = {x = math.huge, y = math.huge}, {x = 0, y = 0}
+    local rectangles =
+        get_rectangles(self.screens, self.honor_workarea, self.honor_padding)
+    local p1, p2 = { x = math.huge, y = math.huge }, { x = 0, y = 0 }
 
     for _, rect in ipairs(rectangles) do
-        p1.x, p1.y = math.min(p1.x, rect.x),  math.min(p1.y, rect.y)
-        p2.x, p2.y = math.max(p2.x, rect.x +  rect.width),  math.max(p2.y, rect.y + rect.height)
+        p1.x, p1.y = math.min(p1.x, rect.x), math.min(p1.y, rect.y)
+        p2.x, p2.y =
+            math.max(p2.x, rect.x + rect.width),
+            math.max(p2.y, rect.y + rect.height)
     end
 
     -- Never try to paint this, it would freeze the system.
-    assert(p1.x ~= math.huge and p1.y ~= math.huge, "Setting wallpaper failed"..#self.screens)
+    assert(
+        p1.x ~= math.huge and p1.y ~= math.huge,
+        "Setting wallpaper failed" .. #self.screens
+    )
 
     return {
-        x      = p1.x,
-        y      = p1.y,
-        width  = p2.x - p1.x,
+        x = p1.x,
+        y = p1.y,
+        width = p2.x - p1.x,
         height = p2.y - p1.y,
     }
 end
 
 -- Horizontal inner perimeter of all rectangles.
 function panning_modes.inner_horizontal(self)
-    local rectangles = get_rectangles(self.screens, self.honor_workarea, self.honor_padding)
-    local p1, p2 = {x = math.huge, y = 0}, {x = 0, y = math.huge}
+    local rectangles =
+        get_rectangles(self.screens, self.honor_workarea, self.honor_padding)
+    local p1, p2 = { x = math.huge, y = 0 }, { x = 0, y = math.huge }
 
     for _, rect in ipairs(rectangles) do
-        p1.x, p1.y = math.min(p1.x, rect.x),  math.max(p1.y, rect.y)
-        p2.x, p2.y = math.max(p2.x, rect.x +  rect.width),  math.min(p2.y, rect.y + rect.height)
+        p1.x, p1.y = math.min(p1.x, rect.x), math.max(p1.y, rect.y)
+        p2.x, p2.y =
+            math.max(p2.x, rect.x + rect.width),
+            math.min(p2.y, rect.y + rect.height)
     end
 
     -- Never try to paint this, it would freeze the system.
     assert(p1.x ~= math.huge and p2.y ~= math.huge, "Setting wallpaper failed")
 
     return {
-        x      = p1.x,
-        y      = p1.y,
-        width  = p2.x - p1.x,
+        x = p1.x,
+        y = p1.y,
+        width = p2.x - p1.x,
         height = p2.y - p1.y,
     }
 end
 
 -- Vertical inner perimeter of all rectangles.
 function panning_modes.inner_vertical(self)
-    local rectangles = get_rectangles(self.screens, self.honor_workarea, self.honor_padding)
-    local p1, p2 = {x = 0, y = math.huge}, {x = math.huge, y = 0}
+    local rectangles =
+        get_rectangles(self.screens, self.honor_workarea, self.honor_padding)
+    local p1, p2 = { x = 0, y = math.huge }, { x = math.huge, y = 0 }
 
     for _, rect in ipairs(rectangles) do
-        p1.x, p1.y = math.max(p1.x, rect.x),  math.min(p1.y, rect.y)
-        p2.x, p2.y = math.min(p2.x, rect.x +  rect.width),  math.max(p2.y, rect.y + rect.height)
+        p1.x, p1.y = math.max(p1.x, rect.x), math.min(p1.y, rect.y)
+        p2.x, p2.y =
+            math.min(p2.x, rect.x + rect.width),
+            math.max(p2.y, rect.y + rect.height)
     end
 
     -- Never try to paint this, it would freeze the system.
     assert(p1.y ~= math.huge and p2.a ~= math.huge, "Setting wallpaper failed")
 
     return {
-        x      = p1.x,
-        y      = p1.y,
-        width  = p2.x - p1.x,
+        x = p1.x,
+        y = p1.y,
+        width = p2.x - p1.x,
         height = p2.y - p1.y,
     }
 end
@@ -239,8 +254,12 @@ function panning_modes.inner(self)
     local vert = panning_modes.inner_vertical(self)
     local hori = panning_modes.inner_horizontal(self)
 
-    if vert.width <= 0 or vert.height <= 0 then return hori end
-    if hori.width <= 0 or hori.height <= 0 then return vert end
+    if vert.width <= 0 or vert.height <= 0 then
+        return hori
+    end
+    if hori.width <= 0 or hori.height <= 0 then
+        return vert
+    end
 
     if vert.width * vert.height > hori.width * hori.height then
         return vert
@@ -249,9 +268,10 @@ function panning_modes.inner(self)
     end
 end
 
-
 local function paint()
-    if not next(pending_repaint) then return end
+    if not next(pending_repaint) then
+        return
+    end
 
     local root_width, root_height = capi.root.size()
 
@@ -263,8 +283,9 @@ local function paint()
     -- It's possible that a wallpaper for 1 screen is set using another tool, so make
     -- sure we copy the current content.
     if source then
-        target = source:create_similar(cairo.Content.COLOR, root_width, root_height)
-        cr     = cairo.Context(target)
+        target =
+            source:create_similar(cairo.Content.COLOR, root_width, root_height)
+        cr = cairo.Context(target)
 
         -- Copy the old wallpaper to the new one
         cr:save()
@@ -286,7 +307,7 @@ local function paint()
         cr:restore()
     else
         target = cairo.ImageSurface(cairo.Format.RGB32, root_width, root_height)
-        cr     = cairo.Context(target)
+        cr = cairo.Context(target)
     end
 
     local walls = {}
@@ -303,14 +324,16 @@ local function paint()
     end
 
     for wall in pairs(walls) do
-
-        local geo = type(wall._private.panning_area) == "function" and
-            wall._private.panning_area(wall) or
-            panning_modes[wall._private.panning_area](wall)
+        local geo = type(wall._private.panning_area) == "function"
+                and wall._private.panning_area(wall)
+            or panning_modes[wall._private.panning_area](wall)
 
         -- If false, this panning area isn't well suited for the screen geometry.
         if geo.width > 0 or geo.height > 0 then
-            local uncovered_areas = grect.area_remove(get_rectangles(wall.screens, false, false), geo)
+            local uncovered_areas = grect.area_remove(
+                get_rectangles(wall.screens, false, false),
+                geo
+            )
 
             cr:save()
 
@@ -338,13 +361,17 @@ local function paint()
 
             if not wall._private.container then
                 wall._private.container = background()
-                wall._private.container.bg = wall._private.bg or beautiful.wallpaper_bg or "#000000"
-                wall._private.container.fg = wall._private.fg or beautiful.wallpaper_fg or "#ffffff"
+                wall._private.container.bg = wall._private.bg
+                    or beautiful.wallpaper_bg
+                    or "#000000"
+                wall._private.container.fg = wall._private.fg
+                    or beautiful.wallpaper_fg
+                    or "#ffffff"
                 wall._private.container.widget = wall.widget
             end
 
             local a_context = {
-                dpi = wall._private.context.dpi
+                dpi = wall._private.context.dpi,
             }
 
             -- Pick the lowest DPI.
@@ -352,7 +379,8 @@ local function paint()
                 a_context.dpi = math.huge
                 for _, s in ipairs(wall.screens) do
                     a_context.dpi = math.min(
-                        s.dpi and s.dpi or s.preferred_dpi, a_context.dpi
+                        s.dpi and s.dpi or s.preferred_dpi,
+                        a_context.dpi
                     )
                 end
             end
@@ -376,7 +404,6 @@ local function paint()
     -- But really, is someone is trying to apply wallpaper changes more
     -- often than the GC is executed, they are doing it wrong.
     target:finish()
-
 end
 
 local mutex = false
@@ -385,7 +412,9 @@ local mutex = false
 -- will often happen in batch (like startup), make sure to only do one "real"
 -- update.
 local function update()
-    if mutex then return end
+    if mutex then
+        return
+    end
 
     mutex = true
 
@@ -397,7 +426,9 @@ local function update()
 end
 
 capi.screen.connect_signal("removed", function(s)
-    if not backgrounds[s] then return end
+    if not backgrounds[s] then
+        return
+    end
 
     backgrounds[s]:remove_screen(s)
 
@@ -405,11 +436,12 @@ capi.screen.connect_signal("removed", function(s)
 end)
 
 capi.screen.connect_signal("property::geometry", function(s)
-    if not backgrounds[s] then return end
+    if not backgrounds[s] then
+        return
+    end
 
     backgrounds[s]:repaint()
 end)
-
 
 --- The wallpaper widget.
 --
@@ -619,7 +651,10 @@ end)
 function module:set_panning_area(value)
     value = value or "outer"
 
-    assert(type(value) == "function" or panning_modes[value], "Invalid panning mode: "..tostring(value))
+    assert(
+        type(value) == "function" or panning_modes[value],
+        "Invalid panning mode: " .. tostring(value)
+    )
 
     self._private.panning_area = value
 
@@ -652,14 +687,16 @@ function module:get_dpi()
 end
 
 function module:set_screen(s)
-    if not s then return end
+    if not s then
+        return
+    end
 
     self:_clear()
     self:add_screen(s)
 end
 
-for _, prop in ipairs {"bg", "fg"} do
-    module["set_"..prop] = function(self, color)
+for _, prop in ipairs({ "bg", "fg" }) do
+    module["set_" .. prop] = function(self, color)
         if self._private.container then
             self._private.container[prop] = color
         end
@@ -671,9 +708,9 @@ for _, prop in ipairs {"bg", "fg"} do
 end
 
 function module:get_uncovered_areas()
-    local geo = type(self._private.panning_area) == "function" and
-        self._private.panning_area(self) or
-        panning_modes[self._private.panning_area](self)
+    local geo = type(self._private.panning_area) == "function"
+            and self._private.panning_area(self)
+        or panning_modes[self._private.panning_area](self)
 
     return grect.area_remove(get_rectangles(self.screens, false, false), geo)
 end
@@ -740,7 +777,9 @@ function module:add_screen(s)
     s = get_screen(s)
 
     for _, s2 in ipairs(self._private.screens) do
-        if s == s2 then return end
+        if s == s2 then
+            return
+        end
     end
 
     table.insert(self._private.screens, s)
@@ -775,7 +814,7 @@ function module:detach()
 end
 
 function module:_clear()
-    self._private.screens = setmetatable({}, {__mode = "v"})
+    self._private.screens = setmetatable({}, { __mode = "v" })
     update()
 end
 
@@ -821,7 +860,7 @@ end
 -- @see add_screen
 -- @see screens
 function module:remove_screen(s)
-    local ret =  false
+    local ret = false
 
     s = get_screen(s)
 
@@ -862,13 +901,13 @@ end
 
 local function new(_, args)
     args = args or {}
-    local ret = gobject {
+    local ret = gobject({
         enable_auto_signals = true,
-        enable_properties   = true,
-    }
+        enable_properties = true,
+    })
 
     rawset(ret, "_private", {})
-    ret._private.context      = {}
+    ret._private.context = {}
     ret._private.panning_area = "outer"
 
     gtable.crush(ret, module, true)
@@ -892,4 +931,4 @@ local function new(_, args)
     return ret
 end
 
-return setmetatable(module, {__call = new})
+return setmetatable(module, { __call = new })

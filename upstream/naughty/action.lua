@@ -9,7 +9,7 @@
 -- @copyright 2019 Emmanuel Lepage Vallee
 -- @coreclassmod naughty.action
 ---------------------------------------------------------------------------
-local gtable  = require("gears.table" )
+local gtable = require("gears.table")
 local gobject = require("gears.object")
 
 local action = {}
@@ -92,14 +92,14 @@ function action:set_position(value)
     --TODO make sure the position is unique
 end
 
-for _, prop in ipairs { "name", "icon", "icon_only" } do
-    action["get_"..prop] = function(self)
+for _, prop in ipairs({ "name", "icon", "icon_only" }) do
+    action["get_" .. prop] = function(self)
         return self._private[prop]
     end
 
-    action["set_"..prop] = function(self, value)
+    action["set_" .. prop] = function(self, value)
         self._private[prop] = value
-        self:emit_signal("property::"..prop, value)
+        self:emit_signal("property::" .. prop, value)
         self:emit_signal("_changed")
     end
 end
@@ -130,18 +130,18 @@ end
 
 local function new(_, args)
     args = args or {}
-    local ret = gobject { enable_properties = true }
+    local ret = gobject({ enable_properties = true })
 
     gtable.crush(ret, action, true)
 
     local default = {
         -- See "table 1" of the spec about the default name
-        name         = args.name or "default",
-        selected     = args.selected == true,
-        position     = args.position,
-        icon         = args.icon,
+        name = args.name or "default",
+        selected = args.selected == true,
+        position = args.position,
+        icon = args.icon,
         notification = args.notification,
-        icon_only    = args.icon_only or false,
+        icon_only = args.icon_only or false,
     }
 
     rawset(ret, "_private", default)
@@ -153,4 +153,4 @@ end
 
 --@DOC_object_COMMON@
 
-return setmetatable(action, {__call = new})
+return setmetatable(action, { __call = new })

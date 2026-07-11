@@ -36,7 +36,7 @@ function battery_service:update()
             end
         end
     )
-    
+
     -- Get additional battery details for popup
     self:update_detailed_info()
 end
@@ -54,7 +54,7 @@ function battery_service:update_detailed_info()
             end
         end
     )
-    
+
     -- Get voltage (if available)
     awful.spawn.easy_async_with_shell(
         "cat /sys/class/power_supply/BAT0/voltage_now 2>/dev/null",
@@ -69,7 +69,7 @@ function battery_service:update_detailed_info()
             end
         end
     )
-    
+
     -- Get power consumption (if available)
     awful.spawn.easy_async_with_shell(
         "cat /sys/class/power_supply/BAT0/power_now 2>/dev/null",
@@ -84,7 +84,7 @@ function battery_service:update_detailed_info()
             end
         end
     )
-    
+
     -- Get battery capacity and cycle count for better estimates
     awful.spawn.easy_async_with_shell(
         "cat /sys/class/power_supply/BAT0/energy_full 2>/dev/null",
@@ -99,7 +99,7 @@ function battery_service:update_detailed_info()
             end
         end
     )
-    
+
     -- Get current energy
     awful.spawn.easy_async_with_shell(
         "cat /sys/class/power_supply/BAT0/energy_now 2>/dev/null",

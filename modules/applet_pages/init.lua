@@ -20,7 +20,7 @@ function M.create_base_page(args)
         bg = beautiful.bg .. "bb",
         shape = shapes.rrect(20),
         border_width = dpi(1),
-        border_color = M.WHITE,
+        border_color = beautiful.fg_alt,
         {
             widget = wibox.container.margin,
             margins = dpi(12),
@@ -48,7 +48,7 @@ function M.create_base_page(args)
                     bg = beautiful.bg_alt,
                     shape = shapes.rrect(10),
                     border_width = dpi(1),
-                    border_color = M.WHITE,
+                    border_color = beautiful.fg_alt,
                     {
                         layout = wibox.layout.align.horizontal,
                         {
@@ -60,7 +60,7 @@ function M.create_base_page(args)
                                 {
                                     widget = wibox.widget.separator,
                                     orientation = "vertical",
-                                    color = M.WHITE,
+                                    color = beautiful.fg_alt,
                                 },
                             },
                             table.unpack(args.left_buttons or {}),

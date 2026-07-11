@@ -35,15 +35,22 @@ local bashcomp_src = "@SYSCONFDIR@/bash_completion"
 -- @noreturn
 -- @staticfct awful.completion.bashcomp_load
 function completion.bashcomp_load(src)
-    if src then bashcomp_src = src end
-    local c, err = io.popen("/usr/bin/env bash -c 'source " .. bashcomp_src .. "; complete -p'")
+    if src then
+        bashcomp_src = src
+    end
+    local c, err = io.popen(
+        "/usr/bin/env bash -c 'source " .. bashcomp_src .. "; complete -p'"
+    )
     if c then
         while true do
             local line = c:read("*line")
-            if not line then break end
+            if not line then
+                break
+            end
             -- if a bash function is used for completion, register it
             if line:match(".* -F .*") then
-                bashcomp_funcs[line:gsub(".* (%S+)$","%1")] = line:gsub(".*-F +(%S+) .*$", "%1")
+                bashcomp_funcs[line:gsub(".* (%S+)$", "%1")] =
+                    line:gsub(".*-F +(%S+) .*$", "%1")
             end
         end
         c:close()
@@ -92,7 +99,9 @@ function completion.shell(command, cur_pos, ncomp, shell)
 
     while wend <= #command do
         wend = command:find(" ", wstart)
-        if not wend then wend = #command + 1 end
+        if not wend then
+            wend = #command + 1
+        end
         table.insert(words, command:sub(wstart, wend - 1))
         if cur_pos >= wstart and cur_pos <= wend + 1 then
             cword_start = wstart
@@ -110,48 +119,67 @@ function completion.shell(command, cur_pos, ncomp, shell)
     local shell_cmd
     if not shell then
         if not completion.default_shell then
-            local env_shell = os.getenv('SHELL')
+            local env_shell = os.getenv("SHELL")
             if not env_shell then
-                gears_debug.print_warning('SHELL not set in environment, falling back to bash.')
-                completion.default_shell = 'bash'
-            elseif env_shell:match('zsh$') then
-                completion.default_shell = 'zsh'
+                gears_debug.print_warning(
+                    "SHELL not set in environment, falling back to bash."
+                )
+                completion.default_shell = "bash"
+            elseif env_shell:match("zsh$") then
+                completion.default_shell = "zsh"
             else
-                completion.default_shell = 'bash'
+                completion.default_shell = "bash"
             end
         end
         shell = completion.default_shell
     end
-    if shell == 'zsh' then
+    if shell == "zsh" then
         if comptype == "file" then
             -- NOTE: ${~:-"..."} turns on GLOB_SUBST, useful for expansion of
             -- "~/" ($HOME).  ${:-"foo"} is the string "foo" as var.
             shell_cmd = "/usr/bin/env zsh -c 'local -a res; res=( ${~:-"
-                .. string.format('%q', words[cword_index]) .. "}*(N) ); "
+                .. string.format("%q", words[cword_index])
+                .. "}*(N) ); "
                 .. "print -ln -- ${res[@]}'"
         else
             -- Check commands, aliases, builtins, functions and reswords.
             -- Adds executables and non-empty dirs from $PWD (pwd_exe).
-            shell_cmd = "/usr/bin/env zsh -c 'local -a res pwd_exe; "..
-            "pwd_exe=(*(N*:t) *(NF:t)); "..
-            "res=( "..
-            "\"${(k)commands[@]}\" \"${(k)aliases[@]}\" \"${(k)builtins[@]}\" \"${(k)functions[@]}\" "..
-            "\"${(k)reswords[@]}\" "..
-            "./${^${pwd_exe}} "..
-            "); "..
-            "print -ln -- ${(M)res[@]:#" .. string.format('%q', words[cword_index]) .. "*}'"
+            shell_cmd = "/usr/bin/env zsh -c 'local -a res pwd_exe; "
+                .. "pwd_exe=(*(N*:t) *(NF:t)); "
+                .. "res=( "
+                .. '"${(k)commands[@]}" "${(k)aliases[@]}" "${(k)builtins[@]}" "${(k)functions[@]}" '
+                .. '"${(k)reswords[@]}" '
+                .. "./${^${pwd_exe}} "
+                .. "); "
+                .. "print -ln -- ${(M)res[@]:#"
+                .. string.format("%q", words[cword_index])
+                .. "*}'"
         end
     else
         if bashcomp_funcs[words[1]] then
             -- fairly complex command with inline bash script to get the possible completions
-            shell_cmd = "/usr/bin/env bash -c 'source " .. bashcomp_src .. "; " ..
-            "__print_completions() { for ((i=0;i<${#COMPREPLY[*]};i++)); do echo ${COMPREPLY[i]}; done }; " ..
-            "COMP_WORDS=(" ..  command .."); COMP_LINE=\"" .. command .. "\"; " ..
-            "COMP_COUNT=" .. cur_pos ..  "; COMP_CWORD=" .. cword_index-1 .. "; " ..
-            bashcomp_funcs[words[1]] .. "; __print_completions'"
+            shell_cmd = "/usr/bin/env bash -c 'source "
+                .. bashcomp_src
+                .. "; "
+                .. "__print_completions() { for ((i=0;i<${#COMPREPLY[*]};i++)); do echo ${COMPREPLY[i]}; done }; "
+                .. "COMP_WORDS=("
+                .. command
+                .. '); COMP_LINE="'
+                .. command
+                .. '"; '
+                .. "COMP_COUNT="
+                .. cur_pos
+                .. "; COMP_CWORD="
+                .. cword_index - 1
+                .. "; "
+                .. bashcomp_funcs[words[1]]
+                .. "; __print_completions'"
         else
-            shell_cmd = "/usr/bin/env bash -c 'compgen -A " .. comptype .. " "
-                .. string.format('%q', words[cword_index]) .. "'"
+            shell_cmd = "/usr/bin/env bash -c 'compgen -A "
+                .. comptype
+                .. " "
+                .. string.format("%q", words[cword_index])
+                .. "'"
         end
     end
     local c, err = io.popen(shell_cmd .. " | sort -u")
@@ -159,7 +187,9 @@ function completion.shell(command, cur_pos, ncomp, shell)
     if c then
         while true do
             local line = c:read("*line")
-            if not line then break end
+            if not line then
+                break
+            end
             if gstring.startswith(line, "./") and gfs.is_dir(line) then
                 line = line .. "/"
             end
@@ -181,7 +211,9 @@ function completion.shell(command, cur_pos, ncomp, shell)
         ncomp = ncomp - #output
     end
 
-    local str = command:sub(1, cword_start - 1) .. output[ncomp] .. command:sub(cword_end)
+    local str = command:sub(1, cword_start - 1)
+        .. output[ncomp]
+        .. command:sub(cword_end)
     cur_pos = cword_start + #output[ncomp]
 
     return str, cur_pos, output

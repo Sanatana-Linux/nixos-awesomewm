@@ -19,20 +19,19 @@ local pairs = pairs
 local ipairs = ipairs
 local table = table
 local setmetatable = setmetatable
-local capi =
-{
+local capi = {
     tag = tag,
     screen = screen,
     mouse = mouse,
     client = client,
-    root = root
+    root = root,
 }
 
 local function get_screen(s)
     return s and capi.screen[s]
 end
 
-local tag = {object = {},  mt = {} }
+local tag = { object = {}, mt = {} }
 
 -- Private data
 local data = {}
@@ -46,22 +45,22 @@ tag.history.limit = 20
 local defaults = {}
 
 -- The gap between clients (in points).
-defaults.gap                 = 0
+defaults.gap = 0
 
 -- The default gap_count.
-defaults.gap_single_client   = true
+defaults.gap_single_client = true
 
 -- The default master fill policy.
-defaults.master_fill_policy  = "expand"
+defaults.master_fill_policy = "expand"
 
 -- The default master width factor.
 defaults.master_width_factor = 0.5
 
 -- The default master count.
-defaults.master_count        = 1
+defaults.master_count = 1
 
 -- The default column count.
-defaults.column_count        = 1
+defaults.column_count = 1
 
 -- screen.tags depend on index, it cannot be used by awful.tag
 local function raw_tags(scr)
@@ -91,7 +90,9 @@ end
 -- defined as a function (called "template" below) and object oriented, stateful
 -- layouts where the original entry is only a constructor.
 local function update_layouts(self, from, to)
-    if not to then return end
+    if not to then
+        return
+    end
 
     alayout = alayout or require("awful.layout")
     local override = tag.getproperty(self, "_layouts")
@@ -101,7 +102,7 @@ local function update_layouts(self, from, to)
     -- There is an override and the layout template is part of it, replace by
     -- the instance.
     if override and pos and from ~= to then
-        assert(type(pos) == 'number')
+        assert(type(pos) == "number")
         override[pos] = to
         self:emit_signal("property::layouts")
         return
@@ -128,9 +129,13 @@ local function update_layouts(self, from, to)
         return
     end
 
-    if pos then return end
+    if pos then
+        return
+    end
 
-    if gtable.hasitem(cls, to) then return end
+    if gtable.hasitem(cls, to) then
+        return
+    end
 
     -- This layout is unknown, add it to the custom list
     table.insert(cls, to)
@@ -188,10 +193,11 @@ function tag.object.set_index(self, idx)
 end
 
 function tag.object.get_index(query_tag)
-
     local idx = tag.getproperty(query_tag, "index")
 
-    if idx then return idx end
+    if idx then
+        return idx
+    end
 
     -- Get an unordered list of tags
     local tags = raw_tags(query_tag.screen)
@@ -211,7 +217,10 @@ end
 -- @tparam[opt=awful.screen.focused().selected_tag] tag target_tag The tag that should be moved.
 -- @see index
 function tag.move(new_index, target_tag)
-    gdebug.deprecate("Use t.index = new_index instead of awful.tag.move", {deprecated_in=4})
+    gdebug.deprecate(
+        "Use t.index = new_index instead of awful.tag.move",
+        { deprecated_in = 4 }
+    )
 
     target_tag = target_tag or ascreen.focused().selected_tag
     tag.object.set_index(target_tag, new_index)
@@ -227,7 +236,8 @@ end
 -- @see client.swap
 function tag.object.swap(self, tag2)
     local idx1, idx2 = tag.object.get_index(self), tag.object.get_index(tag2)
-    local scr2, scr1 = tag.getproperty(tag2, "screen"), tag.getproperty(self, "screen")
+    local scr2, scr1 =
+        tag.getproperty(tag2, "screen"), tag.getproperty(self, "screen")
 
     -- If they are on the same screen, avoid recomputing the whole table
     -- for nothing.
@@ -236,9 +246,9 @@ function tag.object.swap(self, tag2)
         tag.setproperty(tag2, "index", idx1)
     else
         tag.object.set_screen(tag2, scr1)
-        tag.object.set_index (tag2, idx1)
+        tag.object.set_index(tag2, idx1)
         tag.object.set_screen(self, scr2)
-        tag.object.set_index (self, idx2)
+        tag.object.set_index(self, idx2)
     end
 end
 
@@ -248,7 +258,10 @@ end
 -- @tparam tag tag1 The first tag
 -- @tparam tag tag2 The second tag
 function tag.swap(tag1, tag2)
-    gdebug.deprecate("Use t:swap(tag2) instead of awful.tag.swap", {deprecated_in=4})
+    gdebug.deprecate(
+        "Use t:swap(tag2) instead of awful.tag.swap",
+        { deprecated_in = 4 }
+    )
 
     tag.object.swap(tag1, tag2)
 end
@@ -276,12 +289,13 @@ function tag.add(name, props)
     -- signal is sent
     properties.screen = get_screen(properties.screen or ascreen.focused())
     -- Index is also required
-    properties.index = properties.index or #raw_tags(properties.screen)+1
+    properties.index = properties.index or #raw_tags(properties.screen) + 1
 
-    local newtag = capi.tag{ name = name }
+    local newtag = capi.tag({ name = name })
 
     -- Start with a fresh property table to avoid collisions with unsupported data
-    newtag._private.awful_tag_properties = {screen=properties.screen, index=properties.index}
+    newtag._private.awful_tag_properties =
+        { screen = properties.screen, index = properties.index }
 
     newtag.activated = true
 
@@ -316,15 +330,16 @@ end
 function tag.new(names, screen, layout)
     screen = get_screen(screen or 1)
     -- True if `layout` should be used as the layout of each created tag
-    local have_single_layout = (not layout) or (type(layout) == 'function')
-                                or (layout.arrange and layout.name)
+    local have_single_layout = not layout
+        or (type(layout) == "function")
+        or (layout.arrange and layout.name)
     local tags = {}
     for id, name in ipairs(names) do
         local l = layout
         if not have_single_layout then
             l = layout[id] or layout[1]
         end
-        table.insert(tags, id, tag.add(name, {screen = screen, layout = l}))
+        table.insert(tags, id, tag.add(name, { screen = screen, layout = l }))
         -- Select the first tag.
         if id == 1 then
             tags[id].selected = true
@@ -344,7 +359,9 @@ function tag.find_fallback(screen, invalids)
     local t = invalids or scr.selected_tags
 
     for _, v in pairs(scr.tags) do
-        if not gtable.hasitem(t, v) then return v end
+        if not gtable.hasitem(t, v) then
+            return v
+        end
     end
 end
 
@@ -374,13 +391,16 @@ function tag.object.clear(self, args)
 
     if #clients > 0 and not args.allow_untagged then
         local target_scr = get_screen(tag.getproperty(self, "screen"))
-        local fallback_tag = args.fallback_tag or tag.find_fallback(target_scr, {self})
+        local fallback_tag = args.fallback_tag
+            or tag.find_fallback(target_scr, { self })
 
-        if not fallback_tag then return end
+        if not fallback_tag then
+            return
+        end
 
         for _, c in ipairs(clients) do
             if #c:tags() == 0 then
-                c:tags({fallback_tag})
+                c:tags({ fallback_tag })
             end
         end
     end
@@ -408,24 +428,30 @@ end
 -- history or select the first tag on the screen.
 function tag.object.delete(self, fallback_tag, force)
     -- abort if the taf isn't currently activated
-    if not self.activated then return false end
+    if not self.activated then
+        return false
+    end
 
     local target_scr = get_screen(tag.getproperty(self, "screen"))
-    local tags       = target_scr.tags
-    local idx        = tag.object.get_index(self)
-    local ntags      = #tags
+    local tags = target_scr.tags
+    local idx = tag.object.get_index(self)
+    local ntags = #tags
 
     -- We can't use the target tag as a fallback.
-    if fallback_tag == self then return false end
+    if fallback_tag == self then
+        return false
+    end
 
     -- No fallback_tag provided, try and get one.
     if fallback_tag == nil then
-        fallback_tag = tag.find_fallback(target_scr, {self})
+        fallback_tag = tag.find_fallback(target_scr, { self })
     end
 
     -- Abort if we would have un-tagged clients.
     local clients = self:clients()
-    if #clients > 0 and fallback_tag == nil then return false end
+    if #clients > 0 and fallback_tag == nil then
+        return false
+    end
 
     -- Move the clients we can off of this tag.
     for _, c in pairs(clients) do
@@ -433,11 +459,11 @@ function tag.object.delete(self, fallback_tag, force)
 
         -- If a client has only this tag, or stickied clients with
         -- nowhere to go, abort.
-        if (not c.sticky and nb_tags == 1 and not force) then
+        if not c.sticky and nb_tags == 1 and not force then
             return
         -- If a client has multiple tags, then do not move it to fallback
         elseif nb_tags < 2 then
-            c:tags({fallback_tag})
+            c:tags({ fallback_tag })
         end
     end
 
@@ -446,8 +472,8 @@ function tag.object.delete(self, fallback_tag, force)
     self.activated = false
 
     -- Update all indexes
-    for i=idx+1, #tags do
-        tag.setproperty(tags[i], "index", i-1)
+    for i = idx + 1, #tags do
+        tag.setproperty(tags[i], "index", i - 1)
     end
 
     -- If no tags are visible (and we did not delete the lasttag), try and
@@ -477,7 +503,10 @@ end
 -- If after deleting the tag there is no selected tag, try and restore from
 -- history or select the first tag on the screen.
 function tag.delete(target_tag, fallback_tag)
-    gdebug.deprecate("Use t:delete(fallback_tag) instead of awful.tag.delete", {deprecated_in=4})
+    gdebug.deprecate(
+        "Use t:delete(fallback_tag) instead of awful.tag.delete",
+        { deprecated_in = 4 }
+    )
 
     return tag.object.delete(target_tag, fallback_tag)
 end
@@ -506,7 +535,9 @@ function tag.history.update(obj)
             end
 
             -- Do not update history the table are identical
-            if identical then return end
+            if identical then
+                return
+            end
         end
 
         -- Limit history
@@ -521,7 +552,7 @@ function tag.history.update(obj)
     table.insert(data.history[s], 1, data.history[s].current)
     data.history[s].previous = data.history[s][1]
     -- store currently selected tags
-    data.history[s].current = setmetatable(curtags, { __mode = 'v' })
+    data.history[s].current = setmetatable(curtags, { __mode = "v" })
 end
 
 --- Revert tag history.
@@ -536,10 +567,14 @@ function tag.history.restore(screen, idx)
     local i = idx or "previous"
     local sel = s.selected_tags
     -- do nothing if history empty
-    if not data.history[s] or not data.history[s][i] then return end
+    if not data.history[s] or not data.history[s][i] then
+        return
+    end
     -- if all tags been deleted, try next entry
     if #data.history[s][i] == 0 then
-        if i == "previous" then i = 0 end
+        if i == "previous" then
+            i = 0
+        end
         tag.history.restore(s, i + 1)
         return
     end
@@ -554,9 +589,11 @@ function tag.history.restore(screen, idx)
     -- update currently selected tags table
     data.history[s].current = data.history[s][i]
     -- store previously selected tags
-    data.history[s].previous = setmetatable(sel, { __mode = 'v' })
+    data.history[s].previous = setmetatable(sel, { __mode = "v" })
     -- remove the reverted history entry
-    if i ~= "previous" then table.remove(data.history[s], i) end
+    if i ~= "previous" then
+        table.remove(data.history[s], i)
+    end
 
     s:emit_signal("tag::history::update")
 end
@@ -567,7 +604,10 @@ end
 -- @treturn table A table with all available tags
 -- @see screen.tags
 function tag.gettags(s)
-    gdebug.deprecate("Use s.tags instead of awful.tag.gettags", {deprecated_in=4})
+    gdebug.deprecate(
+        "Use s.tags instead of awful.tag.gettags",
+        { deprecated_in = 4 }
+    )
 
     s = get_screen(s)
 
@@ -605,12 +645,13 @@ end
 -- @see screen
 
 function tag.object.set_screen(t, s)
-
     s = get_screen(s or ascreen.focused())
     local sel = t.selected
     local old_screen = get_screen(tag.getproperty(t, "screen"))
 
-    if s == old_screen then return end
+    if s == old_screen then
+        return
+    end
 
     -- Keeping the old index make very little sense when changing screen
     tag.setproperty(t, "index", nil)
@@ -622,14 +663,14 @@ function tag.object.set_screen(t, s)
     end
 
     -- Make sure the client's screen matches its tags
-    for _,c in ipairs(t:clients()) do
+    for _, c in ipairs(t:clients()) do
         c.screen = s --Move all clients
-        c:tags({t})
+        c:tags({ t })
     end
 
     if old_screen then
         -- Update all indexes
-        for i,t2 in ipairs(old_screen.tags) do
+        for i, t2 in ipairs(old_screen.tags) do
             tag.setproperty(t2, "index", i)
         end
 
@@ -652,7 +693,10 @@ function tag.setscreen(s, t)
         s, t = t, s
     end
 
-    gdebug.deprecate("Use t.screen = s instead of awful.tag.setscreen(t, s)", {deprecated_in=4})
+    gdebug.deprecate(
+        "Use t.screen = s instead of awful.tag.setscreen(t, s)",
+        { deprecated_in = 4 }
+    )
 
     tag.object.set_screen(t, s)
 end
@@ -663,7 +707,10 @@ end
 -- @tparam[opt=awful.screen.focused().selected_taga] tag|nil t Tag object
 -- @treturn screen The tag screen.
 function tag.getscreen(t)
-    gdebug.deprecate("Use t.screen instead of awful.tag.getscreen(t)", {deprecated_in=4})
+    gdebug.deprecate(
+        "Use t.screen instead of awful.tag.getscreen(t)",
+        { deprecated_in = 4 }
+    )
 
     -- A new getter is not required
 
@@ -678,7 +725,10 @@ end
 -- @treturn table A table with all selected tags.
 -- @see screen.selected_tags
 function tag.selectedlist(s)
-    gdebug.deprecate("Use s.selected_tags instead of awful.tag.selectedlist", {deprecated_in=4})
+    gdebug.deprecate(
+        "Use s.selected_tags instead of awful.tag.selectedlist",
+        { deprecated_in = 4 }
+    )
 
     s = get_screen(s or ascreen.focused())
 
@@ -690,7 +740,10 @@ end
 -- @tparam screen s Screen.
 -- @see screen.selected_tag
 function tag.selected(s)
-    gdebug.deprecate("Use s.selected_tag instead of awful.tag.selected", {deprecated_in=4})
+    gdebug.deprecate(
+        "Use s.selected_tag instead of awful.tag.selected",
+        { deprecated_in = 4 }
+    )
 
     s = get_screen(s or ascreen.focused())
 
@@ -751,9 +804,15 @@ end
 -- @tparam number mwfact Master width factor.
 -- @tparam[opt=awful.screen.focused().selected_tag] tag t The tag to modify.
 function tag.setmwfact(mwfact, t)
-    gdebug.deprecate("Use t.master_width_factor = mwfact instead of awful.tag.setmwfact", {deprecated_in=4})
+    gdebug.deprecate(
+        "Use t.master_width_factor = mwfact instead of awful.tag.setmwfact",
+        { deprecated_in = 4 }
+    )
 
-    tag.object.set_master_width_factor(t or ascreen.focused().selected_tag, mwfact)
+    tag.object.set_master_width_factor(
+        t or ascreen.focused().selected_tag,
+        mwfact
+    )
 end
 
 --- Increase master width factor.
@@ -764,7 +823,10 @@ end
 -- @noreturn
 function tag.incmwfact(add, t)
     t = t or t or ascreen.focused().selected_tag
-    tag.object.set_master_width_factor(t, tag.object.get_master_width_factor(t) + add)
+    tag.object.set_master_width_factor(
+        t,
+        tag.object.get_master_width_factor(t) + add
+    )
 end
 
 --- Get master width factor.
@@ -773,9 +835,14 @@ end
 -- @see master_fill_policy
 -- @tparam[opt] tag|nil t The tag.
 function tag.getmwfact(t)
-    gdebug.deprecate("Use t.master_width_factor instead of awful.tag.getmwfact", {deprecated_in=4})
+    gdebug.deprecate(
+        "Use t.master_width_factor instead of awful.tag.getmwfact",
+        { deprecated_in = 4 }
+    )
 
-    return tag.object.get_master_width_factor(t or ascreen.focused().selected_tag)
+    return tag.object.get_master_width_factor(
+        t or ascreen.focused().selected_tag
+    )
 end
 
 --- An ordered list of layouts.
@@ -905,15 +972,17 @@ end
 -- @see layout
 
 function tag.object.set_layout(t, layout)
-
     local template = nil
 
     -- Check if the signature match a stateful layout
-    if type(layout) == "function" or (
-        type(layout) == "table"
-        and getmetatable(layout)
-        and getmetatable(layout).__call
-    ) then
+    if
+        type(layout) == "function"
+        or (
+            type(layout) == "table"
+            and getmetatable(layout)
+            and getmetatable(layout).__call
+        )
+    then
         if not t.dynamic_layout_cache then
             t.dynamic_layout_cache = {}
         end
@@ -921,7 +990,9 @@ function tag.object.set_layout(t, layout)
         local instance = t.dynamic_layout_cache[layout] or layout(t)
 
         -- Always make sure the layout is notified it is enabled
-        if tag.getproperty(t, "screen").selected_tag == t and instance.wake_up then
+        if
+            tag.getproperty(t, "screen").selected_tag == t and instance.wake_up
+        then
             instance:wake_up()
         end
 
@@ -970,8 +1041,8 @@ function tag.object.get_layouts(self)
     end
 
     -- Without the clone, the custom_layouts would grow
-    return #cls > 0 and gtable.merge(gtable.clone(cls, false), alayout.layouts) or
-        alayout.layouts
+    return #cls > 0 and gtable.merge(gtable.clone(cls, false), alayout.layouts)
+        or alayout.layouts
 end
 
 function tag.object.set_layouts(self, layouts)
@@ -1029,7 +1100,7 @@ function tag.object.remove_layout(self, layout)
     end
 
     if #pos > 0 then
-        for i=#pos, 1, -1 do
+        for i = #pos, 1, -1 do
             table.remove(cls, i)
         end
         self:emit_signal("property::layouts")
@@ -1040,12 +1111,13 @@ end
 
 function tag.object.get_layout(t)
     local l = tag.getproperty(t, "layout")
-    if l then return l end
+    if l then
+        return l
+    end
 
     local layouts = tag.getproperty(t, "_layouts")
 
-    return layouts and layouts[1]
-        or require("awful.layout.suit.floating")
+    return layouts and layouts[1] or require("awful.layout.suit.floating")
 end
 
 --- Set layout.
@@ -1055,7 +1127,10 @@ end
 -- @tparam tag t The tag to modify
 -- @return The layout
 function tag.setlayout(layout, t)
-    gdebug.deprecate("Use t.layout = layout instead of awful.tag.setlayout", {deprecated_in=4})
+    gdebug.deprecate(
+        "Use t.layout = layout instead of awful.tag.setlayout",
+        { deprecated_in = 4 }
+    )
 
     return tag.object.set_layout(t, layout)
 end
@@ -1104,7 +1179,10 @@ end
 -- @tparam boolean volatile If the tag must be deleted when the last client is untagged
 -- @tparam[opt=awful.screen.focused().selected_tag] tag t The tag to modify.
 function tag.setvolatile(volatile, t)
-    gdebug.deprecate("Use t.volatile = volatile instead of awful.tag.setvolatile", {deprecated_in=4})
+    gdebug.deprecate(
+        "Use t.volatile = volatile instead of awful.tag.setvolatile",
+        { deprecated_in = 4 }
+    )
 
     tag.setproperty(t, "volatile", volatile)
 end
@@ -1115,7 +1193,10 @@ end
 -- @tparam[opt=opt=awful.screen.focused().selected_tag] tag t The tag to modify.
 -- @treturn boolean If the tag will be deleted when the last client is untagged
 function tag.getvolatile(t)
-    gdebug.deprecate("Use t.volatile instead of awful.tag.getvolatile", {deprecated_in=4})
+    gdebug.deprecate(
+        "Use t.volatile instead of awful.tag.getvolatile",
+        { deprecated_in = 4 }
+    )
 
     return tag.getproperty(t, "volatile") or false
 end
@@ -1166,7 +1247,10 @@ end
 -- @tparam number|nil useless_gap The spacing between clients
 -- @tparam[opt=awful.screen.focused().selected_tag] tag t The tag to modify.
 function tag.setgap(useless_gap, t)
-    gdebug.deprecate("Use t.gap = useless_gap instead of awful.tag.setgap", {deprecated_in=4})
+    gdebug.deprecate(
+        "Use t.gap = useless_gap instead of awful.tag.setgap",
+        { deprecated_in = 4 }
+    )
 
     tag.object.set_gap(t or ascreen.focused().selected_tag, useless_gap)
 end
@@ -1234,7 +1318,10 @@ end
 --   return 0 for a single client.  You can override this function to change
 --   this behavior.
 function tag.getgap(t, numclients)
-    gdebug.deprecate("Use t.gap instead of awful.tag.getgap", {deprecated_in=4})
+    gdebug.deprecate(
+        "Use t.gap instead of awful.tag.getgap",
+        { deprecated_in = 4 }
+    )
 
     if numclients == 1 then
         return 0
@@ -1294,7 +1381,10 @@ end
 -- @tparam[opt=tag.selected()] tag t The tag to modify
 -- @noreturn
 function tag.setmfpol(policy, t)
-    gdebug.deprecate("Use t.master_fill_policy = policy instead of awful.tag.setmfpol", {deprecated_in=4})
+    gdebug.deprecate(
+        "Use t.master_fill_policy = policy instead of awful.tag.setmfpol",
+        { deprecated_in = 4 }
+    )
 
     t = t or ascreen.focused().selected_tag
     tag.setproperty(t, "master_fill_policy", policy)
@@ -1324,7 +1414,10 @@ end
 -- "expand" (fill all the available workarea, default one) or
 -- "master_width_factor" (fill only an area inside the master width factor)
 function tag.getmfpol(t)
-    gdebug.deprecate("Use t.master_fill_policy instead of awful.tag.getmfpol", {deprecated_in=4})
+    gdebug.deprecate(
+        "Use t.master_fill_policy instead of awful.tag.getmfpol",
+        { deprecated_in = 4 }
+    )
 
     t = t or ascreen.focused().selected_tag
     return tag.getproperty(t, "master_fill_policy")
@@ -1368,7 +1461,10 @@ end
 -- @tparam number nmaster The number of master windows.
 -- @tparam[opt] tag t The tag.
 function tag.setnmaster(nmaster, t)
-    gdebug.deprecate("Use t.master_count = nmaster instead of awful.tag.setnmaster", {deprecated_in=4})
+    gdebug.deprecate(
+        "Use t.master_count = nmaster instead of awful.tag.setnmaster",
+        { deprecated_in = 4 }
+    )
 
     tag.object.set_master_count(t or ascreen.focused().selected_tag, nmaster)
 end
@@ -1378,7 +1474,10 @@ end
 -- @see master_count
 -- @tparam[opt] tag t The tag.
 function tag.getnmaster(t)
-    gdebug.deprecate("Use t.master_count instead of awful.tag.setnmaster", {deprecated_in=4})
+    gdebug.deprecate(
+        "Use t.master_count instead of awful.tag.setnmaster",
+        { deprecated_in = 4 }
+    )
 
     t = t or ascreen.focused().selected_tag
     return tag.getproperty(t, "master_count") or 1
@@ -1432,7 +1531,10 @@ end
 -- @tparam tag tag The tag
 -- @see icon
 function tag.seticon(icon, _tag)
-    gdebug.deprecate("Use t.icon = icon instead of awful.tag.seticon", {deprecated_in=4})
+    gdebug.deprecate(
+        "Use t.icon = icon instead of awful.tag.seticon",
+        { deprecated_in = 4 }
+    )
 
     _tag = _tag or ascreen.focused().selected_tag
     tag.setproperty(_tag, "icon", icon)
@@ -1443,7 +1545,10 @@ end
 -- @see icon
 -- @tparam tag tag The tag
 function tag.geticon(_tag)
-    gdebug.deprecate("Use t.icon instead of awful.tag.geticon", {deprecated_in=4})
+    gdebug.deprecate(
+        "Use t.icon instead of awful.tag.geticon",
+        { deprecated_in = 4 }
+    )
 
     _tag = _tag or ascreen.focused().selected_tag
     return tag.getproperty(_tag, "icon")
@@ -1485,7 +1590,10 @@ end
 -- @tparam integer ncol The number of column.
 -- @tparam[opt=awful.screen.focused().selected_tag] tag t The tag to modify.
 function tag.setncol(ncol, t)
-    gdebug.deprecate("Use t.column_count = new_index instead of awful.tag.setncol", {deprecated_in=4})
+    gdebug.deprecate(
+        "Use t.column_count = new_index instead of awful.tag.setncol",
+        { deprecated_in = 4 }
+    )
 
     t = t or ascreen.focused().selected_tag
     if ncol >= 1 then
@@ -1499,7 +1607,10 @@ end
 -- @see column_count
 -- @tparam[opt] tag t The tag.
 function tag.getncol(t)
-    gdebug.deprecate("Use t.column_count instead of awful.tag.getncol", {deprecated_in=4})
+    gdebug.deprecate(
+        "Use t.column_count instead of awful.tag.getncol",
+        { deprecated_in = 4 }
+    )
 
     t = t or ascreen.focused().selected_tag
     return tag.getproperty(t, "column_count") or 1
@@ -1591,11 +1702,13 @@ end
 -- @tparam tag query_tag The tag object to find. [selected()]
 -- @treturn integer|nil The index of the tag, nil if the tag is not found.
 function tag.getidx(query_tag)
-    gdebug.deprecate("Use t.index instead of awful.tag.getidx", {deprecated_in=4})
+    gdebug.deprecate(
+        "Use t.index instead of awful.tag.getidx",
+        { deprecated_in = 4 }
+    )
 
     return tag.object.get_index(query_tag or ascreen.focused().selected_tag)
 end
-
 
 --- View next tag. This is the same as `tag.viewidx(1)`.
 --
@@ -1655,7 +1768,10 @@ end
 -- @see tag.view_only
 -- @tparam tag t The tag object.
 function tag.viewonly(t)
-    gdebug.deprecate("Use t:view_only() instead of awful.tag.viewonly", {deprecated_in=4})
+    gdebug.deprecate(
+        "Use t:view_only() instead of awful.tag.viewonly",
+        { deprecated_in = 4 }
+    )
 
     tag.object.view_only(t)
 end
@@ -1689,7 +1805,9 @@ function tag.viewmore(tags, screen, maximum)
             break
         end
 
-        if selected >= maximum then break end
+        if selected >= maximum then
+            break
+        end
 
         if not _tag.selected then
             selected = selected + 1
@@ -1706,7 +1824,9 @@ end
 -- @see selected
 function tag.viewtoggle(t)
     t.selected = not t.selected
-    capi.screen[tag.getproperty(t, "screen")]:emit_signal("tag::history::update")
+    capi.screen[tag.getproperty(t, "screen")]:emit_signal(
+        "tag::history::update"
+    )
 end
 
 --- Get tag data table.
@@ -1729,10 +1849,12 @@ end
 -- @tparam string prop The property name.
 -- @return The property.
 function tag.getproperty(t, prop)
-    if not t then return end -- FIXME: Turn this into an error?
+    if not t then
+        return
+    end -- FIXME: Turn this into an error?
 
     if t._private.awful_tag_properties then
-       return t._private.awful_tag_properties[prop]
+        return t._private.awful_tag_properties[prop]
     end
 end
 
@@ -1762,7 +1884,10 @@ end
 -- @tparam client c The client to tag.
 -- @noreturn
 function tag.withcurrent(c)
-    gdebug.deprecate("Use c:to_selected_tags() instead of awful.tag.selectedlist", {deprecated_in=4})
+    gdebug.deprecate(
+        "Use c:to_selected_tags() instead of awful.tag.selectedlist",
+        { deprecated_in = 4 }
+    )
 
     -- It can't use c:to_selected_tags() because awful.tag is loaded before
     -- awful.client
@@ -1828,7 +1953,7 @@ capi.client.connect_signal("property::screen", function(c)
 
         if #new_tags == 0 then
             --TODO v5: Add a context as first param
-            c:emit_signal("request::tag", nil, {reason="screen"})
+            c:emit_signal("request::tag", nil, { reason = "screen" })
         elseif #new_tags < #tags then
             c:tags(new_tags)
         end
@@ -1839,8 +1964,8 @@ end)
 local function update_urgent(t, modif)
     local count = tag.getproperty(t, "urgent_count") or 0
     count = (count + modif) >= 0 and (count + modif) or 0
-    tag.setproperty(t, "urgent"      , count > 0)
-    tag.setproperty(t, "urgent_count", count    )
+    tag.setproperty(t, "urgent", count > 0)
+    tag.setproperty(t, "urgent_count", count)
 end
 
 -- Update the urgent counter when a client is tagged.
@@ -1863,7 +1988,7 @@ end
 
 -- Count the urgent clients.
 local function urgent_callback(c)
-    for _,t in ipairs(c:tags()) do
+    for _, t in ipairs(c:tags()) do
         update_urgent(t, c.urgent and 1 or -1)
     end
 end
@@ -1955,8 +2080,8 @@ end
 -- `awful.tag.setproperty` currently handle calling the setter method itself
 -- while `awful.tag.getproperty`.
 object.properties(capi.tag, {
-    getter_class    = tag.object,
-    setter_class    = tag.object,
+    getter_class = tag.object,
+    setter_class = tag.object,
     getter_fallback = tag.getproperty,
     setter_fallback = tag.setproperty,
 })

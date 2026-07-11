@@ -116,8 +116,11 @@ local function new()
         -- Charging indicator icon
         local charging_icon = wibox.widget({
             widget = wibox.widget.textbox,
-            markup = beautiful.text_icons and beautiful.text_icons.bolt
-                or "⚡",
+            markup = "<span foreground='"
+                .. (beautiful.yellow or "#Fce566")
+                .. "'>"
+                .. (beautiful.text_icons and beautiful.text_icons.bolt or "⚡")
+                .. "</span>",
             font = beautiful.font_name .. " 20",
             align = "center",
             valign = "center",

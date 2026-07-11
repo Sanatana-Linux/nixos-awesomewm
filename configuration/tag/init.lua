@@ -9,18 +9,21 @@ local beautiful = require("beautiful") -- Theme system
 -- Configure default layouts when requested by the tag system
 capi.tag.connect_signal("request::default_layouts", function()
     awful.layout.append_default_layouts({
+        -- Maximized (default layout for all tags)
+        awful.layout.suit.max,
+
         -- CUSTOM LAYOUTS (ordered by priority/usefulness)
-        layouts.mstab,       -- Master-stack with tabbed secondary windows
-        layouts.cascade,     -- Cascading window layout
+        layouts.mstab, -- Master-stack with tabbed secondary windows
+        layouts.cascade, -- Cascading window layout
         layouts.cascade.tile, -- Cascading tile layout (master column + slave cascade)
-        layouts.centerwork,  -- Center-focused layout (vertical master, replaces vertical.lua)
+        layouts.centerwork, -- Center-focused layout (vertical master, replaces vertical.lua)
         layouts.centerwork.horizontal, -- Center-focused layout (horizontal master, replaces horizon.lua)
-        layouts.deck,        -- Stacked layout with custom padding/margins
-        layouts.thrizen,     -- Three-column balanced layout
-        layouts.equalarea,   -- Equal area distribution among windows
-        layouts.termfair,    -- Terminal-friendly fair distribution
-        layouts.grid,        -- Floating layout with discrete geometry grid
-        layouts.map,         -- Tiling layout with user-defined geometry groups
+        layouts.deck, -- Stacked layout with custom padding/margins
+        layouts.thrizen, -- Three-column balanced layout
+        layouts.equalarea, -- Equal area distribution among windows
+        layouts.termfair, -- Terminal-friendly fair distribution
+        layouts.grid, -- Floating layout with discrete geometry grid
+        layouts.map, -- Tiling layout with user-defined geometry groups
 
         -- BUILT-IN LAYOUTS (commented out - available but not used)
         -- awful.layout.suit.max,                 -- Maximized single window

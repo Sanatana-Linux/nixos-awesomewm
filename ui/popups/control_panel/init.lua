@@ -19,6 +19,17 @@ local bluetooth_page = require("ui.popups.control_panel.bluetooth_applet.page")
 local audio = require("service.audio").get_default()
 local click_to_hide = require("modules.click_to_hide")
 
+-- Tooltip helper
+local function add_tooltip(widget, text)
+    awful.tooltip({
+        objects = { widget },
+        text = text,
+        delay_show = 0.5,
+        margins_leftright = 8,
+        margins_topbottom = 4,
+    })
+end
+
 local control_panel = {}
 
 function control_panel:setup_network_page()
@@ -113,7 +124,8 @@ function control_panel:hide()
     end
     wp.shown = false
 
-    wp.network_page:close_ap_menu()
+    -- skip_refresh: no need to rebuild the UI when the popup is hiding
+    wp.network_page:close_ap_menu(true)
 
     local start_y = self.y
     local final_y = start_y + dpi(20)
@@ -140,6 +152,23 @@ function control_panel:toggle()
     else
         self:hide()
     end
+end
+
+function control_panel:show_network()
+    local wp = self._private
+    if not wp.shown then
+        self:show()
+    end
+    self:setup_network_page()
+    wp.network_page:refresh()
+end
+
+function control_panel:show_bluetooth()
+    local wp = self._private
+    if not wp.shown then
+        self:show()
+    end
+    self:setup_bluetooth_page()
 end
 
 local function new()
@@ -187,29 +216,57 @@ local function new()
     wp.bluetooth_button = bluetooth_button()
     wp.bluetooth_page = bluetooth_page()
 
-    wp.network_button:get_children_by_id("reveal-button")[1]:buttons({
+    -- Network button tooltips + reveal action
+    local network_reveal =
+        wp.network_button:get_children_by_id("reveal-button")[1]
+    add_tooltip(network_reveal, "Open network settings")
+    network_reveal:buttons({
         awful.button({}, 1, function()
             ret:setup_network_page()
+            -- Trigger WiFi scan when opening the network page
+            wp.network_page:refresh()
         end),
     })
 
-    wp.network_page:get_children_by_id("bottombar-close-button")[1]:buttons({
-        awful.button({}, 1, function()
-            ret:setup_main_page()
-        end),
-    })
+    -- Network toggle tooltip
+    local network_toggle =
+        wp.network_button:get_children_by_id("toggle-button")[1]
+    if network_toggle then
+        add_tooltip(network_toggle, "Toggle WiFi on/off")
+    end
 
-    wp.bluetooth_button:get_children_by_id("reveal-button")[1]:buttons({
+    -- Network page back button
+    local np_wp = wp.network_page._private
+    if np_wp.close_btn then
+        np_wp.close_btn:buttons({
+            awful.button({}, 1, function()
+                ret:setup_main_page()
+            end),
+        })
+    end
+
+    -- Bluetooth button tooltips + reveal action
+    local bt_reveal = wp.bluetooth_button:get_children_by_id("reveal-button")[1]
+    add_tooltip(bt_reveal, "Open Bluetooth settings")
+    bt_reveal:buttons({
         awful.button({}, 1, function()
             ret:setup_bluetooth_page()
         end),
     })
 
-    wp.bluetooth_page:get_children_by_id("bottombar-close-button")[1]:buttons({
-        awful.button({}, 1, function()
-            ret:setup_main_page()
-        end),
-    })
+    local bt_toggle = wp.bluetooth_button:get_children_by_id("toggle-button")[1]
+    if bt_toggle then
+        add_tooltip(bt_toggle, "Toggle Bluetooth on/off")
+    end
+
+    local bt_wp = wp.bluetooth_page._private
+    if bt_wp.close_btn then
+        bt_wp.close_btn:buttons({
+            awful.button({}, 1, function()
+                ret:setup_main_page()
+            end),
+        })
+    end
 
     click_to_hide.popup(ret, function()
         ret:hide()

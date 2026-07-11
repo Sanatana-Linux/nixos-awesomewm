@@ -39,13 +39,13 @@ local cairo = require("lgi").cairo
 local grid = { mt = {} }
 
 local properties = {
-    "orientation", "superpose",
-    "forced_row_count", "forced_column_count",
+    "orientation",
+    "superpose",
+    "forced_row_count",
+    "forced_column_count",
 }
 
 local dir_properties = { "spacing", "homogeneous", "expand" }
-
-
 
 --- Set the preferred orientation of the grid layout.
 --
@@ -282,8 +282,10 @@ local dir_properties = { "spacing", "homogeneous", "expand" }
 -- Return the maximum value of a table.
 local function max_value(t)
     local m = 0
-    for _,v in ipairs(t) do
-        if m < v then m = v end
+    for _, v in ipairs(t) do
+        if m < v then
+            m = v
+        end
     end
     return m
 end
@@ -291,12 +293,11 @@ end
 -- Return the sum of the values in the table.
 local function sum_values(t)
     local m = 0
-    for _,v in ipairs(t) do
+    for _, v in ipairs(t) do
         m = m + v
     end
     return m
 end
-
 
 -- Find a widget in a widget_table, by matching the coordinates.
 -- Using the  `row`:`col` coordinates, and the spans `row_span` and `col_span`
@@ -307,26 +308,33 @@ end
 -- @tparam number col_span The number of columns the widget spans (default to 1)
 -- @treturn table Table of index of widget_table
 local function find_widgets_at(widgets_table, row, col, row_span, col_span)
-    if not row or row < 1 or not col or col < 1 then return nil end
+    if not row or row < 1 or not col or col < 1 then
+        return nil
+    end
     row_span = (row_span and row_span > 0) and row_span or 1
     col_span = (col_span and col_span > 0) and col_span or 1
     local ret = {}
     for index, data in ipairs(widgets_table) do
         -- If one rectangular widget is on left side of other
-        local test_horizontal = not (row > data.row + data.row_span - 1
-            or data.row > row + row_span - 1)
+        local test_horizontal = not (
+            row > data.row + data.row_span - 1
+            or data.row > row + row_span - 1
+        )
         -- If one rectangular widget is above other
-        local test_vertical   = not (col > data.col + data.col_span - 1
-            or data.col > col + col_span - 1)
+        local test_vertical = not (
+            col > data.col + data.col_span - 1
+            or data.col > col + col_span - 1
+        )
         if test_horizontal and test_vertical then
             table.insert(ret, index)
         end
     end
     -- reverse sort for safe removal of indices
-    table.sort(ret, function(a,b) return a>b end)
+    table.sort(ret, function(a, b)
+        return a > b
+    end)
     return #ret > 0 and ret or nil
 end
-
 
 -- Find a widget in a widget_table, by matching the object.
 -- @tparam table widgets_table Table of the widgets present in the grid
@@ -368,7 +376,6 @@ local function update_dimension(self)
     self._private.num_cols = num_cols
 end
 
-
 --- Find the next available cell to insert a widget.
 -- The grid is browsed according to the `orientation`.
 -- @method get_next_empty
@@ -376,23 +383,23 @@ end
 -- @tparam[opt=1] number hint_column The column coordinate of the last occupied cell.
 -- @return number,number The row,column coordinate of the next empty cell
 function grid:get_next_empty(hint_row, hint_column)
-    local row    = (hint_row and hint_row > 0) and hint_row or 1
+    local row = (hint_row and hint_row > 0) and hint_row or 1
     local column = (hint_column and hint_column > 0) and hint_column or 1
 
     local next_field
     if self._private.orientation == "vertical" then
         next_field = function(x, y)
             if y < self._private.num_cols then
-                return x, y+1
+                return x, y + 1
             end
-            return x+1,1
+            return x + 1, 1
         end
     elseif self._private.orientation == "horizontal" then
         next_field = function(x, y)
             if x < self._private.num_rows then
-                return x+1, y
+                return x + 1, y
             end
-            return 1,y+1
+            return 1, y + 1
         end
     end
     while true do
@@ -402,7 +409,6 @@ function grid:get_next_empty(hint_row, hint_column)
         row, column = next_field(row, column)
     end
 end
-
 
 --- Add some widgets to the given grid layout.
 --
@@ -416,10 +422,10 @@ end
 -- @interface layout
 -- @noreturn
 function grid:add(...)
-    local args = { n=select('#', ...), ... }
+    local args = { n = select("#", ...), ... }
     assert(args.n > 0, "need at least one widget to add")
     local row, column
-    for i=1, args.n do
+    for i = 1, args.n do
         local w = args[i]
         -- Get the next empty coordinate to insert the widget
         row, column = self:get_next_empty(row, column)
@@ -447,7 +453,9 @@ end
 -- @tparam[opt=1] number col_span The number of columns the widget spans.
 -- @treturn boolean index If the operation is successful
 function grid:add_widget_at(child, row, col, row_span, col_span)
-    if not row or row < 1 or not col or col < 1 then return false end
+    if not row or row < 1 or not col or col < 1 then
+        return false
+    end
     row_span = (row_span and row_span > 0) and row_span or 1
     col_span = (col_span and col_span > 0) and col_span or 1
 
@@ -456,9 +464,8 @@ function grid:add_widget_at(child, row, col, row_span, col_span)
     base.check_widget(child)
 
     -- test if the new widget superpose with existing ones
-    local superpose = find_widgets_at(
-        self._private.widgets, row, col, row_span, col_span
-    )
+    local superpose =
+        find_widgets_at(self._private.widgets, row, col, row_span, col_span)
 
     if not self._private.superpose and superpose then
         return false
@@ -470,13 +477,15 @@ function grid:add_widget_at(child, row, col, row_span, col_span)
         row = row,
         col = col,
         row_span = row_span,
-        col_span = col_span
+        col_span = col_span,
     }
     table.insert(self._private.widgets, child_data)
 
     -- Update the row and column numbers
-    self._private.num_rows = math.max(self._private.num_rows, row + row_span - 1)
-    self._private.num_cols = math.max(self._private.num_cols, col + col_span - 1)
+    self._private.num_rows =
+        math.max(self._private.num_rows, row + row_span - 1)
+    self._private.num_cols =
+        math.max(self._private.num_cols, col + col_span - 1)
 
     self:emit_signal("widget::layout_changed")
     self:emit_signal("widget::redraw_needed")
@@ -506,7 +515,6 @@ function grid:remove(...)
     return ret
 end
 
-
 --- Remove widgets at the coordinates.
 --
 --@DOC_wibox_layout_grid_remove_EXAMPLE@
@@ -518,12 +526,13 @@ end
 -- @tparam[opt=1] number col_span The number of columns the area to remove spans.
 -- @treturn boolean If the operation is successful (widgets found)
 function grid:remove_widgets_at(row, col, row_span, col_span)
-    local widget_indices = find_widgets_at(
-        self._private.widgets, row, col, row_span, col_span
-    )
-    if widget_indices == nil then return false end
+    local widget_indices =
+        find_widgets_at(self._private.widgets, row, col, row_span, col_span)
+    if widget_indices == nil then
+        return false
+    end
 
-    for _,index in ipairs(widget_indices) do
+    for _, index in ipairs(widget_indices) do
         table.remove(self._private.widgets, index)
     end
     -- Recalculate num_rows and num_cols
@@ -540,7 +549,9 @@ end
 -- fields `row`, `col`, `row_span` and `col_span`.
 function grid:get_widget_position(widget)
     local index = find_widget(self._private.widgets, widget)
-    if index == nil then return nil end
+    if index == nil then
+        return nil
+    end
     local data = self._private.widgets[index]
     local ret = {}
     ret["row"] = data.row
@@ -550,7 +561,6 @@ function grid:get_widget_position(widget)
     return ret
 end
 
-
 --- Return the widgets at the coordinates.
 -- @method get_widgets_at
 -- @tparam number row The row coordinate of the widget
@@ -559,14 +569,15 @@ end
 -- @tparam[opt=1] number col_span The number of columns to span.
 -- @treturn table The widget(s) found at the specific coordinates, nil if no widgets found
 function grid:get_widgets_at(row, col, row_span, col_span)
-    local widget_indices = find_widgets_at(
-        self._private.widgets, row, col, row_span, col_span
-    )
+    local widget_indices =
+        find_widgets_at(self._private.widgets, row, col, row_span, col_span)
 
-    if widget_indices == nil then return nil end
+    if widget_indices == nil then
+        return nil
+    end
 
     local ret = {}
-    for _,index in ipairs(widget_indices) do
+    for _, index in ipairs(widget_indices) do
         local data = self._private.widgets[index]
         table.insert(ret, data.widget)
     end
@@ -581,15 +592,22 @@ end
 -- @treturn boolean If the operation is successful (widget found)
 function grid:replace_widget(old, new)
     -- check if the new object is a widget
-    local status = pcall(function () base.check_widget(new) end)
-    if not status then return false end
+    local status = pcall(function()
+        base.check_widget(new)
+    end)
+    if not status then
+        return false
+    end
     -- find the old widget
     local index = find_widget(self._private.widgets, old)
-    if index == nil then return false end
+    if index == nil then
+        return false
+    end
 
     -- get old widget position
     local data = self._private.widgets[index]
-    local row, col, row_span, col_span = data.row, data.col, data.row_span, data.col_span
+    local row, col, row_span, col_span =
+        data.row, data.col, data.row_span, data.col_span
 
     table.remove(self._private.widgets, index)
     return self:add_widget_at(new, row, col, row_span, col_span)
@@ -620,7 +638,11 @@ local function update_widgets_position(table_widgets, orientation, index, mode)
     end
     for i, data in ipairs(table_widgets) do
         -- single widget in the line
-        if mode == "remove" and data[t] == index and data[t .. "_span"] == 1 then
+        if
+            mode == "remove"
+            and data[t] == index
+            and data[t .. "_span"] == 1
+        then
             table.insert(to_remove, i)
         -- widgets to shift
         elseif data[t] >= index + first then
@@ -632,9 +654,11 @@ local function update_widgets_position(table_widgets, orientation, index, mode)
     end
     if mode == "remove" then
         -- reverse sort to remove
-        table.sort(to_remove, function(a,b) return a>b end)
+        table.sort(to_remove, function(a, b)
+            return a > b
+        end)
         -- Remove widgets
-        for _,i in ipairs(to_remove) do
+        for _, i in ipairs(to_remove) do
             table.remove(table_widgets, i)
         end
     end
@@ -652,7 +676,12 @@ function grid:insert_column(index)
         index = self._private.num_cols + 1
     end
     -- Update widget positions
-    update_widgets_position(self._private.widgets, "horizontal", index, "insert")
+    update_widgets_position(
+        self._private.widgets,
+        "horizontal",
+        index,
+        "insert"
+    )
     -- Recalculate number of rows and columns
     self._private.num_cols = self._private.num_cols + 1
     return index
@@ -669,7 +698,12 @@ function grid:extend_column(index)
         index = self._private.num_cols
     end
     -- Update widget positions
-    update_widgets_position(self._private.widgets, "horizontal", index, "extend")
+    update_widgets_position(
+        self._private.widgets,
+        "horizontal",
+        index,
+        "extend"
+    )
     -- Recalculate number of rows and columns
     self._private.num_cols = self._private.num_cols + 1
     return index
@@ -687,7 +721,12 @@ function grid:remove_column(index)
         index = self._private.num_cols
     end
     -- Update widget positions
-    update_widgets_position(self._private.widgets, "horizontal", index, "remove")
+    update_widgets_position(
+        self._private.widgets,
+        "horizontal",
+        index,
+        "remove"
+    )
     -- Recalculate number of rows and columns
     update_dimension(self)
     return index
@@ -746,7 +785,6 @@ function grid:remove_row(index)
     update_dimension(self)
     return index
 end
-
 
 --- Add row border.
 --
@@ -851,7 +889,10 @@ end
 
 -- Set the preferred orientation of the grid layout.
 function grid:set_orientation(val)
-    if self._private.orientation ~= val and (val == "horizontal" or val == "vertical") then
+    if
+        self._private.orientation ~= val
+        and (val == "horizontal" or val == "vertical")
+    then
         self._private.orientation = val
     end
 end
@@ -872,16 +913,16 @@ end
 
 function grid:set_forced_num_cols(val)
     gdebug.deprecate(
-        "The `.column_count = "..tostring(val).."`.",
-        {deprecated_in=5}
+        "The `.column_count = " .. tostring(val) .. "`.",
+        { deprecated_in = 5 }
     )
     self:set_column_count(val)
 end
 
 function grid:set_forced_num_rows(val)
     gdebug.deprecate(
-        "The `row_count = "..tostring(val).."`.",
-        {deprecated_in=5}
+        "The `row_count = " .. tostring(val) .. "`.",
+        { deprecated_in = 5 }
     )
     self:set_row_count(val)
 end
@@ -934,16 +975,16 @@ end
 
 function grid:set_min_cols_size(val)
     gdebug.deprecate(
-        "The `.minimum_column_width = "..tostring(val).."`.",
-        {deprecated_in=5}
+        "The `.minimum_column_width = " .. tostring(val) .. "`.",
+        { deprecated_in = 5 }
     )
     self:set_minimum_column_width(val)
 end
 
 function grid:set_min_rows_size(val)
     gdebug.deprecate(
-        "The `.minimum_column_width = "..tostring(val).."`.",
-        {deprecated_in=5}
+        "The `.minimum_column_width = " .. tostring(val) .. "`.",
+        { deprecated_in = 5 }
     )
     self:set_minimum_row_height(val)
 end
@@ -965,16 +1006,19 @@ function grid:get_min_rows_size()
 end
 
 function grid:set_border_width(val)
-    self._private.border_width = type(val) == "table" and val or {
-        inner = val or 0,
-        outer = val or 0,
-    }
+    self._private.border_width = type(val) == "table" and val
+        or {
+            inner = val or 0,
+            outer = val or 0,
+        }
 
     -- Enforce integers. Not doing so makes the masking code more complex. Also,
     -- most of the time, not using integer is probably an user mistake (DPI
     -- related or ratio related).
-    self._private.border_width.inner = gmath.round(self._private.border_width.inner)
-    self._private.border_width.outer = gmath.round(self._private.border_width.outer)
+    self._private.border_width.inner =
+        gmath.round(self._private.border_width.inner)
+    self._private.border_width.outer =
+        gmath.round(self._private.border_width.outer)
 
     -- Drawing the border takes both a lot of memory (for the cached masks)
     -- and CPU, so make sure it is no-op for the 99% of cases where there is
@@ -988,7 +1032,7 @@ end
 
 function grid:set_border_color(val)
     if type(val) == "table" then
-          self._private.border_color = {
+        self._private.border_color = {
             inner = gcolor(val.inner),
             outer = gcolor(val.outer),
         }
@@ -1005,11 +1049,11 @@ end
 function grid:add_row_border(index, height, args)
     self._private.has_border = true
     self._private.custom_border_width.rows[index] = {
-        size   = height,
-        color  = args.color and gcolor(args.color),
+        size = height,
+        color = args.color and gcolor(args.color),
         dashes = args.dashes,
         offset = args.dash_offset,
-        caps   = args.caps,
+        caps = args.caps,
     }
 
     self:emit_signal("widget::layout_changed")
@@ -1018,11 +1062,11 @@ end
 function grid:add_column_border(index, width, args)
     self._private.has_border = true
     self._private.custom_border_width.cols[index] = {
-        size   = width,
-        color  = args.color and gcolor(args.color),
+        size = width,
+        color = args.color and gcolor(args.color),
         dashes = args.dashes,
         offset = args.dash_offset,
-        caps   = args.caps,
+        caps = args.caps,
     }
 
     self:emit_signal("widget::layout_changed")
@@ -1031,16 +1075,16 @@ end
 -- Set the grid properties
 for _, prop in ipairs(properties) do
     if not grid["set_" .. prop] then
-        grid["set_"..prop] = function(self, value)
+        grid["set_" .. prop] = function(self, value)
             if self._private[prop] ~= value then
                 self._private[prop] = value
-                self:emit_signal("property::"..prop, value)
+                self:emit_signal("property::" .. prop, value)
                 self:emit_signal("widget::layout_changed")
             end
         end
     end
     if not grid["get_" .. prop] then
-        grid["get_"..prop] = function(self)
+        grid["get_" .. prop] = function(self)
             return self._private[prop]
         end
     end
@@ -1053,52 +1097,61 @@ end
 -- getting the common property returns the directional property
 -- defined by the `orientation` property
 for _, prop in ipairs(dir_properties) do
-    for _,dir in ipairs{"horizontal", "vertical"} do
+    for _, dir in ipairs({ "horizontal", "vertical" }) do
         local dir_prop = dir .. "_" .. prop
-        grid["set_"..dir_prop] = function(self, value)
+        grid["set_" .. dir_prop] = function(self, value)
             gdebug.deprecate(
-                "The `".. dir_prop .."` property is deprecated. Use `".. prop .."`",
-                {deprecated_in=5}
+                "The `"
+                    .. dir_prop
+                    .. "` property is deprecated. Use `"
+                    .. prop
+                    .. "`",
+                { deprecated_in = 5 }
             )
             if self._private[dir_prop] ~= value then
                 self._private[dir_prop] = value
                 self:emit_signal("widget::layout_changed")
             end
         end
-        grid["get_"..dir_prop] = function(self)
+        grid["get_" .. dir_prop] = function(self)
             gdebug.deprecate(
-                "The `".. dir_prop .."` property is deprecated. Use `".. prop .."`",
-                {deprecated_in=5}
+                "The `"
+                    .. dir_prop
+                    .. "` property is deprecated. Use `"
+                    .. prop
+                    .. "`",
+                { deprecated_in = 5 }
             )
             return self._private[dir_prop]
         end
     end
 
-    grid["set_"..prop] = function(self, value)
+    grid["set_" .. prop] = function(self, value)
         if type(value) ~= "table" then
-            if self._private["horizontal_"..prop] ~= value
-              or self._private["vertical_"..prop] ~= value then
-                self._private["horizontal_"..prop] = value
-                self._private["vertical_"..prop] = value
-                self:emit_signal("property::"..prop, value)
+            if
+                self._private["horizontal_" .. prop] ~= value
+                or self._private["vertical_" .. prop] ~= value
+            then
+                self._private["horizontal_" .. prop] = value
+                self._private["vertical_" .. prop] = value
+                self:emit_signal("property::" .. prop, value)
                 self:emit_signal("widget::layout_changed")
             end
         else
-            self._private["horizontal_"..prop] = value.horizontal
-            self._private["vertical_"..prop] = value.vertical
+            self._private["horizontal_" .. prop] = value.horizontal
+            self._private["vertical_" .. prop] = value.vertical
 
-            self:emit_signal("property::"..prop, value)
+            self:emit_signal("property::" .. prop, value)
             self:emit_signal("widget::layout_changed")
         end
     end
-    grid["get_"..prop] = function(self)
+    grid["get_" .. prop] = function(self)
         return {
-            vertical   = self._private["vertical_" .. prop],
+            vertical = self._private["vertical_" .. prop],
             horizontal = self._private["horizontal_" .. prop],
         }
     end
 end
-
 
 -- Return two tables of the fitted sizes of the rows and columns
 -- @treturn table,table Tables of row heights and column widths
@@ -1107,24 +1160,29 @@ local function get_grid_sizes(self, context, orig_width, orig_height)
     local cols_size = {}
 
     -- Set the row and column sizes to the minimum value
-    for i = 1,self._private.num_rows do
+    for i = 1, self._private.num_rows do
         rows_size[i] = self._private.min_rows_size
     end
-    for j = 1,self._private.num_cols do
+    for j = 1, self._private.num_cols do
         cols_size[j] = self._private.min_cols_size
     end
 
     -- Calculate cell sizes
     for _, data in ipairs(self._private.widgets) do
-        local w, h = base.fit_widget(self, context, data.widget, orig_width, orig_height)
-        h = math.max( self._private.min_rows_size, h / data.row_span )
-        w = math.max( self._private.min_cols_size, w / data.col_span )
+        local w, h =
+            base.fit_widget(self, context, data.widget, orig_width, orig_height)
+        h = math.max(self._private.min_rows_size, h / data.row_span)
+        w = math.max(self._private.min_cols_size, w / data.col_span)
         -- update the row and column maximum size
         for i = data.row, data.row + data.row_span - 1 do
-            if h > rows_size[i] then rows_size[i] = h end
+            if h > rows_size[i] then
+                rows_size[i] = h
+            end
         end
         for j = data.col, data.col + data.col_span - 1 do
-            if w > cols_size[j] then cols_size[j] = w end
+            if w > cols_size[j] then
+                cols_size[j] = w
+            end
         end
     end
     return rows_size, cols_size
@@ -1134,8 +1192,8 @@ end
 --
 -- This table module supports partial borders and "just add a border" modes.
 local function setup_border_widths(self)
-    self._private.border_width = {inner = 0, outer = 0}
-    self._private.custom_border_width = {rows = {}, cols = {}}
+    self._private.border_width = { inner = 0, outer = 0 }
+    self._private.custom_border_width = { rows = {}, cols = {} }
     self._private.border_color = {}
 
     -- Use a metatable to get the defaults.
@@ -1147,13 +1205,13 @@ local function setup_border_widths(self)
                     return custom[k].size
                 end
 
-                local size = self[row_or_col.."_count"]
+                local size = self[row_or_col .. "_count"]
                 if k == 1 or k == size + 1 then
                     return self._private.border_width.outer
                 else
                     return self._private.border_width.inner
                 end
-            end
+            end,
         })
     end
 
@@ -1186,14 +1244,13 @@ function grid:fit(context, orig_width, orig_height)
 
             -- all the columns/rows have the same size
             if self._private.has_border then
-
                 -- Not all borders are identical, so the loop is required.
                 for i in ipairs(sizes) do
-                    local bw = border_widths[i+1]
+                    local bw = border_widths[i + 1]
 
                     -- When there is a border, it needs the spacing on both sides.
 
-                    m = m + max + (space*(bw > 0 and 2 or 1)) + bw
+                    m = m + max + (space * (bw > 0 and 2 or 1)) + bw
                 end
             else
                 -- Much simpler.
@@ -1202,12 +1259,11 @@ function grid:fit(context, orig_width, orig_height)
         else
             -- sum the columns/rows size
             for i, s in ipairs(sizes) do
-                local bw = border_widths[i+1]
+                local bw = border_widths[i + 1]
 
                 -- When there is a border, it needs the spacing on both sides.
                 m = m + s + (space * (bw > 0 and 2 or 1)) + bw
             end
-
         end
 
         return m
@@ -1218,39 +1274,53 @@ function grid:fit(context, orig_width, orig_height)
 
     -- compute the width
     local borders = self._private.meta_borders
-    local used_width_max  = fit_direction("horizontal", cols_size, borders.cols)
+    local used_width_max = fit_direction("horizontal", cols_size, borders.cols)
     local used_height_max = fit_direction("vertical", rows_size, borders.rows)
 
     return used_width_max, used_height_max
 end
 
-local function layout_common(self, context, width, height, h_homogeneous, v_homogeneous)
+local function layout_common(
+    self,
+    context,
+    width,
+    height,
+    h_homogeneous,
+    v_homogeneous
+)
     local result, areas = {}, {}
-    local hspacing, vspacing = self._private.horizontal_spacing, self._private.vertical_spacing
+    local hspacing, vspacing =
+        self._private.horizontal_spacing, self._private.vertical_spacing
 
     -- Fit matrix cells
     local rows_size, cols_size = get_grid_sizes(self, context, width, height)
-    local total_expected_width, total_expected_height = sum_values(cols_size), sum_values(rows_size)
+    local total_expected_width, total_expected_height =
+        sum_values(cols_size), sum_values(rows_size)
 
-    local h_bw, v_bw = self._private.meta_borders.cols, self._private.meta_borders.rows
+    local h_bw, v_bw =
+        self._private.meta_borders.cols, self._private.meta_borders.rows
 
     -- Do it once, the result wont change unless widgets are added.
-    if self._private.has_border and not self._private.area_cache.total_horizontal_border_width then
+    if
+        self._private.has_border
+        and not self._private.area_cache.total_horizontal_border_width
+    then
         -- Also add the "second" spacing here. This avoid having some `if` below.
-        local total_h = h_bw[1] + h_bw[#cols_size+1] + 1*hspacing
-        local total_v = v_bw[1] + v_bw[#rows_size+1] + 1*vspacing
+        local total_h = h_bw[1] + h_bw[#cols_size + 1] + 1 * hspacing
+        local total_v = v_bw[1] + v_bw[#rows_size + 1] + 1 * vspacing
 
         for j = 1, #cols_size do
-            local bw = h_bw[j+1]
-            total_h =  total_h + bw + hspacing*(bw > 0 and 1 or 0)
+            local bw = h_bw[j + 1]
+            total_h = total_h + bw + hspacing * (bw > 0 and 1 or 0)
         end
 
         for i = 1, #rows_size do
-            local bw = v_bw[i+1]
-            total_v = total_v + bw + vspacing*(bw > 0 and 1 or 0)
+            local bw = v_bw[i + 1]
+            total_v = total_v + bw + vspacing * (bw > 0 and 1 or 0)
         end
 
-        self._private.area_cache.total_horizontal_border_width = total_h - h_bw[1]
+        self._private.area_cache.total_horizontal_border_width = total_h
+            - h_bw[1]
         self._private.area_cache.total_vertical_border_width = total_v - v_bw[1]
     end
 
@@ -1258,14 +1328,23 @@ local function layout_common(self, context, width, height, h_homogeneous, v_homo
     local total_v = self._private.area_cache.total_vertical_border_width or 0
 
     -- Figure out the maximum size we can give out to sub-widgets
-    local single_width, single_height = max_value(cols_size), max_value(rows_size)
+    local single_width, single_height =
+        max_value(cols_size), max_value(rows_size)
 
     if self._private.horizontal_expand then
-        single_width = (width - (self._private.num_cols-1)*hspacing - total_h) / self._private.num_cols
+        single_width = (
+            width
+            - (self._private.num_cols - 1) * hspacing
+            - total_h
+        ) / self._private.num_cols
     end
 
     if self._private.vertical_expand then
-        single_height = (height - (self._private.num_rows-1)*vspacing - total_v) / self._private.num_rows
+        single_height = (
+            height
+            - (self._private.num_rows - 1) * vspacing
+            - total_v
+        ) / self._private.num_rows
     end
 
     -- Calculate the position and size to place the widgets
@@ -1273,7 +1352,8 @@ local function layout_common(self, context, width, height, h_homogeneous, v_homo
     local c_hor, c_ver = h_bw[1], v_bw[1]
 
     -- If there is an outer border, then it needs inner spacing too.
-    c_hor, c_ver = c_hor > 0 and c_hor + hspacing or 0, c_ver > 0 and c_ver + vspacing or 0
+    c_hor, c_ver =
+        c_hor > 0 and c_hor + hspacing or 0, c_ver > 0 and c_ver + vspacing or 0
 
     for j = 1, #cols_size do
         cumul_width[j] = c_hor
@@ -1281,12 +1361,15 @@ local function layout_common(self, context, width, height, h_homogeneous, v_homo
         if h_homogeneous then
             cols_size[j] = math.max(self._private.min_cols_size, single_width)
         elseif self._private.horizontal_expand then
-            local hpercent = self._private.num_cols * single_width * cols_size[j] / total_expected_width
+            local hpercent = self._private.num_cols
+                * single_width
+                * cols_size[j]
+                / total_expected_width
             cols_size[j] = math.max(self._private.min_cols_size, hpercent)
         end
 
-        local bw = h_bw[j+1]
-        c_hor = c_hor + cols_size[j] + (bw > 0 and 2 or 1)*hspacing + bw
+        local bw = h_bw[j + 1]
+        c_hor = c_hor + cols_size[j] + (bw > 0 and 2 or 1) * hspacing + bw
     end
 
     cumul_width[#cols_size + 1] = c_hor
@@ -1297,23 +1380,27 @@ local function layout_common(self, context, width, height, h_homogeneous, v_homo
         if v_homogeneous then
             rows_size[i] = math.max(self._private.min_rows_size, single_height)
         elseif self._private.vertical_expand then
-            local vpercent = self._private.num_rows * single_height * rows_size[i] / total_expected_height
+            local vpercent = self._private.num_rows
+                * single_height
+                * rows_size[i]
+                / total_expected_height
             rows_size[i] = math.max(self._private.min_rows_size, vpercent)
         end
 
-        local bw = v_bw[i+1]
-        c_ver = c_ver + rows_size[i] + (bw > 0 and 2 or 1)*vspacing + bw
+        local bw = v_bw[i + 1]
+        c_ver = c_ver + rows_size[i] + (bw > 0 and 2 or 1) * vspacing + bw
     end
 
     cumul_height[#rows_size + 1] = c_ver
 
     -- Place widgets
-    local fill_space = true  -- should be fill_space property?
+    local fill_space = true -- should be fill_space property?
     for _, v in pairs(self._private.widgets) do
         local x, y, w, h
 
         -- If there is a border, then the spacing is needed on both sides.
-        local col_bw, row_bw = h_bw[v.col+v.col_span], v_bw[v.row+v.row_span]
+        local col_bw, row_bw =
+            h_bw[v.col + v.col_span], v_bw[v.row + v.row_span]
         local col_spacing = hspacing * (col_bw > 0 and 2 or 1)
         local row_spacing = vspacing * (row_bw > 0 and 2 or 1)
 
@@ -1321,15 +1408,22 @@ local function layout_common(self, context, width, height, h_homogeneous, v_homo
         -- and avoid redraw glitches
         x = math.floor(cumul_width[v.col])
         y = math.floor(cumul_height[v.row])
-        w = math.floor(cumul_width[v.col + v.col_span] - col_spacing - x - col_bw)
-        h = math.floor(cumul_height[v.row + v.row_span] - row_spacing - y - row_bw)
+        w = math.floor(
+            cumul_width[v.col + v.col_span] - col_spacing - x - col_bw
+        )
+        h = math.floor(
+            cumul_height[v.row + v.row_span] - row_spacing - y - row_bw
+        )
 
         -- Handle large spacing and/or border_width. The grid doesn't support
         -- dropping widgets. It would be very hard to implement.
         w, h = math.max(0, w), math.max(0, h)
 
         -- Recalculate the width so the last widget fits
-        if (fill_space or self._private.horizontal_expand) and x + w > width then
+        if
+            (fill_space or self._private.horizontal_expand)
+            and x + w > width
+        then
             w = math.floor(math.max(self._private.min_cols_size, width - x))
         end
         -- Recalculate the height so the last widget fits
@@ -1340,9 +1434,9 @@ local function layout_common(self, context, width, height, h_homogeneous, v_homo
         if x + w <= width and y + h <= height then
             table.insert(result, base.place_widget_at(v.widget, x, y, w, h))
             table.insert(areas, {
-                x      = x - hspacing,
-                y      = y - vspacing,
-                width  = w + col_spacing,
+                x = x - hspacing,
+                y = y - vspacing,
+                width = w + col_spacing,
                 height = h + row_spacing,
             })
         end
@@ -1361,7 +1455,7 @@ local function layout_common(self, context, width, height, h_homogeneous, v_homo
 end
 
 local function get_area_cache_hash(width, height)
-   return width*1.5+height*15
+    return width * 1.5 + height * 15
 end
 
 -- Layout a grid layout.
@@ -1384,25 +1478,31 @@ function grid:layout(context, width, height)
 end
 
 local function create_border_mask(self, areas, default_color)
-    if areas.surface then return areas.surface end
+    if areas.surface then
+        return areas.surface
+    end
 
     local meta = self._private.meta_borders
 
-    local top, bottom = meta.rows[1], meta.rows[areas.row_count+1]
-    local left, right = meta.cols[1], meta.cols[areas.column_count+1]
+    local top, bottom = meta.rows[1], meta.rows[areas.row_count + 1]
+    local left, right = meta.cols[1], meta.cols[areas.column_count + 1]
 
     -- A1 is fine because :layout() aligns to pixel boundary and `border_width`
     -- are integers.
-    local img = cairo.RecordingSurface(cairo.Content.COLOR_ALPHA, cairo.Rectangle {
-        x      = 0,
-        y      = 0,
-        width  = areas.end_x + right,
-        height = areas.end_y + bottom
-    })
+    local img = cairo.RecordingSurface(
+        cairo.Content.COLOR_ALPHA,
+        cairo.Rectangle({
+            x = 0,
+            y = 0,
+            width = areas.end_x + right,
+            height = areas.end_y + bottom,
+        })
+    )
     local cr = cairo.Context(img)
     cr:set_source(default_color)
 
-    local bw_i, bw_o = self._private.border_width.inner, self._private.border_width.outer
+    local bw_i, bw_o =
+        self._private.border_width.inner, self._private.border_width.outer
 
     if bw_i ~= bw_o then
         if bw_o then
@@ -1415,16 +1515,26 @@ local function create_border_mask(self, areas, default_color)
             cr:rectangle(0, 0, areas.end_x, top)
             cr:rectangle(0, areas.end_y - bottom, areas.end_x, bottom)
             cr:rectangle(0, top, left, areas.end_y - top - bottom)
-            cr:rectangle(areas.end_x - right, top, right, areas.end_y - top - bottom)
+            cr:rectangle(
+                areas.end_x - right,
+                top,
+                right,
+                areas.end_y - top - bottom
+            )
             cr:clip()
             cr:paint()
             cr:reset_clip()
         end
 
-        cr:rectangle(left, top, areas.end_x - top - bottom, areas.end_y - left - right)
+        cr:rectangle(
+            left,
+            top,
+            areas.end_x - top - bottom,
+            areas.end_y - left - right
+        )
         cr:clip()
     else
-        cr:rectangle(0,0, areas.end_x, areas.end_y)
+        cr:rectangle(0, 0, areas.end_x, areas.end_y)
         cr:clip()
     end
 
@@ -1440,11 +1550,11 @@ local function create_border_mask(self, areas, default_color)
     -- This is a lifeline for users who want borders only on specific places.
     -- Implementing word processing style borders would be overkill and
     -- too hard to maintain.
-    for _, orientation in ipairs { "rows", "cols" } do
+    for _, orientation in ipairs({ "rows", "cols" }) do
         for row, args in pairs(self._private.custom_border_width[orientation]) do
             local line_height = meta[orientation][row]
             cr:save()
-            cr:rectangle(0,0, areas.end_x, areas.end_y)
+            cr:rectangle(0, 0, areas.end_x, areas.end_y)
             cr:clip()
             cr:set_line_width(line_height)
 
@@ -1460,7 +1570,8 @@ local function create_border_mask(self, areas, default_color)
 
             -- Cairo draw the stroke equally on both side, for `line_height/2` is
             -- needed.
-            local y = (row == 1 and line_height or areas[orientation][row] or 0) - math.ceil(line_height/2)
+            local y = (row == 1 and line_height or areas[orientation][row] or 0)
+                - math.ceil(line_height / 2)
 
             if orientation == "rows" then
                 cr:move_to(0, y)
@@ -1492,24 +1603,33 @@ end
 
 -- Draw the border.
 function grid:after_draw_children(ctx, cr, width, height)
-    if not self._private.has_border then return end
+    if not self._private.has_border then
+        return
+    end
 
     local hash = get_area_cache_hash(width, height)
 
     if not self._private.area_cache[hash] then
-        self._private.area_cache[hash] = select(2, layout_common(
-            self,
-            ctx,
-            width,
-            height,
-            self._private.horizontal_homogeneous,
-            self._private.vertical_homogeneous
-        ))
+        self._private.area_cache[hash] = select(
+            2,
+            layout_common(
+                self,
+                ctx,
+                width,
+                height,
+                self._private.horizontal_homogeneous,
+                self._private.vertical_homogeneous
+            )
+        )
     end
 
     local areas = self._private.area_cache[hash]
 
-    cr:set_source_surface(create_border_mask(self, areas, cr:get_source()), 0 ,0)
+    cr:set_source_surface(
+        create_border_mask(self, areas, cr:get_source()),
+        0,
+        0
+    )
     cr:paint()
 end
 
@@ -1523,9 +1643,11 @@ function grid:reset()
     self._private.widgets = {}
     -- reset the number of columns and rows to the forced value or to 0
     self._private.num_rows = self._private.forced_num_rows ~= nil
-        and self._private.forced_num_rows or 0
+            and self._private.forced_num_rows
+        or 0
     self._private.num_cols = self._private.forced_num_cols ~= nil
-        and self._private.forced_num_cols or 0
+            and self._private.forced_num_cols
+        or 0
     -- emit signals
     self:emit_signal("widget::layout_changed")
     self:emit_signal("widget::reset")
@@ -1536,8 +1658,6 @@ end
 -- all the widgets removed and the row and column counts reset.
 -- @signal widget::reset
 
-
-
 --- Return a new grid layout.
 --
 -- A grid layout sets widgets in a grids of custom number of rows and columns.
@@ -1545,10 +1665,11 @@ end
 -- @constructorfct wibox.layout.grid
 local function new(orientation)
     -- Preference for vertical direction: fill rows first, extend grid with new row
-    local dir = (orientation == "horizontal"or orientation == "vertical")
-        and orientation or "vertical"
+    local dir = (orientation == "horizontal" or orientation == "vertical")
+            and orientation
+        or "vertical"
 
-    local ret = base.make_widget(nil, nil, {enable_properties = true})
+    local ret = base.make_widget(nil, nil, { enable_properties = true })
 
     gtable.crush(ret, grid, true)
 
@@ -1559,18 +1680,18 @@ local function new(orientation)
     ret._private.rows_size = {}
     ret._private.cols_size = {}
 
-    ret._private.superpose       = false
+    ret._private.superpose = false
     ret._private.forced_num_rows = nil
     ret._private.forced_num_cols = nil
-    ret._private.min_rows_size   = 0
-    ret._private.min_cols_size   = 0
+    ret._private.min_rows_size = 0
+    ret._private.min_cols_size = 0
 
     ret._private.horizontal_homogeneous = true
-    ret._private.vertical_homogeneous   = true
-    ret._private.horizontal_expand      = false
-    ret._private.vertical_expand        = false
-    ret._private.horizontal_spacing     = 0
-    ret._private.vertical_spacing       = 0
+    ret._private.vertical_homogeneous = true
+    ret._private.horizontal_expand = false
+    ret._private.vertical_expand = false
+    ret._private.horizontal_spacing = 0
+    ret._private.vertical_spacing = 0
 
     ret._private.area_cache, ret._private.border_color = {}, {}
 
@@ -1618,7 +1739,6 @@ function grid.vertical(forced_num_cols, widget, ...)
 
     return ret
 end
-
 
 function grid.mt:__call(...)
     return new(...)

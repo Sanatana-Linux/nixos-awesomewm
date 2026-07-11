@@ -6,14 +6,16 @@
 -- @inputmodule awful.keyboard
 ---------------------------------------------------------------------------
 
-local capi   = {root = root, awesome = awesome, client = client}
+local capi = { root = root, awesome = awesome, client = client }
 local module = {}
 
 --- Convert the modifiers into pc105 key names
 local conversion = nil
 
 local function generate_conversion_map()
-    if conversion then return conversion end
+    if conversion then
+        return conversion
+    end
 
     local mods = capi.awesome._modifiers
     assert(mods)
@@ -31,7 +33,9 @@ local function generate_conversion_map()
     return conversion
 end
 
-capi.awesome.connect_signal("xkb::map_changed", function() conversion = nil end)
+capi.awesome.connect_signal("xkb::map_changed", function()
+    conversion = nil
+end)
 
 --- Execute a key combination.
 --
@@ -65,7 +69,7 @@ function module.emulate_key_combination(modifiers, key)
         end
     end
 
-    capi.root.fake_input("key_press"  , key)
+    capi.root.fake_input("key_press", key)
     capi.root.fake_input("key_release", key)
 
     for _, v in ipairs(modifiers) do
@@ -147,7 +151,6 @@ end
 function module.remove_global_keybinding(key)
     capi.root._remove_key(key)
 end
-
 
 local default_keys = {}
 
@@ -233,7 +236,6 @@ end
 function module.get_key_name(key)
     return capi.awesome._get_key_name(key)
 end
-
 
 capi.client.connect_signal("scanning", function()
     capi.client.emit_signal("request::default_keybindings", "context")

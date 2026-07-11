@@ -11,7 +11,7 @@ local icon_path = gfs.get_configuration_dir()
 
 return function()
     local control_panel = require("ui.popups.control_panel").get_default()
-    
+
     return styled_button.create_icon_button({
         icon = icon_path,
         icon_size = dpi(22), -- Increased from default dpi(18) to match layout button coverage

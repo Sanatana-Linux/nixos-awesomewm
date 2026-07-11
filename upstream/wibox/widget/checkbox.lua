@@ -12,11 +12,11 @@
 -- @supermodule wibox.widget.base
 ---------------------------------------------------------------------------
 
-local color     = require( "gears.color"       )
-local base      = require( "wibox.widget.base" )
-local beautiful = require( "beautiful"         )
-local shape     = require( "gears.shape"       )
-local gtable    = require( "gears.table"       )
+local color = require("gears.color")
+local base = require("wibox.widget.base")
+local beautiful = require("beautiful")
+local shape = require("gears.shape")
+local gtable = require("gears.table")
 
 local checkbox = {}
 
@@ -172,14 +172,17 @@ local checkbox = {}
 -- @propemits true false
 
 local function outline_workarea(self, width, height)
-    local offset = (self._private.border_width or
-        beautiful.checkbox_border_width or 1)/2
+    local offset = (
+        self._private.border_width
+        or beautiful.checkbox_border_width
+        or 1
+    ) / 2
 
     return {
-        x      = offset,
-        y      = offset,
-        width  = width-2*offset,
-        height = height-2*offset
+        x = offset,
+        y = offset,
+        width = width - 2 * offset,
+        height = height - 2 * offset,
     }
 end
 
@@ -189,10 +192,16 @@ local function content_workarea(self, width, height)
     local offset = self:get_check_border_width() or 0
     local wa = outline_workarea(self, width, height)
 
-    wa.x      = offset + wa.x + (padding.left or 1)
-    wa.y      = offset + wa.y + (padding.top  or 1)
-    wa.width  = wa.width  - (padding.left or 1) - (padding.right  or 1) - 2*offset
-    wa.height = wa.height - (padding.top  or 1) - (padding.bottom or 1) - 2*offset
+    wa.x = offset + wa.x + (padding.left or 1)
+    wa.y = offset + wa.y + (padding.top or 1)
+    wa.width = wa.width
+        - (padding.left or 1)
+        - (padding.right or 1)
+        - 2 * offset
+    wa.height = wa.height
+        - (padding.top or 1)
+        - (padding.bottom or 1)
+        - 2 * offset
 
     return wa
 end
@@ -264,26 +273,39 @@ end
 -- @property checked
 -- @tparam[opt=false] boolean checked
 
-for _, prop in ipairs {"border_width", "bg", "border_color", "check_border_color",
-    "check_border_width", "check_color", "shape", "check_shape", "paddings",
-    "checked", "color" } do
-    checkbox["set_"..prop] = function(self, value)
+for _, prop in ipairs({
+    "border_width",
+    "bg",
+    "border_color",
+    "check_border_color",
+    "check_border_width",
+    "check_color",
+    "shape",
+    "check_shape",
+    "paddings",
+    "checked",
+    "color",
+}) do
+    checkbox["set_" .. prop] = function(self, value)
         self._private[prop] = value
-        self:emit_signal("property::"..prop, value)
+        self:emit_signal("property::" .. prop, value)
         self:emit_signal("widget::redraw_needed")
     end
-    checkbox["get_"..prop] = function(self)
-        return self._private[prop] or beautiful["checkbox_"..prop]
+    checkbox["get_" .. prop] = function(self)
+        return self._private[prop] or beautiful["checkbox_" .. prop]
     end
 end
 
 function checkbox:set_paddings(val)
-    self._private.paddings = type(val) == "number" and {
-        left   = val,
-        right  = val,
-        top    = val,
-        bottom = val,
-    } or val or {}
+    self._private.paddings = type(val) == "number"
+            and {
+                left = val,
+                right = val,
+                top = val,
+                bottom = val,
+            }
+        or val
+        or {}
     self:emit_signal("property::paddings")
     self:emit_signal("widget::redraw_needed")
 end
@@ -306,12 +328,16 @@ local function new(checked, args)
     ret._private.checked = checked
     ret._private.color = args.color and color(args.color) or nil
 
-    rawset(ret, "fit" , fit )
+    rawset(ret, "fit", fit)
     rawset(ret, "draw", draw)
 
     return ret
 end
 
-return setmetatable({}, { __call = function(_, ...) return new(...) end})
+return setmetatable({}, {
+    __call = function(_, ...)
+        return new(...)
+    end,
+})
 
 -- vim: filetype=lua:expandtab:shiftwidth=4:tabstop=8:softtabstop=4:textwidth=80

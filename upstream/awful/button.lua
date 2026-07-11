@@ -23,7 +23,7 @@ local button = { mt = {} }
 -- fixed internally because the default `rc.lua` uses `gears.table.join`, which
 -- is affected.
 --TODO v6: Drop this
-local reverse_map = setmetatable({}, {__mode="k"})
+local reverse_map = setmetatable({}, { __mode = "k" })
 
 --- Modifiers to ignore.
 --
@@ -40,11 +40,11 @@ local ignore_modifiers = { "Lock", "Mod2" }
 --
 -- @table names
 button.names = {
-    LEFT        = 1,-- The left mouse button.
-    MIDDLE      = 2,-- The scrollwheel button.
-    RIGHT       = 3,-- The context menu button.
-    SCROLL_UP   = 4,-- A scroll up increment.
-    SCROLL_DOWN = 5,-- A scroll down increment.
+    LEFT = 1, -- The left mouse button.
+    MIDDLE = 2, -- The scrollwheel button.
+    RIGHT = 3, -- The context menu button.
+    SCROLL_UP = 4, -- A scroll up increment.
+    SCROLL_DOWN = 5, -- A scroll down increment.
 }
 
 --- The table of modifier keys.
@@ -129,11 +129,11 @@ function button:set_modifiers(mod)
     end
 end
 
-for _, prop in ipairs { "description", "group", "name" } do
-    button["get_"..prop] = function(self)
+for _, prop in ipairs({ "description", "group", "name" }) do
+    button["get_" .. prop] = function(self)
         return reverse_map[self][prop]
     end
-    button["set_"..prop] = function(self, value)
+    button["set_" .. prop] = function(self, value)
         reverse_map[self][prop] = value
     end
 end
@@ -149,25 +149,27 @@ end
 -- table. So both the `awful.button` and the callbacks are weak in their own
 -- realm. To avoid the GC of the callback, it is important to use
 -- `connect_signal` on the `capi.button` to keep a reference alive.
-for _, prop in ipairs { "press", "release" } do
-    local long_name = "on_"..prop
+for _, prop in ipairs({ "press", "release" }) do
+    local long_name = "on_" .. prop
 
-    button["get_"..long_name] = function(self)
+    button["get_" .. long_name] = function(self)
         return reverse_map[self].weak_content[long_name]
     end
-    button["set_"..long_name] = function(self, value)
+    button["set_" .. long_name] = function(self, value)
         local old = reverse_map[self].weak_content[long_name]
-        local new = function(_, ...) value(...) end
+        local new = function(_, ...)
+            value(...)
+        end
 
         if old then
-            for i=1, 4 do
+            for i = 1, 4 do
                 self[i]:disconnect_signal(prop, old)
             end
         end
 
         reverse_map[self].weak_content[prop] = new
 
-        for i=1, 4 do
+        for i = 1, 4 do
             self[i]:connect_signal(prop, new)
         end
     end
@@ -205,8 +207,8 @@ function button:get__is_awful_button()
 end
 
 local function index_handler(self, k)
-    if button["get_"..k] then
-        return button["get_"..k](self)
+    if button["get_" .. k] then
+        return button["get_" .. k](self)
     end
 
     if type(button[k]) == "function" then
@@ -224,8 +226,8 @@ local function index_handler(self, k)
 end
 
 local function newindex_handler(self, key, value)
-    if button["set_"..key] then
-        return button["set_"..key](self, value)
+    if button["set_" .. key] then
+        return button["set_" .. key](self, value)
     end
 
     local data = reverse_map[self]
@@ -239,8 +241,8 @@ local function newindex_handler(self, key, value)
 end
 
 local obj_mt = {
-    __index    = index_handler,
-    __newindex = newindex_handler
+    __index = index_handler,
+    __newindex = newindex_handler,
 }
 
 --- Create a new button to use as binding.
@@ -273,10 +275,10 @@ local function new_common(mod, btn, press, release)
     local subsets = gmath.subsets(ignore_modifiers)
 
     for _, set in ipairs(subsets) do
-        local sub_button = capi.button {
+        local sub_button = capi.button({
             modifiers = gtable.join(mod, set),
-            button    = btn
-        }
+            button = btn,
+        })
 
         sub_button._private._legacy_convert_to = ret
 
@@ -287,10 +289,10 @@ local function new_common(mod, btn, press, release)
         -- Use weak tables to let Lua 5.1 and Luajit GC the `awful.buttons`,
         -- Lua 5.3 is smart enough to figure this out.
         weak_content = setmetatable({
-            press   = press,
+            press = press,
             release = release,
-        }, {__mode = "v"}),
-        _is_capi_button = false
+        }, { __mode = "v" }),
+        _is_capi_button = false,
     }
 
     if press then
@@ -307,7 +309,10 @@ end
 function button.new(args, btn, press, release)
     -- Assume this is the new constructor.
     if not btn then
-        assert(not (press or release), "Calling awful.button() requires a button name")
+        assert(
+            not (press or release),
+            "Calling awful.button() requires a button name"
+        )
         return new_common(
             args.modifiers,
             args.button,

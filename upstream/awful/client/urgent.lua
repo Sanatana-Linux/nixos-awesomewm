@@ -8,8 +8,7 @@
 
 local urgent = {}
 
-local capi =
-{
+local capi = {
     client = client,
 }
 
@@ -20,11 +19,11 @@ do
             client = require("awful.client")
             return client[k]
         end,
-        __newindex = error -- Just to be sure in case anything ever does this
+        __newindex = error, -- Just to be sure in case anything ever does this
     })
 end
 
-local data = setmetatable({}, { __mode = 'k' })
+local data = setmetatable({}, { __mode = "k" })
 
 -- Get the first client that got the urgent hint.
 --
@@ -82,7 +81,7 @@ function urgent.add(c, prop)
     else
         c:emit_signal(
             "request::border",
-            (c.active and "" or "in").."active",
+            (c.active and "" or "in") .. "active",
             {}
         )
     end

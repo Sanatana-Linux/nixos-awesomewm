@@ -29,14 +29,14 @@ function audio:get_default_sink_data(callback)
 end
 
 function audio:set_default_sink_volume(value, callback)
-    awful.spawn(
+    awful.spawn.with_shell(
         "pactl set-sink-volume @DEFAULT_SINK@ " .. tostring(value) .. "%"
     )
     self:get_default_sink_data(callback)
 end
 
 function audio:toggle_default_sink_mute(callback)
-    awful.spawn("pactl set-sink-mute @DEFAULT_SINK@ toggle")
+    awful.spawn.with_shell("pactl set-sink-mute @DEFAULT_SINK@ toggle")
     self:get_default_sink_data(callback)
 end
 
@@ -62,13 +62,13 @@ function audio:get_default_source_data()
 end
 
 function audio:set_default_source_volume(value)
-    awful.spawn(
+    awful.spawn.with_shell(
         "pactl set-source-volume @DEFAULT_SOURCE@ " .. tostring(value) .. "%"
     )
 end
 
 function audio:toggle_default_source_mute()
-    awful.spawn("pactl set-source-mute @DEFAULT_SOURCE@ toggle")
+    awful.spawn.with_shell("pactl set-source-mute @DEFAULT_SOURCE@ toggle")
 end
 
 local function new()

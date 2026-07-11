@@ -22,7 +22,9 @@ local menu_gen = {}
 local function get_xdg_menu_dirs()
     local dirs = gfilesystem.get_xdg_data_dirs()
     table.insert(dirs, 1, gfilesystem.get_xdg_data_home())
-    return gtable.map(function(dir) return dir .. 'applications/' end, dirs)
+    return gtable.map(function(dir)
+        return dir .. "applications/"
+    end, dirs)
 end
 
 --- Specifies all directories where menubar should look for .desktop
@@ -33,28 +35,72 @@ menu_gen.all_menu_dirs = get_xdg_menu_dirs()
 -- categories in the menubar. If "use" flag is set to false then any of
 -- the applications that fall only to this category will not be shown.
 menu_gen.all_categories = {
-    multimedia = { app_type = "AudioVideo", name = "Multimedia",
-                     icon_name = "applications-multimedia", use = true },
-    development = { app_type = "Development", name = "Development",
-                    icon_name = "applications-development", use = true },
-    education = { app_type = "Education", name = "Education",
-                  icon_name = "applications-science", use = true },
-    games = { app_type = "Game", name = "Games",
-              icon_name = "applications-games", use = true },
-    graphics = { app_type = "Graphics", name = "Graphics",
-                 icon_name = "applications-graphics", use = true },
-    office = { app_type = "Office", name = "Office",
-               icon_name = "applications-office", use = true },
-    internet = { app_type = "Network", name = "Internet",
-                icon_name = "applications-internet", use = true },
-    science = { app_type = "Science", name="Science",
-                icon_name = "applications-science", use = true },
-    settings = { app_type = "Settings", name = "Settings",
-                 icon_name = "applications-utilities", use = true },
-    tools = { app_type = "System", name = "System Tools",
-               icon_name = "applications-system", use = true },
-    utility = { app_type = "Utility", name = "Accessories",
-                icon_name = "applications-accessories", use = true }
+    multimedia = {
+        app_type = "AudioVideo",
+        name = "Multimedia",
+        icon_name = "applications-multimedia",
+        use = true,
+    },
+    development = {
+        app_type = "Development",
+        name = "Development",
+        icon_name = "applications-development",
+        use = true,
+    },
+    education = {
+        app_type = "Education",
+        name = "Education",
+        icon_name = "applications-science",
+        use = true,
+    },
+    games = {
+        app_type = "Game",
+        name = "Games",
+        icon_name = "applications-games",
+        use = true,
+    },
+    graphics = {
+        app_type = "Graphics",
+        name = "Graphics",
+        icon_name = "applications-graphics",
+        use = true,
+    },
+    office = {
+        app_type = "Office",
+        name = "Office",
+        icon_name = "applications-office",
+        use = true,
+    },
+    internet = {
+        app_type = "Network",
+        name = "Internet",
+        icon_name = "applications-internet",
+        use = true,
+    },
+    science = {
+        app_type = "Science",
+        name = "Science",
+        icon_name = "applications-science",
+        use = true,
+    },
+    settings = {
+        app_type = "Settings",
+        name = "Settings",
+        icon_name = "applications-utilities",
+        use = true,
+    },
+    tools = {
+        app_type = "System",
+        name = "System Tools",
+        icon_name = "applications-system",
+        use = true,
+    },
+    utility = {
+        app_type = "Utility",
+        name = "Accessories",
+        icon_name = "applications-accessories",
+        use = true,
+    },
 }
 
 -- Find icons for category entries.
@@ -95,7 +141,7 @@ function menu_gen.generate(callback)
             for _, entry in ipairs(entries) do
                 -- Check whether to include program in the menu
                 if entry.show and entry.Name and entry.cmdline then
-                    local unique_key = entry.Name .. '\0' .. entry.cmdline
+                    local unique_key = entry.Name .. "\0" .. entry.cmdline
                     if not unique_entries[unique_key] then
                         local target_category = nil
                         -- Check if the program falls into at least one of the
@@ -104,7 +150,9 @@ function menu_gen.generate(callback)
                         if entry.categories then
                             for _, category in pairs(entry.categories) do
                                 local cat_key, cat_use =
-                                get_category_name_and_usage_by_type(category)
+                                    get_category_name_and_usage_by_type(
+                                        category
+                                    )
                                 if cat_key and cat_use then
                                     target_category = cat_key
                                     break
@@ -115,10 +163,15 @@ function menu_gen.generate(callback)
                         local name = utils.rtrim(entry.Name) or ""
                         local cmdline = utils.rtrim(entry.cmdline) or ""
                         local icon = entry.icon_path or nil
-                        table.insert(result, { name = name,
-                                     cmdline = cmdline,
-                                     icon = icon,
-                                     category = target_category })
+                        table.insert(
+                            result,
+                            {
+                                name = name,
+                                cmdline = cmdline,
+                                icon = icon,
+                                category = target_category,
+                            }
+                        )
                         unique_entries[unique_key] = true
                     end
                 end

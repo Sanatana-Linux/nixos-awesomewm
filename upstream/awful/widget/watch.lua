@@ -72,15 +72,16 @@ local watch = { mt = {} }
 function watch.new(command, timeout, callback, base_widget)
     timeout = timeout or 5
     base_widget = base_widget or textbox()
-    callback = callback or function(widget, stdout, stderr, exitreason, exitcode) -- luacheck: no unused args
-        widget:set_text(stdout)
-    end
-    local t = timer { timeout = timeout }
+    callback = callback
+        or function(widget, stdout, stderr, exitreason, exitcode) -- luacheck: no unused args
+            widget:set_text(stdout)
+        end
+    local t = timer({ timeout = timeout })
     t:connect_signal("timeout", function()
         t:stop()
         spawn.easy_async(command, function(stdout, stderr, exitreason, exitcode)
-          callback(base_widget, stdout, stderr, exitreason, exitcode)
-          t:again()
+            callback(base_widget, stdout, stderr, exitreason, exitcode)
+            t:again()
         end)
     end)
     t:start()

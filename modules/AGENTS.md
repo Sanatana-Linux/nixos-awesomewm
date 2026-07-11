@@ -10,8 +10,14 @@ Reusable UI modules consumed by both services and UI components. Includes utilit
 
 | File | Description |
 |------|-------------|
-| `init.lua` | Aggregator — returns flat table of all module requires |
+| `init.lua` | **Curated aggregator** — returns only the modules accessed via `modules.<name>` from UI consumers. Direct callers should still use `require("modules.<name>")` explicitly. |
 | `arc_chart.lua` | Arc chart widget for progress display |
+
+## Aggregator Discipline
+
+The `init.lua` is intentional: only export modules that UI consumers reach through `modules.<name>`. If you `require("modules.<name>")` directly anywhere, the module should NOT be in the aggregator — it's a sign of mixing concerns.
+
+Currently exported: `hover_button`, `calendar`, `text_input`, `menu`.
 
 ## Subdirectories
 

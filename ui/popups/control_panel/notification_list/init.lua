@@ -20,6 +20,9 @@ local trash_icon = icons_dir .. "trash.svg"
 local close_icon = icons_dir .. "close.svg"
 local exit_icon = icons_dir .. "close.svg"
 
+-- Safe font name with fallback (font_name can be nil if theme not fully loaded)
+local FONT_NAME = beautiful.font_name or "Sans "
+
 local notification_list = {}
 
 -- Move remove_notification function to top so it's available when referenced
@@ -64,7 +67,7 @@ local function remove_notification_by_id(self, notification_id)
                     {
                         widget = wibox.widget.textbox,
                         align = "center",
-                        font = beautiful.font_name .. dpi(12),
+                        font = FONT_NAME .. dpi(12),
                         markup = "No notifications",
                     },
                 })
@@ -264,7 +267,7 @@ local function create_notification_widget(
                                 height = dpi(80),
                                 {
                                     widget = wibox.widget.textbox,
-                                    font = beautiful.font_name .. dpi(9),
+                                    font = FONT_NAME .. dpi(9),
                                     markup = n.text or n.massage,
                                 },
                             },
@@ -377,7 +380,7 @@ local function create_confirmation_dialog(callback)
                     widget = wibox.widget.textbox,
                     align = "center",
                     markup = create_markup("Confirm", { fg = beautiful.red }),
-                    font = beautiful.font_name .. " " .. dpi(12),
+                    font = FONT_NAME .. " " .. dpi(12),
                 },
             },
         },
@@ -386,17 +389,25 @@ local function create_confirmation_dialog(callback)
         w.bg = "linear:0,0:0,32:0,#fc618dcc:1,#b61442cc"
         w.border_color = "transparent"
         local icon = w:get_children_by_id("confirm-icon")[1]
-        if icon then icon.image = confirm_icon_hover end
+        if icon then
+            icon.image = confirm_icon_hover
+        end
         local label = w:get_children_by_id("confirm-label")[1]
-        if label then label:set_markup(create_markup("Confirm", { fg = "#000000" })) end
+        if label then
+            label:set_markup(create_markup("Confirm", { fg = "#000000" }))
+        end
     end)
     confirm_button:connect_signal("mouse::leave", function(w)
         w.bg = "transparent"
         w.border_color = beautiful.red
         local icon = w:get_children_by_id("confirm-icon")[1]
-        if icon then icon.image = confirm_icon end
+        if icon then
+            icon.image = confirm_icon
+        end
         local label = w:get_children_by_id("confirm-label")[1]
-        if label then label:set_markup(create_markup("Confirm", { fg = beautiful.red })) end
+        if label then
+            label:set_markup(create_markup("Confirm", { fg = beautiful.red }))
+        end
     end)
 
     -- Create cancel button (right side)
@@ -432,7 +443,7 @@ local function create_confirmation_dialog(callback)
                     widget = wibox.widget.textbox,
                     align = "center",
                     markup = "Cancel",
-                    font = beautiful.font_name .. " " .. dpi(12),
+                    font = FONT_NAME .. " " .. dpi(12),
                 },
             },
         },
@@ -471,7 +482,7 @@ local function create_confirmation_dialog(callback)
                         widget = wibox.widget.textbox,
                         align = "center",
                         markup = create_markup("Clear All Notifications"),
-                        font = beautiful.font_name .. " 16",
+                        font = FONT_NAME .. " 16",
                     },
                     -- Message
                     {
@@ -480,7 +491,7 @@ local function create_confirmation_dialog(callback)
                         markup = create_markup(
                             "This will permanently delete all notification history.\nAre you sure you want to continue?"
                         ),
-                        font = beautiful.font_name .. " 10",
+                        font = FONT_NAME .. " 10",
                     },
                     -- Buttons
                     {
@@ -540,7 +551,7 @@ function notification_list:clear_notifications()
                     {
                         widget = wibox.widget.textbox,
                         align = "center",
-                        font = beautiful.font_name .. dpi(12),
+                        font = FONT_NAME .. dpi(12),
                         markup = "No notifications",
                     },
                 })
@@ -734,7 +745,7 @@ local function new()
             {
                 widget = wibox.widget.textbox,
                 align = "center",
-                font = beautiful.font_name .. dpi(12),
+                font = FONT_NAME .. dpi(12),
                 markup = "No notifications",
             },
         })

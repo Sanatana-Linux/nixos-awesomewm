@@ -23,7 +23,7 @@ end
 function container_styles.padded(args)
     args = args or {}
     local margin_size = args.margin or ui_constants.SPACING.LARGE
-    
+
     return {
         widget = wibox.container.margin,
         margins = args.margins or {
@@ -53,10 +53,10 @@ function container_styles.rounded_padded(args)
         top = args.top,
         bottom = args.bottom,
     }
-    
+
     local bg_container = container_styles.rounded_bg(bg_args)
     local padding_container = container_styles.padded(padding_args)
-    
+
     -- Nest padding inside background
     bg_container[1] = padding_container
     return bg_container
@@ -66,7 +66,7 @@ end
 function container_styles.separator(orientation, thickness)
     orientation = orientation or "horizontal"
     thickness = thickness or beautiful.separator_thickness
-    
+
     return {
         widget = wibox.container.background,
         forced_width = orientation == "vertical" and thickness or 1,

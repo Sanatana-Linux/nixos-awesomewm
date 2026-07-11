@@ -91,7 +91,8 @@ local function create_single_tag(tag, s)
     end
     local tag_label = wibox.widget.imagebox()
     local tag_icon_path = string.format(
-        "/home/tlh/.config/awesome/themes/kailash/icons/tags/%s.svg",
+        "%s/.config/awesome/themes/kailash/icons/tags/%s.svg",
+        os.getenv("HOME"),
         string.lower(tag.name)
     )
     local fallback_icon_path =

@@ -27,7 +27,7 @@ local function do_fair(p, orientation)
     local cls = p.clients
 
     -- Swap workarea dimensions, if our orientation is "east"
-    if orientation == 'east' then
+    if orientation == "east" then
         wa.width, wa.height = wa.height, wa.width
         wa.x, wa.y = wa.y, wa.x
     end
@@ -78,7 +78,7 @@ local function do_fair(p, orientation)
             g.x = g.x + wa.x
 
             -- Swap window dimensions, if our orientation is "east"
-            if orientation == 'east' then
+            if orientation == "east" then
                 g.width, g.height = g.height, g.width
                 g.x, g.y = g.y, g.x
             end

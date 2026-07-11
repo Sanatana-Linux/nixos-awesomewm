@@ -225,11 +225,18 @@ local base = {}
 -- Functions available on all widgets.
 base.widget = {}
 
-object.properties._legacy_accessors(base.widget, "buttons", nil, true, function(new_btns)
-    return new_btns[1] and (
-        type(new_btns[1]) == "button" or new_btns[1]._is_capi_button
-    ) or false
-end, true)
+object.properties._legacy_accessors(
+    base.widget,
+    "buttons",
+    nil,
+    true,
+    function(new_btns)
+        return new_btns[1]
+                and (type(new_btns[1]) == "button" or new_btns[1]._is_capi_button)
+            or false
+    end,
+    true
+)
 
 --- Set a widget's visibility.
 -- @tparam boolean b Whether the widget is visible.
@@ -249,11 +256,13 @@ end
 -- @method wibox.widget.base:add_button
 -- @noreturn
 function base.widget:add_button(button)
-    if not button then return end
+    if not button then
+        return
+    end
 
     -- Simple case
     if not self._private.buttons then
-        self:set_buttons({button})
+        self:set_buttons({ button })
         return
     end
 
@@ -261,10 +270,8 @@ function base.widget:add_button(button)
     assert(self._private.buttons_formatted)
 
     -- an `awful.button` is a tupple of `capi.button`
-    self._private.buttons_formatted = gtable.join(
-        self._private.buttons_formatted,
-        button
-    )
+    self._private.buttons_formatted =
+        gtable.join(self._private.buttons_formatted, button)
 
     table.insert(self._private.buttons, button)
 end
@@ -457,7 +464,7 @@ function base.widget:index(widget, recursive, ...)
     local widgets = self:get_children()
     for idx, w in ipairs(widgets) do
         if w == widget then
-            return idx, self, {...}
+            return idx, self, { ... }
         elseif recursive then
             local child_idx, l, path = w:index(widget, true, self, ...)
             if child_idx and l then
@@ -566,10 +573,16 @@ function base.fit_widget(parent, context, widget, width, height)
         w, h = get_cache(widget, "fit"):get(context, width, height)
     else
         -- If it has no fit method, calculate based on the size of children
-        local children = base.layout_widget(parent, context, widget, width, height)
+        local children =
+            base.layout_widget(parent, context, widget, width, height)
         for _, info in ipairs(children or {}) do
-            local x, y, w2, h2 = matrix.transform_rectangle(info._matrix,
-                0, 0, info._width, info._height)
+            local x, y, w2, h2 = matrix.transform_rectangle(
+                info._matrix,
+                0,
+                0,
+                info._width,
+                info._height
+            )
             w, h = math.max(w, x + w2), math.max(h, y + h2)
         end
     end
@@ -642,9 +655,16 @@ function base.handle_button(event, widget, x, y, button, modifiers, geometry)
     for _, v in pairs(widget._private.buttons_formatted or {}) do
         local match = true
         -- Is it the right button?
-        if v.button ~= 0 and v.button ~= button then match = false end
+        if v.button ~= 0 and v.button ~= button then
+            match = false
+        end
         -- Are the correct modifiers pressed?
-        if (not is_any(v.modifiers)) and (not tables_equal(v.modifiers, modifiers)) then match = false end
+        if
+            (not is_any(v.modifiers))
+            and (not tables_equal(v.modifiers, modifiers))
+        then
+            match = false
+        end
         if match then
             table.insert(matches, v)
         end
@@ -652,7 +672,7 @@ function base.handle_button(event, widget, x, y, button, modifiers, geometry)
 
     -- Emit the signals.
     for _, v in pairs(matches) do
-        v:emit_signal(event,geometry)
+        v:emit_signal(event, geometry)
     end
 end
 
@@ -669,13 +689,19 @@ end
 -- @treturn table An opaque object that can be returned from `:layout()`.
 -- @staticfct wibox.widget.base.place_widget_via_matrix
 function base.place_widget_via_matrix(widget, mat, width, height)
-    assert(width >= 0, "A widget's width cannot be negative: " ..  tostring(width))
-    assert(height >= 0, "A widget's height cannot be negative: " ..  tostring(height))
+    assert(
+        width >= 0,
+        "A widget's width cannot be negative: " .. tostring(width)
+    )
+    assert(
+        height >= 0,
+        "A widget's height cannot be negative: " .. tostring(height)
+    )
     return {
         _widget = widget,
         _width = width,
         _height = height,
-        _matrix = mat
+        _matrix = mat,
     }
 end
 
@@ -691,22 +717,27 @@ end
 -- @treturn table An opaque object that can be returned from `:layout()`.
 -- @staticfct wibox.widget.base.place_widget_at
 function base.place_widget_at(widget, x, y, width, height)
-    return base.place_widget_via_matrix(widget, matrix.create_translate(x, y), width, height)
+    return base.place_widget_via_matrix(
+        widget,
+        matrix.create_translate(x, y),
+        width,
+        height
+    )
 end
 
 -- Check if `obj` can be called (either using the metacall or as a function)
 local function is_callable(obj)
     local t = type(obj)
-    return t == "function" or (
-        t == "table" and getmetatable(obj) and getmetatable(obj).__call
-    ), t
+    return t == "function"
+        or (t == "table" and getmetatable(obj) and getmetatable(obj).__call),
+        t
 end
 
 -- Read the table, separate attributes from widgets.
 local function parse_table(t, leave_empty)
     local max = 0
     local attributes, widgets = {}, {}
-    for k,v in pairs(t) do
+    for k, v in pairs(t) do
         if type(k) == "number" then
             if v then
                 -- Since `ipairs` doesn't always work on sparse tables, update
@@ -733,13 +764,16 @@ end
 
 -- Recursively build a container from a declarative table.
 local function drill(ids, content)
-    if not content then return end
+    if not content then
+        return
+    end
 
     -- Alias `widget` to `layout` as they are handled the same way.
     content.layout = content.layout or content.widget
 
     -- Make sure the layout is not indexed on a function.
-    local layout = type(content.layout) == "function" and  content.layout() or content.layout
+    local layout = type(content.layout) == "function" and content.layout()
+        or content.layout
 
     -- Create layouts based on metatable's __call.
     local l = layout.is_widget and layout or layout()
@@ -758,8 +792,8 @@ local function drill(ids, content)
     -- This has to be done before the widgets are added because it might affect
     -- the output.
     for attr, val in pairs(attributes) do
-        if l["set_"..attr] then
-            l["set_"..attr](l, val)
+        if l["set_" .. attr] then
+            l["set_" .. attr](l, val)
         elseif type(l[attr]) == "function" then
             l[attr](l, val)
         else
@@ -778,13 +812,13 @@ local function drill(ids, content)
                     e, id2 = drill(ids, v)
                     widgets[k] = e
                 elseif (not v.is_widget) and is_callable(v) then
-                     widgets[k] = v()
+                    widgets[k] = v()
                 end
                 base.check_widget(widgets[k])
 
                 -- Place the widget in the access table.
                 if id2 then
-                    l  [id2] = e
+                    l[id2] = e
                     ids[id2] = ids[id2] or {}
                     table.insert(ids[id2], e)
                 end
@@ -814,9 +848,9 @@ end
 -- @method wibox.widget.base:setup
 -- @hidden
 function base.widget:setup(args)
-    local f,ids = self.set_widget or self.add or self.set_first,{}
+    local f, ids = self.set_widget or self.add or self.set_first, {}
     local w, id = drill(ids, args)
-    f(self,w)
+    f(self, w)
     if id then
         -- Avoid being dropped by wibox metatable -> drawin
         rawset(self, id, w)
@@ -843,7 +877,7 @@ end
 function base.make_widget_declarative(args)
     local ids = {}
 
-    if (not args.layout) and (not args.widget) then
+    if (not args.layout) and not args.widget then
         args.widget = base.make_widget(nil, args.id)
     end
 
@@ -867,7 +901,11 @@ function base.make_widget_declarative(args)
     rawset(w, "get_children_by_id", get_children_by_id)
 
     mt.__tostring = function()
-        return string.format("%s (%s)", id or w.widget_name or "N/A", orig_string)
+        return string.format(
+            "%s (%s)",
+            id or w.widget_name or "N/A",
+            orig_string
+        )
     end
 
     return setmetatable(w, mt)
@@ -887,7 +925,9 @@ end
 -- @constructorfct wibox.widget.base.make_widget_from_value
 -- @treturn widget|nil The new widget or `nil` in case of failure.
 function base.make_widget_from_value(wdg, ...)
-    if not wdg then return nil end
+    if not wdg then
+        return nil
+    end
 
     local is_function, t = is_callable(wdg)
 
@@ -928,10 +968,10 @@ function base.make_widget(proxy, widget_name, args)
         prop_default = args.enable_properties
     end
 
-    local ret = object {
+    local ret = object({
         enable_properties = prop_default,
-        class             = args.class,
-    }
+        class = args.class,
+    })
 
     -- Backwards compatibility.
     -- TODO: Remove this
@@ -1033,7 +1073,10 @@ end
 -- @staticfct wibox.widget.base.check_widget
 -- @noreturn
 function base.check_widget(widget)
-    assert(type(widget) == "table", "Type should be table, but is " .. tostring(type(widget)))
+    assert(
+        type(widget) == "table",
+        "Type should be table, but is " .. tostring(type(widget))
+    )
     assert(widget.is_widget, "Argument is not a widget!")
     for _, func in pairs({ "connect_signal", "disconnect_signal" }) do
         assert(type(widget[func]) == "function", func .. " is not a function")

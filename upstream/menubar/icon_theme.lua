@@ -24,18 +24,18 @@ local math = math
 local get_pragmatic_base_directories = function()
     local dirs = {}
 
-    local dir = GLib.build_filenamev({GLib.get_home_dir(), ".icons"})
+    local dir = GLib.build_filenamev({ GLib.get_home_dir(), ".icons" })
     if gfs.dir_readable(dir) then
         table.insert(dirs, dir)
     end
 
-    dir = GLib.build_filenamev({GLib.get_user_data_dir(), "icons"})
+    dir = GLib.build_filenamev({ GLib.get_user_data_dir(), "icons" })
     if gfs.dir_readable(dir) then
         table.insert(dirs, dir)
     end
 
     for _, v in ipairs(GLib.get_system_data_dirs()) do
-        dir = GLib.build_filenamev({v, "icons"})
+        dir = GLib.build_filenamev({ v, "icons" })
         if gfs.dir_readable(dir) then
             table.insert(dirs, dir)
         end
@@ -43,7 +43,7 @@ local get_pragmatic_base_directories = function()
 
     local need_usr_share_pixmaps = true
     for _, v in ipairs(GLib.get_system_data_dirs()) do
-        dir = GLib.build_filenamev({v, "pixmaps"})
+        dir = GLib.build_filenamev({ v, "pixmaps" })
         if gfs.dir_readable(dir) then
             table.insert(dirs, dir)
         end
@@ -64,7 +64,8 @@ local get_default_icon_theme_name = function()
     local icon_theme_names = { "Adwaita", "gnome", "hicolor" }
     for _, dir in ipairs(get_pragmatic_base_directories()) do
         for _, icon_theme_name in ipairs(icon_theme_names) do
-            local filename = string.format("%s/%s/index.theme", dir, icon_theme_name)
+            local filename =
+                string.format("%s/%s/index.theme", dir, icon_theme_name)
             if gfs.file_readable(filename) then
                 return icon_theme_name
             end
@@ -84,7 +85,9 @@ local index_theme_cache = {}
 -- @treturn table An instance of the class `icon_theme`
 -- @usebeautiful beautiful.icon_theme
 icon_theme.new = function(icon_theme_name, base_directories)
-    icon_theme_name = icon_theme_name or beautiful.icon_theme or get_default_icon_theme_name()
+    icon_theme_name = icon_theme_name
+        or beautiful.icon_theme
+        or get_default_icon_theme_name()
     base_directories = base_directories or get_pragmatic_base_directories()
 
     local self = {}
@@ -96,11 +99,10 @@ icon_theme.new = function(icon_theme_name, base_directories)
     if not index_theme_cache[self.icon_theme_name] then
         index_theme_cache[self.icon_theme_name] = {}
     end
-    local cache_key = table.concat(self.base_directories, ':')
+    local cache_key = table.concat(self.base_directories, ":")
     if not index_theme_cache[self.icon_theme_name][cache_key] then
-        index_theme_cache[self.icon_theme_name][cache_key] = index_theme(
-            self.icon_theme_name,
-            self.base_directories)
+        index_theme_cache[self.icon_theme_name][cache_key] =
+            index_theme(self.icon_theme_name, self.base_directories)
     end
     self.index_theme = index_theme_cache[self.icon_theme_name][cache_key]
 
@@ -108,7 +110,8 @@ icon_theme.new = function(icon_theme_name, base_directories)
 end
 
 local directory_matches_size = function(self, subdirectory, icon_size)
-    local kind, size, min_size, max_size, threshold = self.index_theme:get_per_directory_keys(subdirectory)
+    local kind, size, min_size, max_size, threshold =
+        self.index_theme:get_per_directory_keys(subdirectory)
 
     if kind == "Fixed" then
         return icon_size == size
@@ -122,7 +125,8 @@ local directory_matches_size = function(self, subdirectory, icon_size)
 end
 
 local directory_size_distance = function(self, subdirectory, icon_size)
-    local kind, size, min_size, max_size, threshold = self.index_theme:get_per_directory_keys(subdirectory)
+    local kind, size, min_size, max_size, threshold =
+        self.index_theme:get_per_directory_keys(subdirectory)
 
     if kind == "Fixed" then
         return math.abs(icon_size - size)
@@ -151,9 +155,14 @@ local lookup_icon = function(self, icon_name, icon_size)
         for _, basedir in ipairs(self.base_directories) do
             for _, ext in ipairs(self.extensions) do
                 if directory_matches_size(self, subdir, icon_size) then
-                    local filename = string.format("%s/%s/%s/%s.%s",
-                                                   basedir, self.icon_theme_name, subdir,
-                                                   icon_name, ext)
+                    local filename = string.format(
+                        "%s/%s/%s/%s.%s",
+                        basedir,
+                        self.icon_theme_name,
+                        subdir,
+                        icon_name,
+                        ext
+                    )
                     if gfs.file_readable(filename) then
                         return filename
                     else
@@ -171,9 +180,14 @@ local lookup_icon = function(self, icon_name, icon_size)
         if dist < minimal_size then
             for _, basedir in ipairs(self.base_directories) do
                 for _, ext in ipairs(self.extensions) do
-                    local filename = string.format("%s/%s/%s/%s.%s",
-                                                   basedir, self.icon_theme_name, subdir,
-                                                   icon_name, ext)
+                    local filename = string.format(
+                        "%s/%s/%s/%s.%s",
+                        basedir,
+                        self.icon_theme_name,
+                        subdir,
+                        icon_name,
+                        ext
+                    )
                     if not checked_already[filename] then
                         if gfs.file_readable(filename) then
                             closest_filename = filename
@@ -187,7 +201,7 @@ local lookup_icon = function(self, icon_name, icon_size)
     return closest_filename
 end
 
-local find_icon_path_helper  -- Gets called recursively.
+local find_icon_path_helper -- Gets called recursively.
 find_icon_path_helper = function(self, icon_name, icon_size)
     local filename = lookup_icon(self, icon_name, icon_size)
     if filename then
@@ -196,7 +210,8 @@ find_icon_path_helper = function(self, icon_name, icon_size)
 
     for _, parent in ipairs(self.index_theme:get_inherits()) do
         local parent_icon_theme = icon_theme(parent, self.base_directories)
-        filename = find_icon_path_helper(parent_icon_theme, icon_name, icon_size)
+        filename =
+            find_icon_path_helper(parent_icon_theme, icon_name, icon_size)
         if filename then
             return filename
         end
@@ -208,9 +223,7 @@ end
 local lookup_fallback_icon = function(self, icon_name)
     for _, dir in ipairs(self.base_directories) do
         for _, ext in ipairs(self.extensions) do
-            local filename = string.format("%s/%s.%s",
-                                           dir,
-                                           icon_name, ext)
+            local filename = string.format("%s/%s.%s", dir, icon_name, ext)
             if gfs.file_readable(filename) then
                 return filename
             end
@@ -236,7 +249,11 @@ function icon_theme:find_icon_path(icon_name, icon_size)
     end
 
     if self.icon_theme_name ~= "hicolor" then
-        filename = find_icon_path_helper(icon_theme("hicolor", self.base_directories), icon_name, icon_size)
+        filename = find_icon_path_helper(
+            icon_theme("hicolor", self.base_directories),
+            icon_name,
+            icon_size
+        )
         if filename then
             return filename
         end

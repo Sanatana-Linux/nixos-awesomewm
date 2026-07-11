@@ -5,7 +5,7 @@
 ---------------------------------------------------------------------------
 
 return {
-    title   = require( "naughty.widget.title"   );
-    icon    = require( "naughty.widget.icon"    );
-    message = require( "naughty.widget.message" );
+    title = require("naughty.widget.title"),
+    icon = require("naughty.widget.icon"),
+    message = require("naughty.widget.message"),
 }

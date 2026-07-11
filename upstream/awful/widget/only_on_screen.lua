@@ -15,7 +15,7 @@ local base = require("wibox.widget.base")
 local gtable = require("gears.table")
 local capi = {
     screen = screen,
-    awesome = awesome
+    awesome = awesome,
 }
 
 local only_on_screen = { mt = {} }
@@ -27,7 +27,9 @@ local function should_display_on(self, s)
         return false
     end
     local own_s = self._private.screen
-    if type(own_s) == "number" and (own_s < 1 or own_s > capi.screen.count()) then
+    if
+        type(own_s) == "number" and (own_s < 1 or own_s > capi.screen.count())
+    then
         -- Invalid screen number
         return false
     end
@@ -36,7 +38,9 @@ end
 
 -- Layout this layout
 function only_on_screen:layout(context, ...)
-    if not should_display_on(self, context.screen) then return end
+    if not should_display_on(self, context.screen) then
+        return
+    end
     return { base.place_widget_at(self._private.widget, 0, 0, ...) }
 end
 
@@ -59,7 +63,7 @@ function only_on_screen:get_widget()
 end
 
 function only_on_screen:get_children()
-    return {self._private.widget}
+    return { self._private.widget }
 end
 
 function only_on_screen:set_children(children)
@@ -89,7 +93,7 @@ end
 -- @treturn table A new only_on_screen container
 -- @constructorfct awful.widget.only_on_screen
 local function new(widget, s)
-    local ret = base.make_widget(nil, nil, {enable_properties = true})
+    local ret = base.make_widget(nil, nil, { enable_properties = true })
 
     gtable.crush(ret, only_on_screen, true)
 
@@ -117,7 +121,10 @@ end)
 
 capi.screen.connect_signal("list", function()
     for widget in pairs(instances) do
-        if widget._private.widget and type(widget._private.screen) == "number" then
+        if
+            widget._private.widget
+            and type(widget._private.screen) == "number"
+        then
             widget:emit_signal("widget::layout_changed")
         end
     end
@@ -125,7 +132,10 @@ end)
 
 capi.screen.connect_signal("property::outputs", function()
     for widget in pairs(instances) do
-        if widget._private.widget and type(widget._private.screen) == "string" then
+        if
+            widget._private.widget
+            and type(widget._private.screen) == "string"
+        then
             widget:emit_signal("widget::layout_changed")
         end
     end

@@ -49,13 +49,6 @@ local function activate_under_pointer()
     end
 end
 
-local function activate_under_pointer()
-    local c = capi.mouse.current_client
-    if c then
-        c:activate({ context = "mouse_enter", raise = false })
-    end
-end
-
 local focus_timer = gears.timer({
     autostart = true,
     timeout = 0.2,
@@ -64,7 +57,15 @@ local focus_timer = gears.timer({
 })
 
 local function start_focus_timer()
-    focus_timer:start()
+    -- Buffer by 0.3s to avoid colliding with the autostart's 0.2s window
+    gears.timer({
+        timeout = 0.3,
+        single_shot = true,
+        autostart = true,
+        callback = function()
+            focus_timer:start()
+        end,
+    })
 end
 
 capi.client.connect_signal("mouse::enter", activate_under_pointer)

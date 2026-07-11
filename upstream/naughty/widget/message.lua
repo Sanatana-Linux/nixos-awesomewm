@@ -16,9 +16,9 @@
 -- @see wibox.widget.textbox
 ----------------------------------------------------------------------------
 local textbox = require("wibox.widget.textbox")
-local gtable  = require("gears.table")
+local gtable = require("gears.table")
 local beautiful = require("beautiful")
-local markup  = require("naughty.widget._markup").set_markup
+local markup = require("naughty.widget._markup").set_markup
 
 local message = {}
 
@@ -31,21 +31,30 @@ local message = {}
 function message:set_notification(notif)
     local old = self._private.notification[1]
 
-    if old == notif then return end
+    if old == notif then
+        return
+    end
 
     if old then
-        old:disconnect_signal("property::message",
-            self._private.message_changed_callback)
-        old:disconnect_signal("property::fg",
-            self._private.message_changed_callback)
+        old:disconnect_signal(
+            "property::message",
+            self._private.message_changed_callback
+        )
+        old:disconnect_signal(
+            "property::fg",
+            self._private.message_changed_callback
+        )
     end
 
     markup(self, notif.message, notif.fg, notif.font)
 
-    self._private.notification = setmetatable({notif}, {__mode="v"})
+    self._private.notification = setmetatable({ notif }, { __mode = "v" })
 
-    notif:connect_signal("property::message", self._private.message_changed_callback)
-    notif:connect_signal("property::fg"     , self._private.message_changed_callback)
+    notif:connect_signal(
+        "property::message",
+        self._private.message_changed_callback
+    )
+    notif:connect_signal("property::fg", self._private.message_changed_callback)
     self:emit_signal("property::notification", notif)
 end
 
@@ -69,12 +78,7 @@ local function new(args)
         local n = tb._private.notification[1]
 
         if n then
-            markup(
-                tb,
-                n.message,
-                n.fg,
-                n.font
-            )
+            markup(tb, n.message, n.fg, n.font)
         else
             markup(tb, nil, nil)
         end
@@ -89,4 +93,8 @@ end
 
 --@DOC_object_COMMON@
 
-return setmetatable(message, {__call = function(_, ...) return new(...) end})
+return setmetatable(message, {
+    __call = function(_, ...)
+        return new(...)
+    end,
+})

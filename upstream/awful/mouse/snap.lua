@@ -6,15 +6,15 @@
 -- @submodule mouse
 ---------------------------------------------------------------------------
 
-local aclient   = require("awful.client")
-local resize    = require("awful.mouse.resize")
-local aplace    = require("awful.placement")
-local wibox     = require("wibox")
+local aclient = require("awful.client")
+local resize = require("awful.mouse.resize")
+local aplace = require("awful.placement")
+local wibox = require("wibox")
 local beautiful = require("beautiful")
-local color     = require("gears.color")
-local shape     = require("gears.shape")
-local cairo     = require("lgi").cairo
-local alayout   = require("awful.layout")
+local color = require("gears.color")
+local shape = require("gears.shape")
+local cairo = require("lgi").cairo
+local alayout = require("awful.layout")
 
 local capi = {
     root = root,
@@ -25,8 +25,8 @@ local capi = {
 }
 
 local module = {
-    default_distance  = 8,
-    aerosnap_distance = 16
+    default_distance = 8,
+    aerosnap_distance = 16,
 }
 
 local placeholder_w = nil
@@ -39,10 +39,11 @@ local function show_placeholder(geo)
         return
     end
 
-    placeholder_w = placeholder_w or wibox {
-        ontop = true,
-        bg    = color(beautiful.snap_bg or beautiful.bg_urgent or "#ff0000"),
-    }
+    placeholder_w = placeholder_w
+        or wibox({
+            ontop = true,
+            bg = color(beautiful.snap_bg or beautiful.bg_urgent or "#ff0000"),
+        })
 
     placeholder_w:geometry(geo)
 
@@ -50,18 +51,24 @@ local function show_placeholder(geo)
     local cr = cairo.Context(img)
 
     cr:set_operator(cairo.Operator.CLEAR)
-    cr:set_source_rgba(0,0,0,1)
+    cr:set_source_rgba(0, 0, 0, 1)
     cr:paint()
     cr:set_operator(cairo.Operator.SOURCE)
-    cr:set_source_rgba(1,1,1,1)
+    cr:set_source_rgba(1, 1, 1, 1)
 
     local line_width = beautiful.snap_border_width or 5
     cr:set_line_width(beautiful.xresources.apply_dpi(line_width))
 
-    local f = beautiful.snap_shape or function()
-        cr:translate(line_width,line_width)
-        shape.rounded_rect(cr,geo.width-2*line_width,geo.height-2*line_width, 10)
-    end
+    local f = beautiful.snap_shape
+        or function()
+            cr:translate(line_width, line_width)
+            shape.rounded_rect(
+                cr,
+                geo.width - 2 * line_width,
+                geo.height - 2 * line_width,
+                10
+            )
+        end
 
     f(cr, geo.width, geo.height)
 
@@ -76,9 +83,7 @@ end
 local function build_placement(snap, axis)
     return aplace.scale
         + aplace[snap]
-        + (
-            axis and aplace["maximize_"..axis] or nil
-          )
+        + (axis and aplace["maximize_" .. axis] or nil)
 end
 
 local function detect_screen_edges(c, snap)
@@ -114,12 +119,14 @@ local function detect_areasnap(c, distance)
     local v, h = detect_screen_edges(c, distance)
 
     if v and h then
-        current_snap = v.."_"..h
+        current_snap = v .. "_" .. h
     else
         current_snap = v or h or nil
     end
 
-    if old_snap == current_snap then return end
+    if old_snap == current_snap then
+        return
+    end
 
     current_axis = ((v and not h) and "horizontally")
         or ((h and not v) and "vertically")
@@ -127,30 +134,33 @@ local function detect_areasnap(c, distance)
 
     -- Show the expected geometry outline
     show_placeholder(
-        current_snap and build_placement(current_snap, current_axis)(c, {
-            to_percent     = 0.5,
-            honor_workarea = true,
-            honor_padding  = true,
-            pretend        = true,
-            margins         = beautiful.snapper_gap
-        }) or nil
+        current_snap
+                and build_placement(current_snap, current_axis)(c, {
+                    to_percent = 0.5,
+                    honor_workarea = true,
+                    honor_padding = true,
+                    pretend = true,
+                    margins = beautiful.snapper_gap,
+                })
+            or nil
     )
-
 end
 
 local function apply_areasnap(c, args)
-    if not current_snap then return end
+    if not current_snap then
+        return
+    end
 
     -- Remove the move offset
     args.offset = {}
 
     placeholder_w.visible = false
 
-    return build_placement(current_snap, current_axis)(c,{
-        to_percent     = 0.5,
+    return build_placement(current_snap, current_axis)(c, {
+        to_percent = 0.5,
         honor_workarea = true,
-        honor_padding  = true,
-        margins        = beautiful.snapper_gap
+        honor_padding = true,
+        margins = beautiful.snapper_gap,
     })
 end
 
@@ -169,20 +179,20 @@ local function snap_outside(g, sg, snap)
 end
 
 local function snap_inside(g, sg, snap)
-    local edgev = 'none'
-    local edgeh = 'none'
+    local edgev = "none"
+    local edgeh = "none"
     if math.abs(g.x) < snap + sg.x and g.x > sg.x then
-        edgev = 'left'
+        edgev = "left"
         g.x = sg.x
     elseif math.abs((sg.x + sg.width) - (g.x + g.width)) < snap then
-        edgev = 'right'
+        edgev = "right"
         g.x = sg.x + sg.width - g.width
     end
     if math.abs(g.y) < snap + sg.y and g.y > sg.y then
-        edgeh = 'top'
+        edgeh = "top"
         g.y = sg.y
     elseif math.abs((sg.y + sg.height) - (g.y + g.height)) < snap then
-        edgeh = 'bottom'
+        edgeh = "bottom"
         g.y = sg.y + sg.height - g.height
     end
 
@@ -227,10 +237,10 @@ function module.snap(c, snap, x, y, fixed_x, fixed_y)
     -- Only allow docking to workarea for consistency/to avoid problems.
     if c.dockable then
         local struts = c:struts()
-        struts['left'] = 0
-        struts['right'] = 0
-        struts['top'] = 0
-        struts['bottom'] = 0
+        struts["left"] = 0
+        struts["right"] = 0
+        struts["top"] = 0
+        struts["bottom"] = 0
         if edge ~= "none" and c.floating then
             if edge == "left" or edge == "right" then
                 struts[edge] = cur_geom.width
@@ -246,8 +256,12 @@ function module.snap(c, snap, x, y, fixed_x, fixed_y)
             local snapper_geom = snapper:geometry()
             snapper_geom.x = snapper_geom.x - snapper_gap
             snapper_geom.y = snapper_geom.y - snapper_gap
-            snapper_geom.width = snapper_geom.width + (2 * snapper.border_width) + (2 * snapper_gap)
-            snapper_geom.height = snapper_geom.height + (2 * snapper.border_width) + (2 * snapper_gap)
+            snapper_geom.width = snapper_geom.width
+                + (2 * snapper.border_width)
+                + (2 * snapper_gap)
+            snapper_geom.height = snapper_geom.height
+                + (2 * snapper.border_width)
+                + (2 * snapper_gap)
             geom = snap_outside(geom, snapper_geom, snap)
         end
     end
@@ -258,8 +272,12 @@ function module.snap(c, snap, x, y, fixed_x, fixed_y)
     geom.height = geom.height - (2 * c.border_width) - (2 * snapper_gap)
 
     -- It's easiest to undo changes afterwards if they're not allowed
-    if fixed_x then geom.x = cur_geom.x end
-    if fixed_y then geom.y = cur_geom.y end
+    if fixed_x then
+        geom.x = cur_geom.x
+    end
+    if fixed_y then
+        geom.y = cur_geom.y
+    end
 
     return geom
 end
@@ -267,24 +285,36 @@ end
 -- Enable edge snapping
 resize.add_move_callback(function(c, geo, args)
     -- Screen edge snapping (areosnap)
-    if (module.edge_enabled ~= false)
-      and args and (args.snap == nil or args.snap) then
+    if
+        (module.edge_enabled ~= false)
+        and args
+        and (args.snap == nil or args.snap)
+    then
         detect_areasnap(c, module.aerosnap_distance)
     end
 
     -- Snapping between clients
-    if (module.client_enabled ~= false)
-      and args and (args.snap == nil or args.snap) then
+    if
+        (module.client_enabled ~= false)
+        and args
+        and (args.snap == nil or args.snap)
+    then
         return module.snap(c, args.snap, geo.x, geo.y)
     end
 end, "mouse.move")
 
 -- Apply the aerosnap
 resize.add_leave_callback(function(c, _, args)
-    if module.edge_enabled == false then return end
+    if module.edge_enabled == false then
+        return
+    end
     return apply_areasnap(c, args)
 end, "mouse.move")
 
-return setmetatable(module, {__call = function(_, ...) return module.snap(...) end})
+return setmetatable(module, {
+    __call = function(_, ...)
+        return module.snap(...)
+    end,
+})
 
 -- vim: filetype=lua:expandtab:shiftwidth=4:tabstop=8:softtabstop=4:textwidth=80

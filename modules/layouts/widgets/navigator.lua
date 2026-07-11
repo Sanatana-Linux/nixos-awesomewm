@@ -11,7 +11,9 @@ local beautiful = require("beautiful")
 local timer = require("gears.timer")
 local utils = require("modules.utils")
 local layouts = require("modules.layouts")
+local common = require("modules.layouts.widgets.common")
 local naughty = require("naughty")
+local capi = { keygrabber = keygrabber }
 
 function notify_show(txt)
     naughty.notify({ text = txt, timeout = 2 })
@@ -23,25 +25,57 @@ navigator.ignored = { "dock", "splash", "desktop" }
 local function default_style()
     local style = {
         border_width = 2,
-        marksize     = { width = 200, height = 100, r = 20 },
-        gradstep     = 100,
-        linegap      = 35,
-        timeout      = 1,
-        notify       = {},
-        keytip       = { base = { geometry = { width = 600 }, exit = true } },
-        titlefont    = { font = "Sans", size = 28, face = 1, slant = 0 },
-        num          = { "1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "F1", "F3", "F4", "F5" },
-        font         = { font = "Sans", size = 22, face = 1, slant = 0 },
-        color        = { border = "#575757", wibox = "#00000000", bg1 = "#57575740", bg2 = "#57575720",
-                         fbg1 = "#b1222b40", fbg2 = "#b1222b20", mark = "#575757", text = "#202020",
-                         hbg1 = "#32882d40", hbg2 = "#32882d20" },
-        shape        = nil
+        marksize = { width = 200, height = 100, r = 20 },
+        gradstep = 100,
+        linegap = 35,
+        timeout = 1,
+        notify = {},
+        keytip = { base = { geometry = { width = 600 }, exit = true } },
+        titlefont = { font = "Sans", size = 28, face = 1, slant = 0 },
+        num = {
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8",
+            "9",
+            "0",
+            "F1",
+            "F3",
+            "F4",
+            "F5",
+        },
+        font = { font = "Sans", size = 22, face = 1, slant = 0 },
+        color = {
+            border = "#575757",
+            wibox = "#00000000",
+            bg1 = "#57575740",
+            bg2 = "#57575720",
+            fbg1 = "#b1222b40",
+            fbg2 = "#b1222b20",
+            mark = "#575757",
+            text = "#202020",
+            hbg1 = "#32882d40",
+            hbg2 = "#32882d20",
+        },
+        shape = nil,
     }
-    return utils.table_merge(style, utils.table_check(beautiful, "service.navigator") or {})
+    return utils.table_merge(
+        style,
+        utils.table_check(beautiful, "service.navigator") or {}
+    )
 end
 
 local function is_intersect(a, b)
-    return (b.x < a.x + a.width and b.x + b.width > a.x and b.y < a.y + a.height and b.y + b.height > a.y)
+    return (
+        b.x < a.x + a.width
+        and b.x + b.width > a.x
+        and b.y < a.y + a.height
+        and b.y + b.height > a.y
+    )
 end
 
 function navigator.make_paint(c)
@@ -68,7 +102,9 @@ function navigator.make_paint(c)
         return width, height
     end
     function widg:draw(_, cr, width, height)
-        if not widg._data.client then return end
+        if not widg._data.client then
+            return
+        end
         local bg1, bg2
         local num = math.ceil((width + height) / style.gradstep)
         if widg._data.alert then
@@ -84,8 +120,8 @@ function navigator.make_paint(c)
             cr:set_source(color(cc))
             cr:move_to(0, (i - 1) * style.gradstep)
             cr:rel_line_to(0, style.gradstep)
-            cr:rel_line_to(l, - l)
-            cr:rel_line_to(- style.gradstep, 0)
+            cr:rel_line_to(l, -l)
+            cr:rel_line_to(-style.gradstep, 0)
             cr:close_path()
             cr:fill()
         end
@@ -106,14 +142,25 @@ function navigator.make_paint(c)
         cr:fill()
 
         -- label
-        local index = navigator.style.num[awful.util.table.hasitem(navigator.cls, widg._data.client)]
+        local index = navigator.style.num[awful.util.table.hasitem(
+            navigator.cls,
+            widg._data.client
+        )]
         local g = utils.fullgeometry(widg._data.client)
 
         cr:set_source(color(style.color.text))
         utils.cairo_set_font(cr, style.titlefont)
-        utils.cairo_textcentre(cr, { width/2, height/2 - style.linegap / 2 }, index)
+        utils.cairo_textcentre(
+            cr,
+            { width / 2, height / 2 - style.linegap / 2 },
+            index
+        )
         utils.cairo_set_font(cr, style.font)
-        utils.cairo_textcentre(cr, { width/2, height/2 + style.linegap / 2 }, g.width .. " x " .. g.height)
+        utils.cairo_textcentre(
+            cr,
+            { width / 2, height / 2 + style.linegap / 2 },
+            g.width .. " x " .. g.height
+        )
     end
     return widg
 end
@@ -122,19 +169,25 @@ function navigator.make_decor(c)
     local object = {}
     local style = navigator.style
     object.wibox = wibox({
-        ontop        = true,
-        bg           = style.color.wibox,
+        ontop = true,
+        bg = style.color.wibox,
         border_width = style.border_width,
         border_color = style.color.border,
-        shape        = style.shape
+        shape = style.shape,
     })
     object.client = c
     object.widget = navigator.make_paint(c)
     object.wibox:set_widget(object.widget)
-    object.update =  {
-        focus = function() object.widget:emit_signal("widget::redraw_needed") end,
-        close = function() navigator:restart() end,
-        geometry = function() utils.fullgeometry(object.wibox, utils.fullgeometry(object.client)) end
+    object.update = {
+        focus = function()
+            object.widget:emit_signal("widget::redraw_needed")
+        end,
+        close = function()
+            navigator:restart()
+        end,
+        geometry = function()
+            utils.fullgeometry(object.wibox, utils.fullgeometry(object.client))
+        end,
     }
     function object:set_client(client_)
         object.client = client_
@@ -143,16 +196,24 @@ function navigator.make_decor(c)
 
         object.client:connect_signal("focus", object.update.focus)
         object.client:connect_signal("unfocus", object.update.focus)
-        object.client:connect_signal("property::geometry", object.update.geometry)
+        object.client:connect_signal(
+            "property::geometry",
+            object.update.geometry
+        )
         object.client:connect_signal("unmanage", object.update.close)
     end
     function object:clear(no_hide)
         object.client:disconnect_signal("focus", object.update.focus)
         object.client:disconnect_signal("unfocus", object.update.focus)
-        object.client:disconnect_signal("property::geometry", object.update.geometry)
+        object.client:disconnect_signal(
+            "property::geometry",
+            object.update.geometry
+        )
         object.client:disconnect_signal("unmanage", object.update.close)
         object.widget:set_client()
-        if not no_hide then object.wibox.visible = false end
+        if not no_hide then
+            object.wibox.visible = false
+        end
     end
     object:set_client(c)
     return object
@@ -163,7 +224,9 @@ function navigator:init()
     self.hilight = {}
     -- timer
     self.hilight.hidetimer = timer({ timeout = self.style.timeout })
-    self.hilight.hidetimer:connect_signal("timeout", function() self.hilight.hide() end)
+    self.hilight.hidetimer:connect_signal("timeout", function()
+        self.hilight.hide()
+    end)
     -- show/hide
     function self.hilight.show(g)
         for i, c in ipairs(self.cls) do
@@ -173,54 +236,61 @@ function navigator:init()
     end
 
     function self.hilight.hide()
-        for i, _ in ipairs(self.cls) do self.data[i].widget:set_alert(false) end
+        for i, _ in ipairs(self.cls) do
+            self.data[i].widget:set_alert(false)
+        end
     end
 
     -- close the navigator on tag switch
-    tag.connect_signal('property::selected',
-        function()
-            if navigator.active then self:close() end
+    tag.connect_signal("property::selected", function()
+        if navigator.active then
+            self:close()
         end
-    )
+    end)
 
     -- update navigator if new client spawns
-    client.connect_signal('manage',
-        function()
-            if navigator.active then self:restart() end
+    client.connect_signal("manage", function()
+        if navigator.active then
+            self:restart()
         end
-    )
+    end)
 
     -- update navigator if a client gets minimized or restored
-    client.connect_signal('property::minimized',
-        function()
-            if navigator.active then self:restart() end
+    client.connect_signal("property::minimized", function()
+        if navigator.active then
+            self:restart()
         end
-    )
+    end)
 end
 
 function navigator:run()
-    if not self.style then self:init() end
+    if not self.style then
+        self:init()
+    end
     -- check clients
     local s = mouse.screen
     self.cls = awful.client.tiled(s)
 
-    if #self.cls == 0 or
-       not client.focus or
-       client.focus.fullscreen or
-       awful.util.table.hasitem(navigator.ignored, client.focus.type)
+    if
+        #self.cls == 0
+        or not client.focus
+        or client.focus.fullscreen
+        or awful.util.table.hasitem(navigator.ignored, client.focus.type)
     then
         return
     end
     -- check handler
     local l = awful.layout.get(s)
-    local handler = l.key_handler or layouts.common.handler[l]
+    local handler = l.key_handler or common.handler[l]
     if not handler then
         notify_show("Layout not supported")
         return
     end
     -- layout setup if needed
-    if l.startup then l.startup() end
-    local tip = l.tip or layouts.common.tips[l]
+    if l.startup then
+        l.startup()
+    end
+    local tip = l.tip or common.tips[l]
     -- activate navition widgets
     for i, c in ipairs(self.cls) do
         if not self.data[i] then
@@ -231,13 +301,21 @@ function navigator:run()
 
         self.data[i].wibox.visible = true
     end
-    -- run key handler
-    self.grabber_settled = handler
-    awful.keygrabber.run(self.grabber_settled)
+    -- run key handler — use capi.keygrabber directly so we can return
+    -- false for unhandled keys, allowing them to pass through to normal bindings
+    local function grabber(mod, key, event)
+        if handler(mod, key, event) then
+            return true -- key handled, consume it
+        end
+        return false -- unhandled, replay to normal bindings
+    end
+    self.grabber_settled = grabber
+    capi.keygrabber.run(self.grabber_settled)
     -- set keys tip
     self.tip_settled = tip
     if tip then
-        local tip_style = self.style.keytip[awful.layout.getname(l)] or self.style.keytip.base
+        local tip_style = self.style.keytip[awful.layout.getname(l)]
+            or self.style.keytip.base
         -- tip display not available without hotkeys widget
     end
     navigator.active = true
@@ -247,16 +325,20 @@ function navigator:close()
     for i, _ in ipairs(self.cls) do
         self.data[i]:clear()
     end
-    awful.keygrabber.stop(self.grabber_settled)
+    capi.keygrabber.stop()
     local l = client.focus and awful.layout.get(client.focus.screen)
-    if l and l.cleanup then l.cleanup() end
+    if l and l.cleanup then
+        l.cleanup()
+    end
     self.cls = {}
     navigator.active = false
 end
 
 function navigator:restart()
     -- update decoration
-    for i, _ in ipairs(self.cls) do self.data[i]:clear(true) end
+    for i, _ in ipairs(self.cls) do
+        self.data[i]:clear(true)
+    end
     local newcls = awful.client.tiled(mouse.screen)
     for i = 1, math.max(#self.cls, #newcls) do
         if newcls[i] then

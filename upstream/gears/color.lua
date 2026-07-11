@@ -88,8 +88,9 @@ function color.parse_color(col)
             return nil
         end
         local dividor = (0x10 ^ chars_per_channel) - 1
-        for idx=1,#hex_str,chars_per_channel do
-            local channel_val = tonumber(hex_str:sub(idx,idx+chars_per_channel-1), 16)
+        for idx = 1, #hex_str, chars_per_channel do
+            local channel_val =
+                tonumber(hex_str:sub(idx, idx + chars_per_channel - 1), 16)
             table.insert(rgb, channel_val / dividor)
         end
         if channels == 3 then
@@ -104,7 +105,7 @@ function color.parse_color(col)
             c.red / 0xffff,
             c.green / 0xffff,
             c.blue / 0xffff,
-            1.0
+            1.0,
         }
     end
     assert(#rgb == 4, col)
@@ -208,7 +209,12 @@ function color.create_linear_pattern(arg)
         error("Wrong argument type: " .. type(arg))
     end
 
-    pat = cairo.Pattern.create_linear(arg.from[1], arg.from[2], arg.to[1], arg.to[2])
+    pat = cairo.Pattern.create_linear(
+        arg.from[1],
+        arg.from[2],
+        arg.to[1],
+        arg.to[2]
+    )
     add_stops_table(pat, arg.stops)
     return pat
 end
@@ -234,8 +240,14 @@ function color.create_radial_pattern(arg)
         error("Wrong argument type: " .. type(arg))
     end
 
-    pat = cairo.Pattern.create_radial(arg.from[1], arg.from[2], arg.from[3],
-            arg.to[1], arg.to[2], arg.to[3])
+    pat = cairo.Pattern.create_radial(
+        arg.from[1],
+        arg.from[2],
+        arg.from[3],
+        arg.to[1],
+        arg.to[2],
+        arg.to[3]
+    )
     add_stops_table(pat, arg.stops)
     return pat
 end
@@ -245,7 +257,7 @@ color.types = {
     solid = color.create_solid_pattern,
     png = color.create_png_pattern,
     linear = color.create_linear_pattern,
-    radial = color.create_radial_pattern
+    radial = color.create_radial_pattern,
 }
 
 --- Create a pattern from a given string.
@@ -367,7 +379,9 @@ function color.change_opacity(input, opacity)
 
     local error, r, g, b, _ = input:get_rgba()
 
-    if error ~= "SUCCESS" then return input end
+    if error ~= "SUCCESS" then
+        return input
+    end
 
     return cairo.Pattern.create_rgba(r, g, b, opacity)
 end
@@ -387,10 +401,14 @@ end
 -- @see gears.color.ensure_pango_color
 
 function color.to_rgba_string(col, fallback)
-    if (not col) and (not fallback) then return nil end
+    if (not col) and not fallback then
+        return nil
+    end
 
     -- Prevent infinite recursion.
-    if not col then return color.to_rgba_string(fallback) end
+    if not col then
+        return color.to_rgba_string(fallback)
+    end
 
     if color_string_cache[col] then
         return color_string_cache[col]
@@ -398,17 +416,21 @@ function color.to_rgba_string(col, fallback)
 
     col = color.create_pattern(col)
 
-    local error1, error2, r, g, b, a = pcall(function () return col:get_rgba() end)
+    local error1, error2, r, g, b, a = pcall(function()
+        return col:get_rgba()
+    end)
 
     -- Surface patterns don't have an RGBA representation.
-    if (not error1) or error2 ~= "SUCCESS" then return color.to_rgba_string(fallback) end
+    if (not error1) or error2 ~= "SUCCESS" then
+        return color.to_rgba_string(fallback)
+    end
 
     color_string_cache[col] = string.format(
         "#%02x%02x%02x%02x",
-        math.floor(r*255),
-        math.floor(g*255),
-        math.floor(b*255),
-        math.floor(a*255)
+        math.floor(r * 255),
+        math.floor(g * 255),
+        math.floor(b * 255),
+        math.floor(a * 255)
     )
 
     return color_string_cache[col]
@@ -428,10 +450,15 @@ function color.ensure_pango_color(check_color, fallback)
     check_color = tostring(check_color)
     -- Pango markup supports alpha, PangoColor does not. Thus, check for this.
     local len = #check_color
-    if string.match(check_color, "^#%x+$") and (len == 5 or len == 9 or len == 17) then
+    if
+        string.match(check_color, "^#%x+$")
+        and (len == 5 or len == 9 or len == 17)
+    then
         return check_color
     end
-    return Pango.Color.parse(Pango.Color(), check_color) and check_color or fallback or "black"
+    return Pango.Color.parse(Pango.Color(), check_color) and check_color
+        or fallback
+        or "black"
 end
 
 function color.mt.__call(_, ...)

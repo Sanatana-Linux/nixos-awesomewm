@@ -19,21 +19,22 @@
 -- @supermodule wibox.container.background
 -- @see wibox.container.background
 ----------------------------------------------------------------------------
-local wbg       = require("wibox.container.background")
-local gtable    = require("gears.table")
+local wbg = require("wibox.container.background")
+local gtable = require("gears.table")
 local beautiful = require("beautiful")
-local gshape    = require("gears.shape")
+local gshape = require("gears.shape")
 
 local background = {}
 
 local function update_background(notif, wdg)
-    local bg    = notif.bg           or beautiful.notification_bg
-    local bw    = notif.border_width or beautiful.notification_border_width
-    local bc    = notif.border_color or beautiful.notification_border_color
+    local bg = notif.bg or beautiful.notification_bg
+    local bw = notif.border_width or beautiful.notification_border_width
+    local bc = notif.border_color or beautiful.notification_border_color
 
     -- Always fallback to the rectangle to make sure the border works
-    local shape = notif.shape or
-        beautiful.notification_shape or gshape.rectangle
+    local shape = notif.shape
+        or beautiful.notification_shape
+        or gshape.rectangle
 
     wdg:set_bg(bg)
     wdg:set_shape(shape) -- otherwise there's no borders
@@ -50,27 +51,49 @@ end
 function background:set_notification(notif)
     local old = self._private.notification[1]
 
-    if old == notif then return end
+    if old == notif then
+        return
+    end
 
     if old then
-        old:disconnect_signal("property::bg",
-            self._private.background_changed_callback)
-        old:disconnect_signal("property::border_width",
-            self._private.background_changed_callback)
-        old:disconnect_signal("property::border_color",
-            self._private.background_changed_callback)
-        old:disconnect_signal("property::shape",
-            self._private.background_changed_callback)
+        old:disconnect_signal(
+            "property::bg",
+            self._private.background_changed_callback
+        )
+        old:disconnect_signal(
+            "property::border_width",
+            self._private.background_changed_callback
+        )
+        old:disconnect_signal(
+            "property::border_color",
+            self._private.background_changed_callback
+        )
+        old:disconnect_signal(
+            "property::shape",
+            self._private.background_changed_callback
+        )
     end
 
     update_background(notif, self)
 
-    self._private.notification = setmetatable({notif}, {__mode="v"})
+    self._private.notification = setmetatable({ notif }, { __mode = "v" })
 
-    notif:connect_signal("property::bg"          , self._private.background_changed_callback)
-    notif:connect_signal("property::border_width", self._private.background_changed_callback)
-    notif:connect_signal("property::border_color", self._private.background_changed_callback)
-    notif:connect_signal("property::shape"       , self._private.background_changed_callback)
+    notif:connect_signal(
+        "property::bg",
+        self._private.background_changed_callback
+    )
+    notif:connect_signal(
+        "property::border_width",
+        self._private.background_changed_callback
+    )
+    notif:connect_signal(
+        "property::border_color",
+        self._private.background_changed_callback
+    )
+    notif:connect_signal(
+        "property::shape",
+        self._private.background_changed_callback
+    )
     self:emit_signal("property::notification", notif)
 end
 
@@ -104,4 +127,8 @@ end
 
 --@DOC_object_COMMON@
 
-return setmetatable(background, {__call = function(_, ...) return new(...) end})
+return setmetatable(background, {
+    __call = function(_, ...)
+        return new(...)
+    end,
+})

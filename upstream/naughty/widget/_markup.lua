@@ -3,17 +3,17 @@ local beautiful = require("beautiful")
 local module = {}
 
 -- Since some escaping needs to be undone, we have to escape the escaped <>.
-local pre_escape = {["&lt;"] = "&zzlt;", ["&gt;"] = "&zzgt;"}
+local pre_escape = { ["&lt;"] = "&zzlt;", ["&gt;"] = "&zzgt;" }
 
 local escape_pattern = "[<>&]"
-local escape_subs    = { ['<'] = "&lt;", ['>'] = "&gt;", ['&'] = "&amp;" }
+local escape_subs = { ["<"] = "&lt;", [">"] = "&gt;", ["&"] = "&amp;" }
 
 -- Also reverse escaping some allowed tags because people actually use them.
-local escape_undo = {["&lt;(span[^&]+)&gt;"] = "<%1>"}
+local escape_undo = { ["&lt;(span[^&]+)&gt;"] = "<%1>" }
 
-for _, allowed in ipairs {'b', 'i', 'u', 'span'} do
-    escape_undo['&lt;' ..allowed..'&gt;'] = "<" ..allowed..">"
-    escape_undo['&lt;/'..allowed..'&gt;'] = "</"..allowed..">"
+for _, allowed in ipairs({ "b", "i", "u", "span" }) do
+    escape_undo["&lt;" .. allowed .. "&gt;"] = "<" .. allowed .. ">"
+    escape_undo["&lt;/" .. allowed .. "&gt;"] = "</" .. allowed .. ">"
 end
 
 -- Best effort attempt to allow a subset of pango markup in the text while

@@ -35,7 +35,10 @@ function filesystem.make_directories(dir)
 end
 
 function filesystem.mkdir(dir)
-    require("gears.debug").deprecate("gears.filesystem.make_directories", {deprecated_in=5})
+    require("gears.debug").deprecate(
+        "gears.filesystem.make_directories",
+        { deprecated_in = 5 }
+    )
     return filesystem.make_directories(dir)
 end
 
@@ -53,10 +56,13 @@ end
 -- @staticfct gears.filesystem.file_readable
 function filesystem.file_readable(filename)
     local gfile = Gio.File.new_for_path(filename)
-    local gfileinfo = gfile:query_info("standard::type,access::can-read",
-                                       Gio.FileQueryInfoFlags.NONE)
-    return gfileinfo and gfileinfo:get_file_type() ~= "DIRECTORY" and
-        gfileinfo:get_attribute_boolean("access::can-read")
+    local gfileinfo = gfile:query_info(
+        "standard::type,access::can-read",
+        Gio.FileQueryInfoFlags.NONE
+    )
+    return gfileinfo
+        and gfileinfo:get_file_type() ~= "DIRECTORY"
+        and gfileinfo:get_attribute_boolean("access::can-read")
 end
 
 --- Check if a file exists, is executable and not a directory.
@@ -65,10 +71,13 @@ end
 -- @staticfct gears.filesystem.file_executable
 function filesystem.file_executable(filename)
     local gfile = Gio.File.new_for_path(filename)
-    local gfileinfo = gfile:query_info("standard::type,access::can-execute",
-                                       Gio.FileQueryInfoFlags.NONE)
-    return gfileinfo and gfileinfo:get_file_type() ~= "DIRECTORY" and
-        gfileinfo:get_attribute_boolean("access::can-execute")
+    local gfileinfo = gfile:query_info(
+        "standard::type,access::can-execute",
+        Gio.FileQueryInfoFlags.NONE
+    )
+    return gfileinfo
+        and gfileinfo:get_file_type() ~= "DIRECTORY"
+        and gfileinfo:get_attribute_boolean("access::can-execute")
 end
 
 --- Check if a path exists, is readable and a directory.
@@ -77,10 +86,13 @@ end
 -- @staticfct gears.filesystem.dir_readable
 function filesystem.dir_readable(path)
     local gfile = Gio.File.new_for_path(path)
-    local gfileinfo = gfile:query_info("standard::type,access::can-read",
-                                       Gio.FileQueryInfoFlags.NONE)
-    return gfileinfo and gfileinfo:get_file_type() == "DIRECTORY" and
-        gfileinfo:get_attribute_boolean("access::can-read")
+    local gfileinfo = gfile:query_info(
+        "standard::type,access::can-read",
+        Gio.FileQueryInfoFlags.NONE
+    )
+    return gfileinfo
+        and gfileinfo:get_file_type() == "DIRECTORY"
+        and gfileinfo:get_attribute_boolean("access::can-read")
 end
 
 --- Check if a path exists, is writable and a directory.
@@ -89,10 +101,13 @@ end
 -- @staticfct gears.filesystem.dir_writable
 function filesystem.dir_writable(path)
     local gfile = Gio.File.new_for_path(path)
-    local gfileinfo = gfile:query_info("standard::type,access::can-write",
-                                       Gio.FileQueryInfoFlags.NONE)
-    return gfileinfo and gfileinfo:get_file_type() == "DIRECTORY" and
-        gfileinfo:get_attribute_boolean("access::can-write")
+    local gfileinfo = gfile:query_info(
+        "standard::type,access::can-write",
+        Gio.FileQueryInfoFlags.NONE
+    )
+    return gfileinfo
+        and gfileinfo:get_file_type() == "DIRECTORY"
+        and gfileinfo:get_attribute_boolean("access::can-write")
 end
 
 --- Check if a path is a directory.
@@ -107,31 +122,35 @@ end
 -- @return the config home (XDG\_CONFIG\_HOME) with a slash at the end.
 -- @staticfct gears.filesystem.get_xdg_config_home
 function filesystem.get_xdg_config_home()
-    return (os.getenv("XDG_CONFIG_HOME") or os.getenv("HOME") .. "/.config") .. "/"
+    return (os.getenv("XDG_CONFIG_HOME") or os.getenv("HOME") .. "/.config")
+        .. "/"
 end
 
 --- Get the cache home according to the XDG basedir specification.
 -- @return the cache home (XDG\_CACHE\_HOME) with a slash at the end.
 -- @staticfct gears.filesystem.get_xdg_cache_home
 function filesystem.get_xdg_cache_home()
-    return (os.getenv("XDG_CACHE_HOME") or os.getenv("HOME") .. "/.cache") .. "/"
+    return (os.getenv("XDG_CACHE_HOME") or os.getenv("HOME") .. "/.cache")
+        .. "/"
 end
 
 --- Get the data home according to the XDG basedir specification.
 -- @treturn string the data home (XDG\_DATA\_HOME) with a slash at the end.
 -- @staticfct gears.filesystem.get_xdg_data_home
 function filesystem.get_xdg_data_home()
-    return (os.getenv("XDG_DATA_HOME") or os.getenv("HOME") .. "/.local/share") .. "/"
+    return (os.getenv("XDG_DATA_HOME") or os.getenv("HOME") .. "/.local/share")
+        .. "/"
 end
 
 --- Get the data dirs according to the XDG basedir specification.
 -- @treturn table the data dirs (XDG\_DATA\_DIRS) with a slash at the end of each entry.
 -- @staticfct gears.filesystem.get_xdg_data_dirs
 function filesystem.get_xdg_data_dirs()
-    local xdg_data_dirs = os.getenv("XDG_DATA_DIRS") or "/usr/share:/usr/local/share"
-    return gtable.map(
-        function(dir) return dir .. "/" end,
-        gstring.split(xdg_data_dirs, ":"))
+    local xdg_data_dirs = os.getenv("XDG_DATA_DIRS")
+        or "/usr/share:/usr/local/share"
+    return gtable.map(function(dir)
+        return dir .. "/"
+    end, gstring.split(xdg_data_dirs, ":"))
 end
 
 --- Get the path to the user's config dir.
@@ -155,14 +174,14 @@ end
 -- @return A string with the requested path with a slash at the end.
 -- @staticfct gears.filesystem.get_themes_dir
 function filesystem.get_themes_dir()
-    return (os.getenv('AWESOME_THEMES_PATH') or awesome.themes_path) .. "/"
+    return (os.getenv("AWESOME_THEMES_PATH") or awesome.themes_path) .. "/"
 end
 
 --- Get the path to the directory where our icons are installed.
 -- @return A string with the requested path with a slash at the end.
 -- @staticfct gears.filesystem.get_awesome_icon_dir
 function filesystem.get_awesome_icon_dir()
-    return (os.getenv('AWESOME_ICON_PATH') or awesome.icon_path) .. "/"
+    return (os.getenv("AWESOME_ICON_PATH") or awesome.icon_path) .. "/"
 end
 
 --- Get the user's config or cache dir.
@@ -175,10 +194,16 @@ function filesystem.get_dir(d)
     if d == "config" then
         -- No idea why this is what is returned, I recommend everyone to use
         -- get_configuration_dir() instead
-        require("gears.debug").deprecate("gears.filesystem.get_xdg_config_home() .. 'awesome/'", {deprecated_in=5})
+        require("gears.debug").deprecate(
+            "gears.filesystem.get_xdg_config_home() .. 'awesome/'",
+            { deprecated_in = 5 }
+        )
         return filesystem.get_xdg_config_home() .. "awesome/"
     elseif d == "cache" then
-        require("gears.debug").deprecate("gears.filesystem.get_cache_dir", {deprecated_in=5})
+        require("gears.debug").deprecate(
+            "gears.filesystem.get_cache_dir",
+            { deprecated_in = 5 }
+        )
         return filesystem.get_cache_dir()
     end
 end
@@ -196,25 +221,41 @@ function filesystem.get_random_file_from_dir(path, exts, absolute_path)
     local files, valid_exts = {}, {}
 
     -- Transforms { "jpg", ... } into { [jpg] = #, ... }
-    if exts then for i, j in ipairs(exts) do valid_exts[j:lower():gsub("^[.]", "")] = i end end
+    if exts then
+        for i, j in ipairs(exts) do
+            valid_exts[j:lower():gsub("^[.]", "")] = i
+        end
+    end
 
     -- Build a table of files from the path with the required extensions
-    local file_list = Gio.File.new_for_path(path):enumerate_children("standard::*", 0)
+    local file_list =
+        Gio.File.new_for_path(path):enumerate_children("standard::*", 0)
 
     -- This will happen when the directory doesn't exist.
-    if not file_list then return nil end
+    if not file_list then
+        return nil
+    end
 
-    for file in function() return file_list:next_file() end do
+    for file in
+        function()
+            return file_list:next_file()
+        end
+    do
         if file:get_file_type() == "REGULAR" then
             local file_name = file:get_display_name()
 
-            if not exts or valid_exts[file_name:lower():match(".+%.(.*)$") or ""] then
-               table.insert(files, file_name)
+            if
+                not exts
+                or valid_exts[file_name:lower():match(".+%.(.*)$") or ""]
+            then
+                table.insert(files, file_name)
             end
         end
     end
 
-    if #files == 0 then return nil end
+    if #files == 0 then
+        return nil
+    end
 
     -- Return a randomly selected filename from the file table
     local file = files[math.random(#files)]

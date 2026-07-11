@@ -18,12 +18,12 @@ awful.keyboard.append_global_keybindings({
     end, { description = "focus previous by index", group = "Focus" }),
 
     -- Go back to the previously focused client
-awful.key({ modkey }, "Tab", function()
-    awful.client.focus.history.previous()
-    if capi.client.focus then
-        capi.client.focus:raise()
-    end
-end, { description = "go back", group = "Focus" }),
+    awful.key({ modkey }, "Tab", function()
+        awful.client.focus.history.previous()
+        if capi.client.focus then
+            capi.client.focus:raise()
+        end
+    end, { description = "go back", group = "Focus" }),
 
     -- Focus the next screen
     awful.key({ modkey, "Control" }, "j", function()

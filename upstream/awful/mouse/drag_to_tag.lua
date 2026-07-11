@@ -7,7 +7,7 @@
 -- @submodule mouse
 ---------------------------------------------------------------------------
 
-local capi = {screen = screen, mouse = mouse}
+local capi = { screen = screen, mouse = mouse }
 local gmath = require("gears.math")
 local tag = require("awful.tag")
 local resize = require("awful.mouse.resize")
@@ -15,7 +15,9 @@ local resize = require("awful.mouse.resize")
 local module = {}
 
 function module.drag_to_tag(c)
-    if (not c) or (not c.valid) then return end
+    if (not c) or not c.valid then
+        return
+    end
 
     local coords = capi.mouse.coords()
 
@@ -36,7 +38,6 @@ function module.drag_to_tag(c)
     local idx = t.index
 
     if dir then
-
         if dir == "right" then
             local newtag = tags[gmath.cycle(#tags, idx + 1)]
             c:move_to_tag(newtag)
@@ -55,6 +56,10 @@ resize.add_move_callback(function(c, _, _)
     end
 end, "mouse.move")
 
-return setmetatable(module, {__call = function(_, ...) return module.drag_to_tag(...) end})
+return setmetatable(module, {
+    __call = function(_, ...)
+        return module.drag_to_tag(...)
+    end,
+})
 
 -- vim: filetype=lua:expandtab:shiftwidth=4:tabstop=8:softtabstop=4:textwidth=80

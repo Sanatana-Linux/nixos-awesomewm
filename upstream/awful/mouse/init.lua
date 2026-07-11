@@ -12,8 +12,7 @@ local aplace = require("awful.placement")
 local gdebug = require("gears.debug")
 local type = type
 local ipairs = ipairs
-local capi =
-{
+local capi = {
     root = root,
     mouse = mouse,
     screen = screen,
@@ -22,10 +21,10 @@ local capi =
 }
 
 local mouse = {
-    snap   = require("awful.mouse.snap"),
+    snap = require("awful.mouse.snap"),
     client = require("awful.mouse.client"),
     resize = require("awful.mouse.resize"),
-    drag_to_tag = require("awful.mouse.drag_to_tag")
+    drag_to_tag = require("awful.mouse.drag_to_tag"),
 }
 
 mouse.object = {}
@@ -88,7 +87,10 @@ mouse.wibox = {}
 -- @treturn client|nil The client object under the pointer, if one can be found.
 -- @see current_client
 function mouse.client_under_pointer()
-    gdebug.deprecate("Use mouse.current_client instead of awful.mouse.client_under_pointer()", {deprecated_in=4})
+    gdebug.deprecate(
+        "Use mouse.current_client instead of awful.mouse.client_under_pointer()",
+        { deprecated_in = 4 }
+    )
 
     return mouse.object.get_current_client()
 end
@@ -98,15 +100,19 @@ end
 -- @tparam table args Additional arguments
 -- @treturn boolean This return false when the resize need to be aborted
 mouse.resize.add_enter_callback(function(c, args) --luacheck: no unused args
-    if c.floating then return end
+    if c.floating then
+        return
+    end
 
     local l = c.screen.selected_tag and c.screen.selected_tag.layout or nil
-    if l == floating then return end
+    if l == floating then
+        return
+    end
 
     if l.mouse_resize_handler then
         capi.mousegrabber.stop()
 
-        local geo, corner = aplace.closest_corner(capi.mouse, {parent=c})
+        local geo, corner = aplace.closest_corner(capi.mouse, { parent = c })
 
         l.mouse_resize_handler(c, corner, geo.x, geo.y)
 
@@ -152,7 +158,8 @@ function mouse.object.get_current_widgets()
         local geo, coords = w:geometry(), capi.mouse:coords()
         local bw = w.border_width
 
-        local list = w:find_widgets(coords.x - geo.x - bw, coords.y - geo.y - bw)
+        local list =
+            w:find_widgets(coords.x - geo.x - bw, coords.y - geo.y - bw)
 
         local ret = {}
 
@@ -219,18 +226,22 @@ end
 -- @request wibox geometry mouse.move granted Requests to move the wibox.
 function mouse.wibox.move(w)
     w = w or mouse.current_wibox
-    if not w then return end
+    if not w then
+        return
+    end
 
-    if not w
+    if
+        not w
         or w.type == "desktop"
         or w.type == "splash"
-        or w.type == "dock" then
+        or w.type == "dock"
+    then
         return
     end
 
     -- Compute the offset
     local coords = capi.mouse.coords()
-    local geo    = aplace.centered(capi.mouse,{parent=w, pretend=true})
+    local geo = aplace.centered(capi.mouse, { parent = w, pretend = true })
 
     local offset = {
         x = geo.x - coords.x,
@@ -239,7 +250,7 @@ function mouse.wibox.move(w)
 
     mouse.resize(w, "mouse.move", {
         placement = aplace.under_mouse,
-        offset    = offset
+        offset = offset,
     })
 end
 
@@ -371,8 +382,8 @@ function mouse.remove_client_mousebinding(button)
     return false
 end
 
-for k, b in ipairs {"left", "middle", "right"} do
-    mouse.object["is_".. b .."_mouse_button_pressed"] = function()
+for k, b in ipairs({ "left", "middle", "right" }) do
+    mouse.object["is_" .. b .. "_mouse_button_pressed"] = function()
         return capi.mouse.coords().buttons[k]
     end
 end
@@ -383,10 +394,10 @@ capi.root.cursor("left_ptr")
 -- Implement the custom property handler
 local props = {}
 
-capi.mouse.set_newindex_miss_handler(function(_,key,value)
-    if mouse.object["set_"..key] then
-        mouse.object["set_"..key](value)
-    elseif not mouse.object["get_"..key] then
+capi.mouse.set_newindex_miss_handler(function(_, key, value)
+    if mouse.object["set_" .. key] then
+        mouse.object["set_" .. key](value)
+    elseif not mouse.object["get_" .. key] then
         props[key] = value
     else
         -- If there is a getter, but no setter, then the property is read-only
@@ -394,9 +405,9 @@ capi.mouse.set_newindex_miss_handler(function(_,key,value)
     end
 end)
 
-capi.mouse.set_index_miss_handler(function(_,key)
-    if mouse.object["get_"..key] then
-        return mouse.object["get_"..key]()
+capi.mouse.set_index_miss_handler(function(_, key)
+    if mouse.object["get_" .. key] then
+        return mouse.object["get_" .. key]()
     elseif mouse.object[key] and key:sub(1, 3) == "is_" then
         return mouse.object[key]()
     elseif mouse.object[key] then

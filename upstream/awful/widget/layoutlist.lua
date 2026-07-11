@@ -24,23 +24,29 @@
 -- @supermodule wibox.widget.base
 ----------------------------------------------------------------------------
 
-local capi     = {screen = screen, tag = tag}
-local wibox    = require("wibox")
+local capi = { screen = screen, tag = tag }
+local wibox = require("wibox")
 local awcommon = require("awful.widget.common")
-local abutton  = require("awful.button")
-local ascreen  = require("awful.screen")
-local gtable   = require("gears.table")
-local beautiful= require("beautiful")
-local alayout  = require("awful.layout")
-local surface  = require("gears.surface")
-local gcolor   = require("gears.color")
+local abutton = require("awful.button")
+local ascreen = require("awful.screen")
+local gtable = require("gears.table")
+local beautiful = require("beautiful")
+local alayout = require("awful.layout")
+local surface = require("gears.surface")
+local gcolor = require("gears.color")
 
 local module = {}
 
 local default_buttons = {
-    abutton({ }, 1, function(a) a.callback(  ) end),
-    abutton({ }, 4, function() alayout.inc(-1) end),
-	abutton({ }, 5, function() alayout.inc( 1) end),
+    abutton({}, 1, function(a)
+        a.callback()
+    end),
+    abutton({}, 4, function()
+        alayout.inc(-1)
+    end),
+    abutton({}, 5, function()
+        alayout.inc(1)
+    end),
 }
 
 local function wb_label(item, _, textbox)
@@ -51,31 +57,28 @@ local function wb_label(item, _, textbox)
 
     -- The layout have only 2 states: normal and selected
     if selected then
-        bg = item.style.bg_selected or
-            beautiful.layoutlist_bg_selected or
-            beautiful.bg_focus
-        fg = item.style.fg_selected or
-            beautiful.layoutlist_fg_selected or
-            beautiful.fg_focus or beautiful.fg_normal
-        shape = item.style.shape_selected or
-            beautiful.layoutlist_shape_selected
-        shape_bw = item.style.shape_border_width_selected or
-            beautiful.layoutlist_shape_border_width_selected
-        shape_bc = item.style.shape_border_color_selected or
-            beautiful.layoutlist_shape_border_color_selected
+        bg = item.style.bg_selected
+            or beautiful.layoutlist_bg_selected
+            or beautiful.bg_focus
+        fg = item.style.fg_selected
+            or beautiful.layoutlist_fg_selected
+            or beautiful.fg_focus
+            or beautiful.fg_normal
+        shape = item.style.shape_selected or beautiful.layoutlist_shape_selected
+        shape_bw = item.style.shape_border_width_selected
+            or beautiful.layoutlist_shape_border_width_selected
+        shape_bc = item.style.shape_border_color_selected
+            or beautiful.layoutlist_shape_border_color_selected
     else
-        bg = item.style.bg_normal or
-            beautiful.layoutlist_bg_normal or
-            nil
-        fg = item.style.fg_normal or
-            beautiful.layoutlist_fg_normal or
-            beautiful.fg_normal
-        shape = item.style.shape or
-            beautiful.layoutlist_shape
-        shape_bw = item.style.shape_border_width or
-            beautiful.layoutlist_shape_border_width
-        shape_bc = item.style.shape_border_color or
-            beautiful.layoutlist_shape_border_color
+        bg = item.style.bg_normal or beautiful.layoutlist_bg_normal or nil
+        fg = item.style.fg_normal
+            or beautiful.layoutlist_fg_normal
+            or beautiful.fg_normal
+        shape = item.style.shape or beautiful.layoutlist_shape
+        shape_bw = item.style.shape_border_width
+            or beautiful.layoutlist_shape_border_width
+        shape_bc = item.style.shape_border_color
+            or beautiful.layoutlist_shape_border_color
     end
 
     if textbox and item.style.align or beautiful.layoutlist_align then
@@ -85,14 +88,22 @@ local function wb_label(item, _, textbox)
     local text = ""
 
     if item.name then
-        text = "<span color='"..gcolor.ensure_pango_color(fg, "#000000").."'>"..item.name..'</span>'
+        text = "<span color='"
+            .. gcolor.ensure_pango_color(fg, "#000000")
+            .. "'>"
+            .. item.name
+            .. "</span>"
     end
 
-    return text, bg, nil, item.icon, {
-        shape               = shape,
-        shape_border_width  = shape_bw,
-        shape_border_color  = shape_bc,
-    }
+    return text,
+        bg,
+        nil,
+        item.icon,
+        {
+            shape = shape,
+            shape_border_width = shape_bw,
+            shape_border_color = shape_bc,
+        }
 end
 
 module.source = {}
@@ -124,16 +135,16 @@ end
 
 -- Keep the object for each layout. This avoid creating little new tables in
 -- each update, which is painful for the GC.
-local l_cache = setmetatable({}, {__mode = "k"})
+local l_cache = setmetatable({}, { __mode = "k" })
 
 local function reload_cache(self)
-    self._private.cache = setmetatable({}, {__mode = "v"})
+    self._private.cache = setmetatable({}, { __mode = "v" })
 
-    local show_text = (not self._private.style.disable_name) and
-        (not beautiful.layoutlist_disable_name)
+    local show_text = not self._private.style.disable_name
+        and not beautiful.layoutlist_disable_name
 
-    local show_icon = (not self._private.style.disable_icon) and
-        (not beautiful.layoutlist_disable_icon)
+    local show_icon = not self._private.style.disable_icon
+        and not beautiful.layoutlist_disable_icon
 
     local s = self.screen or ascreen.focused()
 
@@ -146,15 +157,18 @@ local function reload_cache(self)
             icon = surface.load(icn_path)
         end
 
-        l_cache[l] = l_cache[l] or {
-            layout       = l,
-            callback     = function() alayout.set(l) end,
-            style        = self._private.style,
-        }
+        l_cache[l] = l_cache[l]
+            or {
+                layout = l,
+                callback = function()
+                    alayout.set(l)
+                end,
+                style = self._private.style,
+            }
 
         -- Update the entry.
-        l_cache[l].icon   = show_icon and icon   or nil
-        l_cache[l].name   = show_text and l.name or nil
+        l_cache[l].icon = show_icon and icon or nil
+        l_cache[l].name = show_text and l.name or nil
         l_cache[l].screen = s
 
         table.insert(self._private.cache, l_cache[l])
@@ -170,7 +184,7 @@ local function update(self)
         self._private.data,
         self._private.cache,
         {
-            widget_template = self._private.widget_template
+            widget_template = self._private.widget_template,
         }
     )
 end
@@ -365,7 +379,7 @@ function layoutlist:set_widget_template(widget_template)
     self._private.widget_template = widget_template
 
     -- Remove the existing instances
-    self._private.data = setmetatable({}, { __mode = 'k' })
+    self._private.data = setmetatable({}, { __mode = "k" })
 
     -- Prevent a race condition when the constructor loop to initialize the
     -- arguments.
@@ -380,7 +394,15 @@ end
 
 function layoutlist:layout(_, width, height)
     if self._private.layout then
-        return { wibox.widget.base.place_widget_at(self._private.layout, 0, 0, width, height) }
+        return {
+            wibox.widget.base.place_widget_at(
+                self._private.layout,
+                0,
+                0,
+                width,
+                height
+            ),
+        }
     end
 end
 
@@ -389,7 +411,13 @@ function layoutlist:fit(context, width, height)
         return 0, 0
     end
 
-    return wibox.widget.base.fit_widget(self, context, self._private.layout, width, height)
+    return wibox.widget.base.fit_widget(
+        self,
+        context,
+        self._private.layout,
+        width,
+        height
+    )
 end
 
 --- Create a layout list.
@@ -422,7 +450,7 @@ end
 -- @treturn widget The action widget.
 -- @constructorfct awful.widget.layoutlist
 
-local is_connected, instances = false, setmetatable({}, {__mode = "v"})
+local is_connected, instances = false, setmetatable({}, { __mode = "v" })
 
 local function update_common()
     for _, ll in ipairs(instances) do
@@ -440,10 +468,10 @@ local function new(_, args)
 
     gtable.crush(ret, layoutlist, true)
 
-    ret._private.style   = args.style or {}
+    ret._private.style = args.style or {}
     ret._private.buttons = args.buttons
-    ret._private.source  = args.source
-    ret._private.data = setmetatable({}, { __mode = 'k' })
+    ret._private.source = args.source
+    ret._private.data = setmetatable({}, { __mode = "k" })
 
     reload_cache(ret)
 
@@ -463,8 +491,8 @@ local function new(_, args)
     -- Do not create a connection per instance, if used in a "volatile"
     -- popup, this will balloon.
     if not is_connected then
-        for _, sig in ipairs {"layout", "layouts", "selected", "activated"} do
-            capi.tag.connect_signal("property::"..sig, update_common)
+        for _, sig in ipairs({ "layout", "layouts", "selected", "activated" }) do
+            capi.tag.connect_signal("property::" .. sig, update_common)
         end
     end
 
@@ -476,4 +504,4 @@ local function new(_, args)
     return ret
 end
 
-return setmetatable(module, {__call = new})
+return setmetatable(module, { __call = new })

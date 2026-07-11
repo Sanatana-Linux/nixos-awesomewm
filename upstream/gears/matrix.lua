@@ -23,8 +23,12 @@ local matrix_mt = {}
 -- @constructorfct create
 function matrix.create(xx, yx, xy, yy, x0, y0)
     return setmetatable({
-        xx = xx, xy = xy, x0 = x0,
-        yx = yx, yy = yy, y0 = y0
+        xx = xx,
+        xy = xy,
+        x0 = x0,
+        yx = yx,
+        yy = yy,
+        y0 = y0,
     }, matrix_mt)
 end
 
@@ -62,9 +66,9 @@ end
 -- @return A new matrix describing the given transformation.
 -- @constructorfct create_rotate_at
 function matrix.create_rotate_at(x, y, angle)
-    return   matrix.create_translate( -x, -y )
-           * matrix.create_rotate   ( angle  )
-           * matrix.create_translate(  x,  y )
+    return matrix.create_translate(-x, -y)
+        * matrix.create_rotate(angle)
+        * matrix.create_translate(x, y)
 end
 
 --- Translate this matrix
@@ -103,11 +107,17 @@ end
 -- @return A new matrix describing the inverse transformation.
 function matrix:invert()
     -- Beware of math! (I just copied the algorithm from cairo's source code)
-    local a, b, c, d, x0, y0 = self.xx, self.yx, self.xy, self.yy, self.x0, self.y0
-    local inv_det = 1/(a*d - b*c)
-    return matrix.create(inv_det * d, inv_det * -b,
-            inv_det * -c, inv_det * a,
-            inv_det * (c * y0 - d * x0), inv_det * (b * x0 - a * y0))
+    local a, b, c, d, x0, y0 =
+        self.xx, self.yx, self.xy, self.yy, self.x0, self.y0
+    local inv_det = 1 / (a * d - b * c)
+    return matrix.create(
+        inv_det * d,
+        inv_det * -b,
+        inv_det * -c,
+        inv_det * a,
+        inv_det * (c * y0 - d * x0),
+        inv_det * (b * x0 - a * y0)
+    )
 end
 
 --- Multiply this matrix with another matrix.
@@ -118,12 +128,14 @@ end
 -- @tparam gears.matrix|cairo.Matrix other The other matrix to multiply with.
 -- @return The multiplication result.
 function matrix:multiply(other)
-    local ret = matrix.create(self.xx * other.xx + self.yx * other.xy,
+    local ret = matrix.create(
+        self.xx * other.xx + self.yx * other.xy,
         self.xx * other.yx + self.yx * other.yy,
         self.xy * other.xx + self.yy * other.xy,
         self.xy * other.yx + self.yy * other.yy,
         self.x0 * other.xx + self.y0 * other.xy + other.x0,
-        self.x0 * other.yx + self.y0 * other.yy + other.y0)
+        self.x0 * other.yx + self.y0 * other.yy + other.y0
+    )
 
     return ret
 end
@@ -134,7 +146,7 @@ end
 -- @tparam gears.matrix|cairo.Matrix other The matrix to compare with.
 -- @return True if this and the other matrix are equal.
 function matrix:equals(other)
-    for _, k in pairs{ "xx", "xy", "yx", "yy", "x0", "y0" } do
+    for _, k in pairs({ "xx", "xy", "yx", "yy", "x0", "y0" }) do
         if self[k] ~= other[k] then
             return false
         end
@@ -145,9 +157,15 @@ end
 --- Get a string representation of this matrix
 -- @return A string showing this matrix in column form.
 function matrix:tostring()
-    return string.format("[[%g, %g], [%g, %g], [%g, %g]]",
-            self.xx, self.yx, self.xy,
-            self.yy, self.x0, self.y0)
+    return string.format(
+        "[[%g, %g], [%g, %g], [%g, %g]]",
+        self.xx,
+        self.yx,
+        self.xy,
+        self.yy,
+        self.x0,
+        self.y0
+    )
 end
 
 --- Transform a distance by this matrix.

@@ -21,9 +21,14 @@ local function find_best_icon(sizes, width, height)
         else
             local best_too_small = best_size[1] < width or best_size[2] < height
             local best_too_large = best_size[1] > width or best_size[2] > height
-            local better_because_bigger = best_too_small and size[1] > best_size[1] and size[2] > best_size[2]
-            local better_because_smaller = best_too_large and size[1] < best_size[1] and size[2] < best_size[2]
-                and size[1] >= width and size[2] >= height
+            local better_because_bigger = best_too_small
+                and size[1] > best_size[1]
+                and size[2] > best_size[2]
+            local better_because_smaller = best_too_large
+                and size[1] < best_size[1]
+                and size[2] < best_size[2]
+                and size[1] >= width
+                and size[2] >= height
             if better_because_bigger or better_because_smaller then
                 best, best_size = k, size
             end
@@ -94,7 +99,9 @@ function clienticon:get_client()
 end
 
 function clienticon:set_client(c)
-    if self._private.client == c then return end
+    if self._private.client == c then
+        return
+    end
     self._private.client = c
     self:emit_signal("widget::layout_changed")
     self:emit_signal("widget::redraw_needed")
@@ -106,7 +113,7 @@ end
 -- @treturn widget A new `widget`
 -- @constructorfct awful.widget.clienticon
 local function new(c)
-    local ret = base.make_widget(nil, nil, {enable_properties = true})
+    local ret = base.make_widget(nil, nil, { enable_properties = true })
 
     gtable.crush(ret, clienticon, true)
 
@@ -129,7 +136,7 @@ end)
 return setmetatable(clienticon, {
     __call = function(_, ...)
         return new(...)
-    end
+    end,
 })
 
 -- vim: filetype=lua:expandtab:shiftwidth=4:tabstop=8:softtabstop=4:textwidth=80

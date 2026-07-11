@@ -2,10 +2,10 @@
 --                          DPI detection code.                          --
 ---------------------------------------------------------------------------
 
-local capi    = {screen = screen}
-local gtable  = require("gears.table")
-local grect   = require("gears.geometry").rectangle
-local gdebug  = require("gears.debug")
+local capi = { screen = screen }
+local gtable = require("gears.table")
+local grect = require("gears.geometry").rectangle
+local gdebug = require("gears.debug")
 
 local module = {}
 
@@ -59,10 +59,10 @@ local function dpis_for_outputs(viewport)
 
         -- Compute the diagonal size.
         if o.mm_width and o.mm_height then
-            o.mm_size   = math.sqrt(o.mm_width^2 + o.mm_height^2)
-            o.inch_size = o.mm_size/mm_per_inch
-            max_size    = math.max(max_size, o.mm_size)
-            min_size    = math.min(min_size, o.mm_size)
+            o.mm_size = math.sqrt(o.mm_width ^ 2 + o.mm_height ^ 2)
+            o.inch_size = o.mm_size / mm_per_inch
+            max_size = math.max(max_size, o.mm_size)
+            min_size = math.min(min_size, o.mm_size)
         end
     end
 
@@ -77,8 +77,8 @@ local function dpis_for_outputs(viewport)
     -- different from the minimum one.
     local pref_dpi = min_dpi
 
-    viewport.minimum_dpi   = min_dpi
-    viewport.maximum_dpi   = max_dpi
+    viewport.minimum_dpi = min_dpi
+    viewport.maximum_dpi = max_dpi
     viewport.preferred_dpi = pref_dpi
 
     -- Guess the diagonal size using the DPI.
@@ -86,40 +86,33 @@ local function dpis_for_outputs(viewport)
         for _, o in pairs(viewport.outputs) do
             local geo = o.geometry
             if geo then
-                o.mm_size = math.sqrt(geo.width^2 + geo.height^2)/o.dpi
-                max_size  = math.max(max_size, o.mm_size)
-                min_size  = math.min(min_size, o.mm_size)
+                o.mm_size = math.sqrt(geo.width ^ 2 + geo.height ^ 2) / o.dpi
+                max_size = math.max(max_size, o.mm_size)
+                min_size = math.min(min_size, o.mm_size)
             end
         end
 
         -- In case there is no output information.
         if min_size == math.huge then
-            local geo  = viewport.geometry
-            local size = math.sqrt(geo.width^2 + geo.height^2)/max_dpi
+            local geo = viewport.geometry
+            local size = math.sqrt(geo.width ^ 2 + geo.height ^ 2) / max_dpi
 
             max_size, min_size = size, size
         end
     end
 
-    viewport.mm_minimum_size   = min_size
-    viewport.mm_maximum_size   = max_size
-    viewport.inch_minimum_size = min_size/mm_per_inch
-    viewport.inch_maximum_size = max_size/mm_per_inch
+    viewport.mm_minimum_size = min_size
+    viewport.mm_maximum_size = max_size
+    viewport.inch_minimum_size = min_size / mm_per_inch
+    viewport.inch_maximum_size = max_size / mm_per_inch
 
     return max_dpi, min_dpi, pref_dpi
 end
 
 local function update_outputs(old_viewport, new_viewport)
-    gtable.diff_merge(
-        old_viewport.outputs,
-        new_viewport.outputs,
-        function(o)
-            return o.name or (
-                (o.mm_height or -7)*9999 * (o.mm_width or 5)*123
-            )
-        end,
-        gtable.crush
-    )
+    gtable.diff_merge(old_viewport.outputs, new_viewport.outputs, function(o)
+        return o.name or ((o.mm_height or -7) * 9999 * (o.mm_width or 5) * 123)
+    end, gtable.crush)
 end
 
 -- Fetch the current viewports and compare them to the caches ones.
@@ -127,16 +120,15 @@ end
 -- The idea is to keep whatever metadata kept within the existing ones and know
 -- what is added and removed.
 local function update_viewports(force)
-    if #ascreen._viewports > 0 and not force then return ascreen._viewports end
+    if #ascreen._viewports > 0 and not force then
+        return ascreen._viewports
+    end
 
     local new = ascreen._get_viewports()
 
-    local _, add, rem = gtable.diff_merge(
-        ascreen._viewports,
-        new,
-        function(a) return a.id end,
-        update_outputs
-    )
+    local _, add, rem = gtable.diff_merge(ascreen._viewports, new, function(a)
+        return a.id
+    end, update_outputs)
 
     for _, viewport in ipairs(ascreen._viewports) do
         dpis_for_outputs(viewport)
@@ -163,11 +155,13 @@ local function update_screen_viewport(s)
         for _, a in ipairs(ascreen._viewports) do
             local int = grect.get_intersection(a.geometry, s.geometry)
 
-            if int.width*int.height > i_size then
-                big_a, i_size = a, int.width*int.height
+            if int.width * int.height > i_size then
+                big_a, i_size = a, int.width * int.height
             end
 
-            if i_size == s.geometry.width*s.geometry.height then break end
+            if i_size == s.geometry.width * s.geometry.height then
+                break
+            end
         end
 
         if big_a then
@@ -176,8 +170,11 @@ local function update_screen_viewport(s)
     end
 
     if not viewport then
-        gdebug.print_warning("Screen "..tostring(s)..
-            " doesn't overlap a known physical monitor")
+        gdebug.print_warning(
+            "Screen "
+                .. tostring(s)
+                .. " doesn't overlap a known physical monitor"
+        )
     end
 end
 
@@ -189,7 +186,7 @@ function module.create_screen_handler(viewport)
         geo.y,
         geo.width,
         geo.height,
-        {_managed = true}
+        { _managed = true }
     )
 
     update_screen_viewport(s)
@@ -212,11 +209,12 @@ end
 
 function module.resize_screen_handler(old_viewport, new_viewport)
     for s in capi.screen do
-        if s._private.viewport and s._private.viewport.id == old_viewport.id then
+        if
+            s._private.viewport
+            and s._private.viewport.id == old_viewport.id
+        then
             local ngeo = new_viewport.geometry
-            s:fake_resize(
-                ngeo.x, ngeo.y, ngeo.width, ngeo.height
-            )
+            s:fake_resize(ngeo.x, ngeo.y, ngeo.width, ngeo.height)
             s._private.viewport = new_viewport
             return
         end
@@ -242,17 +240,21 @@ local function deduplicate_viewports(vps)
     for _, vp in ipairs(vps) do
         local geo = vp.geometry
         min_x = math.min(min_x, geo.x)
-        max_x = math.max(max_x, geo.x+geo.width)
+        max_x = math.max(max_x, geo.x + geo.width)
         min_y = math.min(min_y, geo.y)
-        max_y = math.max(max_y, geo.y+geo.height)
+        max_y = math.max(max_y, geo.y + geo.height)
     end
 
     -- Remove the "encompass everything" viewport (if any).
     if #vps > 1 then
         for k, vp in ipairs(vps) do
             local geo = vp.geometry
-            if geo.x == min_x and geo.y == min_y
-            and geo.x+geo.width == max_x and geo.y+geo.height == max_y then
+            if
+                geo.x == min_x
+                and geo.y == min_y
+                and geo.x + geo.width == max_x
+                and geo.y + geo.height == max_y
+            then
                 table.remove(vps, k)
                 break
             end
@@ -331,7 +333,9 @@ end)
 
 -- This is the (undocumented) signal sent by capi.
 capi.screen.connect_signal("property::_viewports", function(a)
-    if capi.screen.automatic_factory then return end
+    if capi.screen.automatic_factory then
+        return
+    end
 
     assert(#a > 0)
 
@@ -344,17 +348,19 @@ capi.screen.connect_signal("property::_viewports", function(a)
         local candidate, best_size, best_idx = {}, 0, nil
 
         for k, viewport2 in ipairs(added) do
-            local int = grect.get_intersection(viewport.geometry, viewport2.geometry)
+            local int =
+                grect.get_intersection(viewport.geometry, viewport2.geometry)
 
-            if (int.width*int.height) > best_size then
-                best_size, best_idx, candidate = (int.width*int.height), k, viewport2
+            if (int.width * int.height) > best_size then
+                best_size, best_idx, candidate =
+                    (int.width * int.height), k, viewport2
             end
         end
 
         if candidate and best_size > 0 then
-            table.insert(resized, {removed[k2], added[best_idx]})
+            table.insert(resized, { removed[k2], added[best_idx] })
             removed[k2] = nil
-            table.remove(added  , best_idx)
+            table.remove(added, best_idx)
         end
     end
 
@@ -369,20 +375,32 @@ capi.screen.connect_signal("property::_viewports", function(a)
 
     -- First, ask for screens for these new viewport.
     for _, viewport in ipairs(added) do
-        capi.screen.emit_signal("request::create", viewport, {context="viewports_changed"})
+        capi.screen.emit_signal(
+            "request::create",
+            viewport,
+            { context = "viewports_changed" }
+        )
     end
 
     -- Before removing anything, make sure to resize existing screen as it may
     -- affect where clients will go when the screens are removed.
     for _, p in ipairs(resized) do
-        capi.screen.emit_signal("request::resize", p[1], p[2], {context="viewports_changed"})
+        capi.screen.emit_signal(
+            "request::resize",
+            p[1],
+            p[2],
+            { context = "viewports_changed" }
+        )
     end
 
     -- Remove the now out-of-view screens.
     for _, viewport in ipairs(removed) do
-        capi.screen.emit_signal("request::remove", viewport, {context="viewports_changed"})
+        capi.screen.emit_signal(
+            "request::remove",
+            viewport,
+            { context = "viewports_changed" }
+        )
     end
-
 end)
 
 -- Add the DPI related properties
@@ -396,12 +414,16 @@ return function(screen, d)
     ascreen.object.set_dpi = set_dpi
     ascreen.object.get_dpi = get_dpi
 
-    for _, prop in ipairs {"minimum_dpi"       , "maximum_dpi"       ,
-                           "mm_maximum_width"  , "mm_minimum_width"  ,
-                           "inch_maximum_width", "inch_minimum_width",
-                           "preferred_dpi"                           } do
-
-        screen.object["get_"..prop] = function(s)
+    for _, prop in ipairs({
+        "minimum_dpi",
+        "maximum_dpi",
+        "mm_maximum_width",
+        "mm_minimum_width",
+        "inch_maximum_width",
+        "inch_minimum_width",
+        "preferred_dpi",
+    }) do
+        screen.object["get_" .. prop] = function(s)
             if not s._private.viewport then
                 update_screen_viewport(s)
             end

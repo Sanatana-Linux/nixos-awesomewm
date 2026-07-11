@@ -11,7 +11,6 @@
 -- @utillib gears.table
 ---------------------------------------------------------------------------
 
-
 local rtable = table
 
 local gmath = require("gears.math")
@@ -77,18 +76,18 @@ end
 -- @treturn table A packed table with only numeric keys.
 -- @staticfct gears.table.from_sparse
 function gtable.from_sparse(t)
-    local keys= {}
+    local keys = {}
     for k in pairs(t) do
         if type(k) == "number" then
-            keys[#keys+1] = k
+            keys[#keys + 1] = k
         end
     end
 
     table.sort(keys)
 
     local ret = {}
-    for _,v in ipairs(keys) do
-        ret[#ret+1] = t[v]
+    for _, v in ipairs(keys) do
+        ret[#ret + 1] = t[v]
     end
 
     return ret
@@ -121,16 +120,20 @@ end
 --   found.
 -- @staticfct gears.table.find_keys
 function gtable.find_keys(t, matcher, ordered, max)
-    if max == 0 then return nil end
+    if max == 0 then
+        return nil
+    end
 
     ordered, max = ordered or false, 0
     local ret, it = {}, ordered and ipairs or pairs
 
     for k, v in it(t) do
-        if matcher(k,v) then
+        if matcher(k, v) then
             table.insert(ret, k)
 
-            if #ret == max then break end
+            if #ret == max then
+                break
+            end
         end
     end
 
@@ -152,18 +155,17 @@ function gtable.find_first_key(t, matcher, ordered)
     return ret and ret[1] or nil
 end
 
-
 --- Get a sorted table with all keys from a table.
 --
 -- @tparam table t The table for which the keys to get.
 -- @treturn table A table with keys.
 -- @staticfct gears.table.keys
 function gtable.keys(t)
-    local keys = { }
+    local keys = {}
     for k, _ in pairs(t) do
         rtable.insert(keys, k)
     end
-    rtable.sort(keys, function (a, b)
+    rtable.sort(keys, function(a, b)
         return type(a) == type(b) and a < b or false
     end)
     return keys
@@ -194,9 +196,9 @@ end
 -- @staticfct gears.table.keys_filter
 function gtable.keys_filter(t, ...)
     local keys = gtable.keys(t)
-    local keys_filtered = { }
+    local keys_filtered = {}
     for _, k in pairs(keys) do
-        for _, et in pairs({...}) do
+        for _, et in pairs({ ... }) do
             if type(t[k]) == et then
                 rtable.insert(keys_filtered, k)
                 break
@@ -212,7 +214,7 @@ end
 -- @treturn table A reversed table.
 -- @staticfct gears.table.reverse
 function gtable.reverse(t)
-    local tr = { }
+    local tr = {}
     -- Reverse all elements with integer keys.
     for _, v in ipairs(t) do
         rtable.insert(tr, 1, v)
@@ -235,7 +237,7 @@ end
 -- @staticfct gears.table.clone
 function gtable.clone(t, deep)
     deep = deep == nil and true or deep
-    local c = { }
+    local c = {}
     for k, v in pairs(t) do
         if deep and type(v) == "table" then
             c[k] = gtable.clone(v)
@@ -265,13 +267,15 @@ end
 -- @staticfct gears.table.cycle_value
 function gtable.cycle_value(t, value, step_size, filter, start_at)
     local k = gtable.hasitem(t, value, true, start_at)
-    if not k then return end
+    if not k then
+        return
+    end
 
     step_size = step_size or 1
     local new_key = gmath.cycle(#t, k + step_size)
 
     if filter and not filter(t[new_key]) then
-        for i=1, #t, step_size do
+        for i = 1, #t, step_size do
             local k2 = gmath.cycle(#t, new_key + i)
             if filter(t[k2]) then
                 return t[k2], k2
@@ -297,16 +301,18 @@ end
 -- @treturn func
 -- @staticfct gears.table.iterate
 function gtable.iterate(t, filter, start)
-    local count  = 0
-    local index  = start or 1
+    local count = 0
+    local index = start or 1
     local length = #t
 
-    return function ()
+    return function()
         while count < length do
             local item = t[index]
             index = gmath.cycle(#t, index + 1)
             count = count + 1
-            if filter(item) then return item end
+            if filter(item) then
+                return item
+            end
         end
     end
 end
@@ -377,7 +383,7 @@ function gtable.diff_merge(target, new, identifier, merger)
     end
 
     for k, v in ipairs(add) do
-        local id  = identifier(v)
+        local id = identifier(v)
         local old = o_id[id]
         if old then
             add[k] = nil
@@ -391,7 +397,7 @@ function gtable.diff_merge(target, new, identifier, merger)
     end
 
     for k, v in ipairs(target) do
-        local id  = identifier(v)
+        local id = identifier(v)
         if o_id[id] then
             target[k] = o_id[id]
         end
@@ -423,7 +429,7 @@ end
 -- @staticfct gears.table.map
 function gtable.map(f, tbl)
     local t = {}
-    for k,v in pairs(tbl) do
+    for k, v in pairs(tbl) do
         t[k] = f(v)
     end
     return t

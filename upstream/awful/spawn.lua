@@ -217,8 +217,7 @@
 -- @module awful.spawn
 ---------------------------------------------------------------------------
 
-local capi =
-{
+local capi = {
     awesome = awesome,
     mouse = mouse,
     client = client,
@@ -227,7 +226,7 @@ local lgi = require("lgi")
 local Gio = lgi.Gio
 local GioUnix = lgi.GioUnix
 local GLib = lgi.GLib
-local util   = require("awful.util")
+local util = require("awful.util")
 local gtable = require("gears.table")
 local gtimer = require("gears.timer")
 local aclient = require("awful.client")
@@ -235,16 +234,18 @@ local protected_call = require("gears.protected_call")
 
 local spawn = {}
 
-
 local end_of_file
 do
     -- API changes, bug fixes and lots of fun. Figure out how a EOF is signalled.
     local input
-    if not pcall(function()
-        -- No idea when this API changed, but some versions expect a string,
-        -- others a table with some special(?) entries
-        input = Gio.DataInputStream.new(Gio.MemoryInputStream.new_from_data(""))
-    end) then
+    if
+        not pcall(function()
+            -- No idea when this API changed, but some versions expect a string,
+            -- others a table with some special(?) entries
+            input =
+                Gio.DataInputStream.new(Gio.MemoryInputStream.new_from_data(""))
+        end)
+    then
         input = Gio.DataInputStream.new(Gio.MemoryInputStream.new_from_data({}))
     end
     local line, length = input:read_line()
@@ -267,8 +268,10 @@ do
         -- The above uninitialized variable was fixed and thus length is
         -- always 0 when line is NULL in C. We cannot tell apart an empty line and
         -- EOF in this case.
-        require("gears.debug").print_warning("Cannot reliably detect EOF on an "
-                .. "GIOInputStream with this LGI version")
+        require("gears.debug").print_warning(
+            "Cannot reliably detect EOF on an "
+                .. "GIOInputStream with this LGI version"
+        )
         end_of_file = function(arg)
             return tostring(arg) == ""
         end
@@ -277,12 +280,14 @@ end
 
 local function hash_command(cmd, rules)
     rules = rules or {}
-    cmd = type(cmd) == "string" and cmd or table.concat(cmd, ';')
+    cmd = type(cmd) == "string" and cmd or table.concat(cmd, ";")
 
     -- Do its best at adding some entropy
     local concat_rules = nil
-    concat_rules = function (r, depth)
-        if depth > 2 then return end
+    concat_rules = function(r, depth)
+        if depth > 2 then
+            return
+        end
 
         local keys = gtable.keys(rules)
 
@@ -291,9 +296,9 @@ local function hash_command(cmd, rules)
             local t = type(v)
 
             if t == "string" or t == "number" then
-                cmd = cmd..k..v
+                cmd = cmd .. k .. v
             elseif t == "tag" then
-                cmd = cmd..k..v.name
+                cmd = cmd .. k .. v.name
             elseif t == "table" and not t.connect_signal then
                 cmd = cmd .. k
                 concat_rules(v, depth + 1)
@@ -305,7 +310,7 @@ local function hash_command(cmd, rules)
 
     local glibstr = GLib.String(cmd)
 
-    return string.format('%x', math.ceil(GLib.String.hash(glibstr)))
+    return string.format("%x", math.ceil(GLib.String.hash(glibstr)))
 end
 
 spawn.snid_buffer = {}
@@ -399,10 +404,20 @@ end
 -- @staticfct awful.spawn.with_line_callback
 function spawn.with_line_callback(cmd, callbacks)
     local stdout_callback, stderr_callback, done_callback, exit_callback =
-        callbacks.stdout, callbacks.stderr, callbacks.output_done, callbacks.exit
-    local have_stdout, have_stderr = stdout_callback ~= nil, stderr_callback ~= nil
-    local pid, _, stdin, stdout, stderr = capi.awesome.spawn(cmd,
-            false, false, have_stdout, have_stderr, exit_callback)
+        callbacks.stdout,
+        callbacks.stderr,
+        callbacks.output_done,
+        callbacks.exit
+    local have_stdout, have_stderr =
+        stdout_callback ~= nil, stderr_callback ~= nil
+    local pid, _, stdin, stdout, stderr = capi.awesome.spawn(
+        cmd,
+        false,
+        false,
+        have_stdout,
+        have_stderr,
+        exit_callback
+    )
     if type(pid) == "string" then
         -- Error
         return pid
@@ -419,12 +434,20 @@ function spawn.with_line_callback(cmd, callbacks)
         end
     end
     if have_stdout then
-        spawn.read_lines(GioUnix.InputStream.new(stdout, true),
-                stdout_callback, step_done, true)
+        spawn.read_lines(
+            GioUnix.InputStream.new(stdout, true),
+            stdout_callback,
+            step_done,
+            true
+        )
     end
     if have_stderr then
-        spawn.read_lines(GioUnix.InputStream.new(stderr, true),
-                stderr_callback, step_done, true)
+        spawn.read_lines(
+            GioUnix.InputStream.new(stderr, true),
+            stderr_callback,
+            step_done,
+            true
+        )
     end
     assert(stdin == nil)
     return pid
@@ -444,8 +467,8 @@ end
 -- @see spawn.with_line_callback
 -- @staticfct awful.spawn.easy_async
 function spawn.easy_async(cmd, callback)
-    local stdout = ''
-    local stderr = ''
+    local stdout = ""
+    local stderr = ""
     local exitcode, exitreason
     local function parse_stdout(str)
         stdout = stdout .. str .. "\n"
@@ -472,12 +495,11 @@ function spawn.easy_async(cmd, callback)
             return done_callback()
         end
     end
-    return spawn.with_line_callback(
-        cmd, {
-        stdout=parse_stdout,
-        stderr=parse_stderr,
-        exit=exit_callback,
-        output_done=output_done_callback
+    return spawn.with_line_callback(cmd, {
+        stdout = parse_stdout,
+        stderr = parse_stderr,
+        exit = exit_callback,
+        output_done = output_done_callback,
     })
 end
 
@@ -548,8 +570,8 @@ end
 -- track the SNID set on them to prevent multiple execution.
 spawn.single_instance_manager = {
     by_snid = {},
-    by_pid  = {},
-    by_uid  = {},
+    by_pid = {},
+    by_uid = {},
 }
 
 aclient.property.persist("single_instance_id", "string")
@@ -557,18 +579,26 @@ aclient.property.persist("single_instance_id", "string")
 -- Check if the client is running either using the rule source or the matcher.
 local function is_running(hash, matcher)
     local status = spawn.single_instance_manager.by_uid[hash]
-    if not status then return false end
+    if not status then
+        return false
+    end
 
     if matcher then
         for _, c in ipairs(client.get()) do
-            if matcher(c) then return true end
+            if matcher(c) then
+                return true
+            end
         end
     end
 
-    if #status.instances == 0 then return false end
+    if #status.instances == 0 then
+        return false
+    end
 
     for _, c in ipairs(status.instances) do
-        if c.valid then return true end
+        if c.valid then
+            return true
+        end
     end
 
     return false
@@ -577,15 +607,17 @@ end
 -- Keep the data related to this hash.
 local function register_common(hash, rules, matcher, callback)
     local status = spawn.single_instance_manager.by_uid[hash]
-    if status then return status end
+    if status then
+        return status
+    end
 
     status = {
-        rules     = rules,
-        callback  = callback,
-        instances = setmetatable({}, {__mode = "v"}),
-        hash      = hash,
-        exec      = false,
-        matcher   = matcher,
+        rules = rules,
+        callback = callback,
+        instances = setmetatable({}, { __mode = "v" }),
+        hash = hash,
+        exec = false,
+        matcher = matcher,
     }
 
     spawn.single_instance_manager.by_uid[hash] = status
@@ -596,7 +628,9 @@ end
 local function run_once_common(hash, cmd, keep_pid)
     local pid, snid = spawn.spawn(cmd)
 
-    if type(pid) == "string" or not snid then return pid, snid end
+    if type(pid) == "string" or not snid then
+        return pid, snid
+    end
 
     assert(spawn.single_instance_manager.by_uid[hash])
 
@@ -610,15 +644,15 @@ local function run_once_common(hash, cmd, keep_pid)
     end
 
     -- Prevent issues related to PID being re-used and a memory leak
-    gtimer {
+    gtimer({
         single_shot = true,
-        autostart   = true,
-        timeout     = 30,
-        callback    = function()
-            spawn.single_instance_manager.by_pid [pid ] = nil
+        autostart = true,
+        timeout = 30,
+        callback = function()
+            spawn.single_instance_manager.by_pid[pid] = nil
             spawn.single_instance_manager.by_snid[snid] = nil
-        end
-    }
+        end,
+    })
 
     return pid, snid
 end
@@ -702,7 +736,7 @@ function spawn.single_instance(cmd, rules, matcher, unique_id, callback)
     end)
 end
 
-local raise_rules = {focus = true, switch_to_tags = true, raise = true}
+local raise_rules = { focus = true, switch_to_tags = true, raise = true }
 
 --- Raise a client if it exists or spawn a new one then raise it.
 --
@@ -729,7 +763,11 @@ function spawn.raise_or_spawn(cmd, rules, matcher, unique_id, callback)
     if status then
         for _, c in ipairs(status.instances) do
             if c.valid then
-                c:emit_signal("request::activate", "spawn.raise_or_spawn", raise_rules)
+                c:emit_signal(
+                    "request::activate",
+                    "spawn.raise_or_spawn",
+                    raise_rules
+                )
                 return c
             end
         end
@@ -744,9 +782,13 @@ function spawn.raise_or_spawn(cmd, rules, matcher, unique_id, callback)
     return nil
 end
 
-capi.awesome.connect_signal("spawn::canceled" , spawn.on_snid_cancel   )
-capi.awesome.connect_signal("spawn::timeout"  , spawn.on_snid_cancel   )
-capi.client.connect_signal ("request::manage" , spawn.on_snid_callback )
+capi.awesome.connect_signal("spawn::canceled", spawn.on_snid_cancel)
+capi.awesome.connect_signal("spawn::timeout", spawn.on_snid_cancel)
+capi.client.connect_signal("request::manage", spawn.on_snid_callback)
 
-return setmetatable(spawn, { __call = function(_, ...) return spawn.spawn(...) end })
+return setmetatable(spawn, {
+    __call = function(_, ...)
+        return spawn.spawn(...)
+    end,
+})
 -- vim: filetype=lua:expandtab:shiftwidth=4:tabstop=8:softtabstop=4:textwidth=80

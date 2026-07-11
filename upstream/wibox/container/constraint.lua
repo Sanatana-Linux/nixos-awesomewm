@@ -18,7 +18,9 @@ local constraint = { mt = {} }
 -- Layout a constraint layout
 function constraint:layout(_, width, height)
     if self._private.widget then
-        return { base.place_widget_at(self._private.widget, 0, 0, width, height) }
+        return {
+            base.place_widget_at(self._private.widget, 0, 0, width, height),
+        }
     end
 end
 
@@ -53,7 +55,7 @@ function constraint:get_widget()
 end
 
 function constraint:get_children()
-    return {self._private.widget}
+    return { self._private.widget }
 end
 
 function constraint:set_children(children)
@@ -79,7 +81,7 @@ function constraint:set_strategy(val)
         end,
         exact = function(real_size, limit)
             return limit or real_size
-        end
+        end,
     }
 
     if not func[val] then
@@ -165,7 +167,7 @@ end
 -- @treturn table A new constraint container
 -- @constructorfct wibox.container.constraint
 local function new(widget, strategy, width, height)
-    local ret = base.make_widget(nil, nil, {enable_properties = true})
+    local ret = base.make_widget(nil, nil, { enable_properties = true })
 
     gtable.crush(ret, constraint, true)
 

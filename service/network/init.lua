@@ -256,29 +256,39 @@ local function create_access_point_object(path)
 end
 
 function client:get_state()
-    if not self._private.client_proxy then return end
+    if not self._private.client_proxy then
+        return
+    end
     return self._private.client_proxy.State
 end
 
 function client:get_networking_enabled()
-    if not self._private.client_proxy then return end
+    if not self._private.client_proxy then
+        return
+    end
     return self._private.client_proxy.NetworkingEnabled
 end
 
 function client:enable(state)
-    if not self._private.client_proxy then return end
+    if not self._private.client_proxy then
+        return
+    end
     if self._private.client_proxy.EnableAsync then
         self._private.client_proxy:EnableAsync(function() end, {}, state)
     end
 end
 
 function client:get_wireless_enabled()
-    if not self._private.client_proxy then return false end
+    if not self._private.client_proxy then
+        return false
+    end
     return self._private.client_proxy.WirelessEnabled
 end
 
 function client:set_wireless_enabled(state)
-    if not self._private.client_proxy then return end
+    if not self._private.client_proxy then
+        return
+    end
     if state == true and self:get_networking_enabled() ~= true then
         self:enable(true)
     end
@@ -317,7 +327,10 @@ function client:connect_access_point(ap, password, auto_connect)
 
     local ap_connections = {}
     for _, con in pairs(self.connections) do
-        if con:get_filename() and string.find(con:get_filename(), ap:get_ssid()) then
+        if
+            con:get_filename()
+            and string.find(con:get_filename(), ap:get_ssid())
+        then
             table.insert(ap_connections, con)
         end
     end
@@ -347,7 +360,9 @@ function client:connect_access_point(ap, password, auto_connect)
 end
 
 function client:disconnect_active_access_point()
-    if not self._private.client_proxy then return end
+    if not self._private.client_proxy then
+        return
+    end
     self._private.client_proxy:DeactivateConnectionAsync(
         nil,
         {},
@@ -356,7 +371,9 @@ function client:disconnect_active_access_point()
 end
 
 function client:disconnect_access_point(dev)
-    if not self._private.client_proxy then return end
+    if not self._private.client_proxy then
+        return
+    end
     if dev and dev._private.device_proxy then
         self._private.client_proxy:DeactivateConnectionAsync(
             nil,
@@ -401,7 +418,9 @@ function wireless:get_access_point(path)
 end
 
 function wireless:get_active_access_point()
-    if not self._private.wireless_proxy then return end
+    if not self._private.wireless_proxy then
+        return
+    end
     return self:get_access_point(self._private.wireless_proxy.ActiveAccessPoint)
 end
 
@@ -431,8 +450,94 @@ function access_point:get_strength()
     return self._private.access_point_proxy.Strength
 end
 
+function access_point:get_frequency()
+    if self._private.access_point_proxy then
+        return self._private.access_point_proxy.Frequency
+    end
+end
+
+function access_point:get_frequency_band()
+    local freq = self:get_frequency()
+    if not freq then
+        return "Unknown"
+    end
+    if freq < 3000 then
+        return "2.4 GHz"
+    elseif freq < 60000 then
+        return "5 GHz"
+    else
+        return "6 GHz"
+    end
+end
+
+function access_point:get_channel()
+    local freq = self:get_frequency()
+    if not freq then
+        return nil
+    end
+    -- 2.4 GHz channels (2412-2484 MHz)
+    if freq >= 2412 and freq <= 2484 then
+        return (freq - 2407) / 5
+    -- 5 GHz channels (5160-5825 MHz)
+    elseif freq >= 5160 and freq <= 5825 then
+        return (freq - 5000) / 5
+    end
+    return math.floor(freq / 5) - 400 -- fallback approximation
+end
+
+function access_point:get_max_bitrate()
+    if self._private.access_point_proxy then
+        return self._private.access_point_proxy.MaxBitrate
+    end
+end
+
+function access_point:get_mode()
+    if self._private.access_point_proxy then
+        local mode = self._private.access_point_proxy.Mode
+        if mode == 2 then
+            return "Infrastructure"
+        elseif mode == 1 then
+            return "Ad-Hoc"
+        else
+            return "Unknown"
+        end
+    end
+end
+
+function access_point:get_last_seen()
+    if self._private.access_point_proxy then
+        return self._private.access_point_proxy.LastSeen
+    end
+end
+
 function access_point:get_path()
     return self._private.access_point_proxy.object_path
+end
+
+function wired:get_speed()
+    if self._private.wired_proxy then
+        return self._private.wired_proxy.Speed
+    end
+end
+
+function device:get_speed()
+    if self._private.wired_proxy then
+        return self._private.wired_proxy.Speed
+    elseif self._private.wireless_proxy then
+        return self._private.wireless_proxy.Bitrate
+    end
+end
+
+function device:get_speed_string()
+    local speed = self:get_speed()
+    if not speed then
+        return ""
+    end
+    if self._private.wired_proxy then
+        return string.format("%d Mbps", speed)
+    else
+        return string.format("%.1f Mbps", speed / 1000)
+    end
 end
 
 local function new()

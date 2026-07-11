@@ -106,4 +106,4 @@
 - [x] DONE if no battery is detected during start up, the icon where the battery is should display an arc chart showing CPU load like the popup clicking it shows
 
 
-- [ ] TODO the buttons for the network and bluetooth panels that open from the control panel need to have tooltips (styled as they are elsewhere with the same bg and fg colors) that describe what the button's function is.  
+- [x] DONE the buttons for the network and bluetooth panels that open from the control panel need to have tooltips (styled as they are elsewhere with the same bg and fg colors) that describe what the button's function is.  

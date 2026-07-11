@@ -81,7 +81,10 @@ function textbox:get_preferred_size(s)
     if s then
         dpi = screen[s].dpi
     else
-        gdebug.deprecate("textbox:get_preferred_size() requires a screen argument", {deprecated_in=5, raw=true})
+        gdebug.deprecate(
+            "textbox:get_preferred_size() requires a screen argument",
+            { deprecated_in = 5, raw = true }
+        )
         dpi = beautiful.xresources.get_dpi()
     end
 
@@ -102,7 +105,10 @@ function textbox:get_height_for_width(width, s)
     if s then
         dpi = screen[s].dpi
     else
-        gdebug.deprecate("textbox:get_preferred_size() requires a screen argument", {deprecated_in=5, raw=true})
+        gdebug.deprecate(
+            "textbox:get_preferred_size() requires a screen argument",
+            { deprecated_in = 5, raw = true }
+        )
         dpi = beautiful.xresources.get_dpi()
     end
     return self:get_height_for_width_at_dpi(width, dpi)
@@ -118,7 +124,7 @@ end
 -- @treturn number The preferred width.
 -- @treturn number The preferred height.
 function textbox:get_preferred_size_at_dpi(dpi)
-    local max_lines = 2^20
+    local max_lines = 2 ^ 20
     setup_dpi(self, dpi)
     self._private.layout.width = -1 -- no width set
     self._private.layout.height = -max_lines -- show this many lines per paragraph
@@ -135,7 +141,7 @@ end
 -- @tparam number dpi The DPI value to render at.
 -- @treturn number The needed height.
 function textbox:get_height_for_width_at_dpi(width, dpi)
-    local max_lines = 2^20
+    local max_lines = 2 ^ 20
     setup_dpi(self, dpi)
     self._private.layout.width = Pango.units_from_double(width)
     self._private.layout.height = -max_lines -- show this many lines per paragraph
@@ -198,7 +204,15 @@ end
 function textbox:set_markup(text)
     local success, message = self:set_markup_silently(text)
     if not success then
-        gdebug.print_error(debug.traceback("Error parsing markup: "..message.."\nFailed with string: '"..text.."'"))
+        gdebug.print_error(
+            debug.traceback(
+                "Error parsing markup: "
+                    .. message
+                    .. "\nFailed with string: '"
+                    .. text
+                    .. "'"
+            )
+        )
     end
 end
 
@@ -223,7 +237,10 @@ end
 -- @see markup
 
 function textbox:set_text(text)
-    if self._private.layout.text == text and self._private.layout.attributes == nil then
+    if
+        self._private.layout.text == text
+        and self._private.layout.attributes == nil
+    then
         return
     end
     self._private.markup = nil
@@ -254,7 +271,8 @@ end
 -- @propemits true false
 
 function textbox:set_ellipsize(mode)
-    local allowed = { none = "NONE", start = "START", middle = "MIDDLE", ["end"] = "END" }
+    local allowed =
+        { none = "NONE", start = "START", middle = "MIDDLE", ["end"] = "END" }
     if allowed[mode] then
         if self._private.layout:get_ellipsize() == allowed[mode] then
             return
@@ -356,7 +374,7 @@ end
 function textbox:set_align(mode)
     gdebug.deprecate(
         "Use `textbox.halign` instead of `textbox.align`",
-        {deprecated_in=5, raw=true}
+        { deprecated_in = 5, raw = true }
     )
     self:set_halign(mode)
 end
@@ -408,7 +426,9 @@ end
 -- @usebeautiful beautiful.font The default font.
 
 function textbox:set_font(font)
-    if font == self._private.font then return end
+    if font == self._private.font then
+        return
+    end
 
     self._private.font = font
 
@@ -439,10 +459,16 @@ end
 -- @propemits true false
 
 function textbox:set_line_spacing_factor(spacing)
-    if not pcall(function() return self._private.layout.set_line_spacing ~= nil end) then
-        gdebug.print_error(debug.traceback(
-            "Error your version of Pango is too old to support line_spacing"
-        ))
+    if
+        not pcall(function()
+            return self._private.layout.set_line_spacing ~= nil
+        end)
+    then
+        gdebug.print_error(
+            debug.traceback(
+                "Error your version of Pango is too old to support line_spacing"
+            )
+        )
     end
 
     spacing = spacing or 0
@@ -505,7 +531,7 @@ end
 -- @treturn table A new textbox widget
 -- @constructorfct wibox.widget.textbox
 local function new(text, ignore_markup)
-    local ret = base.make_widget(nil, nil, {enable_properties = true})
+    local ret = base.make_widget(nil, nil, { enable_properties = true })
 
     gtable.crush(ret, textbox, true)
 

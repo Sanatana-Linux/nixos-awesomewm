@@ -99,10 +99,14 @@ function timer:start()
         return
     end
     local timeout_ms = gmath.round(self.data.timeout * 1000)
-    self.data.source_id = glib.timeout_add(glib.PRIORITY_DEFAULT, timeout_ms, function()
-        protected_call(self.emit_signal, self, "timeout")
-        return glib.SOURCE_CONTINUE
-    end)
+    self.data.source_id = glib.timeout_add(
+        glib.PRIORITY_DEFAULT,
+        timeout_ms,
+        function()
+            protected_call(self.emit_signal, self, "timeout")
+            return glib.SOURCE_CONTINUE
+        end
+    )
     self:emit_signal("start")
 end
 
@@ -169,7 +173,7 @@ local timer_instance_mt = {
             self.data.timeout = tonumber(value)
             self:emit_signal("property::timeout", value)
         end
-    end
+    end,
 }
 
 --- Create a new timer object.
@@ -211,7 +215,9 @@ function timer.new(args)
         ret:emit_signal("timeout")
     end
     if args.single_shot then
-        ret:connect_signal("timeout", function() ret:stop() end)
+        ret:connect_signal("timeout", function()
+            ret:stop()
+        end)
     end
 
     return ret
@@ -287,7 +293,10 @@ end
 -- @noreturn
 -- @staticfct gears.timer.delayed_call
 function timer.delayed_call(callback, ...)
-    assert(type(callback) == "function", "callback must be a function, got: " .. type(callback))
+    assert(
+        type(callback) == "function",
+        "callback must be a function, got: " .. type(callback)
+    )
     table.insert(delayed_calls, { callback, ... })
 end
 

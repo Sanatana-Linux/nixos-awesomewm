@@ -13,7 +13,6 @@ local gtimer = nil --require("gears.timer")
 local object = {}
 local unpack = unpack or table.unpack -- luacheck: globals unpack (compatibility with Lua 5.1)
 
-
 --- Add the missing properties handler to a CAPI object such as client/tag/screen.
 -- Valid args:
 --
@@ -37,52 +36,60 @@ function object.capi_index_fallback(class, args)
     local getter_prefix = args.getter_prefix or "get_"
     local setter_prefix = args.setter_prefix or "set_"
 
-    local getter = args.getter or function(cobj, prop)
-        -- Look for a getter method
-        if args.getter_class and args.getter_class[getter_prefix..prop] then
-            return args.getter_class[getter_prefix..prop](cobj)
-        elseif args.getter_class and args.getter_class["is_"..prop] then
-            return args.getter_class["is_"..prop](cobj)
+    local getter = args.getter
+        or function(cobj, prop)
+            -- Look for a getter method
+            if
+                args.getter_class and args.getter_class[getter_prefix .. prop]
+            then
+                return args.getter_class[getter_prefix .. prop](cobj)
+            elseif args.getter_class and args.getter_class["is_" .. prop] then
+                return args.getter_class["is_" .. prop](cobj)
+            end
+
+            -- Make sure something like c:a_mutator() works
+            if args.getter_class and args.getter_class[prop] then
+                return args.getter_class[prop]
+            end
+            -- In case there is already a "dumb" getter like `awful.tag.getproperty'
+            if args.getter_fallback then
+                return args.getter_fallback(cobj, prop)
+            end
+
+            -- Use the fallback property table
+            assert(prop ~= "_private")
+            return cobj._private[prop]
         end
 
-        -- Make sure something like c:a_mutator() works
-        if args.getter_class and args.getter_class[prop] then
-            return args.getter_class[prop]
-        end
-        -- In case there is already a "dumb" getter like `awful.tag.getproperty'
-        if args.getter_fallback then
-            return args.getter_fallback(cobj, prop)
-        end
+    local setter = args.setter
+        or function(cobj, prop, value)
+            -- Look for a setter method
+            if
+                args.setter_class and args.setter_class[setter_prefix .. prop]
+            then
+                return args.setter_class[setter_prefix .. prop](cobj, value)
+            end
 
-        -- Use the fallback property table
-        assert(prop ~= "_private")
-        return cobj._private[prop]
-    end
+            -- In case there is already a "dumb" setter like `awful.client.property.set'
+            if args.setter_fallback then
+                return args.setter_fallback(cobj, prop, value)
+            end
 
-    local setter = args.setter or function(cobj, prop, value)
-        -- Look for a setter method
-        if args.setter_class and args.setter_class[setter_prefix..prop] then
-            return args.setter_class[setter_prefix..prop](cobj, value)
+            -- If a getter exists but not a setter, then the property is read-only
+            if
+                args.getter_class and args.getter_class[getter_prefix .. prop]
+            then
+                return
+            end
+
+            -- Use the fallback property table
+            cobj._private[prop] = value
+
+            -- Emit the signal
+            if args.auto_emit then
+                cobj:emit_signal("property::" .. prop, value)
+            end
         end
-
-        -- In case there is already a "dumb" setter like `awful.client.property.set'
-        if args.setter_fallback then
-            return args.setter_fallback(cobj, prop, value)
-        end
-
-        -- If a getter exists but not a setter, then the property is read-only
-        if args.getter_class and args.getter_class[getter_prefix..prop] then
-            return
-        end
-
-        -- Use the fallback property table
-        cobj._private[prop] = value
-
-        -- Emit the signal
-        if args.auto_emit then
-            cobj:emit_signal("property::"..prop, value)
-        end
-    end
 
     assert(type(class) ~= "function")
 
@@ -93,14 +100,18 @@ end
 
 -- Convert the capi objects back into awful ones.
 local function deprecated_to_current(content)
-    local first   = content[1]
+    local first = content[1]
 
-    local current = first and first._private and
-        first._private._legacy_convert_to or nil
+    local current = first
+            and first._private
+            and first._private._legacy_convert_to
+        or nil
 
-    if not current then return nil end
+    if not current then
+        return nil
+    end
 
-    local ret = {current}
+    local ret = { current }
 
     for _, o in ipairs(content) do
         -- If this is false, someone tried to mix things in a
@@ -112,9 +123,7 @@ local function deprecated_to_current(content)
             -- way that is definitely not intentional.
             assert(o._private._legacy_convert_to)
 
-            table.insert(
-                ret, o._private._legacy_convert_to
-            )
+            table.insert(ret, o._private._legacy_convert_to)
             current = o._private._legacy_convert_to
         end
     end
@@ -135,18 +144,26 @@ end
 --
 -- TO BE USED FOR DEPRECATION ONLY.
 
-local function copy_object(obj, to_set, name, capi_name, is_object, join_if, set_empty)-- luacheck: no unused
+local function copy_object(
+    obj,
+    to_set,
+    name,
+    capi_name,
+    is_object,
+    join_if,
+    set_empty
+) -- luacheck: no unused
     local ret = gtable.clone(to_set, false)
 
     -- .buttons used to be a function taking the result of `gears.table.join`.
     -- For compatibility, support this, but from now on, it's a property.
     return setmetatable(ret, {
         __call = function(_, self, new_objs)
---TODO uncomment
---             gdebug.deprecate("`"..name.."` is no longer a function, it is a property. "..
---                 "Remove the `gears.table.join` and use a brace enclosed table",
---                 {deprecated_in=5}
---             )
+            --TODO uncomment
+            --             gdebug.deprecate("`"..name.."` is no longer a function, it is a property. "..
+            --                 "Remove the `gears.table.join` and use a brace enclosed table",
+            --                 {deprecated_in=5}
+            --             )
 
             if not is_object then
                 new_objs, self = self, obj
@@ -162,24 +179,25 @@ local function copy_object(obj, to_set, name, capi_name, is_object, join_if, set
                 -- `capi.buttons`/`capi.key` and now the user passes a list of
                 -- `awful.button`/`awful.key`  convert this.
 
-                local result = is_formatted and
-                    new_objs or gtable.join(unpack(new_objs))
+                local result = is_formatted and new_objs
+                    or gtable.join(unpack(new_objs))
 
                 -- First, when possible, get rid of the legacy format and go
                 -- back to the non-deprecated code path.
-                local current = self["set_"..name]
-                    and deprecated_to_current(result) or nil
+                local current = self["set_" .. name]
+                        and deprecated_to_current(result)
+                    or nil
 
                 if current then
-                    self["set_"..name](self, current)
+                    self["set_" .. name](self, current)
                     return capi_name and self[capi_name](self) or self[name]
                 elseif capi_name and is_object then
                     return self[capi_name](self, result)
                 elseif capi_name then
                     return self[capi_name](result)
                 else
-                    self._private[name.."_formatted"] = result
-                    return self._private[name.."_formatted"]
+                    self._private[name .. "_formatted"] = result
+                    return self._private[name .. "_formatted"]
                 end
             end
 
@@ -189,13 +207,22 @@ local function copy_object(obj, to_set, name, capi_name, is_object, join_if, set
             elseif capi_name then
                 return self[capi_name]()
             else
-                return self._private[name.."_formatted"] or {}
+                return self._private[name .. "_formatted"] or {}
             end
-        end
+        end,
     })
 end
 
-function object._legacy_accessors(obj, name, capi_name, is_object, join_if, set_empty, delay, add_append_name)
+function object._legacy_accessors(
+    obj,
+    name,
+    capi_name,
+    is_object,
+    join_if,
+    set_empty,
+    delay,
+    add_append_name
+)
     delay = delay or add_append_name
 
     -- Some objects have a special "object" property to add more properties, but
@@ -203,20 +230,29 @@ function object._legacy_accessors(obj, name, capi_name, is_object, join_if, set_
 
     local magic_obj = obj.object and obj.object or obj
 
-    magic_obj["get_"..name] = function(self)
+    magic_obj["get_" .. name] = function(self)
         self = is_object and self or obj
 
-        self._private[name] = self._private[name] or copy_object(
-            obj, {}, name, capi_name, is_object, join_if, set_empty
-        )
+        self._private[name] = self._private[name]
+            or copy_object(
+                obj,
+                {},
+                name,
+                capi_name,
+                is_object,
+                join_if,
+                set_empty
+            )
 
         local current = deprecated_to_current(self._private[name])
 
         return current or self._private[name]
     end
 
-    magic_obj["set_"..name] = function(self, objs)
-        if (not set_empty) and not next(objs) then return end
+    magic_obj["set_" .. name] = function(self, objs)
+        if (not set_empty) and not next(objs) then
+            return
+        end
 
         if not is_object then
             objs, self = self, obj
@@ -245,25 +281,23 @@ function object._legacy_accessors(obj, name, capi_name, is_object, join_if, set_
         -- using the result of gears.table.join, detect this
         local is_formatted = join_if(objs)
 
---         if is_formatted then
---TODO uncomment
---             gdebug.deprecate("Remove the `gears.table.join` and replace it with braces",
---                 {deprecated_in=5}
---             )
---         end
-
+        --         if is_formatted then
+        --TODO uncomment
+        --             gdebug.deprecate("Remove the `gears.table.join` and replace it with braces",
+        --                 {deprecated_in=5}
+        --             )
+        --         end
 
         --TODO v6 Use the original directly and drop this legacy copy
         local function apply()
-            local result = is_formatted and objs
-                or gtable.join(unpack(objs))
+            local result = is_formatted and objs or gtable.join(unpack(objs))
 
             if is_object and capi_name then
                 self[capi_name](self, result)
             elseif capi_name then
                 obj[capi_name](result)
             else
-                self._private[name.."_formatted"] = result
+                self._private[name .. "_formatted"] = result
             end
         end
 
@@ -272,35 +306,41 @@ function object._legacy_accessors(obj, name, capi_name, is_object, join_if, set_
         if not delay then
             apply()
         else
-            if not self._private["_delayed_"..name] then
+            if not self._private["_delayed_" .. name] then
                 gtimer = gtimer or require("gears.timer")
                 gtimer.delayed_call(function()
-                    self._private["_delayed_"..name]()
-                    self._private["_delayed_"..name] = nil
+                    self._private["_delayed_" .. name]()
+                    self._private["_delayed_" .. name] = nil
                 end)
             end
 
-            self._private["_delayed_"..name] = apply
+            self._private["_delayed_" .. name] = apply
         end
 
         self._private[name] = copy_object(
-            obj, objs, name, capi_name, is_object, join_if, set_empty
+            obj,
+            objs,
+            name,
+            capi_name,
+            is_object,
+            join_if,
+            set_empty
         )
     end
 
     if add_append_name then
-        magic_obj["append_"..add_append_name] = function(self, obj2)
+        magic_obj["append_" .. add_append_name] = function(self, obj2)
             self._private[name] = self._private[name]
-                or magic_obj["get_"..name](self, nil)
+                or magic_obj["get_" .. name](self, nil)
 
             table.insert(self._private[name], obj2)
 
-            magic_obj["set_"..name](self, self._private[name])
+            magic_obj["set_" .. name](self, self._private[name])
         end
 
-        magic_obj["remove_"..add_append_name] = function(self, obj2)
+        magic_obj["remove_" .. add_append_name] = function(self, obj2)
             self._private[name] = self._private[name]
-                or magic_obj["get_"..name](self, nil)
+                or magic_obj["get_" .. name](self, nil)
 
             for k, v in ipairs(self._private[name]) do
                 if v == obj2 then
@@ -309,11 +349,15 @@ function object._legacy_accessors(obj, name, capi_name, is_object, join_if, set_
                 end
             end
 
-            magic_obj["set_"..name](self, self._private[name])
+            magic_obj["set_" .. name](self, self._private[name])
         end
     end
 end
 
-return setmetatable( object, {__call = function(_,...) object.capi_index_fallback(...) end})
+return setmetatable(object, {
+    __call = function(_, ...)
+        object.capi_index_fallback(...)
+    end,
+})
 
 -- vim: filetype=lua:expandtab:shiftwidth=4:tabstop=8:softtabstop=4:textwidth=80

@@ -9,12 +9,11 @@
 -- Grab environment we need
 local ipairs = ipairs
 local math = math
-local capi =
-{
+local capi = {
     client = client,
     screen = screen,
     mouse = mouse,
-    mousegrabber = mousegrabber
+    mousegrabber = mousegrabber,
 }
 
 --- The magnifier layout layoutbox icon.
@@ -30,28 +29,30 @@ function magnifier.mouse_resize_handler(c, corner, x, y)
     local wa = c.screen.workarea
     local center_x = wa.x + wa.width / 2
     local center_y = wa.y + wa.height / 2
-    local maxdist_pow = (wa.width^2 + wa.height^2) / 4
+    local maxdist_pow = (wa.width ^ 2 + wa.height ^ 2) / 4
 
     local prev_coords = {}
-    capi.mousegrabber.run(function (position)
-                              if not c.valid then return false end
+    capi.mousegrabber.run(function(position)
+        if not c.valid then
+            return false
+        end
 
-                              for _, v in ipairs(position.buttons) do
-                                  if v then
-                                      prev_coords = { x =position.x, y = position.y }
-                                      local dx = center_x - position.x
-                                      local dy = center_y - position.y
-                                      local dist = dx^2 + dy^2
+        for _, v in ipairs(position.buttons) do
+            if v then
+                prev_coords = { x = position.x, y = position.y }
+                local dx = center_x - position.x
+                local dy = center_y - position.y
+                local dist = dx ^ 2 + dy ^ 2
 
-                                      -- New master width factor
-                                      local mwfact = dist / maxdist_pow
-                                      c.screen.selected_tag.master_width_factor
-                                        = math.min(math.max(0.01, mwfact), 0.99)
-                                      return true
-                                  end
-                              end
-                              return prev_coords.x == position.x and prev_coords.y == position.y
-                          end, corner .. "_corner")
+                -- New master width factor
+                local mwfact = dist / maxdist_pow
+                c.screen.selected_tag.master_width_factor =
+                    math.min(math.max(0.01, mwfact), 0.99)
+                return true
+            end
+        end
+        return prev_coords.x == position.x and prev_coords.y == position.y
+    end, corner .. "_corner")
 end
 
 local function get_screen(s)
@@ -68,7 +69,9 @@ function magnifier.arrange(p)
     local fidx
 
     -- Check that the focused window is on the right screen
-    if focus and focus.screen ~= get_screen(p.screen) then focus = nil end
+    if focus and focus.screen ~= get_screen(p.screen) then
+        focus = nil
+    end
 
     -- If no window is focused or focused window is not tiled, take the first tiled one.
     if not focus or focus.floating then
@@ -77,14 +80,16 @@ function magnifier.arrange(p)
     end
 
     -- Abort if no clients are present
-    if not focus then return end
+    if not focus then
+        return
+    end
 
     local geometry = {}
     if #cls > 1 then
         geometry.width = area.width * math.sqrt(mwfact)
         geometry.height = area.height * math.sqrt(mwfact)
         geometry.x = area.x + (area.width - geometry.width) / 2
-        geometry.y = area.y + (area.height - geometry.height) /2
+        geometry.y = area.y + (area.height - geometry.height) / 2
     else
         geometry.x = area.x
         geometry.y = area.y
@@ -96,7 +101,7 @@ function magnifier.arrange(p)
         x = geometry.x,
         y = geometry.y,
         width = geometry.width,
-        height = geometry.height
+        height = geometry.height,
     }
     p.geometries[focus] = g
 
@@ -122,7 +127,7 @@ function magnifier.arrange(p)
                 x = geometry.x,
                 y = geometry.y,
                 width = geometry.width,
-                height = geometry.height
+                height = geometry.height,
             }
             geometry.y = geometry.y + geometry.height
         end
@@ -134,7 +139,7 @@ function magnifier.arrange(p)
                 x = geometry.x,
                 y = geometry.y,
                 width = geometry.width,
-                height = geometry.height
+                height = geometry.height,
             }
             geometry.y = geometry.y + geometry.height
         end

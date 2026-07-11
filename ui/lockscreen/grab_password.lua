@@ -14,14 +14,15 @@ local function grab_password()
         grab_password()
     end
 
-    awful.prompt.run {
+    awful.prompt.run({
         hooks = {
             -- Do not cancel input with Escape or Ctrl+Del
             -- This will just clear any input received so far.
-            {{}, "Escape", reset_input}, {{"Control"}, "Delete", reset_input},
+            { {}, "Escape", reset_input },
+            { { "Control" }, "Delete", reset_input },
 
             -- Prevent Awesomewm restarting
-            {{"Control", "Mod4"}, "r", reset_input}
+            { { "Control", "Mod4" }, "r", reset_input },
         },
 
         keypressed_callback = function(mod, key, cmd)
@@ -45,8 +46,8 @@ local function grab_password()
             end
         end,
 
-        textbox = wibox.widget.textbox()
-    }
+        textbox = wibox.widget.textbox(),
+    })
 end
 
 return grab_password

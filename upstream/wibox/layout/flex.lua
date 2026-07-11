@@ -112,7 +112,7 @@ function flex:layout(_, width, height)
     local result = {}
     local spacing = self._private.spacing
     local num = #self._private.widgets
-    local total_spacing = (spacing*(num-1))
+    local total_spacing = (spacing * (num - 1))
     local spacing_widget = self._private.spacing_widget
     local abspace = math.abs(spacing)
     local spoffset = spacing < 0 and 0 or spacing
@@ -121,9 +121,9 @@ function flex:layout(_, width, height)
 
     local space_per_item
     if is_y then
-        space_per_item = height / num - total_spacing/num
+        space_per_item = height / num - total_spacing / num
     else
-        space_per_item = width / num - total_spacing/num
+        space_per_item = width / num - total_spacing / num
     end
 
     if self._private.max_widget_size then
@@ -151,10 +151,16 @@ function flex:layout(_, width, height)
         table.insert(result, base.place_widget_at(v, x, y, w, h))
 
         if k > 1 and spacing ~= 0 and spacing_widget then
-            table.insert(result, base.place_widget_at(
-                spacing_widget, is_x and (x - spoffset) or x, is_y and (y - spoffset) or y,
-                is_x and abspace or w, is_y and abspace or h
-            ))
+            table.insert(
+                result,
+                base.place_widget_at(
+                    spacing_widget,
+                    is_x and (x - spoffset) or x,
+                    is_y and (y - spoffset) or y,
+                    is_x and abspace or w,
+                    is_y and abspace or h
+                )
+            )
         end
     end
 
@@ -170,8 +176,10 @@ function flex:fit(context, orig_width, orig_height)
     local used_in_other = 0
 
     -- Figure out the maximum size we can give out to sub-widgets
-    local sub_height = self._private.dir == "x" and orig_height or orig_height / #self._private.widgets
-    local sub_width  = self._private.dir == "y" and orig_width  or orig_width / #self._private.widgets
+    local sub_height = self._private.dir == "x" and orig_height
+        or orig_height / #self._private.widgets
+    local sub_width = self._private.dir == "y" and orig_width
+        or orig_width / #self._private.widgets
 
     for _, v in pairs(self._private.widgets) do
         local w, h = base.fit_widget(self, context, v, sub_width, sub_height)
@@ -185,11 +193,13 @@ function flex:fit(context, orig_width, orig_height)
     end
 
     if self._private.max_widget_size then
-        used_in_dir = math.min(used_in_dir,
-            #self._private.widgets * self._private.max_widget_size)
+        used_in_dir = math.min(
+            used_in_dir,
+            #self._private.widgets * self._private.max_widget_size
+        )
     end
 
-    local spacing = self._private.spacing * (#self._private.widgets-1)
+    local spacing = self._private.spacing * (#self._private.widgets - 1)
 
     if self._private.dir == "y" then
         return used_in_other, used_in_dir + spacing

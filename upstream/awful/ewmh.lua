@@ -5,5 +5,5 @@ return gdebug.deprecate_class(
     require("awful.permissions"),
     "awful.ewmh",
     "awful.permissions",
-    { deprecated_in = 5}
+    { deprecated_in = 5 }
 )

@@ -11,12 +11,11 @@
 ---------------------------------------------------------------------------
 
 local setmetatable = setmetatable
-local base      = require("wibox.widget.base")
-local shape     = require("gears.shape"      )
-local gtable    = require( "gears.table"     )
-local color     = require( "gears.color"     )
-local beautiful = require("beautiful"        )
-
+local base = require("wibox.widget.base")
+local shape = require("gears.shape")
+local gtable = require("gears.table")
+local color = require("gears.color")
+local beautiful = require("beautiful")
 
 local arcchart = { mt = {} }
 
@@ -60,7 +59,7 @@ local function outline_workarea(width, height)
     local x, y = 0, 0
     local size = math.min(width, height)
 
-    return {x=x+(width-size)/2, y=y+(height-size)/2, width=size, height=size}
+    return { x = x + (width - size) / 2, y = y + (height - size) / 2, width = size, height = size }
 end
 
 -- The child widget area
@@ -70,12 +69,18 @@ local function content_workarea(self, width, height)
     local wa = outline_workarea(width, height)
     local thickness = math.max(border_width, self:get_thickness() or 5)
 
-    wa.x      = wa.x + (padding.left or 0) + thickness + 2*border_width
-    wa.y      = wa.y + (padding.top  or 0) + thickness + 2*border_width
-    wa.width  = wa.width  - (padding.left or 0) - (padding.right  or 0)
-        - 2*thickness - 4*border_width
-    wa.height = wa.height - (padding.top  or 0) - (padding.bottom or 0)
-        - 2*thickness - 4*border_width
+    wa.x = wa.x + (padding.left or 0) + thickness + 2 * border_width
+    wa.y = wa.y + (padding.top or 0) + thickness + 2 * border_width
+    wa.width = wa.width
+        - (padding.left or 0)
+        - (padding.right or 0)
+        - 2 * thickness
+        - 4 * border_width
+    wa.height = wa.height
+        - (padding.top or 0)
+        - (padding.bottom or 0)
+        - 2 * thickness
+        - 4 * border_width
 
     return wa
 end
@@ -84,23 +89,19 @@ end
 function arcchart:after_draw_children(_, cr, width, height)
     cr:restore()
 
-    local values  = self:get_values() or {}
+    local values = self:get_values() or {}
     local border_width = self:get_border_width() or 0
     local thickness = math.max(border_width, self:get_thickness() or 5)
 
-    local offset = thickness + 2*border_width
+    local offset = thickness + 2 * border_width
 
     -- Draw a circular background
     local bg = self:get_bg()
     if bg then
         cr:save()
-        cr:translate(offset/2, offset/2)
-        shape.circle(
-            cr,
-            width-offset,
-            height-offset
-        )
-        cr:set_line_width(thickness+2*border_width)
+        cr:translate(offset / 2, offset / 2)
+        shape.circle(cr, width - offset, height - offset)
+        cr:set_line_width(thickness + 2 * border_width)
         cr:set_source(color(bg))
         cr:stroke()
         cr:restore()
@@ -111,7 +112,7 @@ function arcchart:after_draw_children(_, cr, width, height)
     end
 
     local wa = outline_workarea(width, height)
-    cr:translate(wa.x+border_width/2, wa.y+border_width/2)
+    cr:translate(wa.x + border_width / 2, wa.y + border_width / 2)
 
     -- Get the min and max value
     --local min_val = self:get_min_value() or 0 --TODO support min_values
@@ -138,15 +139,21 @@ function arcchart:after_draw_children(_, cr, width, height)
     local start_angle, end_angle = offset_angle, offset_angle
 
     for k, v in ipairs(values) do
-        end_angle = start_angle + (v*2*math.pi) / max_val
+        end_angle = start_angle + (v * 2 * math.pi) / max_val
 
         if colors[k] then
             cr:set_source(color(colors[k]))
         end
 
-        shape.arc(cr, wa.width-border_width, wa.height-border_width,
-            thickness+border_width, math.pi-end_angle, math.pi-start_angle,
-            (use_rounded_edges and k == #values), (use_rounded_edges and k == 1)
+        shape.arc(
+            cr,
+            wa.width - border_width,
+            wa.height - border_width,
+            thickness + border_width,
+            math.pi - end_angle,
+            math.pi - start_angle,
+            (use_rounded_edges and k == #values),
+            (use_rounded_edges and k == 1)
         )
 
         cr:fill()
@@ -159,13 +166,18 @@ function arcchart:after_draw_children(_, cr, width, height)
         cr:set_source(color(border_color))
         cr:set_line_width(border_width)
 
-        shape.arc(cr, wa.width-border_width, wa.height-border_width,
-            thickness+border_width, math.pi-end_angle, math.pi-offset_angle,
-            use_rounded_edges, use_rounded_edges
+        shape.arc(
+            cr,
+            wa.width - border_width,
+            wa.height - border_width,
+            thickness + border_width,
+            math.pi - end_angle,
+            math.pi - offset_angle,
+            use_rounded_edges,
+            use_rounded_edges
         )
         cr:stroke()
     end
-
 end
 
 -- Set the clip
@@ -173,11 +185,7 @@ function arcchart:before_draw_children(_, cr, width, height)
     cr:save()
     local wa = content_workarea(self, width, height)
     cr:translate(wa.x, wa.y)
-    shape.circle(
-        cr,
-        wa.width,
-        wa.height
-    )
+    shape.circle(cr, wa.width, wa.height)
     cr:clip()
     cr:translate(-wa.x, -wa.y)
 end
@@ -187,9 +195,15 @@ function arcchart:layout(_, width, height)
     if self._private.widget then
         local wa = content_workarea(self, width, height)
 
-        return { base.place_widget_at(
-            self._private.widget, wa.x, wa.y, wa.width, wa.height
-        ) }
+        return {
+            base.place_widget_at(
+                self._private.widget,
+                wa.x,
+                wa.y,
+                wa.width,
+                wa.height
+            ),
+        }
     end
 end
 
@@ -207,7 +221,7 @@ end
 arcchart.set_widget = base.set_widget_common
 
 function arcchart:get_children()
-    return {self._private.widget}
+    return { self._private.widget }
 end
 
 function arcchart:set_children(children)
@@ -223,8 +237,8 @@ function arcchart:reset()
     self:set_widget(nil)
 end
 
-for _,v in ipairs {"left", "right", "top", "bottom"} do
-    arcchart["set_"..v.."_padding"] = function(self, val)
+for _, v in ipairs({ "left", "right", "top", "bottom" }) do
+    arcchart["set_" .. v .. "_padding"] = function(self, val)
         self._private.paddings = self._private.paddings or {}
         self._private.paddings[v] = val
         self:emit_signal("widget::redraw_needed")
@@ -342,33 +356,46 @@ end
 -- @propemits true false
 -- @usebeautiful beautiful.arcchart_start_angle
 
-for _, prop in ipairs {"border_width", "border_color", "paddings", "colors",
-    "rounded_edge", "bg", "thickness", "values", "min_value", "max_value",
-    "start_angle" } do
-    arcchart["set_"..prop] = function(self, value)
+for _, prop in ipairs({
+    "border_width",
+    "border_color",
+    "paddings",
+    "colors",
+    "rounded_edge",
+    "bg",
+    "thickness",
+    "values",
+    "min_value",
+    "max_value",
+    "start_angle",
+}) do
+    arcchart["set_" .. prop] = function(self, value)
         self._private[prop] = value
-        self:emit_signal("property::"..prop, value)
+        self:emit_signal("property::" .. prop, value)
         self:emit_signal("widget::redraw_needed")
     end
-    arcchart["get_"..prop] = function(self)
-        return self._private[prop] or beautiful["arcchart_"..prop]
+    arcchart["get_" .. prop] = function(self)
+        return self._private[prop] or beautiful["arcchart_" .. prop]
     end
 end
 
 function arcchart:set_paddings(val)
-    self._private.paddings = type(val) == "number" and {
-        left   = val,
-        right  = val,
-        top    = val,
-        bottom = val,
-    } or val or {}
+    self._private.paddings = type(val) == "number"
+            and {
+                left = val,
+                right = val,
+                top = val,
+                bottom = val,
+            }
+        or val
+        or {}
     self:emit_signal("property::paddings")
     self:emit_signal("widget::redraw_needed")
     self:emit_signal("widget::layout_changed")
 end
 
 function arcchart:set_value(value)
-    self:set_values {value}
+    self:set_values({ value })
 end
 
 --- Returns a new arcchart layout.

@@ -117,7 +117,10 @@ function powermenu:update_elements()
         element_widget:connect_signal("mouse::enter", function(w)
             if element.name == "poweroff" then
                 -- Special red gradient for poweroff button only
-                local hover_gradient = "linear:0,0:0,32:0," .. beautiful.red .. ":1," .. "#b61442"
+                local hover_gradient = "linear:0,0:0,32:0,"
+                    .. beautiful.red
+                    .. ":1,"
+                    .. "#b61442"
                 w:set_bg(hover_gradient)
             else
                 -- Standard wibar button hover effect for other buttons
@@ -216,7 +219,9 @@ local function new()
     wp.elements = {
         {
             exec = function()
-                awful.spawn("/home/tlh/.config/awesome/bin/glitchlock.sh")
+                awful.spawn(
+                    os.getenv("HOME") .. "/.config/awesome/bin/glitchlock.sh"
+                )
                 ret:hide()
             end,
             icon = icons_dir .. "lock.svg",

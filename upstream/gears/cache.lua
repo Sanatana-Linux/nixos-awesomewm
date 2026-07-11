@@ -53,12 +53,16 @@ end
 function cache.new(creation_cb)
     return setmetatable({
         _cache = setmetatable({}, { __mode = "v" }),
-        _creation_cb = creation_cb
+        _creation_cb = creation_cb,
     }, {
-        __index = cache
+        __index = cache,
     })
 end
 
-return setmetatable(cache, { __call = function(_, ...) return cache.new(...) end })
+return setmetatable(cache, {
+    __call = function(_, ...)
+        return cache.new(...)
+    end,
+})
 
 -- vim: filetype=lua:expandtab:shiftwidth=4:tabstop=8:softtabstop=4:textwidth=80

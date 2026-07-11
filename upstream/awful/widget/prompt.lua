@@ -38,25 +38,25 @@ local widgetprompt = { mt = {} }
 --
 -- @param promptbox The promptbox to run.
 local function run(promptbox)
-    return prompt.run {
-        prompt               = promptbox.prompt,
-        textbox              = promptbox.widget,
-        fg_cursor            = promptbox.fg_cursor,
-        bg_cursor            = promptbox.bg_cursor,
-        ul_cursor            = promptbox.ul_cursor,
-        font                 = promptbox.font,
-        autoexec             = promptbox.autoexec,
-        highlighter          = promptbox.highlighter,
-        exe_callback         = promptbox.exe_callback,
-        completion_callback  = promptbox.completion_callback,
-        history_path         = promptbox.history_path,
-        history_max          = promptbox.history_max,
-        done_callback        = promptbox.done_callback,
-        changed_callback     = promptbox.changed_callback,
-        keypressed_callback  = promptbox.keypressed_callback,
+    return prompt.run({
+        prompt = promptbox.prompt,
+        textbox = promptbox.widget,
+        fg_cursor = promptbox.fg_cursor,
+        bg_cursor = promptbox.bg_cursor,
+        ul_cursor = promptbox.ul_cursor,
+        font = promptbox.font,
+        autoexec = promptbox.autoexec,
+        highlighter = promptbox.highlighter,
+        exe_callback = promptbox.exe_callback,
+        completion_callback = promptbox.completion_callback,
+        history_path = promptbox.history_path,
+        history_max = promptbox.history_max,
+        done_callback = promptbox.done_callback,
+        changed_callback = promptbox.changed_callback,
+        keypressed_callback = promptbox.keypressed_callback,
         keyreleased_callback = promptbox.keyreleased_callback,
-        hooks                = promptbox.hooks
-    }
+        hooks = promptbox.hooks,
+    })
 end
 
 local function spawn_and_handle_error(self, ...)
@@ -136,13 +136,14 @@ function widgetprompt.new(args)
     promptbox.font = args.font or nil
     promptbox.autoexec = args.autoexec or nil
     promptbox.highlighter = args.highlighter or nil
-    promptbox.exe_callback = args.exe_callback or function (...)
-        promptbox:spawn_and_handle_error(...)
-    end
+    promptbox.exe_callback = args.exe_callback
+        or function(...)
+            promptbox:spawn_and_handle_error(...)
+        end
     promptbox.with_shell = args.with_shell or false
     promptbox.completion_callback = args.completion_callback or completion.shell
-    promptbox.history_path = args.history_path or
-        gfs.get_cache_dir() .. 'history'
+    promptbox.history_path = args.history_path
+        or gfs.get_cache_dir() .. "history"
     promptbox.history_max = args.history_max or nil
     promptbox.done_callback = args.done_callback or nil
     promptbox.changed_callback = args.changed_callback or nil
@@ -150,8 +151,10 @@ function widgetprompt.new(args)
     promptbox.keyreleased_callback = args.keyreleased_callback or nil
 
     if args.hook and not args.hooks then
-        gdebug.deprecate("Use `args.hooks` instead of `args.hook`",
-            {deprecated_in=5})
+        gdebug.deprecate(
+            "Use `args.hooks` instead of `args.hook`",
+            { deprecated_in = 5 }
+        )
 
         args.hooks = args.hook
     end

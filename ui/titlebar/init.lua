@@ -21,7 +21,7 @@ local function make_button(icon_path, onclick)
         icon_widget.resize = true
         icon_widget.align = "center"
         icon_widget.valign = "center"
-        
+
         local btn = wibox.widget({
             {
                 {
@@ -47,9 +47,13 @@ local function make_button(icon_path, onclick)
         btn:connect_signal("mouse::enter", function()
             if is_close_button then
                 -- Special red gradient effect for close buttons
-                btn.bg = "linear:0,0:0,32:0," .. beautiful.red .. ":1," .. "#b61442"
+                btn.bg = "linear:0,0:0,32:0,"
+                    .. beautiful.red
+                    .. ":1,"
+                    .. "#b61442"
                 -- Change icon to white on hover
-                icon_widget.image = gears.color.recolor_image(icon_path, beautiful.bg)
+                icon_widget.image =
+                    gears.color.recolor_image(icon_path, beautiful.bg)
             else
                 -- Normal hover effect for other buttons
                 btn.bg = beautiful.bg_gradient_button_alt
@@ -60,7 +64,8 @@ local function make_button(icon_path, onclick)
         btn:connect_signal("mouse::leave", function()
             btn.bg = beautiful.bg_gradient_button
             -- Revert icon color to normal
-            icon_widget.image = gears.color.recolor_image(icon_path, beautiful.fg)
+            icon_widget.image =
+                gears.color.recolor_image(icon_path, beautiful.fg)
             btn:emit_signal("widget::redraw_needed")
         end)
 
@@ -78,21 +83,15 @@ local close_button = make_button(close_icon, function(c)
     c:kill()
 end)
 
-local maximize_button = make_button(
-    maximize_icon,
-    function(c)
-        c.maximized = not c.maximized
-    end
-)
+local maximize_button = make_button(maximize_icon, function(c)
+    c.maximized = not c.maximized
+end)
 
-local minimize_button = make_button(
-    minimize_icon,
-    function(c)
-        gears.timer.delayed_call(function()
-            c.minimized = true
-        end)
-    end
-)
+local minimize_button = make_button(minimize_icon, function(c)
+    gears.timer.delayed_call(function()
+        c.minimized = true
+    end)
+end)
 
 client.connect_signal("request::titlebars", function(c)
     -- Create the titlebar with a transparent background initially,

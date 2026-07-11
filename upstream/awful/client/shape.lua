@@ -9,8 +9,7 @@
 -- Grab environment we need
 local surface = require("gears.surface")
 local cairo = require("lgi").cairo
-local capi =
-{
+local capi = {
     client = client,
 }
 
@@ -23,9 +22,12 @@ shape.update = {}
 -- @tparam string shape_name Either "input", "bounding" or "clip"
 function shape.get_transformed(c, shape_name)
     local border = shape_name == "bounding" and c.border_width or 0
-    local shape_img = surface.load_silently(c["client_shape_" .. shape_name], false)
+    local shape_img =
+        surface.load_silently(c["client_shape_" .. shape_name], false)
     local _shape = c._shape
-    if not (shape_img or _shape) then return end
+    if not (shape_img or _shape) then
+        return
+    end
 
     -- Get information about various sizes on the client
     local geom = c:geometry()
@@ -35,8 +37,8 @@ function shape.get_transformed(c, shape_name)
     local _, r = c:titlebar_right()
 
     -- Figure out the size of the shape that we need
-    local img_width = geom.width + 2*border
-    local img_height = geom.height + 2*border
+    local img_width = geom.width + 2 * border
+    local img_height = geom.height + 2 * border
     local result = cairo.ImageSurface(cairo.Format.A1, img_width, img_height)
     local cr = cairo.Context(result)
 
@@ -49,7 +51,12 @@ function shape.get_transformed(c, shape_name)
         -- Draw the client's shape in the middle
         cr:set_operator(cairo.Operator.SOURCE)
         cr:set_source_surface(shape_img, border + l, border + t)
-        cr:rectangle(border + l, border + t, geom.width - l - r, geom.height - t - b)
+        cr:rectangle(
+            border + l,
+            border + t,
+            geom.width - l - r,
+            geom.height - t - b
+        )
         cr:fill()
 
         shape_img:finish()
@@ -64,7 +71,11 @@ function shape.get_transformed(c, shape_name)
             cr:translate(-c.border_width, -c.border_width)
         end
         -- Always call the shape with the size of the bounding shape
-        _shape(cr, geom.width + 2*c.border_width, geom.height + 2*c.border_width)
+        _shape(
+            cr,
+            geom.width + 2 * c.border_width,
+            geom.height + 2 * c.border_width
+        )
         -- Now fill the "selected" part
         cr:set_operator(cairo.Operator.SOURCE)
         cr:set_source_rgba(1, 1, 1, 1)
@@ -73,7 +84,7 @@ function shape.get_transformed(c, shape_name)
             -- Remove an area of size c.border_width again (We use 2*bw since
             -- half of that is on the outside)
             cr:set_source_rgba(0, 0, 0, 0)
-            cr:set_line_width(2*c.border_width)
+            cr:set_line_width(2 * c.border_width)
             cr:stroke()
         end
         -- Combine the result with what we already have
@@ -133,7 +144,10 @@ function shape.update.input(c)
     end
 end
 
-capi.client.connect_signal("property::shape_client_bounding", shape.update.bounding)
+capi.client.connect_signal(
+    "property::shape_client_bounding",
+    shape.update.bounding
+)
 capi.client.connect_signal("property::shape_client_clip", shape.update.clip)
 capi.client.connect_signal("property::shape_client_input", shape.update.input)
 capi.client.connect_signal("property::size", shape.update.all)

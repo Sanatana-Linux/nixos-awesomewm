@@ -26,7 +26,7 @@
 ---------------------------------------------------------------------------
 
 local unpack = unpack or table.unpack -- luacheck: globals unpack (compatibility with Lua 5.1)
-local base  = require("wibox.widget.base")
+local base = require("wibox.widget.base")
 local table = table
 local pairs = pairs
 local gtable = require("gears.table")
@@ -119,13 +119,16 @@ function fixed:layout(context, width, height)
 
         -- Add the spacing widget (if needed)
         if index < widgets_nr and spacing_widget then
-            table.insert(result, base.place_widget_at(
-                spacing_widget,
-                is_x and (x - spoffset) or x,
-                is_y and (y - spoffset) or y,
-                is_x and abspace or w,
-                is_y and abspace or h
-            ))
+            table.insert(
+                result,
+                base.place_widget_at(
+                    spacing_widget,
+                    is_x and (x - spoffset) or x,
+                    is_y and (y - spoffset) or y,
+                    is_x and abspace or w,
+                    is_y and abspace or h
+                )
+            )
         end
     end
 
@@ -140,16 +143,15 @@ end
 -- @interface layout
 function fixed:add(...)
     -- No table.pack in Lua 5.1 :-(
-    local args = { n=select('#', ...), ... }
+    local args = { n = select("#", ...), ... }
     assert(args.n > 0, "need at least one widget to add")
-    for i=1, args.n do
+    for i = 1, args.n do
         local w = base.make_widget_from_value(args[i])
         base.check_widget(w)
         table.insert(self._private.widgets, w)
     end
     self:emit_signal("widget::layout_changed")
 end
-
 
 --- Remove a widget from the layout.
 --
@@ -158,7 +160,9 @@ end
 -- @treturn boolean index If the operation is successful
 -- @interface layout
 function fixed:remove(index)
-    if not index or index < 1 or index > #self._private.widgets then return false end
+    if not index or index < 1 or index > #self._private.widgets then
+        return false
+    end
 
     table.remove(self._private.widgets, index)
 
@@ -182,7 +186,9 @@ function fixed:remove_widgets(...)
 
     local ret = true
     for k, rem_widget in ipairs(args) do
-        if recursive and k == #args then break end
+        if recursive and k == #args then
+            break
+        end
 
         local idx, l = self:index(rem_widget, recursive)
 
@@ -191,7 +197,6 @@ function fixed:remove_widgets(...)
         else
             ret = false
         end
-
     end
 
     return #args > (recursive and 1 or 0) and ret
@@ -227,12 +232,17 @@ function fixed:replace_widget(widget, widget2, recursive)
 end
 
 function fixed:swap(index1, index2)
-    if not index1 or not index2 or index1 > #self._private.widgets
-        or index2 > #self._private.widgets then
+    if
+        not index1
+        or not index2
+        or index1 > #self._private.widgets
+        or index2 > #self._private.widgets
+    then
         return false
     end
 
-    local widget1, widget2 = self._private.widgets[index1], self._private.widgets[index2]
+    local widget1, widget2 =
+        self._private.widgets[index1], self._private.widgets[index2]
 
     self:set(index1, widget2)
     self:set(index2, widget1)
@@ -249,11 +259,24 @@ function fixed:swap_widgets(widget1, widget2, recursive)
     local idx1, l1 = self:index(widget1, recursive)
     local idx2, l2 = self:index(widget2, recursive)
 
-    if idx1 and l1 and idx2 and l2 and (l1.set or l1.set_widget) and (l2.set or l2.set_widget) then
+    if
+        idx1
+        and l1
+        and idx2
+        and l2
+        and (l1.set or l1.set_widget)
+        and (l2.set or l2.set_widget)
+    then
         if l1.set then
             l1:set(idx1, widget2)
             if l1 == self then
-                self:emit_signal("widget::swapped", widget1, widget2, idx2, idx1)
+                self:emit_signal(
+                    "widget::swapped",
+                    widget1,
+                    widget2,
+                    idx2,
+                    idx1
+                )
             end
         elseif l1.set_widget then
             l1:set_widget(widget2)
@@ -261,7 +284,13 @@ function fixed:swap_widgets(widget1, widget2, recursive)
         if l2.set then
             l2:set(idx2, widget1)
             if l2 == self then
-                self:emit_signal("widget::swapped", widget1, widget2, idx2, idx1)
+                self:emit_signal(
+                    "widget::swapped",
+                    widget1,
+                    widget2,
+                    idx2,
+                    idx1
+                )
             end
         elseif l2.set_widget then
             l2:set_widget(widget1)
@@ -274,7 +303,9 @@ function fixed:swap_widgets(widget1, widget2, recursive)
 end
 
 function fixed:set(index, widget2)
-    if (not widget2) or (not self._private.widgets[index]) then return false end
+    if (not widget2) or not self._private.widgets[index] then
+        return false
+    end
 
     base.check_widget(widget2)
 
@@ -321,7 +352,9 @@ end
 -- @emitstparam widget::inserted number count The widget count.
 -- @interface layout
 function fixed:insert(index, widget)
-    if not index or index < 1 or index > #self._private.widgets + 1 then return false end
+    if not index or index < 1 or index > #self._private.widgets + 1 then
+        return false
+    end
 
     widget = base.make_widget_from_value(widget)
     base.check_widget(widget)
@@ -377,11 +410,13 @@ function fixed:fit(context, orig_width, orig_height)
             -- this complicated two lines determine whether we're out-of-space
             -- because of spacing, or if the last widget doesn't fit in
             if is_y then
-                 height_left = k < widgets_nr and height_left + spacing or height_left
-                 height_left = height_left < 0 and 0 or height_left
+                height_left = k < widgets_nr and height_left + spacing
+                    or height_left
+                height_left = height_left < 0 and 0 or height_left
             else
-                 width_left = k < widgets_nr and width_left + spacing or width_left
-                 width_left = width_left < 0 and 0 or width_left
+                width_left = k < widgets_nr and width_left + spacing
+                    or width_left
+                width_left = width_left < 0 and 0 or width_left
             end
             break
         end
@@ -417,7 +452,7 @@ function fixed:fill_space(val)
 end
 
 local function get_layout(dir, widget1, ...)
-    local ret = base.make_widget(nil, nil, {enable_properties = true})
+    local ret = base.make_widget(nil, nil, { enable_properties = true })
 
     gtable.crush(ret, fixed, true)
 

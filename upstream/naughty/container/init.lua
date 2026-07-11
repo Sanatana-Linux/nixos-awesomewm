@@ -5,5 +5,5 @@
 ---------------------------------------------------------------------------
 
 return {
-    background = require( "naughty.container.background" );
+    background = require("naughty.container.background"),
 }

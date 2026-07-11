@@ -8,7 +8,8 @@ local dpi = beautiful.xresources.apply_dpi
 local launcher = require("ui.popups.launcher").get_default()
 local styled_button = require("modules.styled_button")
 
-local icon_path = gfs.get_configuration_dir() .. "ui/bar/modules/launcher_button/icons/nix.svg"
+local icon_path = gfs.get_configuration_dir()
+    .. "ui/bar/modules/launcher_button/icons/nix.svg"
 
 -- Creates a button to toggle the application launcher using the SVG icon.
 -- @return widget The launcher button widget.

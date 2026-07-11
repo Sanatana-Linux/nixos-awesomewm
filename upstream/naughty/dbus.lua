@@ -13,7 +13,7 @@ local type = type
 local string = string
 local capi = { awesome = awesome }
 local gsurface = require("gears.surface")
-local gdebug  = require("gears.debug")
+local gdebug = require("gears.debug")
 local protected_call = require("gears.protected_call")
 local lgi = require("lgi")
 local cairo, Gio, GLib, GObject = lgi.cairo, lgi.Gio, lgi.GLib, lgi.GObject
@@ -24,12 +24,16 @@ local tcat = table.concat
 local tins = table.insert
 local unpack = unpack or table.unpack -- luacheck: globals unpack (compatibility with Lua 5.1)
 local naughty = require("naughty.core")
-local cst     = require("naughty.constants")
+local cst = require("naughty.constants")
 local nnotif = require("naughty.notification")
 local naction = require("naughty.action")
 
 local capabilities = {
-    "body", "body-markup", "icon-static", "actions", "action-icons"
+    "body",
+    "body-markup",
+    "icon-static",
+    "actions",
+    "action-icons",
 }
 
 --- Notification library, dbus bindings
@@ -41,9 +45,9 @@ local bus_connection
 -- DBUS Notification constants
 -- https://specifications.freedesktop.org/notification-spec/latest/urgency-levels.html
 local urgency = {
-    low      = "\0",
-    normal   = "\1",
-    critical = "\2"
+    low = "\0",
+    normal = "\1",
+    critical = "\2",
 }
 
 --- DBUS notification to preset mapping.
@@ -59,9 +63,13 @@ dbus.config.mapping = cst.config.mapping
 
 local function sendActionInvoked(notificationId, action)
     if bus_connection then
-        bus_connection:emit_signal(nil, "/org/freedesktop/Notifications",
-        "org.freedesktop.Notifications", "ActionInvoked",
-        GLib.Variant("(us)", { notificationId, action }))
+        bus_connection:emit_signal(
+            nil,
+            "/org/freedesktop/Notifications",
+            "org.freedesktop.Notifications",
+            "ActionInvoked",
+            GLib.Variant("(us)", { notificationId, action })
+        )
     end
 end
 
@@ -73,22 +81,31 @@ local function sendNotificationClosed(notificationId, reason)
         sendActionInvoked(notificationId, "default")
     end
     if bus_connection then
-        bus_connection:emit_signal(nil, "/org/freedesktop/Notifications",
-        "org.freedesktop.Notifications", "NotificationClosed",
-        GLib.Variant("(uu)", { notificationId, reason }))
+        bus_connection:emit_signal(
+            nil,
+            "/org/freedesktop/Notifications",
+            "org.freedesktop.Notifications",
+            "NotificationClosed",
+            GLib.Variant("(uu)", { notificationId, reason })
+        )
     end
 end
 
 local function convert_icon(w, h, rowstride, channels, data)
     -- Do the arguments look sane? (e.g. we have enough data)
     local expected_length = rowstride * (h - 1) + w * channels
-    if w < 0 or h < 0 or rowstride < 0 or (channels ~= 3 and channels ~= 4) or
-        string.len(data) < expected_length then
+    if
+        w < 0
+        or h < 0
+        or rowstride < 0
+        or (channels ~= 3 and channels ~= 4)
+        or string.len(data) < expected_length
+    then
         w = 0
         h = 0
     end
 
-    local format = cairo.Format[channels == 4 and 'ARGB32' or 'RGB24']
+    local format = cairo.Format[channels == 4 and "ARGB32" or "RGB24"]
 
     -- Figure out some stride magic (cairo dictates rowstride)
     local stride = cairo.Format.stride_for_width(format, w)
@@ -114,7 +131,8 @@ local function convert_icon(w, h, rowstride, channels, data)
     end
 
     local pixels = tcat(rows)
-    local surf = cairo.ImageSurface.create_for_data(pixels, format, w, h, stride)
+    local surf =
+        cairo.ImageSurface.create_for_data(pixels, format, w, h, stride)
 
     -- The surface refers to 'pixels', which can be freed by the GC. Thus,
     -- duplicate the surface to create a copy of the data owned by cairo.
@@ -125,7 +143,14 @@ end
 
 local notif_methods = {}
 
-function notif_methods.Notify(sender, object_path, interface, method, parameters, invocation)
+function notif_methods.Notify(
+    sender,
+    object_path,
+    interface,
+    method,
+    parameters,
+    invocation
+)
     local appname, replaces_id, app_icon, title, text, actions, hints, expire =
         unpack(parameters.value)
 
@@ -146,7 +171,7 @@ function notif_methods.Notify(sender, object_path, interface, method, parameters
     end
 
     if appname ~= "" then
-        args.appname  = appname --TODO v6 Remove this.
+        args.appname = appname --TODO v6 Remove this.
         args.app_name = appname
     end
 
@@ -155,35 +180,43 @@ function notif_methods.Notify(sender, object_path, interface, method, parameters
     if actions then
         args.actions = {}
 
-        for i = 1,#actions,2 do
+        for i = 1, #actions, 2 do
             local action_id = actions[i]
             local action_text = actions[i + 1]
 
             if action_id == "default" then
                 args.run = function()
                     sendActionInvoked(notification.id, "default")
-                    notification:destroy(cst.notification_closed_reason.dismissed_by_user)
+                    notification:destroy(
+                        cst.notification_closed_reason.dismissed_by_user
+                    )
                 end
             elseif action_id ~= nil and action_text ~= nil then
-
-                local a = naction {
-                    name     = action_text,
-                    id       = action_id,
-                    position = (i - 1)/2 + 1,
-                }
+                local a = naction({
+                    name = action_text,
+                    id = action_id,
+                    position = (i - 1) / 2 + 1,
+                })
 
                 -- Right now `gears` doesn't have a great icon implementation
                 -- and `naughty` doesn't depend on `menubar`, so delegate the
                 -- icon "somewhere" using a request.
                 if hints["action-icons"] and action_id ~= "" then
-                    naughty.emit_signal("request::action_icon", a, "dbus", {id = action_id})
+                    naughty.emit_signal(
+                        "request::action_icon",
+                        a,
+                        "dbus",
+                        { id = action_id }
+                    )
                 end
 
                 a:connect_signal("invoked", function()
                     sendActionInvoked(notification.id, action_id)
 
                     if not notification.resident then
-                        notification:destroy(cst.notification_closed_reason.dismissed_by_user)
+                        notification:destroy(
+                            cst.notification_closed_reason.dismissed_by_user
+                        )
                     end
                 end)
 
@@ -194,14 +227,32 @@ function notif_methods.Notify(sender, object_path, interface, method, parameters
     args.destroy = function(reason)
         sendNotificationClosed(notification.id, reason)
     end
-    local legacy_data = { -- This data used to be generated by AwesomeWM's C code
-        type = "method_call", interface = interface, path = object_path,
-        member = method, sender = sender, bus = "session"
-    }
-    if not preset.callback or (type(preset.callback) == "function" and
-        preset.callback(legacy_data, appname, replaces_id, app_icon, title, text, actions, hints, expire)) then
-
-
+    local legacy_data =
+        { -- This data used to be generated by AwesomeWM's C code
+            type = "method_call",
+            interface = interface,
+            path = object_path,
+            member = method,
+            sender = sender,
+            bus = "session",
+        }
+    if
+        not preset.callback
+        or (
+            type(preset.callback) == "function"
+            and preset.callback(
+                legacy_data,
+                appname,
+                replaces_id,
+                app_icon,
+                title,
+                text,
+                actions,
+                hints,
+                expire
+            )
+        )
+    then
         if app_icon ~= "" then
             args.app_icon = app_icon
         end
@@ -240,15 +291,22 @@ function notif_methods.Notify(sender, object_path, interface, method, parameters
             -- GVariant.data to get that as an LGI byte buffer. That one can
             -- then by converted to a string via its __tostring metamethod.
             local data = tostring(icon_data:get_child_value(7 - 1).data)
-            args.image = convert_icon(icon_data[1], icon_data[2], icon_data[3], icon_data[6], data)
+            args.image = convert_icon(
+                icon_data[1],
+                icon_data[2],
+                icon_data[3],
+                icon_data[6],
+                data
+            )
 
             -- Convert all animation frames.
             if naughty.image_animations_enabled then
-                args.images = {args.image}
+                args.images = { args.image }
 
                 if #icon_data > 7 then
-                    for frame=8, #icon_data do
-                        data = tostring(icon_data:get_child_value(frame-1).data)
+                    for frame = 8, #icon_data do
+                        data =
+                            tostring(icon_data:get_child_value(frame - 1).data)
 
                         table.insert(
                             args.images,
@@ -307,22 +365,28 @@ function notif_methods.Notify(sender, object_path, interface, method, parameters
                 -- highjack content created within AwesomeWM or it is garbage
                 -- to begin with.
                 gdebug.print_warning(
-                    "A notification has been received, but tried to update "..
-                    "the content of a notification it does not own."
+                    "A notification has been received, but tried to update "
+                        .. "the content of a notification it does not own."
                 )
             elseif notification._private._unique_sender ~= sender then
                 -- Nothing says you cannot and some scripts may do it
                 -- accidentally, but this is rather unexpected.
                 gdebug.print_warning(
-                    "Notification "..notification.title.." is being updated"..
-                    "by a different DBus connection ("..sender.."), this is "..
-                    "suspicious. The original connection was "..
-                    notification._private._unique_sender
+                    "Notification "
+                        .. notification.title
+                        .. " is being updated"
+                        .. "by a different DBus connection ("
+                        .. sender
+                        .. "), this is "
+                        .. "suspicious. The original connection was "
+                        .. notification._private._unique_sender
                 )
             end
 
             for k, v in pairs(args) do
-                if k == "destroy" then k = "destroy_cb" end
+                if k == "destroy" then
+                    k = "destroy_cb"
+                end
                 notification[k] = v
             end
 
@@ -330,11 +394,11 @@ function notif_methods.Notify(sender, object_path, interface, method, parameters
             if app_icon ~= notification._private.app_icon then
                 notification._private.app_icon = app_icon
 
-                naughty._emit_signal_if(
-                    "request::icon", function()
-                        if notification._private.icon then return true end
-                    end, notification, "dbus_clear", {}
-                )
+                naughty._emit_signal_if("request::icon", function()
+                    if notification._private.icon then
+                        return true
+                    end
+                end, notification, "dbus_clear", {})
             end
 
             -- Even if no property changed, restart the timeout.
@@ -345,7 +409,9 @@ function notif_methods.Notify(sender, object_path, interface, method, parameters
 
             notification = nnotif(args)
 
-            notification:connect_signal("destroyed", function(_, r) args.destroy(r) end)
+            notification:connect_signal("destroyed", function(_, r)
+                args.destroy(r)
+            end)
         end
 
         invocation:return_value(GLib.Variant("(u)", { notification.id }))
@@ -366,18 +432,31 @@ end
 function notif_methods.GetServerInformation(_, _, _, _, _, invocation)
     -- name of notification app, name of vender, version, specification version
     invocation:return_value(GLib.Variant("(ssss)", {
-        "naughty", "awesome", capi.awesome.version, "1.2"
+        "naughty",
+        "awesome",
+        capi.awesome.version,
+        "1.2",
     }))
 end
 
 function notif_methods.GetCapabilities(_, _, _, _, _, invocation)
     -- We actually do display the body of the message, we support <b>, <i>
     -- and <u> in the body and we handle static (non-animated) icons.
-    invocation:return_value(GLib.Variant("(as)", {capabilities}))
+    invocation:return_value(GLib.Variant("(as)", { capabilities }))
 end
 
-local function method_call(_, sender, object_path, interface, method, parameters, invocation)
-    if not notif_methods[method] then return end
+local function method_call(
+    _,
+    sender,
+    object_path,
+    interface,
+    method,
+    parameters,
+    invocation
+)
+    if not notif_methods[method] then
+        return
+    end
 
     protected_call(
         notif_methods[method],
@@ -392,45 +471,62 @@ end
 
 local function on_bus_acquire(conn, _)
     local function arg(name, signature)
-        return Gio.DBusArgInfo{ name = name, signature = signature }
+        return Gio.DBusArgInfo({ name = name, signature = signature })
     end
     local method = Gio.DBusMethodInfo
     local signal = Gio.DBusSignalInfo
 
-    local interface_info = Gio.DBusInterfaceInfo {
+    local interface_info = Gio.DBusInterfaceInfo({
         name = "org.freedesktop.Notifications",
         methods = {
-            method{ name = "GetCapabilities",
-                out_args = { arg("caps", "as") }
-            },
-            method{ name = "CloseNotification",
-                in_args = { arg("id", "u") }
-            },
-            method{ name = "GetServerInformation",
-                out_args = { arg("return_name", "s"), arg("return_vendor", "s"),
-                    arg("return_version", "s"), arg("return_spec_version", "s")
-                }
-            },
-            method{ name = "Notify",
-                in_args = { arg("app_name", "s"), arg("id", "u"),
-                    arg("icon", "s"), arg("summary", "s"), arg("body", "s"),
-                    arg("actions", "as"), arg("hints", "a{sv}"),
-                    arg("timeout", "i")
+            method({
+                name = "GetCapabilities",
+                out_args = { arg("caps", "as") },
+            }),
+            method({
+                name = "CloseNotification",
+                in_args = { arg("id", "u") },
+            }),
+            method({
+                name = "GetServerInformation",
+                out_args = {
+                    arg("return_name", "s"),
+                    arg("return_vendor", "s"),
+                    arg("return_version", "s"),
+                    arg("return_spec_version", "s"),
                 },
-                out_args = { arg("return_id", "u") }
-            }
+            }),
+            method({
+                name = "Notify",
+                in_args = {
+                    arg("app_name", "s"),
+                    arg("id", "u"),
+                    arg("icon", "s"),
+                    arg("summary", "s"),
+                    arg("body", "s"),
+                    arg("actions", "as"),
+                    arg("hints", "a{sv}"),
+                    arg("timeout", "i"),
+                },
+                out_args = { arg("return_id", "u") },
+            }),
         },
         signals = {
-            signal{ name = "NotificationClosed",
-                args = { arg("id", "u"), arg("reason", "u") }
-            },
-            signal{ name = "ActionInvoked",
-                args = { arg("id", "u"), arg("action_key", "s") }
-            }
-        }
-    }
-    conn:register_object("/org/freedesktop/Notifications", interface_info,
-        GObject.Closure(method_call))
+            signal({
+                name = "NotificationClosed",
+                args = { arg("id", "u"), arg("reason", "u") },
+            }),
+            signal({
+                name = "ActionInvoked",
+                args = { arg("id", "u"), arg("action_key", "s") },
+            }),
+        },
+    })
+    conn:register_object(
+        "/org/freedesktop/Notifications",
+        interface_info,
+        GObject.Closure(method_call)
+    )
 end
 
 local bus_proxy, pid_for_unique_name = nil, {}
@@ -444,7 +540,7 @@ Gio.DBusProxy.new_for_bus(
     "org.freedesktop.DBus",
     nil,
     function(proxy)
-        bus_proxy =  proxy
+        bus_proxy = proxy
     end,
     nil
 )
@@ -467,15 +563,18 @@ Gio.DBusProxy.new_for_bus(
 function dbus.get_clients(notif)
     -- First, the trivial case, but I never found an app that implements it.
     -- It isn't standardized, but mentioned as possible.
-    local win_id = notif.freedesktop_hints and (notif.freedesktop_hints.window_ID
-        or notif.freedesktop_hints["window-id"]
-        or notif.freedesktop_hints.windowID
-        or notif.freedesktop_hints.windowid)
+    local win_id = notif.freedesktop_hints
+        and (
+            notif.freedesktop_hints.window_ID
+            or notif.freedesktop_hints["window-id"]
+            or notif.freedesktop_hints.windowID
+            or notif.freedesktop_hints.windowid
+        )
 
     if win_id then
         for _, c in ipairs(client.get()) do
             if c.window_id == win_id then
-                return {win_id}
+                return { win_id }
             end
         end
     end
@@ -483,39 +582,45 @@ function dbus.get_clients(notif)
     -- Less trivial, but mentioned in the spec. Note that this isn't
     -- recommended by the spec, let alone mandatory. It is mentioned it can
     -- exist. This wont work with Flatpak or Snaps.
-    local pid = notif.freedesktop_hints and (
-        notif.freedesktop_hints.PID or notif.freedesktop_hints.pid
-    )
+    local pid = notif.freedesktop_hints
+        and (notif.freedesktop_hints.PID or notif.freedesktop_hints.pid)
 
     if ((not bus_proxy) or not notif._private._unique_sender) and not pid then
         return {}
     end
 
-    if (not pid) and (not pid_for_unique_name[notif._private._unique_sender]) then
-        local owner = GLib.Variant("(s)", {notif._private._unique_sender})
+    if (not pid) and not pid_for_unique_name[notif._private._unique_sender] then
+        local owner = GLib.Variant("(s)", { notif._private._unique_sender })
 
         -- It is sync, but this isn't done very often and since it is DBus
         -- daemon itself, it is very responsive. Doing this using the async
         -- variant would cause the clients to be unavailable in the notification
         -- rules.
-        pid = bus_proxy:call_sync("GetConnectionUnixProcessID",
+        pid = bus_proxy:call_sync(
+            "GetConnectionUnixProcessID",
             owner,
             Gio.DBusCallFlags.NONE,
             -1
         )
 
-        if (not pid) or (not pid.value) then return {} end
+        if (not pid) or not pid.value then
+            return {}
+        end
 
         pid = pid.value and pid.value[1]
 
-        if not pid then return {} end
+        if not pid then
+            return {}
+        end
 
         pid_for_unique_name[notif._private._unique_sender] = pid
     end
 
     pid = pid or pid_for_unique_name[notif._private._unique_sender]
 
-    if not pid then return {} end
+    if not pid then
+        return {}
+    end
 
     local ret = {}
 
@@ -536,9 +641,14 @@ local function on_name_lost(_, _)
     bus_connection = nil
 end
 
-Gio.bus_own_name(Gio.BusType.SESSION, "org.freedesktop.Notifications",
-    Gio.BusNameOwnerFlags.NONE, GObject.Closure(on_bus_acquire),
-    GObject.Closure(on_name_acquired), GObject.Closure(on_name_lost))
+Gio.bus_own_name(
+    Gio.BusType.SESSION,
+    "org.freedesktop.Notifications",
+    Gio.BusNameOwnerFlags.NONE,
+    GObject.Closure(on_bus_acquire),
+    GObject.Closure(on_name_acquired),
+    GObject.Closure(on_name_lost)
+)
 
 -- For testing
 dbus._notif_methods = notif_methods
@@ -564,8 +674,9 @@ naughty.connect_signal("property::image_animations_enabled", function()
     remove_capability("icon-multi")
     remove_capability("icon-static")
 
-    table.insert(capabilities, naughty.persistence_enabled
-        and "icon-multi" or "icon-static"
+    table.insert(
+        capabilities,
+        naughty.persistence_enabled and "icon-multi" or "icon-static"
     )
 end)
 

@@ -28,7 +28,9 @@ end
 
 -- Layout this layout
 function rotate:layout(_, width, height)
-    if not self._private.widget or not self._private.widget._private.visible then
+    if
+        not self._private.widget or not self._private.widget._private.visible
+    then
         return
     end
 
@@ -48,7 +50,13 @@ function rotate:layout(_, width, height)
 
     -- Since we rotated, we might have to swap width and height.
     -- transform() does that for us.
-    return { base.place_widget_via_matrix(self._private.widget, m, transform(self, width, height)) }
+    return {
+        base.place_widget_via_matrix(
+            self._private.widget,
+            m,
+            transform(self, width, height)
+        ),
+    }
 end
 
 -- Fit this layout into the given area
@@ -56,7 +64,15 @@ function rotate:fit(context, width, height)
     if not self._private.widget then
         return 0, 0
     end
-    return transform(self, base.fit_widget(self, context, self._private.widget, transform(self, width, height)))
+    return transform(
+        self,
+        base.fit_widget(
+            self,
+            context,
+            self._private.widget,
+            transform(self, width, height)
+        )
+    )
 end
 
 --- The widget to be rotated.
@@ -72,7 +88,7 @@ function rotate:get_widget()
 end
 
 function rotate:get_children()
-    return {self._private.widget}
+    return { self._private.widget }
 end
 
 function rotate:set_children(children)
@@ -107,7 +123,7 @@ function rotate:set_direction(dir)
         north = true,
         east = true,
         south = true,
-        west = true
+        west = true,
     }
 
     if not allowed[dir] then
@@ -134,7 +150,7 @@ end
 -- @treturn table A new rotate container.
 -- @constructorfct wibox.container.rotate
 local function new(widget, dir)
-    local ret = base.make_widget(nil, nil, {enable_properties = true})
+    local ret = base.make_widget(nil, nil, { enable_properties = true })
 
     gtable.crush(ret, rotate, true)
 

@@ -24,7 +24,6 @@
 -- @widgetmod wibox.widget.calendar
 ---------------------------------------------------------------------------
 
-
 local setmetatable = setmetatable
 local string = string
 local gtable = require("gears.table")
@@ -37,10 +36,18 @@ local beautiful = require("beautiful")
 
 local calendar = { mt = {} }
 
-local properties = { "date"        , "font"         , "spacing" , "week_numbers",
-                     "start_sunday", "long_weekdays", "fn_embed", "flex_height",
-                     "border_width", "border_color" ,
-                   }
+local properties = {
+    "date",
+    "font",
+    "spacing",
+    "week_numbers",
+    "start_sunday",
+    "long_weekdays",
+    "fn_embed",
+    "flex_height",
+    "border_width",
+    "border_color",
+}
 
 --- The calendar font.
 -- @beautiful beautiful.calendar_font
@@ -224,18 +231,21 @@ end
 -- @tparam number|nil date.day Date day
 -- @treturn widget Grid layout
 local function create_month(props, date)
-    local start_row    = 3
-    local week_start   = props.start_sunday and 1 or 2
-    local last_day     = os.date("*t", os.time{year=date.year, month=date.month+1, day=0})
-    local month_days   = last_day.day
-    local column_fday  = (last_day.wday - month_days + 1 - week_start ) % 7
+    local start_row = 3
+    local week_start = props.start_sunday and 1 or 2
+    local last_day = os.date(
+        "*t",
+        os.time({ year = date.year, month = date.month + 1, day = 0 })
+    )
+    local month_days = last_day.day
+    local column_fday = (last_day.wday - month_days + 1 - week_start) % 7
 
-    local num_columns  = props.week_numbers and 8 or 7
+    local num_columns = props.week_numbers and 8 or 7
     local start_column = num_columns - 6
 
     -- Compute number of rows
     -- There are at least 4 weeks in a month
-    local num_rows     = 4
+    local num_rows = 4
     -- On every month but february on non bisextile years
     if last_day.day > 28 then
         -- The number of days span over at least 5 weeks
@@ -245,7 +255,10 @@ local function create_month(props, date)
         -- - if 30 days and the first day is the last day of the week
         -- - if 31 days and the first days is at least the second to last day
         if column_fday >= 5 then
-            if last_day.day == 30 and column_fday == 6 or last_day.day == 31 then
+            if
+                last_day.day == 30 and column_fday == 6
+                or last_day.day == 31
+            then
                 num_rows = num_rows + 1
             end
         end
@@ -278,8 +291,8 @@ local function create_month(props, date)
 
     -- Header
     flag = "header"
-    t = os.time{year=date.year, month=date.month, day=1}
-    if props.subtype=="monthheader" then
+    t = os.time({ year = date.year, month = date.month, day = 1 })
+    if props.subtype == "monthheader" then
         flag = "monthheader"
         text = os.date("%B", t)
     else
@@ -293,8 +306,8 @@ local function create_month(props, date)
     j = column_fday + start_column
     local current_week = nil
     local drawn_weekdays = 0
-    for d=1, month_days do
-        cell_date = {year=date.year, month=date.month, day=d}
+    for d = 1, month_days do
+        cell_date = { year = date.year, month = date.month, day = d }
         t = os.time(cell_date)
         -- Week number
         if props.week_numbers then
@@ -315,7 +328,7 @@ local function create_month(props, date)
             end
             w = props.fn_embed(make_cell(text, props.font), flag, cell_date)
             layout:add_widget_at(w, 2, j, 1, 1)
-            drawn_weekdays = drawn_weekdays +1
+            drawn_weekdays = drawn_weekdays + 1
         end
         -- Normal day
         flag = "normal"
@@ -323,18 +336,19 @@ local function create_month(props, date)
         -- Focus day
         if date.day == d then
             flag = "focus"
-            text = "<b>"..text.."</b>"
+            text = "<b>" .. text .. "</b>"
         end
         w = props.fn_embed(make_cell(text, props.font), flag, cell_date)
         layout:add_widget_at(w, i, j, 1, 1)
 
         -- find next cell
-        i,j = layout:get_next_empty(i,j)
-        if j < start_column then j = start_column end
+        i, j = layout:get_next_empty(i, j)
+        if j < start_column then
+            j = start_column
+        end
     end
     return props.fn_embed(layout, "month", date)
 end
-
 
 --- Create a grid layout for the year calendar
 -- @tparam table props Table of year calendar properties
@@ -345,32 +359,36 @@ local function create_year(props, date)
     local in_layout = grid()
     in_layout:set_expand(true)
     in_layout:set_homogeneous(true)
-    in_layout:set_spacing(2*props.spacing)
+    in_layout:set_spacing(2 * props.spacing)
     in_layout:set_forced_num_cols(4)
     in_layout:set_forced_num_rows(3)
 
     local month_date
     local current_date = os.date("*t")
 
-    for month=1,12 do
+    for month = 1, 12 do
         if date.year == current_date.year and month == current_date.month then
-            month_date = {day=current_date.day, month=current_date.month, year=current_date.year}
+            month_date = {
+                day = current_date.day,
+                month = current_date.month,
+                year = current_date.year,
+            }
         else
-            month_date = {month=month, year=date.year}
+            month_date = { month = month, year = date.year }
         end
         in_layout:add(create_month(props, month_date))
     end
 
     -- Create a vertical layout
     local flag, text = "yearheader", string.format("%s", date.year)
-    local year_header = props.fn_embed(make_cell(text, props.font, true), flag, date)
+    local year_header =
+        props.fn_embed(make_cell(text, props.font, true), flag, date)
     local out_layout = vertical()
-    out_layout:set_spacing(2*props.spacing) -- separate header from calendar grid
+    out_layout:set_spacing(2 * props.spacing) -- separate header from calendar grid
     out_layout:add(year_header)
     out_layout:add(in_layout)
     return props.fn_embed(out_layout, "year", date)
 end
-
 
 --- Set the container to the current date
 -- @param self Widget to update
@@ -379,7 +397,9 @@ local function fill_container(self)
     if date then
         -- Create calendar grid
         if self._private.type == "month" then
-            self._private.container:set_widget(create_month(self._private, date))
+            self._private.container:set_widget(
+                create_month(self._private, date)
+            )
         elseif self._private.type == "year" then
             self._private.container:set_widget(create_year(self._private, date))
         end
@@ -388,7 +408,6 @@ local function fill_container(self)
     end
     self:emit_signal("widget::layout_changed")
 end
-
 
 -- Set the calendar date
 function calendar:set_date(date)
@@ -399,13 +418,15 @@ function calendar:set_date(date)
     end
 end
 
-
 -- Build properties function
 for _, prop in ipairs(properties) do
     -- setter
     if not calendar["set_" .. prop] then
         calendar["set_" .. prop] = function(self, value)
-            if (string.sub(prop,1,3)=="fn_" and type(value) == "function") or self._private[prop] ~= value then
+            if
+                (string.sub(prop, 1, 3) == "fn_" and type(value) == "function")
+                or self._private[prop] ~= value
+            then
                 self._private[prop] = value
                 -- (Re)create calendar grid
                 fill_container(self)
@@ -420,7 +441,6 @@ for _, prop in ipairs(properties) do
     end
 end
 
-
 --- Return a new calendar widget by type.
 --
 -- @tparam string type Type of the calendar, `year` or `month`
@@ -432,7 +452,7 @@ end
 -- @treturn widget The calendar widget
 local function get_calendar(type, date, font)
     local ct = bgcontainer()
-    local ret = base.make_widget(ct, "calendar", {enable_properties = true})
+    local ret = base.make_widget(ct, "calendar", { enable_properties = true })
     gtable.crush(ret, calendar, true)
 
     ret._private.type = type
@@ -442,16 +462,18 @@ local function get_calendar(type, date, font)
     ret._private.date = date
     ret._private.font = font or beautiful.calendar_font or "Monospace 10"
 
-    ret._private.spacing       = beautiful.calendar_spacing or 5
-    ret._private.week_numbers  = beautiful.calendar_week_numbers or false
-    ret._private.start_sunday  = beautiful.calendar_start_sunday or false
+    ret._private.spacing = beautiful.calendar_spacing or 5
+    ret._private.week_numbers = beautiful.calendar_week_numbers or false
+    ret._private.start_sunday = beautiful.calendar_start_sunday or false
     ret._private.long_weekdays = beautiful.calendar_long_weekdays or false
-    ret._private.flex_height   = beautiful.calendar_flex_height or false
-    ret._private.fn_embed      = function (w, _) return w end
-    ret._private.empty_widget  = bgcontainer(beautiful.calendar_empty_color)
+    ret._private.flex_height = beautiful.calendar_flex_height or false
+    ret._private.fn_embed = function(w, _)
+        return w
+    end
+    ret._private.empty_widget = bgcontainer(beautiful.calendar_empty_color)
 
     -- header specific
-    ret._private.subtype = type=="year" and "monthheader" or "fullheader"
+    ret._private.subtype = type == "year" and "monthheader" or "fullheader"
 
     fill_container(ret)
     return ret
@@ -489,7 +511,6 @@ end
 function calendar.year(date, font)
     return get_calendar("year", date, font)
 end
-
 
 return setmetatable(calendar, calendar.mt)
 

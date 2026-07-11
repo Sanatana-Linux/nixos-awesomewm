@@ -164,35 +164,39 @@ end
 
 function M.slide_y(element, params)
     params = params or {}
-    params.update = params.update or function(pos)
-        element.y = pos
-    end
+    params.update = params.update
+        or function(pos)
+            element.y = pos
+        end
     return M.animate(params)
 end
 
 function M.slide(element, params)
     params = params or {}
-    params.update = params.update or function(pos)
-        element.x = pos
-    end
+    params.update = params.update
+        or function(pos)
+            element.x = pos
+        end
     return M.animate(params)
 end
 
 function M.fade(element, params)
     params = params or {}
-    params.update = params.update or function(value)
-        element.opacity = value
-    end
+    params.update = params.update
+        or function(value)
+            element.opacity = value
+        end
     return M.animate(params)
 end
 
 function M.progress(params)
     params = params or {}
-    params.update = params.update or function(value)
-        if params.progress_bar then
-            params.progress_bar:set_value(value)
+    params.update = params.update
+        or function(value)
+            if params.progress_bar then
+                params.progress_bar:set_value(value)
+            end
         end
-    end
     return M.animate(params)
 end
 

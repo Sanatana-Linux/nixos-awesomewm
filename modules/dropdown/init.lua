@@ -94,24 +94,28 @@ function dropdown.toggle(prog, vert, horiz, width, height, sticky, screen)
 
     if not dropdown[prog][screen] then
         -- Create a unique identifier for this dropdown instance
-        local dropdown_id = prog .. "_dropdown_" .. tostring(os.time()) .. "_" .. tostring(screen)
-        
+        local dropdown_id = prog
+            .. "_dropdown_"
+            .. tostring(os.time())
+            .. "_"
+            .. tostring(screen)
+
         spawnw = function(c)
             -- More specific client identification to prevent wrong windows from being captured
             -- Check if this client matches the program we're expecting
             if not (c.class and c.class:lower():find(prog:lower())) then
                 return -- This client doesn't match our program, ignore it
             end
-            
+
             -- Check if we already have a dropdown for this prog/screen combination
             if dropdown[prog][screen] then
                 return -- Already have a dropdown, ignore this client
             end
-            
+
             dropdown[prog][screen] = c
             -- Mark this client as a dropdown with our unique ID
             c._dropdown_id = dropdown_id
-            
+
             -- backdrop.show()
 
             -- Dropdown clients are floaters
@@ -130,7 +134,7 @@ function dropdown.toggle(prog, vert, horiz, width, height, sticky, screen)
                 x = screengeom.x
             elseif horiz == "right" then
                 x = screengeom.width - width
-    else
+            else
                 x = screengeom.x + math.ceil((screengeom.width - width) / 2) - 1
             end
 

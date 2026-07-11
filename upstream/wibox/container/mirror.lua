@@ -20,7 +20,9 @@ local mirror = { mt = {} }
 
 -- Layout this layout
 function mirror:layout(_, width, height)
-    if not self._private.widget then return end
+    if not self._private.widget then
+        return
+    end
 
     local m = matrix.identity
     local t = { x = 0, y = 0 } -- translation
@@ -36,7 +38,9 @@ function mirror:layout(_, width, height)
     m = m:translate(t.x, t.y)
     m = m:scale(s.x, s.y)
 
-    return { base.place_widget_via_matrix(self._private.widget, m, width, height) }
+    return {
+        base.place_widget_via_matrix(self._private.widget, m, width, height),
+    }
 end
 
 -- Fit this layout into the given area.
@@ -60,7 +64,7 @@ function mirror:get_widget()
 end
 
 function mirror:get_children()
-    return {self._private.widget}
+    return { self._private.widget }
 end
 
 function mirror:set_children(children)
@@ -79,11 +83,14 @@ function mirror:reset()
 end
 
 function mirror:set_reflection(reflection)
-    if type(reflection) ~= 'table' then
-        error("Invalid type of reflection for mirror layout: " ..
-              type(reflection) .. " (should be a table)")
+    if type(reflection) ~= "table" then
+        error(
+            "Invalid type of reflection for mirror layout: "
+                .. type(reflection)
+                .. " (should be a table)"
+        )
     end
-    for _, ref in ipairs({"horizontal", "vertical"}) do
+    for _, ref in ipairs({ "horizontal", "vertical" }) do
         if reflection[ref] ~= nil then
             self._private[ref] = reflection[ref]
         end
@@ -101,7 +108,10 @@ end
 -- @propemits true false
 
 function mirror:get_reflection()
-    return { horizontal = self._private.horizontal, vertical = self._private.vertical }
+    return {
+        horizontal = self._private.horizontal,
+        vertical = self._private.vertical,
+    }
 end
 
 --- Returns a new mirror container.
@@ -115,7 +125,7 @@ end
 -- @treturn table A new mirror container
 -- @constructorfct wibox.container.mirror
 local function new(widget, reflection)
-    local ret = base.make_widget(nil, nil, {enable_properties = true})
+    local ret = base.make_widget(nil, nil, { enable_properties = true })
     ret._private.horizontal = false
     ret._private.vertical = false
 

@@ -14,7 +14,7 @@ local math = math
 local unpack = unpack or table.unpack
 
 local awful = require("awful")
-local common = require("modules.layouts.common")
+local common = require("modules.layouts.widgets.common")
 local utils = require("modules.utils")
 
 local hasitem = awful.util.table.hasitem
@@ -560,7 +560,7 @@ end
 -----------------------------------------------------------------------------------------------------------------------
 grid.maingrabber = function(mod, key)
     for _, k in ipairs(grid.keys.all) do
-        if utils.key.match_grabber(k, mod, key) then
+        if utils.match_grabber(k, mod, key) then
             k[3]()
             return true
         end

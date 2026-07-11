@@ -11,41 +11,47 @@
 -- @supermodule wibox.widget.base
 ---------------------------------------------------------------------------
 
-local color     = require( "gears.color"       )
-local base      = require( "wibox.widget.base" )
-local beautiful = require( "beautiful"         )
-local gtable    = require( "gears.table"       )
-local pie       = require( "gears.shape"       ).pie
-local unpack    = unpack or table.unpack -- luacheck: globals unpack (compatibility with Lua 5.1)
+local color = require("gears.color")
+local base = require("wibox.widget.base")
+local beautiful = require("beautiful")
+local gtable = require("gears.table")
+local pie = require("gears.shape").pie
+local unpack = unpack or table.unpack -- luacheck: globals unpack (compatibility with Lua 5.1)
 
 local module = {}
 
 local piechart = {}
 
-local function draw_label(cr,angle,radius,center_x,center_y,text)
-    local edge_x = center_x+(radius/2)*math.cos(angle)
-    local edge_y = center_y+(radius/2)*math.sin(angle)
+local function draw_label(cr, angle, radius, center_x, center_y, text)
+    local edge_x = center_x + (radius / 2) * math.cos(angle)
+    local edge_y = center_y + (radius / 2) * math.sin(angle)
 
     cr:move_to(edge_x, edge_y)
 
-    cr:rel_line_to(radius*math.cos(angle), radius*math.sin(angle))
+    cr:rel_line_to(radius * math.cos(angle), radius * math.sin(angle))
 
-    local x,y = cr:get_current_point()
+    local x, y = cr:get_current_point()
 
-    cr:rel_line_to(x > center_x and radius/2 or -radius/2, 0)
+    cr:rel_line_to(x > center_x and radius / 2 or -radius / 2, 0)
 
     local ext = cr:text_extents(text)
 
     cr:rel_move_to(
-        (x>center_x and radius/2.5 or (-radius/2.5 - ext.width)),
-        ext.height/2
+        (x > center_x and radius / 2.5 or (-radius / 2.5 - ext.width)),
+        ext.height / 2
     )
 
     cr:show_text(text) --TODO eventually port away from the toy API
     cr:stroke()
 
-    cr:arc(edge_x, edge_y,2,0,2*math.pi)
-    cr:arc(x+(x>center_x and radius/2 or -radius/2),y,2,0,2*math.pi)
+    cr:arc(edge_x, edge_y, 2, 0, 2 * math.pi)
+    cr:arc(
+        x + (x > center_x and radius / 2 or -radius / 2),
+        y,
+        2,
+        0,
+        2 * math.pi
+    )
 
     cr:fill()
 end
@@ -60,10 +66,12 @@ local function compute_sum(data)
 end
 
 local function draw(self, _, cr, width, height)
-    if not self._private.data_list then return end
+    if not self._private.data_list then
+        return
+    end
 
     local radius = (height > width and width or height) / 4
-    local sum, start, count = compute_sum(self._private.data_list),0,0
+    local sum, start, count = compute_sum(self._private.data_list), 0, 0
     local has_label = self._private.display_labels ~= false
 
     -- Labels need to be drawn later so the original source is kept
@@ -72,7 +80,7 @@ local function draw(self, _, cr, width, height)
 
     local border_width = self:get_border_width() or 1
     local border_color = self:get_border_color()
-    border_color       = border_color and color(border_color)
+    border_color = border_color and color(border_color)
 
     -- Draw the pies
     cr:save()
@@ -84,9 +92,10 @@ local function draw(self, _, cr, width, height)
 
     for _, entry in ipairs(self._private.data_list) do
         local k, v = entry[1], entry[2]
-        local end_angle = start + 2*math.pi*(v/sum)
+        local end_angle = start + 2 * math.pi * (v / sum)
 
-        local col = colors and color(colors[math.fmod(count,col_count)+1]) or nil
+        local col = colors and color(colors[math.fmod(count, col_count) + 1])
+            or nil
 
         pie(cr, width, height, start, end_angle, radius)
 
@@ -114,14 +123,19 @@ local function draw(self, _, cr, width, height)
         -- Store the label position for later
         if has_label then
             table.insert(labels, {
-                --[[angle   ]] start+(end_angle-start)/2,
-                --[[radius  ]] radius,
-                --[[center_x]] width/2,
-                --[[center_y]] height/2,
-                --[[text    ]] k,
+                --[[angle   ]]
+                start + (end_angle - start) / 2,
+                --[[radius  ]]
+                radius,
+                --[[center_x]]
+                width / 2,
+                --[[center_y]]
+                height / 2,
+                --[[text    ]]
+                k,
             })
         end
-        start,count = end_angle,count+1
+        start, count = end_angle, count + 1
     end
     cr:restore()
 
@@ -217,21 +231,25 @@ end
 -- @tparam table colors A table of colors, one for each elements
 -- @see gears.color
 
-for _, prop in ipairs {"data_list", "border_color", "border_width", "colors",
-    "display_labels"
-  } do
-    piechart["set_"..prop] = function(self, value)
+for _, prop in ipairs({
+    "data_list",
+    "border_color",
+    "border_width",
+    "colors",
+    "display_labels",
+}) do
+    piechart["set_" .. prop] = function(self, value)
         self._private[prop] = value
-        self:emit_signal("property::"..prop)
+        self:emit_signal("property::" .. prop)
         if prop == "data_list" then
             self:emit_signal("property::data")
         else
-            self:emit_signal("property::"..prop, value)
+            self:emit_signal("property::" .. prop, value)
         end
         self:emit_signal("widget::redraw_needed")
     end
-    piechart["get_"..prop] = function(self)
-        return self._private[prop] or beautiful["piechart_"..prop]
+    piechart["get_" .. prop] = function(self)
+        return self._private[prop] or beautiful["piechart_" .. prop]
     end
 end
 
@@ -257,14 +275,13 @@ end
 -- @tparam table data_list The data.
 
 local function new(data_list)
-
     local ret = base.make_widget(nil, nil, {
         enable_properties = true,
     })
 
     gtable.crush(ret, piechart)
 
-    rawset(ret, "fit" , fit )
+    rawset(ret, "fit", fit)
     rawset(ret, "draw", draw)
 
     ret:set_data_list(data_list)
@@ -272,5 +289,9 @@ local function new(data_list)
     return ret
 end
 
-return setmetatable(module, { __call = function(_, ...) return new(...) end })
+return setmetatable(module, {
+    __call = function(_, ...)
+        return new(...)
+    end,
+})
 -- vim: filetype=lua:expandtab:shiftwidth=4:tabstop=8:softtabstop=4:textwidth=80

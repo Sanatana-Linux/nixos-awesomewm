@@ -29,14 +29,13 @@ local imagebox = require("wibox.widget.imagebox")
 local textbox = require("wibox.widget.textbox")
 local base = require("wibox.widget.base")
 local capi = {
-    client = client
+    client = client,
 }
-
 
 local titlebar = {
     widget = {},
     enable_tooltip = true,
-    fallback_name = '<unknown>'
+    fallback_name = "<unknown>",
 }
 
 local default_tooltip_messages = {
@@ -49,7 +48,7 @@ local default_tooltip_messages = {
     ontop_active = "NotOnTop",
     ontop_inactive = "OnTop",
     sticky_active = "NotSticky",
-    sticky_inactive = "Sticky"
+    sticky_inactive = "Sticky",
 }
 
 --- Show tooltips when hover on titlebar buttons.
@@ -639,8 +638,7 @@ local default_tooltip_messages = {
 -- @method setup
 -- @noreturn
 
-
-local all_titlebars = setmetatable({}, { __mode = 'k' })
+local all_titlebars = setmetatable({}, { __mode = "k" })
 
 -- Get a color for a titlebar, this tests many values from the array and the theme
 local function get_color(name, c, args)
@@ -652,7 +650,10 @@ local function get_color(name, c, args)
         suffix = "_focus"
     end
     local function get(array)
-        return array["titlebar_"..name..suffix] or array["titlebar_"..name] or array[name..suffix] or array[name]
+        return array["titlebar_" .. name .. suffix]
+            or array["titlebar_" .. name]
+            or array[name .. suffix]
+            or array[name]
     end
     return get(args) or get(beautiful)
 end
@@ -679,14 +680,16 @@ end
 -- @tparam string context The reason why this was called.
 -- @treturn boolean If the titlebars were loaded
 local function load_titlebars(c, hide_all, keep, context)
-    if c._request_titlebars_called then return false end
+    if c._request_titlebars_called then
+        return false
+    end
 
     c:emit_signal("request::titlebars", context, {})
 
     if hide_all then
         -- Don't bother checking if it has been created, `.hide` don't works
         -- anyway.
-        for _, tb in ipairs {"top", "bottom", "left", "right"} do
+        for _, tb in ipairs({ "top", "bottom", "left", "right" }) do
             if tb ~= keep then
                 titlebar.hide(c, tb)
             end
@@ -700,15 +703,16 @@ end
 
 local function get_children_by_id(self, name)
     --TODO v5: Move the ID management to the hierarchy.
-    if self._drawable._widget
-      and self._drawable._widget._private
-      and self._drawable._widget._private.by_id then
-          return self._drawable.widget._private.by_id[name]
+    if
+        self._drawable._widget
+        and self._drawable._widget._private
+        and self._drawable._widget._private.by_id
+    then
+        return self._drawable.widget._private.by_id[name]
     end
 
     return {}
 end
-
 
 --- Create a new titlebar for the given client.
 --
@@ -754,7 +758,8 @@ end
 local function new(c, args)
     args = args or {}
     local position = args.position or "top"
-    local size = args.size or gmath.round(beautiful.get_font_height(args.font) * 1.5)
+    local size = args.size
+        or gmath.round(beautiful.get_font_height(args.font) * 1.5)
     local d = get_titlebar_function(c, position)(c, size)
 
     -- Make sure that there is never more than one titlebar for any given client
@@ -768,7 +773,7 @@ local function new(c, args)
     if not bars[position] then
         local context = {
             client = c,
-            position = position
+            position = position,
         }
         ret = drawable(d, context, "awful.titlebar")
         ret:_inform_visible(true)
@@ -783,7 +788,7 @@ local function new(c, args)
             args = args,
             drawable = ret,
             font = args.font or beautiful.titlebar_font,
-            update_colors = update_colors
+            update_colors = update_colors,
         }
 
         -- Update the colors when focus changes
@@ -822,7 +827,9 @@ end
 --  called.
 function titlebar.show(c, position)
     position = position or "top"
-    if load_titlebars(c, true, position, "show") then return end
+    if load_titlebars(c, true, position, "show") then
+        return
+    end
     local bars = all_titlebars[c]
     local data = bars and bars[position]
     local args = data and data.args
@@ -850,7 +857,9 @@ end
 --  called.
 function titlebar.toggle(c, position)
     position = position or "top"
-    if load_titlebars(c, true, position, "toggle") then return end
+    if load_titlebars(c, true, position, "toggle") then
+        return
+    end
     local _, size = get_titlebar_function(c, position)(c)
     if size == 0 then
         titlebar.show(c, position)
@@ -973,12 +982,12 @@ function titlebar.widget.button(c, name, selector, action)
     local ret = imagebox()
     if titlebar.enable_tooltip then
         ret._private.tooltip = atooltip({
-            objects = {ret},
+            objects = { ret },
             delay_show = beautiful["titlebar_tooltip_delay_show"] or 1,
             margins_leftright = beautiful["titlebar_tooltip_margins_leftright"],
             margins_topbottom = beautiful["titlebar_tooltip_margins_topbottom"],
             timeout = beautiful["titlebar_tooltip_timeout"],
-            align = beautiful["titlebar_tooltip_align"]
+            align = beautiful["titlebar_tooltip_align"],
         })
     end
 
@@ -1014,9 +1023,9 @@ function titlebar.widget.button(c, name, selector, action)
             -- then try again without that prefix if nothing was found,
             -- and finally, try a fallback for compatibility with Awesome 3.5 themes
             local theme = beautiful["titlebar_" .. name .. "_button_" .. prefix .. img .. state]
-                       or beautiful["titlebar_" .. name .. "_button_" .. prefix .. img]
-                       or beautiful["titlebar_" .. name .. "_button_" .. img]
-                       or beautiful["titlebar_" .. name .. "_button_" .. prefix .. "_inactive"]
+                or beautiful["titlebar_" .. name .. "_button_" .. prefix .. img]
+                or beautiful["titlebar_" .. name .. "_button_" .. img]
+                or beautiful["titlebar_" .. name .. "_button_" .. prefix .. "_inactive"]
             if theme then
                 img = theme
             end
@@ -1031,18 +1040,18 @@ function titlebar.widget.button(c, name, selector, action)
     ret.state = ""
     if action then
         ret.buttons = {
-            abutton({ }, 1, nil, function()
+            abutton({}, 1, nil, function()
                 ret.state = ""
                 update()
                 action(c, selector(c))
-            end)
+            end),
         }
     else
         ret.buttons = {
-            abutton({ }, 1, nil, function()
+            abutton({}, 1, nil, function()
                 ret.state = ""
                 update()
-            end)
+            end),
         }
     end
     ret:connect_signal("mouse::enter", function()
@@ -1089,7 +1098,12 @@ end
 -- @usebeautiful beautiful.titlebar_floating_button_focus_inactive_hover
 -- @usebeautiful beautiful.titlebar_floating_button_focus_inactive_press
 function titlebar.widget.floatingbutton(c)
-    local widget = titlebar.widget.button(c, "floating", aclient.object.get_floating, aclient.floating.toggle)
+    local widget = titlebar.widget.button(
+        c,
+        "floating",
+        aclient.object.get_floating,
+        aclient.floating.toggle
+    )
     update_on_signal(c, "property::floating", widget)
     return widget
 end
@@ -1133,9 +1147,11 @@ end
 -- @usebeautiful beautiful.titlebar_minimize_button_focus_hover
 -- @usebeautiful beautiful.titlebar_minimize_button_focus_press
 function titlebar.widget.minimizebutton(c)
-    local widget = titlebar.widget.button(c, "minimize",
-                                          function() return "" end,
-                                          function(cl) cl.minimized = not cl.minimized end)
+    local widget = titlebar.widget.button(c, "minimize", function()
+        return ""
+    end, function(cl)
+        cl.minimized = not cl.minimized
+    end)
     update_on_signal(c, "property::minimized", widget)
     return widget
 end
@@ -1151,7 +1167,11 @@ end
 -- @usebeautiful beautiful.titlebar_close_button_focus_hover
 -- @usebeautiful beautiful.titlebar_close_button_focus_press
 function titlebar.widget.closebutton(c)
-    return titlebar.widget.button(c, "close", function() return "" end, function(cl) cl:kill() end)
+    return titlebar.widget.button(c, "close", function()
+        return ""
+    end, function(cl)
+        cl:kill()
+    end)
 end
 
 --- Create a new ontop button for a client.
@@ -1173,9 +1193,11 @@ end
 -- @usebeautiful beautiful.titlebar_ontop_button_focus_inactive_hover
 -- @usebeautiful beautiful.titlebar_ontop_button_focus_inactive_press
 function titlebar.widget.ontopbutton(c)
-    local widget = titlebar.widget.button(c, "ontop",
-                                          function(cl) return cl.ontop end,
-                                          function(cl, state) cl.ontop = not state end)
+    local widget = titlebar.widget.button(c, "ontop", function(cl)
+        return cl.ontop
+    end, function(cl, state)
+        cl.ontop = not state
+    end)
     update_on_signal(c, "property::ontop", widget)
     return widget
 end
@@ -1198,9 +1220,11 @@ end
 -- @usebeautiful beautiful.titlebar_sticky_button_focus_inactive_hover
 -- @usebeautiful beautiful.titlebar_sticky_button_focus_inactive_press
 function titlebar.widget.stickybutton(c)
-    local widget = titlebar.widget.button(c, "sticky",
-                                          function(cl) return cl.sticky end,
-                                          function(cl, state) cl.sticky = not state end)
+    local widget = titlebar.widget.button(c, "sticky", function(cl)
+        return cl.sticky
+    end, function(cl, state)
+        cl.sticky = not state
+    end)
     update_on_signal(c, "property::sticky", widget)
     return widget
 end
@@ -1209,6 +1233,10 @@ client.connect_signal("request::unmanage", function(c)
     all_titlebars[c] = nil
 end)
 
-return setmetatable(titlebar, { __call = function(_, ...) return new(...) end})
+return setmetatable(titlebar, {
+    __call = function(_, ...)
+        return new(...)
+    end,
+})
 
 -- vim: filetype=lua:expandtab:shiftwidth=4:tabstop=8:softtabstop=4:textwidth=80

@@ -66,7 +66,7 @@ local function create_battery_widget()
         valign = "center",
         {
             id = "charging_icon_img",
-            image = gears.color.recolor_image(bolt_icon, "#ffffff"),
+            image = gears.color.recolor_image(bolt_icon, beautiful.yellow),
             forced_height = dpi(16),
             forced_width = dpi(16),
             resize = true,
@@ -115,7 +115,7 @@ local function create_battery_widget()
             margins = {
                 top = dpi(4),
                 bottom = dpi(4),
-                left = dpi(4),
+                left = dpi(8),
                 right = dpi(4),
             },
             battery_layout,

@@ -17,8 +17,6 @@ return function(s)
         resize = true,
         buttons = {}, -- Remove default buttons as they are on parent
     })
-    -- layoutbox.imagebox.forced_width = dpi(28)
-    --[[   layoutbox.imagebox.forced_height = dp(28) ]]
 
     local widget = wibox.widget({
         widget = wibox.container.background,

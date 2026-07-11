@@ -484,19 +484,30 @@ proxy:connect_signal(
 function Proxy:connect_signal(signal_name, callback, sender_name)
     if not self.signals[signal_name] then
         gdebug.print_warning(string.format("Invalid signal: %s", signal_name))
-        -- error(string.format("Invalid signal: %s", signal_name))
     end
 
-    self._proxy.on_g_signal = function(_, sender, signal, params)
-        if sender_name ~= nil and sender_name ~= sender then
-            return
-        end
-
-        if signal == signal_name then
-            params = variant.strip(params)
-            return callback(self, unpack(params))
+    -- Store multiple signal handlers instead of overwriting on_g_signal.
+    -- This allows connecting to different signals (e.g. InterfacesAdded AND
+    -- InterfacesRemoved) on the same proxy object.
+    if not self._signal_handlers then
+        self._signal_handlers = {}
+        self._proxy.on_g_signal = function(_, sender, signal, params)
+            for _, handler in ipairs(self._signal_handlers) do
+                if handler.sender_name ~= nil and handler.sender_name ~= sender then
+                    -- skip
+                elseif signal == handler.signal_name then
+                    local stripped = variant.strip(params)
+                    handler.callback(self, unpack(stripped))
+                end
+            end
         end
     end
+
+    table.insert(self._signal_handlers, {
+        signal_name = signal_name,
+        callback = callback,
+        sender_name = sender_name,
+    })
 end
 
 --[[-- Call a function when the properties of the proxy object change.

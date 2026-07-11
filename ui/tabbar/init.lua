@@ -17,7 +17,7 @@ local function create(c, focused_bool, buttons)
     local bg_focus = beautiful.bg_gradient_titlebar_alt
     local bg_temp = focused_bool and bg_focus or bg_normal
     local fg_temp = focused_bool and beautiful.fg or beautiful.fg
-    
+
     -- Create the tabbar widget
     local wid_temp = wibox.widget({
         {

@@ -248,45 +248,59 @@ local graph = { mt = {} }
 -- @beautiful beautiful.graph_border_color
 -- @param color
 
-local properties = { "width", "height", "border_color", "stack",
-                     "stack_colors", "color", "background_color",
-                     "max_value", "scale", "min_value", "step_shape",
-                     "step_spacing", "step_width", "border_width",
-                     "clamp_bars", "baseline_value",
-                     "capacity", "nan_color", "nan_indication",
-                     "group_colors",
+local properties = {
+    "width",
+    "height",
+    "border_color",
+    "stack",
+    "stack_colors",
+    "color",
+    "background_color",
+    "max_value",
+    "scale",
+    "min_value",
+    "step_shape",
+    "step_spacing",
+    "step_width",
+    "border_width",
+    "clamp_bars",
+    "baseline_value",
+    "capacity",
+    "nan_color",
+    "nan_indication",
+    "group_colors",
 }
 
 -- This is what the properties are set to on widget construction.
 local prop_defaults = {
-    baseline_value   = 0,
-    clamp_bars       = true,
-    nan_indication   = true,
-    step_width       = 1,
-    step_spacing     = 0,
+    baseline_value = 0,
+    clamp_bars = true,
+    nan_indication = true,
+    step_width = 1,
+    step_spacing = 0,
 
--- These aren't very useful to set, and the docs don't distinguish between
--- "defaults to" (equals to in a fresh instance) and
--- "falls back to" (is assumed to be equal to, when nil) anyway.
---  scale          = false,
---  stack          = false,
+    -- These aren't very useful to set, and the docs don't distinguish between
+    -- "defaults to" (equals to in a fresh instance) and
+    -- "falls back to" (is assumed to be equal to, when nil) anyway.
+    --  scale          = false,
+    --  stack          = false,
 }
 
 -- This is what the properties are assumed to be in the code, when unset/falsy.
 local prop_fallbacks = {
--- This one might become beautiful-themed in the future, so we can't set it
--- in the constructor.
-    border_width     = 0,
+    -- This one might become beautiful-themed in the future, so we can't set it
+    -- in the constructor.
+    border_width = 0,
 
--- These are better left unreplaced in code, because they're used only in one
--- place and the intent is more clear when the numbers are directly visible.
---  min_value        = 0,
---  max_value        = 1,
+    -- These are better left unreplaced in code, because they're used only in one
+    -- place and the intent is more clear when the numbers are directly visible.
+    --  min_value        = 0,
+    --  max_value        = 1,
 
--- This one is set later. It's not in `prop_defaults`, because I don't
--- want to make it accessible through the getter, lest the user somehow mutates
--- the Cairo pattern and breaks NaN indication for all other graphs.
---  nan_color        = make_fallback_nan_color()
+    -- This one is set later. It's not in `prop_defaults`, because I don't
+    -- want to make it accessible through the getter, lest the user somehow mutates
+    -- the Cairo pattern and breaks NaN indication for all other graphs.
+    --  nan_color        = make_fallback_nan_color()
 }
 
 -- All property defaults are also necessarily fallbacks.
@@ -303,7 +317,7 @@ setmetatable(prop_fallbacks, {
         elseif key == "color" then
             return beautiful.graph_fg or "#ff0000"
         end
-    end
+    end,
 })
 
 -- This function sets up default implementations for property getters/setters,
@@ -315,7 +329,7 @@ local function build_properties(prototype, prop_names)
                 if self._private[prop] ~= value then
                     self._private[prop] = value
                     self:emit_signal("widget::redraw_needed")
-                    self:emit_signal("property::"..prop, value)
+                    self:emit_signal("property::" .. prop, value)
                 end
                 return self
             end
@@ -332,13 +346,17 @@ end
 local function build_fallback_nan_color()
     local clr = color.create_pattern_uncached({
         ["type"] = "linear",
-        from = {0, 0}, to = {4, 4},
-        stops={
-            {0, "#000000"},
-            {0.25, "#000000"}, {0.25, "#ffff00"},
-            {0.50, "#ffff00"}, {0.50, "#000000"},
-            {0.75, "#000000"}, {0.75, "#ffff00"},
-            {1, "#ffff00"},
+        from = { 0, 0 },
+        to = { 4, 4 },
+        stops = {
+            { 0, "#000000" },
+            { 0.25, "#000000" },
+            { 0.25, "#ffff00" },
+            { 0.50, "#ffff00" },
+            { 0.50, "#000000" },
+            { 0.75, "#000000" },
+            { 0.75, "#ffff00" },
+            { 1, "#ffff00" },
         },
     })
     clr:set_extend("REPEAT")
@@ -367,7 +385,9 @@ local function graph_gather_drawn_values_num_stats(self, new_value)
     -- The `luacheck` project decided that adding this check by default and
     -- adding annotations where it doesn't work is the way to go
     -- https://github.com/lunarmodules/luacheck/issues/43#issuecomment-1014949507
-    if not (new_value >= 0) then return end --luacheck: ignore 581
+    if not (new_value >= 0) then
+        return
+    end --luacheck: ignore 581
 
     local last_value = self._private.last_drawn_values_num or 0
     -- Grow instantly and shrink slow
@@ -444,7 +464,7 @@ local function graph_preprocess_values(self, values, drawn_values_num)
     -- drawn_values[c][i] = sum [1,c] of values[c][i]
     local drawn_values = {}
 
-    local nan = 0/0
+    local nan = 0 / 0
 
     -- Add stacked values up to get values we need to render
     for group_idx, group_values in ipairs(values) do
@@ -475,12 +495,18 @@ local function graph_preprocess_values(self, values, drawn_values_num)
     -- In a stacked graph it's sufficient to examine only the last summed row
     -- to determine the max_value, since all values are necessarily >= 0
     -- and the min_value should be always at most 0
-    local scaling_values = { {0}, summed_values }
+    local scaling_values = { { 0 }, summed_values }
 
     return drawn_values, scaling_values
 end
 
-local function graph_map_value_to_widget_coordinates(self, value, min_value, max_value, height)
+local function graph_map_value_to_widget_coordinates(
+    self,
+    value,
+    min_value,
+    max_value,
+    height
+)
     -- Scale the value so that [min_value..max_value] maps to [0..1]
     value = (value - min_value) / (max_value - min_value)
 
@@ -497,7 +523,12 @@ local function graph_map_value_to_widget_coordinates(self, value, min_value, max
     return value --NaN
 end
 
-local function graph_choose_coordinate_system(self, scaling_values, drawn_values_num, height)
+local function graph_choose_coordinate_system(
+    self,
+    scaling_values,
+    drawn_values_num,
+    height
+)
     local scale = self._private.scale
     local max_value = self._private.max_value or (scale and -math.huge or 1)
     local min_value = self._private.min_value or (scale and math.huge or 0)
@@ -529,10 +560,15 @@ local function graph_choose_coordinate_system(self, scaling_values, drawn_values
 
     -- The position of the baseline in value coordinates
     -- It defaults to the usual zero axis
-    local baseline_value = self._private.baseline_value or prop_fallbacks.baseline_value
+    local baseline_value = self._private.baseline_value
+        or prop_fallbacks.baseline_value
     -- Let's map it into widget coordinates
     local baseline_y = graph_map_value_to_widget_coordinates(
-        self, baseline_value, min_value, max_value, height
+        self,
+        baseline_value,
+        min_value,
+        max_value,
+        height
     )
 
     return min_value, max_value, baseline_y
@@ -542,7 +578,8 @@ local function graph_draw_values(self, cr, _, height, drawn_values_num)
     local values = self._private.values
 
     local step_shape = self._private.step_shape
-    local step_spacing = self._private.step_spacing or prop_fallbacks.step_spacing
+    local step_spacing = self._private.step_spacing
+        or prop_fallbacks.step_spacing
     local step_width = self._private.step_width or prop_fallbacks.step_width
 
     -- Cache methods used in the inner loop for a 3x performance boost
@@ -554,7 +591,8 @@ local function graph_draw_values(self, cr, _, height, drawn_values_num)
     -- Preserve the transform centered at the top-left corner of the graph
     local pristine_transform = step_shape and cr:get_matrix()
 
-    local drawn_values, scaling_values = graph_preprocess_values(self, values, drawn_values_num)
+    local drawn_values, scaling_values =
+        graph_preprocess_values(self, values, drawn_values_num)
     -- If preprocessor returned drawn_values = nil, then simply draw the values we have
     drawn_values = drawn_values or values
     -- If preprocessor returned scaling_values = nil, then
@@ -562,7 +600,10 @@ local function graph_draw_values(self, cr, _, height, drawn_values_num)
     scaling_values = scaling_values or drawn_values
 
     local min_value, max_value, baseline_y = graph_choose_coordinate_system(
-        self, scaling_values, drawn_values_num, height
+        self,
+        scaling_values,
+        drawn_values_num,
+        height
     )
 
     local nan_x = self._private.nan_indication and {}
@@ -577,11 +618,12 @@ local function graph_draw_values(self, cr, _, height, drawn_values_num)
             for i = 1, math_min(#group_values, drawn_values_num) do
                 local value = group_values[i]
 
-                local value_y = map_coords(self, value, min_value, max_value, height)
+                local value_y =
+                    map_coords(self, value, min_value, max_value, height)
                 local not_nan = value_y == value_y
 
                 -- The coordinate of the i-th bar's left edge
-                local x = (i-1)*(step_width + step_spacing)
+                local x = (i - 1) * (step_width + step_spacing)
 
                 if not_nan then
                     local base_y = baseline_y
@@ -599,7 +641,13 @@ local function graph_draw_values(self, cr, _, height, drawn_values_num)
                         -- Undo the shift
                         cairo_set_matrix(cr, pristine_transform)
                     else
-                        cairo_rectangle(cr, x, value_y, step_width, base_y - value_y)
+                        cairo_rectangle(
+                            cr,
+                            x,
+                            value_y,
+                            step_width,
+                            base_y - value_y
+                        )
                     end
                 end
 
@@ -615,7 +663,9 @@ local function graph_draw_values(self, cr, _, height, drawn_values_num)
     end
 
     if nan_x and #nan_x > 0 then
-        cr:set_source(color(self._private.nan_color or prop_fallbacks.nan_color))
+        cr:set_source(
+            color(self._private.nan_color or prop_fallbacks.nan_color)
+        )
         for _, x in ipairs(nan_x) do
             -- Draw full-height rectangle with nan_color to indicate NaN
             cairo_rectangle(cr, x, 0, step_width, height)
@@ -625,14 +675,18 @@ local function graph_draw_values(self, cr, _, height, drawn_values_num)
 end
 
 function graph:draw(_, cr, width, height)
-    local border_width = self._private.border_width or prop_fallbacks.border_width
-    local drawn_values_num = self:compute_drawn_values_num(width-2*border_width)
+    local border_width = self._private.border_width
+        or prop_fallbacks.border_width
+    local drawn_values_num =
+        self:compute_drawn_values_num(width - 2 * border_width)
 
     -- Track our usage to help us guess the necessary values array capacity
     graph_gather_drawn_values_num_stats(self, drawn_values_num)
 
     -- Draw the background first
-    cr:set_source(color(self._private.background_color or prop_fallbacks.background_color))
+    cr:set_source(
+        color(self._private.background_color or prop_fallbacks.background_color)
+    )
     cr:paint()
 
     -- Draw the values
@@ -644,10 +698,16 @@ function graph:draw(_, cr, width, height)
             cr:translate(border_width, border_width)
         end
 
-        local values_width = width - 2*border_width
-        local values_height = height - 2*border_width
+        local values_width = width - 2 * border_width
+        local values_height = height - 2 * border_width
 
-        graph_draw_values(self, cr, values_width, values_height, drawn_values_num)
+        graph_draw_values(
+            self,
+            cr,
+            values_width,
+            values_height,
+            drawn_values_num
+        )
 
         -- Undo the cr:translate() for the border and step shapes
         cr:restore()
@@ -656,8 +716,15 @@ function graph:draw(_, cr, width, height)
     -- Draw the border last so that it overlaps already drawn values
     if border_width > 0 then
         cr:set_line_width(border_width)
-        cr:rectangle(border_width/2, border_width/2, width - border_width, height - border_width)
-        cr:set_source(color(self._private.border_color or prop_fallbacks.border_color))
+        cr:rectangle(
+            border_width / 2,
+            border_width / 2,
+            width - border_width,
+            height - border_width
+        )
+        cr:set_source(
+            color(self._private.border_color or prop_fallbacks.border_color)
+        )
         cr:stroke()
     end
 end
@@ -688,7 +755,8 @@ function graph:compute_drawn_values_num(usable_width)
         return 0
     end
     local step_width = self._private.step_width or prop_fallbacks.step_width
-    local step_spacing = self._private.step_spacing or prop_fallbacks.step_spacing
+    local step_spacing = self._private.step_spacing
+        or prop_fallbacks.step_spacing
     return math.ceil(usable_width / (step_width + step_spacing))
 end
 
@@ -709,7 +777,7 @@ local function guess_capacity(self)
 
     -- Calculate an appropriate capacity from drawn values num
     -- with some wiggle room for widget resizes
-    return math.ceil(ldwn/64 + 1)*64
+    return math.ceil(ldwn / 64 + 1) * 64
 end
 
 --- Add a value to the graph.
@@ -731,14 +799,14 @@ end
 -- @tparam[opt=1] integer group The index of the data group.
 -- @noreturn Note that it actually returns something, but that's better undocumented.
 function graph:add_value(value, group)
-    value = value or 0/0 -- default to NaN
+    value = value or 0 / 0 -- default to NaN
     group = group or 1
 
     local values = self._private.values
     if not values[group] then
         -- Ensure that there are no gaps in the values array,
         -- so that ipairs() can reach all data groups.
-        for i = #values+1, group do
+        for i = #values + 1, group do
             values[i] = {}
         end
         -- If the above loop hasn't set it, then
@@ -823,7 +891,10 @@ end
 -- @renamedin 5.0 forced_height
 -- @propemits true false
 function graph:set_height(height)
-    gdebug.deprecate("Use a `wibox.container.constraint` widget or `forced_height`", {deprecated_in=5})
+    gdebug.deprecate(
+        "Use a `wibox.container.constraint` widget or `forced_height`",
+        { deprecated_in = 5 }
+    )
     if awesome.api_level <= 5 then
         if height >= 5 then
             -- this sends "layout_changed" for us
@@ -836,7 +907,7 @@ function graph:set_height(height)
 end
 
 function graph:get_height()
-    gdebug.deprecate("Use `forced_height`", {deprecated_in=5})
+    gdebug.deprecate("Use `forced_height`", { deprecated_in = 5 })
     return awesome.api_level <= 5 and self._private.forced_height or nil
 end
 
@@ -850,7 +921,10 @@ end
 -- @renamedin 5.0 forced_width
 -- @propemits true false
 function graph:set_width(width)
-    gdebug.deprecate("Use a `wibox.container.constraint` widget or `forced_width`", {deprecated_in=5})
+    gdebug.deprecate(
+        "Use a `wibox.container.constraint` widget or `forced_width`",
+        { deprecated_in = 5 }
+    )
     if awesome.api_level <= 5 then
         if width >= 5 then
             -- this sends "layout_changed" for us
@@ -863,7 +937,7 @@ function graph:set_width(width)
 end
 
 function graph:get_width()
-    gdebug.deprecate("Use `forced_width`", {deprecated_in=5})
+    gdebug.deprecate("Use `forced_width`", { deprecated_in = 5 })
     return awesome.api_level <= 5 and self._private.forced_width or nil
 end
 
@@ -876,7 +950,7 @@ end
 -- @tparam table colors A table with colors for data groups.
 -- @see group_colors
 function graph:set_stack_colors(colors)
-    gdebug.deprecate("Use `group_colors`", {deprecated_in=5})
+    gdebug.deprecate("Use `group_colors`", { deprecated_in = 5 })
     if awesome.api_level <= 5 then
         if self._private.group_colors ~= colors then
             -- this sends "redraw_needed" for us
@@ -889,10 +963,9 @@ function graph:set_stack_colors(colors)
 end
 
 function graph:get_stack_colors()
-    gdebug.deprecate("Use `group_colors`", {deprecated_in=5})
+    gdebug.deprecate("Use `group_colors`", { deprecated_in = 5 })
     return awesome.api_level <= 5 and self._private.group_colors or nil
 end
-
 
 --- Create a graph widget.
 --
@@ -902,14 +975,14 @@ end
 function graph.new(args)
     args = args or {}
 
-    local _graph = base.make_widget(nil, nil, {enable_properties = true})
+    local _graph = base.make_widget(nil, nil, { enable_properties = true })
 
     if args.width or args.height then
         gdebug.deprecate(
-            "`args.width` and `args.height` are deprecated. "..
-            "Use a `wibox.container.constraint` widget "..
-            "or `forced_width`/`forced_height`",
-            {deprecated_in=5, raw=true}
+            "`args.width` and `args.height` are deprecated. "
+                .. "Use a `wibox.container.constraint` widget "
+                .. "or `forced_width`/`forced_height`",
+            { deprecated_in = 5, raw = true }
         )
     end
 
@@ -917,7 +990,9 @@ function graph.new(args)
         local width = args.width or 100
         local height = args.height or 20
 
-        if width < 5 or height < 5 then return end
+        if width < 5 or height < 5 then
+            return
+        end
 
         _graph._private.forced_width = width
         _graph._private.forced_height = height
@@ -925,7 +1000,7 @@ function graph.new(args)
 
     -- Set initial values for properties.
     gtable.crush(_graph._private, prop_defaults, true)
-    _graph._private.values    = {}
+    _graph._private.values = {}
     -- Copy methods and properties over
     gtable.crush(_graph, graph, true)
     -- Except those, which don't belong in the widget instance

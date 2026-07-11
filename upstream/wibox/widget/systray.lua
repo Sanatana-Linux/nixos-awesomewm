@@ -13,7 +13,7 @@ local beautiful = require("beautiful")
 local gtable = require("gears.table")
 local capi = {
     awesome = awesome,
-    screen = screen
+    screen = screen,
 }
 local setmetatable = setmetatable
 local error = error
@@ -93,8 +93,17 @@ function systray:draw(context, cr, width, height)
         -- Solving the "width" formula above for "base" (with width=in_dir):
         base = (in_dir + spacing) / cols - spacing
     end
-    capi.awesome.systray(context.wibox.drawin, math.ceil(x), math.ceil(y),
-                         base, is_rotated, bg, reverse, spacing, rows)
+    capi.awesome.systray(
+        context.wibox.drawin,
+        math.ceil(x),
+        math.ceil(y),
+        base,
+        is_rotated,
+        bg,
+        reverse,
+        spacing,
+        rows
+    )
 end
 
 -- Private API. Does not appear in LDoc on purpose. This function is called
@@ -120,11 +129,15 @@ function systray:fit(context, width, height)
     end
     if base == nil then
         if horizontal then
-            base = math.min(math.floor((height + spacing) / rows) - spacing,
-                            math.floor((width + spacing) / cols) - spacing)
+            base = math.min(
+                math.floor((height + spacing) / rows) - spacing,
+                math.floor((width + spacing) / cols) - spacing
+            )
         else
-            base = math.min(math.floor((width + spacing) / rows) - spacing,
-                            math.floor((height + spacing) / cols) - spacing)
+            base = math.min(
+                math.floor((width + spacing) / rows) - spacing,
+                math.floor((height + spacing) / cols) - spacing
+            )
         end
     end
     base = base + spacing
@@ -223,7 +236,7 @@ end
 -- @usebeautiful beautiful.systray_max_rows
 
 local function new(revers)
-    local ret = wbase.make_widget(nil, nil, {enable_properties = true})
+    local ret = wbase.make_widget(nil, nil, { enable_properties = true })
 
     gtable.crush(ret, systray, true)
 

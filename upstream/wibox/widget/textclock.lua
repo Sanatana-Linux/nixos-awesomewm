@@ -145,11 +145,17 @@ local function new(format, refresh, tzid)
     w._private.timezone = tzid and TimeZone.new(tzid)
 
     function w._private.textclock_update_cb()
-        local str = DateTime_new_now(w._private.timezone or TimeZone.new_local()):format(w._private.format)
+        local str = DateTime_new_now(
+            w._private.timezone or TimeZone.new_local()
+        ):format(w._private.format)
         if str == nil then
-            require("gears.debug").print_warning("textclock: "
+            require("gears.debug").print_warning(
+                "textclock: "
                     .. "g_date_time_format() failed for format "
-                    .. "'" .. w._private.format .. "'")
+                    .. "'"
+                    .. w._private.format
+                    .. "'"
+            )
         end
         w:set_markup(str)
         w._timer.timeout = calc_timeout(w._private.refresh)

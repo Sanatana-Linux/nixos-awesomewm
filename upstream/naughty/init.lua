@@ -8,7 +8,7 @@
 
 local naughty = require("naughty.core")
 local gdebug = require("gears.debug")
-local capi = {awesome = awesome, screen = screen}
+local capi = { awesome = awesome, screen = screen }
 if dbus then
     naughty.dbus = require("naughty.dbus")
 end
@@ -46,7 +46,8 @@ local function screen_fallback()
         if #viewports > 0 then
             for _, viewport in ipairs(viewports) do
                 local geo = viewport.geometry
-                local s = capi.screen.fake_add(geo.x, geo.y, geo.width, geo.height)
+                local s =
+                    capi.screen.fake_add(geo.x, geo.y, geo.width, geo.height)
                 s.outputs = viewport.outputs
             end
         else
@@ -57,7 +58,6 @@ end
 
 -- Handle runtime errors during startup
 if capi.awesome.startup_errors then
-
     -- Wait until `rc.lua` is executed before creating the notifications.
     -- Otherwise nothing is handling them (yet).
     client.connect_signal("scanning", function()
@@ -65,7 +65,9 @@ if capi.awesome.startup_errors then
         screen_fallback()
 
         naughty.emit_signal(
-            "request::display_error", capi.awesome.startup_errors, true
+            "request::display_error",
+            capi.awesome.startup_errors,
+            true
         )
     end)
 end
@@ -74,9 +76,11 @@ end
 do
     local in_error = false
 
-    capi.awesome.connect_signal("debug::error", function (err)
+    capi.awesome.connect_signal("debug::error", function(err)
         -- Make sure we don't go into an endless error loop
-        if in_error then return end
+        if in_error then
+            return
+        end
 
         in_error = true
 
@@ -86,7 +90,6 @@ do
 
         in_error = false
     end)
-
 end
 
 return naughty

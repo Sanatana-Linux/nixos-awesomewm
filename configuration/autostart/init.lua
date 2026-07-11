@@ -11,7 +11,7 @@ gc_service.start()
 local autostart_commands = {
     -- "xrdb -merge ~/.Xresources", -- Merge X resources
     "gnome-keyring-daemon --start --components=secrets",
-    "picom", -- Compositor for blur, shadows, and animations
+    "pkill picom && sleep 1 && picom --daemon", -- Compositor for blur, shadows, and animations
     -- "xrandr --output eDP-1-1 --mode 2560x1600 --rate 144",
     "xrandr --output eDP-1-1 --mode 2560x1600 --rate 60",
     "clipse --listen &",

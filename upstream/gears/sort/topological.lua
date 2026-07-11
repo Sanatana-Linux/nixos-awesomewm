@@ -4,7 +4,7 @@
 -- @submodule gears.sort
 ---------------------------------------------------------------------------
 
-local tsort  = {}
+local tsort = {}
 local gtable = require("gears.table")
 
 local mt = { __index = tsort }
@@ -121,6 +121,8 @@ function tsort.topological()
     }, mt)
 end
 
-return setmetatable(tsort, {__call = function(_, ...)
-    return tsort.topological(...)
-end})
+return setmetatable(tsort, {
+    __call = function(_, ...)
+        return tsort.topological(...)
+    end,
+})

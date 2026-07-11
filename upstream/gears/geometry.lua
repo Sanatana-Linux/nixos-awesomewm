@@ -11,7 +11,7 @@
 ---------------------------------------------------------------------------
 local math = math
 
-local gears = {geometry = {rectangle = {} } }
+local gears = { geometry = { rectangle = {} } }
 
 --- Get the square distance between a rectangle and a point.
 -- @tparam table geom A rectangle
@@ -71,8 +71,12 @@ end
 -- @staticfct gears.geometry.rectangle.get_by_coord
 function gears.geometry.rectangle.get_by_coord(list, x, y)
     for k, geometry in pairs(list) do
-        if x >= geometry.x and x < geometry.x + geometry.width
-           and y >= geometry.y and y < geometry.y + geometry.height then
+        if
+            x >= geometry.x
+            and x < geometry.x + geometry.width
+            and y >= geometry.y
+            and y < geometry.y + geometry.height
+        then
             return k
         end
     end
@@ -176,8 +180,10 @@ end
 -- @treturn boolean If the areas are identical.
 -- @staticfct gears.geometry.rectangle.are_equal
 function gears.geometry.rectangle.are_equal(a, b)
-    for _, v in ipairs {"x", "y", "width", "height"} do
-        if a[v] ~= b[v] then return false end
+    for _, v in ipairs({ "x", "y", "width", "height" }) do
+        if a[v] ~= b[v] then
+            return false
+        end
     end
     return true
 end
@@ -194,10 +200,11 @@ end
 -- @staticfct gears.geometry.rectangle.is_inside
 -- @see gears.geometry.rectangle.get_intersection
 function gears.geometry.rectangle.is_inside(a, b)
-    return (a.x >= b.x
+    return (
+        a.x >= b.x
         and a.y >= b.y
-        and a.x+a.width  <= b.x + b.width
-        and a.y+a.height <= b.y + b.height
+        and a.x + a.width <= b.x + b.width
+        and a.y + a.height <= b.y + b.height
     )
 end
 
@@ -207,10 +214,12 @@ end
 -- @return True if they intersect, false otherwise.
 -- @staticfct gears.geometry.rectangle.area_intersect_area
 function gears.geometry.rectangle.area_intersect_area(a, b)
-    return (b.x < a.x + a.width
-            and b.x + b.width > a.x
-            and b.y < a.y + a.height
-            and b.y + b.height > a.y)
+    return (
+        b.x < a.x + a.width
+        and b.x + b.width > a.x
+        and b.y < a.y + a.height
+        and b.y + b.height > a.y
+    )
 end
 
 --- Get the intersect area between a and b.
@@ -262,7 +271,7 @@ function gears.geometry.rectangle.area_remove(areas, elem)
                     x = r.x,
                     y = r.y,
                     width = inter.x - r.x,
-                    height = r.height
+                    height = r.height,
                 })
             end
 
@@ -271,7 +280,7 @@ function gears.geometry.rectangle.area_remove(areas, elem)
                     x = r.x,
                     y = r.y,
                     width = r.width,
-                    height = inter.y - r.y
+                    height = inter.y - r.y,
                 })
             end
 
@@ -280,7 +289,7 @@ function gears.geometry.rectangle.area_remove(areas, elem)
                     x = inter.x + inter.width,
                     y = r.y,
                     width = (r.x + r.width) - (inter.x + inter.width),
-                    height = r.height
+                    height = r.height,
                 })
             end
 
@@ -289,7 +298,7 @@ function gears.geometry.rectangle.area_remove(areas, elem)
                     x = r.x,
                     y = inter.y + inter.height,
                     width = r.width,
-                    height = (r.y + r.height) - (inter.y + inter.height)
+                    height = (r.y + r.height) - (inter.y + inter.height),
                 })
             end
         end

@@ -12,13 +12,13 @@
 ---------------------------------------------------------------------------
 
 local setmetatable = setmetatable
-local base      = require("wibox.widget.base")
-local shape     = require("gears.shape"      )
-local gtable    = require( "gears.table"     )
-local color     = require( "gears.color"     )
-local beautiful = require("beautiful"        )
+local base = require("wibox.widget.base")
+local shape = require("gears.shape")
+local gtable = require("gears.table")
+local color = require("gears.color")
+local beautiful = require("beautiful")
 
-local default_outline_width  = 2
+local default_outline_width = 2
 
 local radialprogressbar = { mt = {} }
 
@@ -46,17 +46,18 @@ local radialprogressbar = { mt = {} }
 -- @tparam[opt=0] number paddings.right
 
 local function outline_workarea(self, width, height)
-    local border_width = self._private.border_width or
-        beautiful.radialprogressbar_border_width or default_outline_width
+    local border_width = self._private.border_width
+        or beautiful.radialprogressbar_border_width
+        or default_outline_width
 
     local x, y = 0, 0
 
     -- Make sure the border fit in the clip area
-    local offset = border_width/2
-    x, y = x + offset, y+offset
-    width, height = width-2*offset, height-2*offset
+    local offset = border_width / 2
+    x, y = x + offset, y + offset
+    width, height = width - 2 * offset, height - 2 * offset
 
-    return {x=x, y=y, width=width, height=height}, offset
+    return { x = x, y = y, width = width, height = height }, offset
 end
 
 -- The child widget area
@@ -64,10 +65,10 @@ local function content_workarea(self, width, height)
     local padding = self._private.paddings or {}
     local wa = outline_workarea(self, width, height)
 
-    wa.x      = wa.x + (padding.left or 0)
-    wa.y      = wa.y + (padding.top  or 0)
-    wa.width  = wa.width  - (padding.left or 0) - (padding.right  or 0)
-    wa.height = wa.height - (padding.top  or 0) - (padding.bottom or 0)
+    wa.x = wa.x + (padding.left or 0)
+    wa.y = wa.y + (padding.top or 0)
+    wa.width = wa.width - (padding.left or 0) - (padding.right or 0)
+    wa.height = wa.height - (padding.top or 0) - (padding.bottom or 0)
 
     return wa
 end
@@ -76,8 +77,9 @@ end
 function radialprogressbar:after_draw_children(_, cr, width, height)
     cr:restore()
 
-    local border_width = self._private.border_width or
-        beautiful.radialprogressbar_border_width or default_outline_width
+    local border_width = self._private.border_width
+        or beautiful.radialprogressbar_border_width
+        or default_outline_width
 
     local wa = outline_workarea(self, width, height)
     cr:translate(wa.x, wa.y)
@@ -90,10 +92,9 @@ function radialprogressbar:after_draw_children(_, cr, width, height)
 
     -- Draw the progress
     cr:set_source(color(self:get_color() or "#ff00ff"))
-    shape.radial_progress(cr,  wa.width, wa.height, self._percent or 0)
+    shape.radial_progress(cr, wa.width, wa.height, self._percent or 0)
     cr:set_line_width(border_width)
     cr:stroke()
-
 end
 
 -- Set the clip
@@ -111,9 +112,15 @@ function radialprogressbar:layout(_, width, height)
     if self._private.widget then
         local wa = content_workarea(self, width, height)
 
-        return { base.place_widget_at(
-            self._private.widget, wa.x, wa.y, wa.width, wa.height
-        ) }
+        return {
+            base.place_widget_at(
+                self._private.widget,
+                wa.x,
+                wa.y,
+                wa.width,
+                wa.height
+            ),
+        }
     end
 end
 
@@ -121,7 +128,13 @@ end
 function radialprogressbar:fit(context, width, height)
     if self._private.widget then
         local wa = content_workarea(self, width, height)
-        local w, h = base.fit_widget(self, context, self._private.widget, wa.width, wa.height)
+        local w, h = base.fit_widget(
+            self,
+            context,
+            self._private.widget,
+            wa.width,
+            wa.height
+        )
         return wa.x + w, wa.y + h
     end
 
@@ -137,7 +150,7 @@ end
 radialprogressbar.set_widget = base.set_widget_common
 
 function radialprogressbar:get_children()
-    return {self._private.widget}
+    return { self._private.widget }
 end
 
 function radialprogressbar:set_children(children)
@@ -154,8 +167,8 @@ function radialprogressbar:reset()
     self:set_widget(nil)
 end
 
-for _,v in ipairs {"left", "right", "top", "bottom"} do
-    radialprogressbar["set_"..v.."_padding"] = function(self, val)
+for _, v in ipairs({ "left", "right", "top", "bottom" }) do
+    radialprogressbar["set_" .. v .. "_padding"] = function(self, val)
         self._private.paddings = self._private.paddings or {}
         self._private.paddings[v] = val
         self:emit_signal("widget::redraw_needed")
@@ -190,7 +203,10 @@ end
 -- @propemits true false
 
 function radialprogressbar:set_value(val)
-    if not val then self._percent = 0; return end
+    if not val then
+        self._percent = 0
+        return
+    end
 
     if val > self._private.max_value then
         self:set_max_value(val)
@@ -200,7 +216,7 @@ function radialprogressbar:set_value(val)
 
     local delta = self._private.max_value - self._private.min_value
 
-    self._percent = val/delta
+    self._percent = val / delta
     self:emit_signal("widget::redraw_needed")
     self:emit_signal("property::value", val)
 end
@@ -245,25 +261,34 @@ end
 -- @negativeallowed true
 -- @propemits true false
 
-for _, prop in ipairs {"max_value", "min_value", "border_color", "color",
-    "border_width", "paddings"} do
-    radialprogressbar["set_"..prop] = function(self, value)
+for _, prop in ipairs({
+    "max_value",
+    "min_value",
+    "border_color",
+    "color",
+    "border_width",
+    "paddings",
+}) do
+    radialprogressbar["set_" .. prop] = function(self, value)
         self._private[prop] = value
-        self:emit_signal("property::"..prop, value)
+        self:emit_signal("property::" .. prop, value)
         self:emit_signal("widget::redraw_needed")
     end
-    radialprogressbar["get_"..prop] = function(self)
-        return self._private[prop] or beautiful["radialprogressbar_"..prop]
+    radialprogressbar["get_" .. prop] = function(self)
+        return self._private[prop] or beautiful["radialprogressbar_" .. prop]
     end
 end
 
 function radialprogressbar:set_paddings(val)
-    self._private.paddings = type(val) == "number" and {
-        left   = val,
-        right  = val,
-        top    = val,
-        bottom = val,
-    } or val or {}
+    self._private.paddings = type(val) == "number"
+            and {
+                left = val,
+                right = val,
+                top = val,
+                bottom = val,
+            }
+        or val
+        or {}
     self:emit_signal("property::paddings")
     self:emit_signal("widget::redraw_needed")
     self:emit_signal("widget::layout_changed")

@@ -45,7 +45,9 @@ end
 function gmath.subsets(set)
     local mask = {}
     local ret = {}
-    for i = 1, #set do mask[i] = false end
+    for i = 1, #set do
+        mask[i] = false
+    end
 
     -- Insert the empty one
     rtable.insert(ret, {})
@@ -62,7 +64,9 @@ end
 -- @return An integer in (1, t) or nil if t is less than or equal to zero.
 -- @staticfct gears.math.cycle
 function gmath.cycle(t, i)
-    if t < 1 then return end
+    if t < 1 then
+        return
+    end
     i = i % t
     if i == 0 then
         i = t

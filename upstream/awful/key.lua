@@ -109,7 +109,7 @@ local gobject = require("gears.object")
 
 local key = { mt = {}, hotkeys = {} }
 
-local reverse_map = setmetatable({}, {__mode="k"})
+local reverse_map = setmetatable({}, { __mode = "k" })
 
 --- The keygroups names.
 --
@@ -131,10 +131,10 @@ local reverse_map = setmetatable({}, {__mode="k"})
 --
 -- @table keygroup
 key.keygroup = {
-    NUMROW = 'numrow', -- The number row.
-    ARROWS = 'arrows', -- The directionnal arrows.
-    FKEYS = 'fkeys', -- The function keys.
-    NUMPAD = 'numpad', -- The numpad keys.
+    NUMROW = "numrow", -- The number row.
+    ARROWS = "arrows", -- The directionnal arrows.
+    FKEYS = "fkeys", -- The function keys.
+    NUMPAD = "numpad", -- The numpad keys.
 }
 
 function key:set_key(k)
@@ -154,11 +154,17 @@ function key:set_modifiers(mod)
     end
 end
 
-for _, prop in ipairs { "description", "group", "on_press", "on_release", "name" } do
-    key["get_"..prop] = function(self)
+for _, prop in ipairs({
+    "description",
+    "group",
+    "on_press",
+    "on_release",
+    "name",
+}) do
+    key["get_" .. prop] = function(self)
         return reverse_map[self][prop]
     end
-    key["set_"..prop] = function(self, value)
+    key["set_" .. prop] = function(self, value)
         reverse_map[self][prop] = value
     end
 end
@@ -191,8 +197,8 @@ function key:get__is_awful_key()
 end
 
 local function index_handler(self, k)
-    if key["get_"..k] then
-        return key["get_"..k](self)
+    if key["get_" .. k] then
+        return key["get_" .. k](self)
     end
 
     if type(key[k]) == "function" then
@@ -206,8 +212,8 @@ local function index_handler(self, k)
 end
 
 local function newindex_handler(self, k, value)
-    if key["set_"..k] then
-        return key["set_"..k](self, value)
+    if key["set_" .. k] then
+        return key["set_" .. k](self, value)
     end
 
     local data = reverse_map[self]
@@ -217,8 +223,8 @@ local function newindex_handler(self, k, value)
 end
 
 local obj_mt = {
-    __index    = index_handler,
-    __newindex = newindex_handler
+    __index = index_handler,
+    __newindex = newindex_handler,
 }
 
 --- Modifiers to ignore.
@@ -243,9 +249,10 @@ key.ignore_modifiers = { "Lock", "Mod2" }
 -- @tparam string k The key
 -- @deprecated awful.key.execute
 function key.execute(mod, k)
-    gdebug.deprecate("Use `awful.keyboard.emulate_key_combination` or "..
-        "`my_key:trigger()` instead of `awful.key.execute()`",
-        {deprecated_in=5}
+    gdebug.deprecate(
+        "Use `awful.keyboard.emulate_key_combination` or "
+            .. "`my_key:trigger()` instead of `awful.key.execute()`",
+        { deprecated_in = 5 }
     )
 
     require("awful.keyboard").emulate_key_combination(mod, k)
@@ -279,19 +286,19 @@ end
 -- @constructorfct awful.key
 
 local function new_common(mod, keys, press, release, data)
-    if type(release)=='table' then
-        data=release
-        release=nil
+    if type(release) == "table" then
+        data = release
+        release = nil
     end
 
     local ret = {}
     local subsets = gmath.subsets(key.ignore_modifiers)
     for _, key_pair in ipairs(keys) do
         for _, set in ipairs(subsets) do
-            local sub_key = capi.key {
+            local sub_key = capi.key({
                 modifiers = gtable.join(mod, set),
-                key       = key_pair[1]
-            }
+                key = key_pair[1],
+            })
 
             sub_key._private._legacy_convert_to = ret
 
@@ -374,40 +381,42 @@ end
 key.keygroups = {
     numrow = {},
     arrows = {
-        {"Left"  , "Left"  },
-        {"Right" , "Right" },
-        {"Up"    , "Up"    },
-        {"Down"  , "Down"  },
+        { "Left", "Left" },
+        { "Right", "Right" },
+        { "Up", "Up" },
+        { "Down", "Down" },
     },
     fkeys = {},
     numpad = {
-        {"#87"   , 1},
-        {"#88"   , 2},
-        {"#89"   , 3},
-        {"#83"   , 4},
-        {"#84"   , 5},
-        {"#85"   , 6},
-        {"#79"   , 7},
-        {"#80"   , 8},
-        {"#81"   , 9},
-        {"#90"   , 10},
+        { "#87", 1 },
+        { "#88", 2 },
+        { "#89", 3 },
+        { "#83", 4 },
+        { "#84", 5 },
+        { "#85", 6 },
+        { "#79", 7 },
+        { "#80", 8 },
+        { "#81", 9 },
+        { "#90", 10 },
     },
 }
 
 -- Technically, this isn't very popular, but we have been doing this for 12
 -- years and nobody complained too loudly.
 for i = 1, 10 do
-    table.insert(key.keygroups.numrow, {"#" .. i + 9, i})
+    table.insert(key.keygroups.numrow, { "#" .. i + 9, i })
 end
 for i = 1, 35 do
-    table.insert(key.keygroups.fkeys, {"F" .. i, "F" .. i})
+    table.insert(key.keygroups.fkeys, { "F" .. i, "F" .. i })
 end
 
 -- Allow key objects to provide more than 1 key.
 --
 -- Some "groups" like arrows, the numpad, F-keys or numrow "belong together"
 local function get_keys(args)
-    if not args.keygroup then return {{args.key}} end
+    if not args.keygroup then
+        return { { args.key } }
+    end
 
     -- Make sure nothing weird happens.
     assert(
@@ -422,7 +431,10 @@ end
 function key.new(args, keycode, press, release, data)
     -- Assume this is the new constructor.
     if not keycode then
-        assert(not (press or release or data), "Calling awful.key() requires a key name")
+        assert(
+            not (press or release or data),
+            "Calling awful.key() requires a key name"
+        )
 
         local keys = get_keys(args)
 
@@ -434,7 +446,7 @@ function key.new(args, keycode, press, release, data)
             args
         )
     else
-        return new_common(args, {{keycode}}, press, release, data)
+        return new_common(args, { { keycode } }, press, release, data)
     end
 end
 
@@ -445,7 +457,9 @@ end
 -- @method match
 function key.match(self, pressed_mod, pressed_key)
     -- First, compare key.
-    if pressed_key ~= self.key then return false end
+    if pressed_key ~= self.key then
+        return false
+    end
     -- Then, compare mod
     local mod = self.modifiers
     -- For each modifier of the key object, check that the modifier has been

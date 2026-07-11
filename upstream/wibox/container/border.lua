@@ -42,27 +42,34 @@
 -- @copyright 2021 Emmanuel Lepage-Vallee
 -- @containermod wibox.container.border
 -- @supermodule wibox.widget.base
-local gtable   = require("gears.table")
+local gtable = require("gears.table")
 local imagebox = require("wibox.widget.imagebox")
-local base     = require("wibox.widget.base")
+local base = require("wibox.widget.base")
 local gsurface = require("gears.surface")
-local cairo    = require("lgi").cairo
+local cairo = require("lgi").cairo
 
 local components = {
-    "top_left", "top", "top_right", "right", "bottom_right", "bottom",
-    "bottom_left", "left", "fill"
+    "top_left",
+    "top",
+    "top_right",
+    "right",
+    "bottom_right",
+    "bottom",
+    "bottom_left",
+    "left",
+    "fill",
 }
 
 local slice_modes = {
-    top_left     = "corners",
-    top          = "sides",
-    top_right    = "corners",
-    right        = "sides",
+    top_left = "corners",
+    top = "sides",
+    top_right = "corners",
+    right = "sides",
     bottom_right = "corners",
-    bottom       = "sides",
-    bottom_left  = "corners",
-    left         = "sides",
-    fill         = "filling"
+    bottom = "sides",
+    bottom_left = "corners",
+    left = "sides",
+    fill = "filling",
 }
 
 local fit_types = { "corners", "sides", "filling" }
@@ -70,11 +77,14 @@ local fit_types = { "corners", "sides", "filling" }
 local module = {}
 
 local function imagebox_fit(self, _, w, h)
-    return math.min(w, self.source_width or 0), math.min(h, self.source_height or 0)
+    return math.min(w, self.source_width or 0),
+        math.min(h, self.source_height or 0)
 end
 
 local function fit_common(widget, ctx, max_w, max_h)
-    if not widget then return 0, 0 end
+    if not widget then
+        return 0, 0
+    end
 
     local w, h = widget:fit(ctx, max_w or math.huge, max_h or math.huge)
 
@@ -82,16 +92,20 @@ local function fit_common(widget, ctx, max_w, max_h)
 end
 
 local function uses_slice(self)
-    return not (self._private.border_widgets or self._private.border_image_widgets)
+    return not (
+        self._private.border_widgets or self._private.border_image_widgets
+    )
 end
 
 local function get_widget(self, ctx, component)
-    local wids, imgs = self._private.border_widgets or {}, self._private.border_image_widgets or {}
-    local slices = self._private.slice_cache and self._private.slice_cache[ctx.dpi] or {}
+    local wids, imgs =
+        self._private.border_widgets or {},
+        self._private.border_image_widgets or {}
+    local slices = self._private.slice_cache
+            and self._private.slice_cache[ctx.dpi]
+        or {}
 
-    return wids  [component]
-        or imgs  [component]
-        or slices[component]
+    return wids[component] or imgs[component] or slices[component]
 end
 
 local function get_all_widgets(self, partial, ctx)
@@ -104,15 +118,20 @@ end
 
 --- Common code to load the `border_image`.
 local function setup_origin_common(self, ctx)
-    if self._private.original_md then return self._private.original_md end
+    if self._private.original_md then
+        return self._private.original_md
+    end
 
     local origin_w, origin_h, origin
 
     local img = self._private.border_image
 
     -- Try SVG first.
-    local style  = imagebox._get_stylesheet(self, self._private.border_image_stylesheet)
-    local handle = type(img) == "string" and imagebox._load_rsvg_handle(img, style) or nil
+    local style =
+        imagebox._get_stylesheet(self, self._private.border_image_stylesheet)
+    local handle = type(img) == "string"
+            and imagebox._load_rsvg_handle(img, style)
+        or nil
 
     if handle then
         if style then
@@ -133,8 +152,12 @@ local function setup_origin_common(self, ctx)
     if not origin then
         origin = gsurface(self._private.border_image)
 
-        local err1, _origin_w = pcall(function() return origin:get_width() end)
-        local err2, _origin_h = pcall(function() return origin:get_height() end)
+        local err1, _origin_w = pcall(function()
+            return origin:get_width()
+        end)
+        local err2, _origin_h = pcall(function()
+            return origin:get_height()
+        end)
 
         if err1 and err2 then
             origin_w, origin_h = _origin_w, _origin_h
@@ -142,83 +165,90 @@ local function setup_origin_common(self, ctx)
     end
 
     return {
-        width   = origin_w,
-        height  = origin_h,
+        width = origin_w,
+        height = origin_h,
         surface = origin,
-        handle  = handle
+        handle = handle,
     }
 end
 
 local function compute_side_borders(self, ctx, max_w, max_h)
     local override = self._private.borders or {}
-    local mer      = self._private.border_merging or {}
+    local mer = self._private.border_merging or {}
 
     self._private.original_md = setup_origin_common(self, ctx)
 
     local m = {
-        left   = override.left,
-        right  = override.right,
-        top    = override.top,
+        left = override.left,
+        right = override.right,
+        top = override.top,
         bottom = override.bottom,
     }
 
     -- Limit the border to what the surface can provide.
-    if uses_slice(self) and (m.left or 0) + (m.right or 0) > self._private.original_md.width then
-        local max = math.floor((self._private.original_md.width-1)/2)
-        m.left  = math.min(m.left, max)
+    if
+        uses_slice(self)
+        and (m.left or 0) + (m.right or 0) > self._private.original_md.width
+    then
+        local max = math.floor((self._private.original_md.width - 1) / 2)
+        m.left = math.min(m.left, max)
         m.right = math.min(m.right, max)
     end
 
     -- Limit the border to what the surface can provide.
-    if uses_slice(self) and (m.top or 0) + (m.bottom or 0) > self._private.original_md.height then
-        local max = math.floor((self._private.original_md.height-1)/2)
-        m.top    = math.min(m.top, max)
+    if
+        uses_slice(self)
+        and (m.top or 0) + (m.bottom or 0)
+            > self._private.original_md.height
+    then
+        local max = math.floor((self._private.original_md.height - 1) / 2)
+        m.top = math.min(m.top, max)
         m.bottom = math.min(m.bottom, max)
     end
 
     local wdgs = {
-        left   = get_widget(self, ctx, "left"  ) or false,
-        right  = get_widget(self, ctx, "right" ) or false,
-        top    = get_widget(self, ctx, "top"   ) or false,
+        left = get_widget(self, ctx, "left") or false,
+        right = get_widget(self, ctx, "right") or false,
+        top = get_widget(self, ctx, "top") or false,
         bottom = get_widget(self, ctx, "bottom") or false,
     }
 
     -- Call `:fit()` on the sides.
-    local l_w, l_h = fit_common(wdgs.left  , ctx, max_w, max_h)
-    local r_w, r_h = fit_common(wdgs.right , ctx, max_w, max_h)
-    local t_w, t_h = fit_common(wdgs.top   , ctx, max_w, max_h)
+    local l_w, l_h = fit_common(wdgs.left, ctx, max_w, max_h)
+    local r_w, r_h = fit_common(wdgs.right, ctx, max_w, max_h)
+    local t_w, t_h = fit_common(wdgs.top, ctx, max_w, max_h)
     local b_w, b_h = fit_common(wdgs.bottom, ctx, max_w, max_h)
 
     -- Either use the provided borders of the `:fit()` results.
-    m.left   = m.left   or l_w
-    m.right  = m.right  or r_w
-    m.top    = m.top    or t_h
+    m.left = m.left or l_w
+    m.right = m.right or r_w
+    m.top = m.top or t_h
     m.bottom = m.bottom or b_h
 
     -- Allow the corner widgets to affect the border size.
     if self._private.expand_corners then
-        wdgs.top_left     = get_widget(self, ctx, "top_left"    ) or false
-        wdgs.top_right    = get_widget(self, ctx, "top_right"   ) or false
-        wdgs.bottom_left  = get_widget(self, ctx, "bottom_left" ) or false
+        wdgs.top_left = get_widget(self, ctx, "top_left") or false
+        wdgs.top_right = get_widget(self, ctx, "top_right") or false
+        wdgs.bottom_left = get_widget(self, ctx, "bottom_left") or false
         wdgs.bottom_right = get_widget(self, ctx, "bottom_right") or false
 
-        local tl_w, tl_h = fit_common(wdgs.top_left    , ctx, max_w, max_h)
-        local tr_w, tr_h = fit_common(wdgs.top_right   , ctx, max_w, max_h)
-        local bl_w, bl_h = fit_common(wdgs.bottom_left , ctx, max_w, max_h)
+        local tl_w, tl_h = fit_common(wdgs.top_left, ctx, max_w, max_h)
+        local tr_w, tr_h = fit_common(wdgs.top_right, ctx, max_w, max_h)
+        local bl_w, bl_h = fit_common(wdgs.bottom_left, ctx, max_w, max_h)
         local br_w, br_h = fit_common(wdgs.bottom_right, ctx, max_w, max_h)
 
-        m.left   = math.max(m.left  , tl_w, bl_w)
-        m.right  = math.max(m.right , tr_w, br_w)
-        m.top    = math.max(m.top   , tl_h, tr_h)
+        m.left = math.max(m.left, tl_w, bl_w)
+        m.right = math.max(m.right, tr_w, br_w)
+        m.top = math.max(m.top, tl_h, tr_h)
         m.bottom = math.max(m.bottom, bl_h, br_h)
     end
 
     -- The sides should have matching size unless merging is enabled.
     local minimums = {
-        left   = mer.right  and l_h or math.max(l_h, r_h),
-        right  = mer.left   and r_h or math.max(l_h, r_h),
-        top    = mer.bottom and t_w or math.max(t_w, b_w),
-        bottom = mer.top    and b_w or math.max(t_w, b_w),
+        left = mer.right and l_h or math.max(l_h, r_h),
+        right = mer.left and r_h or math.max(l_h, r_h),
+        top = mer.bottom and t_w or math.max(t_w, b_w),
+        bottom = mer.top and b_w or math.max(t_w, b_w),
     }
 
     return m, wdgs, minimums
@@ -229,57 +259,63 @@ local function compute_borders(self, ctx, width, height, fit_width, fit_height)
     local ret = {}
 
     -- Add some fallback values.
-    m.left   = m.left   or 0
-    m.right  = m.right  or 0
-    m.top    = m.top    or 0
+    m.left = m.left or 0
+    m.right = m.right or 0
+    m.top = m.top or 0
     m.bottom = m.bottom or 0
 
     -- Take the center widget size into account.
-    width  = math.min(width , (fit_width  or 9999) + m.left + m.right)
-    height = math.min(height, (fit_height or 9999) + m.top  + m.right)
+    width = math.min(width, (fit_width or 9999) + m.left + m.right)
+    height = math.min(height, (fit_height or 9999) + m.top + m.right)
 
     -- Corners (w,h,x,y).
-    ret.top_left     = {m.left , m.top   , 0              , 0                }
-    ret.top_right    = {m.right, m.top   , width - m.right, 0                }
-    ret.bottom_left  = {m.left , m.bottom, 0              , height - m.bottom}
-    ret.bottom_right = {m.right, m.bottom, width - m.right, height - m.bottom}
+    ret.top_left = { m.left, m.top, 0, 0 }
+    ret.top_right = { m.right, m.top, width - m.right, 0 }
+    ret.bottom_left = { m.left, m.bottom, 0, height - m.bottom }
+    ret.bottom_right = { m.right, m.bottom, width - m.right, height - m.bottom }
 
     -- Sides (w,h,x,y).
-    ret.left   = {m.left                  , height - m.top - m.bottom, 0            , m.top            }
-    ret.right  = {m.right                 , height - m.top - m.bottom, width-m.right, m.top            }
-    ret.top    = {width - m.left - m.right, m.top                    , m.left       , 0                }
-    ret.bottom = {width - m.left - m.right, m.bottom                 , m.left       , height - m.bottom}
+    ret.left = { m.left, height - m.top - m.bottom, 0, m.top }
+    ret.right = { m.right, height - m.top - m.bottom, width - m.right, m.top }
+    ret.top = { width - m.left - m.right, m.top, m.left, 0 }
+    ret.bottom = {
+        width - m.left - m.right,
+        m.bottom,
+        m.left,
+        height - m.bottom,
+    }
 
     -- Honor the border_widgets `:fit()`
-    ret.left  [2] = math.max(mins.left  , ret.left  [2])
-    ret.right [2] = math.max(mins.right , ret.right [2])
-    ret.top   [1] = math.max(mins.top   , ret.top   [1])
+    ret.left[2] = math.max(mins.left, ret.left[2])
+    ret.right[2] = math.max(mins.right, ret.right[2])
+    ret.top[1] = math.max(mins.top, ret.top[1])
     ret.bottom[1] = math.max(mins.bottom, ret.bottom[1])
 
     -- Center / fill
-    ret.fill = {width - m.left - m.right, height - m.top - m.bottom, m.left, m.top}
+    ret.fill =
+        { width - m.left - m.right, height - m.top - m.bottom, m.left, m.top }
 
     -- Undo what we just did to merge the widgets.
     if self._private.border_merging then
         local to_del = {}
 
-        for _, side in ipairs { "top", "bottom" } do
+        for _, side in ipairs({ "top", "bottom" }) do
             if self._private.border_merging[side] then
                 ret[side][1] = width
                 ret[side][3] = 0
 
-                to_del[side.."_left" ] = true
-                to_del[side.."_right"] = true
+                to_del[side .. "_left"] = true
+                to_del[side .. "_right"] = true
             end
         end
 
-        for _, side in ipairs { "left", "right" } do
+        for _, side in ipairs({ "left", "right" }) do
             if self._private.border_merging[side] then
                 ret[side][2] = height
                 ret[side][4] = 0
 
-                to_del["top_"   ..side] = true
-                to_del["bottom_"..side] = true
+                to_del["top_" .. side] = true
+                to_del["bottom_" .. side] = true
             end
         end
 
@@ -293,12 +329,12 @@ end
 
 local function init_imagebox(self, ib, border_type)
     ib.horizontal_fit_policy = border_type
-    ib.vertical_fit_policy   = border_type
-    ib.upscale               = true
-    ib.valign                = "center"
-    ib.halign                = "center"
-    ib.resize                = true
-    ib.scaling_quality       = self._private.image_scaling_quality or "nearest"
+    ib.vertical_fit_policy = border_type
+    ib.upscale = true
+    ib.valign = "center"
+    ib.halign = "center"
+    ib.resize = true
+    ib.scaling_quality = self._private.image_scaling_quality or "nearest"
 end
 
 local function slice(self, ctx, borders)
@@ -307,7 +343,9 @@ local function slice(self, ctx, borders)
         return
     end
 
-    if not self._private.slice then return end
+    if not self._private.slice then
+        return
+    end
 
     -- key: dpi, value: widgets
     self._private.slice_cache = self._private.slice_cache or {}
@@ -323,26 +361,42 @@ local function slice(self, ctx, borders)
     local md = setup_origin_common(self, ctx)
     self._private.original_md = md
 
-    if not md.surface then return end
+    if not md.surface then
+        return
+    end
 
     local scale_w, scale_h = 1, 1
 
     -- This feature allows to provide very large texture while still sharing
     -- the same assets between standard DPI and HiDPI computers.
     if self._private.border_image_dpi and not md.handle then
-        local scale = ctx.dpi/self._private.border_image_dpi
+        local scale = ctx.dpi / self._private.border_image_dpi
         scale_w, scale_h = scale, scale
     end
 
     local ARGB32 = cairo.Format.ARGB32
 
-    ibs.top_left     = cairo.ImageSurface(ARGB32, borders.left[1], borders.top[2])
-    ibs.top          = cairo.ImageSurface(ARGB32, md.width - borders.left[1] - borders.right[1], borders.top[2])
-    ibs.top_right    = cairo.ImageSurface(ARGB32, borders.right[1], borders.top[2])
-    ibs.right        = cairo.ImageSurface(ARGB32, borders.right[1], md.height - borders.top[2] - borders.bottom[2])
-    ibs.bottom_right = cairo.ImageSurface(ARGB32, borders.right[1], borders.bottom[2])
-    ibs.bottom_left  = cairo.ImageSurface(ARGB32, borders.left[1], borders.bottom[2])
-    ibs.left         = cairo.ImageSurface(ARGB32, borders.left[1], md.height - borders.top[2] - borders.bottom[2])
+    ibs.top_left = cairo.ImageSurface(ARGB32, borders.left[1], borders.top[2])
+    ibs.top = cairo.ImageSurface(
+        ARGB32,
+        md.width - borders.left[1] - borders.right[1],
+        borders.top[2]
+    )
+    ibs.top_right = cairo.ImageSurface(ARGB32, borders.right[1], borders.top[2])
+    ibs.right = cairo.ImageSurface(
+        ARGB32,
+        borders.right[1],
+        md.height - borders.top[2] - borders.bottom[2]
+    )
+    ibs.bottom_right =
+        cairo.ImageSurface(ARGB32, borders.right[1], borders.bottom[2])
+    ibs.bottom_left =
+        cairo.ImageSurface(ARGB32, borders.left[1], borders.bottom[2])
+    ibs.left = cairo.ImageSurface(
+        ARGB32,
+        borders.left[1],
+        md.height - borders.top[2] - borders.bottom[2]
+    )
     ibs.bottom = cairo.ImageSurface(
         ARGB32,
         md.width - borders.left[1] - borders.right[1],
@@ -351,7 +405,7 @@ local function slice(self, ctx, borders)
     ibs.fill = cairo.ImageSurface(
         ARGB32,
         md.width - borders.left[1] - borders.right[1],
-        md.height - borders.top[2]  - borders.bottom[2]
+        md.height - borders.top[2] - borders.bottom[2]
     )
 
     for _, position in ipairs(components) do
@@ -359,7 +413,8 @@ local function slice(self, ctx, borders)
     end
 
     if scale_w > 1 or scale_h > 1 then
-        md.width, md.height = math.ceil(md.width * scale_w), math.ceil(md.height * scale_h)
+        md.width, md.height =
+            math.ceil(md.width * scale_w), math.ceil(md.height * scale_h)
 
         local new_origin = cairo.ImageSurface(ARGB32, md.width, md.height)
         local slice_cr = cairo.Context(new_origin)
@@ -378,10 +433,13 @@ local function slice(self, ctx, borders)
     crs.top_right:translate(-md.width + borders.right[1], 0)
 
     -- Right
-    crs.right:translate(-md.width + borders.right[1], - borders.right[4])
+    crs.right:translate(-md.width + borders.right[1], -borders.right[4])
 
     -- Bottom right
-    crs.bottom_right:translate(-md.width + borders.right[1], -md.height + borders.bottom[2])
+    crs.bottom_right:translate(
+        -md.width + borders.right[1],
+        -md.height + borders.bottom[2]
+    )
 
     -- Bottom
     crs.bottom:translate(-borders.left[1], -md.height + borders.bottom[2])
@@ -390,7 +448,7 @@ local function slice(self, ctx, borders)
     crs.bottom_left:translate(0, -md.height + borders.bottom[2])
 
     -- Left
-    crs.left:translate(0, - borders.top_left[2])
+    crs.left:translate(0, -borders.top_left[2])
 
     -- Center
     crs.fill:translate(-borders.left[1], -borders.top_left[2])
@@ -402,7 +460,11 @@ local function slice(self, ctx, borders)
         -- Scaling was attempted, but there is still some corner cases like the
         -- `fill` :fit()` causing a negative texture size.
         local ib = imagebox(ibs[position])
-        init_imagebox(self, ib, self._private[slice_modes[position].."_fit_policy"])
+        init_imagebox(
+            self,
+            ib,
+            self._private[slice_modes[position] .. "_fit_policy"]
+        )
         self._private.slice_cache[ctx.dpi][position] = ib
     end
 end
@@ -419,13 +481,15 @@ local function setup_background(self, ctx)
 
     self._private.original_md = setup_origin_common(self, ctx)
 
-    if not self._private.original_md.surface then return end
+    if not self._private.original_md.surface then
+        return
+    end
 
     local ib = imagebox(self._private.original_md.surface)
     self._private.background_widget = ib
     self._private.background_widget.resize = true
     ib.horizontal_fit_policy = self._private.filling_fit_policy
-    ib.vertical_fit_policy   = self._private.filling_fit_policy
+    ib.vertical_fit_policy = self._private.filling_fit_policy
 
     return self._private.background_widget
 end
@@ -437,16 +501,30 @@ local function children_layout(self, borders, width, height, wdg_w, wdg_h)
     if self._private.widget then
         local p = self._private.paddings or {}
         if not self._private.honor_borders then
-            wdg_w, wdg_h = width - (p.right or 0) - (p.left or 0), height - (p.top or 0) - (p.bottom or 0)
-            wdg_w, wdg_h = math.max(0, wdg_w), math.max(0, wdg_h)
-
-            return base.place_widget_at(self._private.widget, 0 + (p.left or 0), 0 + (p.top or 0), wdg_w, wdg_h)
-        else
-            wdg_w, wdg_h = wdg_w - (p.right or 0) - (p.left or 0), wdg_h - (p.top or 0) - (p.bottom or 0)
+            wdg_w, wdg_h =
+                width - (p.right or 0) - (p.left or 0),
+                height - (p.top or 0) - (p.bottom or 0)
             wdg_w, wdg_h = math.max(0, wdg_w), math.max(0, wdg_h)
 
             return base.place_widget_at(
-                self._private.widget, borders.left[1] + (p.left or 0), borders.top[2] + (p.top or 0), wdg_w, wdg_h
+                self._private.widget,
+                0 + (p.left or 0),
+                0 + (p.top or 0),
+                wdg_w,
+                wdg_h
+            )
+        else
+            wdg_w, wdg_h =
+                wdg_w - (p.right or 0) - (p.left or 0),
+                wdg_h - (p.top or 0) - (p.bottom or 0)
+            wdg_w, wdg_h = math.max(0, wdg_w), math.max(0, wdg_h)
+
+            return base.place_widget_at(
+                self._private.widget,
+                borders.left[1] + (p.left or 0),
+                borders.top[2] + (p.top or 0),
+                wdg_w,
+                wdg_h
             )
         end
     end
@@ -457,7 +535,9 @@ local function init_border_images(self)
     self._private.pending_border_images = false
     local value = self._private.border_images
 
-    if not value then return end
+    if not value then
+        return
+    end
 
     if type(value) ~= "table" then
         local ibs = {}
@@ -465,7 +545,7 @@ local function init_border_images(self)
         for _, t in ipairs(fit_types) do
             local ib = imagebox(value)
             rawset(ib, "fit", imagebox_fit)
-            init_imagebox(self, ib, self._private[t.."_fit_policy"])
+            init_imagebox(self, ib, self._private[t .. "_fit_policy"])
             ibs[t] = ib
         end
 
@@ -489,7 +569,7 @@ local function init_border_images(self)
 
             local ib = v or imagebox()
             rawset(ib, "fit", imagebox_fit)
-            local mode = slice_modes[component].."_fit_policy"
+            local mode = slice_modes[component] .. "_fit_policy"
             init_imagebox(self, ib, self._private[mode])
             ib.image = img
             self._private.border_image_widgets[component] = ib
@@ -509,11 +589,15 @@ function module:fit(ctx, width, height)
 
         -- Add padding.
         if w > 0 and h > 0 and self._private.paddings then
-            w = w + (self._private.paddings.left or 0) + (self._private.paddings.right  or 0)
-            h = h + (self._private.paddings.top  or 0) + (self._private.paddings.bottom or 0)
+            w = w
+                + (self._private.paddings.left or 0)
+                + (self._private.paddings.right or 0)
+            h = h
+                + (self._private.paddings.top or 0)
+                + (self._private.paddings.bottom or 0)
         end
 
-        assert(w >= 0 and h>=0)
+        assert(w >= 0 and h >= 0)
 
         borders = compute_borders(self, ctx, width, height, w, h)
     else
@@ -521,11 +605,13 @@ function module:fit(ctx, width, height)
     end
 
     -- Make sure the border `fit` are taken into account.
-    w = math.max(borders.top [1], w)
+    w = math.max(borders.top[1], w)
     h = math.max(borders.left[2], h)
 
     -- Add the borders around the central widget.
-    w, h = w + borders.left[1] + borders.right[1], h + borders.top[2] + borders.bottom[2]
+    w, h =
+        w + borders.left[1] + borders.right[1],
+        h + borders.top[2] + borders.bottom[2]
 
     assert(w >= 0 and h >= 0)
 
@@ -536,11 +622,14 @@ function module:layout(ctx, width, height)
     local positioned = {}
     local borders, widgets = compute_borders(self, ctx, width, height)
 
-    local wdg_w = width  - borders.left[1] - borders.right[1]
-    local wdg_h = height - borders.top[2]  - borders.bottom[2]
+    local wdg_w = width - borders.left[1] - borders.right[1]
+    local wdg_h = height - borders.top[2] - borders.bottom[2]
 
     if self._private.ontop == false and self._private.widget then
-        table.insert(positioned, children_layout(self, borders, width, height, wdg_w, wdg_h))
+        table.insert(
+            positioned,
+            children_layout(self, borders, width, height, wdg_w, wdg_h)
+        )
     end
 
     if self._private.slice then
@@ -551,8 +640,18 @@ function module:layout(ctx, width, height)
         for _, position in ipairs(components) do
             local geo = borders[position]
             --TODO use unpack
-            if geo and widgets[position] and not (position == "fill" and not self._private.fill) then
-                local place = base.place_widget_at(widgets[position], geo[3], geo[4], geo[1], geo[2])
+            if
+                geo
+                and widgets[position]
+                and not (position == "fill" and not self._private.fill)
+            then
+                local place = base.place_widget_at(
+                    widgets[position],
+                    geo[3],
+                    geo[4],
+                    geo[1],
+                    geo[2]
+                )
                 table.insert(positioned, place)
             end
         end
@@ -568,7 +667,10 @@ function module:layout(ctx, width, height)
     end
 
     if self._private.ontop ~= false and self._private.widget then
-        table.insert(positioned, children_layout(self, borders, width, height, wdg_w, wdg_h))
+        table.insert(
+            positioned,
+            children_layout(self, borders, width, height, wdg_w, wdg_h)
+        )
     end
 
     return positioned
@@ -586,7 +688,7 @@ function module:get_widget()
 end
 
 function module:get_children()
-    return {self._private.widget}
+    return { self._private.widget }
 end
 
 function module:set_children(children)
@@ -611,7 +713,9 @@ end
 -- @see border_images
 
 function module:set_border_image(value)
-    if self._private.border_image == value then return end
+    if self._private.border_image == value then
+        return
+    end
 
     self._private.slice_cache = nil
     self._private.original_md = nil
@@ -634,7 +738,9 @@ end
 -- @propemits true false
 
 function module:set_slice(value)
-    if self._private.slice == value then return end
+    if self._private.slice == value then
+        return
+    end
 
     self._private.slice = value
     self:emit_signal("property::slice", value)
@@ -763,12 +869,11 @@ end
 -- @negativeallowed false
 
 function module:set_borders(value)
-
     if type(value) == "number" then
         value = {
-            top    = value,
-            left   = value,
-            right  = value,
+            top = value,
+            left = value,
+            right = value,
             bottom = value,
         }
     end
@@ -829,13 +934,13 @@ end
 -- @see wibox.widget.imagebox.vertical_fit_policy
 -- @see wibox.widget.imagebox.horizontal_fit_policy
 
-for _, mode in ipairs {"corners", "sides", "filling" } do
-    module["set_"..mode.."_fit_policy"] = function(self, value)
+for _, mode in ipairs({ "corners", "sides", "filling" }) do
+    module["set_" .. mode .. "_fit_policy"] = function(self, value)
         for _, widgets in pairs(self._private.slice_cache or {}) do
             for position, widget in pairs(widgets) do
                 if slice_modes[position] == mode then
                     widget.horizontal_fit_policy = value
-                    widget.vertical_fit_policy   = value
+                    widget.vertical_fit_policy = value
                 end
             end
         end
@@ -846,8 +951,8 @@ for _, mode in ipairs {"corners", "sides", "filling" } do
         end
 
         self._private.pending_border_images = true
-        self._private[mode.."_fit_policy"] = value
-        self:emit_signal("property::"..mode.."_fit_policy", value)
+        self._private[mode .. "_fit_policy"] = value
+        self:emit_signal("property::" .. mode .. "_fit_policy", value)
         self:emit_signal("widget::redraw_needed")
     end
 end
@@ -864,7 +969,9 @@ end
 -- @see ontop
 
 function module:set_honor_borders(value)
-    if self._private.honor_borders == value then return end
+    if self._private.honor_borders == value then
+        return
+    end
 
     self._private.honor_borders = value
     self:emit_signal("property::honor_borders", value)
@@ -908,7 +1015,9 @@ end
 -- @see filling_fit_policy
 
 function module:set_fill(value)
-    if self._private.fill == value then return end
+    if self._private.fill == value then
+        return
+    end
 
     self._private.fill = value
     self:emit_signal("property::fill", value)
@@ -932,14 +1041,16 @@ end
 -- @see wibox.container.margin
 
 function module:set_paddings(value)
-    if self._private.paddings == value then return end
+    if self._private.paddings == value then
+        return
+    end
 
     if type(value) == "number" then
         value = {
-            left   = value,
-            right  = value,
-            top    = value,
-            bottom = value
+            left = value,
+            right = value,
+            top = value,
+            bottom = value,
         }
     end
 
@@ -978,14 +1089,12 @@ function module:set_border_widgets(value)
 
     if type(value) ~= "table" then
         for _, component in ipairs(components) do
-            widgets[component] = value
-                and base.make_widget_from_value(value)
+            widgets[component] = value and base.make_widget_from_value(value)
                 or nil
         end
     else
         for component, widget in pairs(value) do
-            widgets[component] = widget
-                and base.make_widget_from_value(widget)
+            widgets[component] = widget and base.make_widget_from_value(widget)
                 or nil
         end
     end
@@ -1042,13 +1151,13 @@ end
 local function new(_, args)
     args = args or {}
 
-    local ret = base.make_widget(nil, nil, {enable_properties = true})
-    ret._private.corners_fit_policy    = args.corners_fit_policy or "fit"
-    ret._private.sides_fit_policy      = args.slides_fit_policy  or "fit"
-    ret._private.filling_fit_policy    = args.filling_fit_policy or "fit"
-    ret._private.honor_borders         = args.honor_borders ~= false
-    ret._private.fill                  = args.fill or false
-    ret._private.slice                 = args.slice == nil and true or args.slice
+    local ret = base.make_widget(nil, nil, { enable_properties = true })
+    ret._private.corners_fit_policy = args.corners_fit_policy or "fit"
+    ret._private.sides_fit_policy = args.slides_fit_policy or "fit"
+    ret._private.filling_fit_policy = args.filling_fit_policy or "fit"
+    ret._private.honor_borders = args.honor_borders ~= false
+    ret._private.fill = args.fill or false
+    ret._private.slice = args.slice == nil and true or args.slice
 
     gtable.crush(ret, module, true)
     gtable.crush(ret, args, false)
@@ -1056,4 +1165,4 @@ local function new(_, args)
     return ret
 end
 
-return setmetatable(module, {__call=new})
+return setmetatable(module, { __call = new })

@@ -35,10 +35,10 @@ local ipairs = ipairs
 local type = type
 local capi = {
     screen = screen,
-    mouse  = mouse,
+    mouse = mouse,
     awesome = awesome,
     client = client,
-    tag = tag
+    tag = tag,
 }
 local tag = require("awful.tag")
 local client = require("awful.client")
@@ -58,12 +58,11 @@ local layout = {}
 -- Support `table.insert()` to avoid breaking old code.
 local default_layouts = setmetatable({}, {
     __newindex = function(self, key, value)
-        assert(key <= #self+1 and key > 0)
+        assert(key <= #self + 1 and key > 0)
 
         layout.append_default_layout(value)
-    end
+    end,
 })
-
 
 layout.suit = require("awful.layout.suit")
 
@@ -115,7 +114,9 @@ local delayed_arrange = {}
 function layout.get(screen)
     screen = screen or capi.mouse.screen
 
-    if not screen then return nil end
+    if not screen then
+        return nil
+    end
 
     local t = get_screen(screen).selected_tag
     return tag.getproperty(t, "layout") or layout.suit.floating
@@ -131,15 +132,20 @@ function layout.inc(i, s, layouts)
     if type(i) == "table" then
         -- Older versions of this function had arguments (layouts, i, s), but
         -- this was changed so that 'layouts' can be an optional parameter
-        gdebug.deprecate("Use awful.layout.inc(increment, screen, layouts) instead"..
-            " of awful.layout.inc(layouts, increment, screen)", {deprecated_in=5})
+        gdebug.deprecate(
+            "Use awful.layout.inc(increment, screen, layouts) instead"
+                .. " of awful.layout.inc(layouts, increment, screen)",
+            { deprecated_in = 5 }
+        )
 
         layouts, i, s = i, s, layouts
     end
     s = get_screen(s or ascreen.focused())
     local t = s.selected_tag
 
-    if not t then return end
+    if not t then
+        return
+    end
 
     layouts = layouts or t.layouts or {}
 
@@ -150,20 +156,23 @@ function layout.inc(i, s, layouts)
     local cur_l = layout.get(s)
 
     -- First try to match the object
-    local cur_idx =  gtable.find_first_key(
-        layouts, function(_, v) return v == cur_l or cur_l._type == v end, true
-    )
+    local cur_idx = gtable.find_first_key(layouts, function(_, v)
+        return v == cur_l or cur_l._type == v
+    end, true)
 
     -- Safety net: handle cases where another reference of the layout
     -- might be given (e.g. when (accidentally) cloning it).
-    cur_idx = cur_idx or gtable.find_first_key(
-        layouts, function(_, v) return v.name == cur_l.name end, true
-    )
+    cur_idx = cur_idx
+        or gtable.find_first_key(layouts, function(_, v)
+            return v.name == cur_l.name
+        end, true)
 
     -- Trying to come up with some kind of fallback layouts to iterate would
     -- never produce a result the user expect, so if there is nothing to
     -- iterate over, do not iterate.
-    if not cur_idx then return end
+    if not cur_idx then
+        return
+    end
 
     local newindex = gmath.cycle(#layouts, cur_idx + i)
     layout.set(layouts[newindex], t)
@@ -201,33 +210,34 @@ function layout.parameters(t, screen)
 
     local p = {}
 
-    local clients           = client.tiled(screen)
+    local clients = client.tiled(screen)
     local gap_single_client = true
 
-    if(t and t.gap_single_client ~= nil) then
+    if t and t.gap_single_client ~= nil then
         gap_single_client = t.gap_single_client
     end
 
     local useless_gap = 0
     if t then
-        local skip_gap = layout.get(screen).skip_gap or function(nclients)
-            return nclients < 2
-        end
+        local skip_gap = layout.get(screen).skip_gap
+            or function(nclients)
+                return nclients < 2
+            end
         if gap_single_client or not skip_gap(#clients, t) then
             useless_gap = t.gap
         end
     end
 
-    p.workarea = screen:get_bounding_geometry {
-        honor_padding  = true,
+    p.workarea = screen:get_bounding_geometry({
+        honor_padding = true,
         honor_workarea = true,
-        margins        = useless_gap,
-    }
+        margins = useless_gap,
+    })
 
-    p.geometry    = screen.geometry
-    p.clients     = clients
-    p.screen      = screen.index
-    p.padding     = screen.padding
+    p.geometry = screen.geometry
+    p.clients = clients
+    p.screen = screen.index
+    p.padding = screen.padding
     p.useless_gap = useless_gap
 
     return p
@@ -239,7 +249,9 @@ end
 -- @staticfct awful.layout.arrange
 function layout.arrange(screen)
     screen = get_screen(screen)
-    if not screen or delayed_arrange[screen] then return end
+    if not screen or delayed_arrange[screen] then
+        return
+    end
     delayed_arrange[screen] = true
 
     timer.delayed_call(function()
@@ -248,7 +260,9 @@ function layout.arrange(screen)
             delayed_arrange[screen] = nil
             return
         end
-        if arrange_lock then return end
+        if arrange_lock then
+            return
+        end
         arrange_lock = true
 
         -- protected call to ensure that arrange_lock will be reset
@@ -257,11 +271,13 @@ function layout.arrange(screen)
 
             local useless_gap = p.useless_gap
 
-            p.geometries = setmetatable({}, {__mode = "k"})
+            p.geometries = setmetatable({}, { __mode = "k" })
             layout.get(screen).arrange(p)
             for c, g in pairs(p.geometries) do
-                g.width = math.max(1, g.width - c.border_width * 2 - useless_gap * 2)
-                g.height = math.max(1, g.height - c.border_width * 2 - useless_gap * 2)
+                g.width =
+                    math.max(1, g.width - c.border_width * 2 - useless_gap * 2)
+                g.height =
+                    math.max(1, g.height - c.border_width * 2 - useless_gap * 2)
                 g.x = g.x + useless_gap
                 g.y = g.y + useless_gap
                 c:geometry(g)
@@ -281,7 +297,7 @@ end
 -- @noreturn
 -- @see awful.layout.layouts
 function layout.append_default_layout(to_add)
-    rawset(default_layouts, #default_layouts+1, to_add)
+    rawset(default_layouts, #default_layouts + 1, to_add)
     capi.tag.emit_signal("property::layouts")
 end
 
@@ -319,7 +335,7 @@ end
 -- @see awful.layout.layouts
 function layout.append_default_layouts(layouts)
     for _, l in ipairs(layouts) do
-        rawset(default_layouts, #default_layouts+1, l)
+        rawset(default_layouts, #default_layouts + 1, l)
     end
 end
 
@@ -338,7 +354,9 @@ local function arrange_prop_nf(obj)
     end
 end
 
-local function arrange_prop(obj) layout.arrange(obj.screen) end
+local function arrange_prop(obj)
+    layout.arrange(obj.screen)
+end
 
 capi.client.connect_signal("property::size_hints_honor", arrange_prop_nf)
 capi.client.connect_signal("property::struts", arrange_prop)
@@ -383,13 +401,17 @@ capi.client.connect_signal("focus", function(c)
         layout.arrange(screen)
     end
 end)
-capi.client.connect_signal("raised", function(c) layout.arrange(c.screen) end)
-capi.client.connect_signal("lowered", function(c) layout.arrange(c.screen) end)
+capi.client.connect_signal("raised", function(c)
+    layout.arrange(c.screen)
+end)
+capi.client.connect_signal("lowered", function(c)
+    layout.arrange(c.screen)
+end)
 capi.client.connect_signal("list", function()
-                                   for screen in capi.screen do
-                                       layout.arrange(screen)
-                                   end
-                               end)
+    for screen in capi.screen do
+        layout.arrange(screen)
+    end
+end)
 
 --- Default handler for `request::geometry` signals for tiled clients with
 -- the "mouse.move" context.
@@ -399,15 +421,21 @@ capi.client.connect_signal("list", function()
 -- @signalhandler awful.layout.move_handler
 function layout.move_handler(c, context, hints) --luacheck: no unused args
     -- Quit if it isn't a mouse.move on a tiled layout, that's handled elsewhere
-    if c.floating then return end
-    if context ~= "mouse.move" then return end
+    if c.floating then
+        return
+    end
+    if context ~= "mouse.move" then
+        return
+    end
 
     if capi.mouse.screen ~= c.screen then
         c.screen = capi.mouse.screen
     end
 
     local l = c.screen.selected_tag and c.screen.selected_tag.layout or nil
-    if l == layout.suit.floating then return end
+    if l == layout.suit.floating then
+        return
+    end
 
     local c_u_m = capi.mouse.current_client
     if c_u_m and not c_u_m.floating then
@@ -428,7 +456,7 @@ capi.screen.connect_signal("property::geometry", function(s, old_geom)
         local cgeom = c:geometry()
         c:geometry({
             x = cgeom.x + xshift,
-            y = cgeom.y + yshift
+            y = cgeom.y + yshift,
         })
     end
 end)
@@ -487,23 +515,26 @@ local mt = {
     end,
     __newindex = function(_, key, value)
         if key == "layouts" then
-            assert(type(value) == "table", "`awful.layout.layouts` needs a table.")
+            assert(
+                type(value) == "table",
+                "`awful.layout.layouts` needs a table."
+            )
 
             -- Do not ask for layouts if they were already provided.
             if init_layouts then
                 gdebug.print_warning(
-                    "`awful.layout.layouts` was set before `request::default_layouts` could "..
-                    "be called. Please use `awful.layout.append_default_layouts` to "..
-                    " avoid this problem"
+                    "`awful.layout.layouts` was set before `request::default_layouts` could "
+                        .. "be called. Please use `awful.layout.append_default_layouts` to "
+                        .. " avoid this problem"
                 )
 
                 capi.tag.disconnect_signal("new", init_layouts)
                 init_layouts = nil
             elseif #default_layouts > 0 then
                 gdebug.print_warning(
-                    "`awful.layout.layouts` was set after `request::default_layouts` was "..
-                    "used to get the layouts. This is probably an accident. Use "..
-                    "`awful.layout.remove_default_layout` to get rid of this warning."
+                    "`awful.layout.layouts` was set after `request::default_layouts` was "
+                        .. "used to get the layouts. This is probably an accident. Use "
+                        .. "`awful.layout.remove_default_layout` to get rid of this warning."
                 )
             end
 
@@ -511,7 +542,7 @@ local mt = {
         else
             rawset(layout, key, value)
         end
-    end
+    end,
 }
 
 return setmetatable(layout, mt)

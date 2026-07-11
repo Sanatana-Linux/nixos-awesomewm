@@ -34,14 +34,22 @@ local launcher = { mt = {} }
 -- @see wibox.widget.imagebox
 -- @see awful.menu
 function launcher.new(args)
-    if not args.command and not args.menu then return end
+    if not args.command and not args.menu then
+        return
+    end
     local w = wbutton(args)
-    if not w then return end
+    if not w then
+        return
+    end
 
     if args.command then
-        w:add_button(button({}, 1, nil, function () spawn(args.command) end))
+        w:add_button(button({}, 1, nil, function()
+            spawn(args.command)
+        end))
     elseif args.menu then
-        w:add_button(button({}, 1, nil, function () args.menu:toggle() end))
+        w:add_button(button({}, 1, nil, function()
+            args.menu:toggle()
+        end))
     end
 
     return w

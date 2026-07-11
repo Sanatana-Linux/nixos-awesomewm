@@ -16,9 +16,9 @@
 -- @see wibox.widget.textbox
 ----------------------------------------------------------------------------
 local textbox = require("wibox.widget.textbox")
-local gtable  = require("gears.table")
+local gtable = require("gears.table")
 local beautiful = require("beautiful")
-local markup  = require("naughty.widget._markup").set_markup
+local markup = require("naughty.widget._markup").set_markup
 
 local title = {}
 
@@ -31,22 +31,31 @@ local title = {}
 function title:set_notification(notif)
     local old = self._private.notification[1]
 
-    if old == notif then return end
+    if old == notif then
+        return
+    end
 
     if old then
-        old:disconnect_signal("property::message",
-            self._private.title_changed_callback)
-        old:disconnect_signal("property::fg",
-            self._private.title_changed_callback)
+        old:disconnect_signal(
+            "property::message",
+            self._private.title_changed_callback
+        )
+        old:disconnect_signal(
+            "property::fg",
+            self._private.title_changed_callback
+        )
     end
 
     markup(self, notif.title, notif.fg, notif.font)
 
-    self._private.notification = setmetatable({notif}, {__mode="v"})
+    self._private.notification = setmetatable({ notif }, { __mode = "v" })
     self._private.title_changed_callback()
 
-    notif:connect_signal("property::title", self._private.title_changed_callback)
-    notif:connect_signal("property::fg"   , self._private.title_changed_callback)
+    notif:connect_signal(
+        "property::title",
+        self._private.title_changed_callback
+    )
+    notif:connect_signal("property::fg", self._private.title_changed_callback)
     self:emit_signal("property::notification", notif)
 end
 
@@ -70,12 +79,7 @@ local function new(args)
         local n = tb._private.notification[1]
 
         if n then
-            markup(
-                tb,
-                n.title,
-                n.fg,
-                n.font
-            )
+            markup(tb, n.title, n.fg, n.font)
         else
             markup("", nil, nil)
         end
@@ -90,4 +94,8 @@ end
 
 --@DOC_object_COMMON@
 
-return setmetatable(title, {__call = function(_, ...) return new(...) end})
+return setmetatable(title, {
+    __call = function(_, ...)
+        return new(...)
+    end,
+})

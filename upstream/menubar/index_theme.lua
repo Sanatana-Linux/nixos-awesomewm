@@ -106,7 +106,12 @@ index_theme.new = function(cls, icon_theme_name, base_directories)
                     end
 
                     local k, v = item:match("^(%w+)=(%w+)$")
-                    if k == SIZE or k == MINSIZE or k == MAXSIZE or k == THRESHOLD then
+                    if
+                        k == SIZE
+                        or k == MINSIZE
+                        or k == MAXSIZE
+                        or k == THRESHOLD
+                    then
                         keys[k] = tonumber(v)
                     elseif k == TYPE then
                         keys[k] = v
@@ -116,10 +121,18 @@ index_theme.new = function(cls, icon_theme_name, base_directories)
                 -- Size is a must.  Other keys are optional.
                 if keys[SIZE] then
                     -- Set unset keys to the default values.
-                    if not keys[TYPE] then keys[TYPE] = THRESHOLD end
-                    if not keys[MINSIZE] then keys[MINSIZE] = keys[SIZE] end
-                    if not keys[MAXSIZE] then keys[MAXSIZE] = keys[SIZE] end
-                    if not keys[THRESHOLD] then keys[THRESHOLD] = 2 end
+                    if not keys[TYPE] then
+                        keys[TYPE] = THRESHOLD
+                    end
+                    if not keys[MINSIZE] then
+                        keys[MINSIZE] = keys[SIZE]
+                    end
+                    if not keys[MAXSIZE] then
+                        keys[MAXSIZE] = keys[SIZE]
+                    end
+                    if not keys[THRESHOLD] then
+                        keys[THRESHOLD] = 2
+                    end
 
                     self.per_directory_keys[group] = keys
                 end

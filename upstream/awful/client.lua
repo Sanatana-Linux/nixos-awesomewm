@@ -22,8 +22,7 @@ local ipairs = ipairs
 local table = table
 local math = math
 local setmetatable = setmetatable
-local capi =
-{
+local capi = {
     client = client,
     mouse = mouse,
     screen = screen,
@@ -42,10 +41,10 @@ do
             screen = require("awful.screen")
             return screen[k]
         end,
-        __newindex = error -- Just to be sure in case anything ever does this
+        __newindex = error, -- Just to be sure in case anything ever does this
     })
 end
-local client = {object={}}
+local client = { object = {} }
 
 -- Private data
 client.data = {}
@@ -163,7 +162,10 @@ client.focus = require("awful.client.focus")
 --   If it is a function, it will be called with the client and its first
 --   tag as arguments.
 function client.jumpto(c, merge)
-    gdebug.deprecate("Use c:jump_to(merge) instead of awful.client.jumpto", {deprecated_in=4})
+    gdebug.deprecate(
+        "Use c:jump_to(merge) instead of awful.client.jumpto",
+        { deprecated_in = 4 }
+    )
     client.object.jump_to(c, merge)
 end
 
@@ -206,7 +208,7 @@ function client.object.jump_to(self, merge)
         end
     end
 
-    self:emit_signal("request::activate", "client.jumpto", {raise=true})
+    self:emit_signal("request::activate", "client.jumpto", { raise = true })
 end
 
 --- Get visible clients from a screen.
@@ -239,11 +241,13 @@ function client.tiled(s, stacked)
     local tclients = {}
     -- Remove floating clients
     for _, c in pairs(clients) do
-        if not client.object.get_floating(c)
+        if
+            not client.object.get_floating(c)
             and not c.fullscreen
             and not c.maximized
             and not c.maximized_vertical
-            and not c.maximized_horizontal then
+            and not c.maximized_horizontal
+        then
             table.insert(tclients, c)
         end
     end
@@ -310,7 +314,7 @@ function client.swap.bydirection(dir, c, stacked)
     if sel then
         local cltbl = client.visible(sel.screen, stacked)
         local geomtbl = {}
-        for i,cl in ipairs(cltbl) do
+        for i, cl in ipairs(cltbl) do
             geomtbl[i] = cl:geometry()
         end
         local target = grect.get_in_direction(dir, geomtbl, sel:geometry())
@@ -363,8 +367,11 @@ function client.swap.global_bydirection(dir, sel)
         end
 
         screen.focus(sel.screen)
-        sel:emit_signal("request::activate", "client.swap.global_bydirection",
-                        {raise=false})
+        sel:emit_signal(
+            "request::activate",
+            "client.swap.global_bydirection",
+            { raise = false }
+        )
     end
 end
 
@@ -525,7 +532,10 @@ end
 -- @tparam[opt=client.focus] client c The client, otherwise focused one is used.
 -- @see client.relative_move
 function client.moveresize(x, y, w, h, c)
-    gdebug.deprecate("Use c:relative_move(x, y, w, h) instead of awful.client.moveresize", {deprecated_in=4})
+    gdebug.deprecate(
+        "Use c:relative_move(x, y, w, h) instead of awful.client.moveresize",
+        { deprecated_in = 4 }
+    )
     client.object.relative_move(c or capi.client.focus, x, y, w, h)
 end
 
@@ -547,10 +557,10 @@ end
 -- @see floating
 function client.object.relative_move(self, x, y, w, h)
     local geometry = self:geometry()
-    geometry['x'] = geometry['x'] + (x or 0)
-    geometry['y'] = geometry['y'] + (y or 0)
-    geometry['width'] = geometry['width'] + (w or 0)
-    geometry['height'] = geometry['height'] + (h or 0)
+    geometry["x"] = geometry["x"] + (x or 0)
+    geometry["y"] = geometry["y"] + (y or 0)
+    geometry["width"] = geometry["width"] + (w or 0)
+    geometry["height"] = geometry["height"] + (h or 0)
     self:geometry(geometry)
 end
 
@@ -560,7 +570,10 @@ end
 -- @tparam[opt] client c The client to move, otherwise the focused one is used.
 -- @see client.move_to_tag
 function client.movetotag(target, c)
-    gdebug.deprecate("Use c:move_to_tag(target) instead of awful.client.movetotag", {deprecated_in=4})
+    gdebug.deprecate(
+        "Use c:move_to_tag(target) instead of awful.client.movetotag",
+        { deprecated_in = 4 }
+    )
     client.object.move_to_tag(c or capi.client.focus, target)
 end
 
@@ -578,7 +591,11 @@ function client.object.move_to_tag(self, target)
     local s = target.screen
     if self and s then
         if self == capi.client.focus then
-            self:emit_signal("request::activate", "client.movetotag", {raise=true})
+            self:emit_signal(
+                "request::activate",
+                "client.movetotag",
+                { raise = true }
+            )
         end
         -- Set client on the same screen as the tag.
         self.screen = s
@@ -594,7 +611,10 @@ end
 -- @see client.toggle_tag
 -- @see tags
 function client.toggletag(target, c)
-    gdebug.deprecate("Use c:toggle_tag(target) instead of awful.client.toggletag", {deprecated_in=4})
+    gdebug.deprecate(
+        "Use c:toggle_tag(target) instead of awful.client.toggletag",
+        { deprecated_in = 4 }
+    )
     client.object.toggle_tag(c or capi.client.focus, target)
 end
 
@@ -610,7 +630,7 @@ function client.object.toggle_tag(self, target)
     -- Check that tag and client screen are identical
     if self and get_screen(self.screen) == get_screen(target.screen) then
         local tags = self:tags()
-        local index = nil;
+        local index = nil
         for i, v in ipairs(tags) do
             if v == target then
                 index = i
@@ -619,7 +639,9 @@ function client.object.toggle_tag(self, target)
         end
         if index then
             -- If it's the only tag for the window, stop.
-            if #tags == 1 then return end
+            if #tags == 1 then
+                return
+            end
             tags[index] = nil
         else
             tags[#tags + 1] = target
@@ -635,7 +657,10 @@ end
 -- @see screen
 -- @see client.move_to_screen
 function client.movetoscreen(c, s)
-    gdebug.deprecate("Use c:move_to_screen(s) instead of awful.client.movetoscreen", {deprecated_in=4})
+    gdebug.deprecate(
+        "Use c:move_to_screen(s) instead of awful.client.movetoscreen",
+        { deprecated_in = 4 }
+    )
     client.object.move_to_screen(c or capi.client.focus, s)
 end
 
@@ -657,7 +682,11 @@ function client.object.move_to_screen(self, s)
             s = self.screen.index + 1
         end
         if type(s) == "number" then
-            if s > sc then s = 1 elseif s < 1 then s = sc end
+            if s > sc then
+                s = 1
+            elseif s < 1 then
+                s = sc
+            end
         end
         s = get_screen(s)
         if get_screen(self.screen) ~= s then
@@ -666,8 +695,11 @@ function client.object.move_to_screen(self, s)
             screen.focus(s)
 
             if sel_is_focused then
-                self:emit_signal("request::activate", "client.movetoscreen",
-                                {raise=true})
+                self:emit_signal(
+                    "request::activate",
+                    "client.movetoscreen",
+                    { raise = true }
+                )
             end
         end
     end
@@ -762,7 +794,10 @@ end
 -- @deprecated awful.client.mark
 -- @tparam client c The client to mark, the focused one if not specified.
 function client.mark(c)
-    gdebug.deprecate("Use c.marked = true instead of awful.client.mark", {deprecated_in=4})
+    gdebug.deprecate(
+        "Use c.marked = true instead of awful.client.mark",
+        { deprecated_in = 4 }
+    )
     client.object.set_marked(c or capi.client.focus, true)
 end
 
@@ -770,7 +805,10 @@ end
 -- @deprecated awful.client.unmark
 -- @tparam client c The client to unmark, or the focused one if not specified.
 function client.unmark(c)
-    gdebug.deprecate("Use c.marked = false instead of awful.client.unmark", {deprecated_in=4})
+    gdebug.deprecate(
+        "Use c.marked = false instead of awful.client.unmark",
+        { deprecated_in = 4 }
+    )
     client.object.set_marked(c or capi.client.focus, false)
 end
 
@@ -778,7 +816,10 @@ end
 -- @deprecated awful.client.ismarked
 -- @tparam client c The client to check, or the focused one otherwise.
 function client.ismarked(c)
-    gdebug.deprecate("Use c.marked instead of awful.client.ismarked", {deprecated_in=4})
+    gdebug.deprecate(
+        "Use c.marked instead of awful.client.ismarked",
+        { deprecated_in = 4 }
+    )
     return client.object.get_marked(c or capi.client.focus)
 end
 
@@ -786,7 +827,10 @@ end
 -- @deprecated awful.client.togglemarked
 -- @tparam client c The client to toggle mark.
 function client.togglemarked(c)
-    gdebug.deprecate("Use c.marked = not c.marked instead of awful.client.togglemarked", {deprecated_in=4})
+    gdebug.deprecate(
+        "Use c.marked = not c.marked instead of awful.client.togglemarked",
+        { deprecated_in = 4 }
+    )
     c = c or capi.client.focus
     if c then
         c.marked = not c.marked
@@ -815,7 +859,10 @@ end
 -- @tparam client c A client.
 -- @tparam boolean s `true` is the client is to become floating or `false`.
 function client.floating.set(c, s)
-    gdebug.deprecate("Use c.floating = true instead of awful.client.floating.set", {deprecated_in=4})
+    gdebug.deprecate(
+        "Use c.floating = true instead of awful.client.floating.set",
+        { deprecated_in = 4 }
+    )
     client.object.set_floating(c, s)
 end
 
@@ -847,7 +894,11 @@ function client.object.set_floating(c, s)
         if s then
             c:emit_signal("request::border", "floating", {})
         else
-            c:emit_signal("request::border", (c.active and "" or "in").."active", {})
+            c:emit_signal(
+                "request::border",
+                (c.active and "" or "in") .. "active",
+                {}
+            )
         end
     end
 end
@@ -876,7 +927,10 @@ capi.client.connect_signal("property::geometry", store_floating_geometry)
 -- @see is_fixed
 -- @see size_hints_honor
 function client.isfixed(c)
-    gdebug.deprecate("Use c.is_fixed instead of awful.client.isfixed", {deprecated_in=4})
+    gdebug.deprecate(
+        "Use c.is_fixed instead of awful.client.isfixed",
+        { deprecated_in = 4 }
+    )
     c = c or capi.client.focus
     return client.object.is_fixed(c)
 end
@@ -893,14 +947,22 @@ end
 -- @see size_hints_honor
 
 function client.object.is_fixed(c)
-    if not c then return end
+    if not c then
+        return
+    end
     local h = c.size_hints
-    if h.min_width and h.max_width
-        and h.max_height and h.min_height
-        and h.min_width > 0 and h.max_width > 0
-        and h.max_height > 0 and h.min_height > 0
+    if
+        h.min_width
+        and h.max_width
+        and h.max_height
+        and h.min_height
+        and h.min_width > 0
+        and h.max_width > 0
+        and h.max_height > 0
+        and h.min_height > 0
         and h.min_width == h.max_width
-        and h.min_height == h.max_height then
+        and h.min_height == h.max_height
+    then
         return true
     end
     return false
@@ -946,7 +1008,10 @@ end
 -- did not set them manually. For example, windows with a type different than
 -- normal.
 function client.floating.get(c)
-    gdebug.deprecate("Use c.floating instead of awful.client.floating.get", {deprecated_in=4})
+    gdebug.deprecate(
+        "Use c.floating instead of awful.client.floating.get",
+        { deprecated_in = 4 }
+    )
     return client.object.get_floating(c)
 end
 
@@ -992,11 +1057,11 @@ local function update_implicitly_floating(c)
     end
     local cur = client.property.get(c, "_implicitly_floating")
     local new = c.type ~= "normal"
-            or c.fullscreen
-            or c.maximized_vertical
-            or c.maximized_horizontal
-            or c.maximized
-            or client.object.is_fixed(c)
+        or c.fullscreen
+        or c.maximized_vertical
+        or c.maximized_horizontal
+        or c.maximized
+        or client.object.is_fixed(c)
     if cur ~= new then
         client.property.set(c, "_implicitly_floating", new)
         c:emit_signal("property::floating")
@@ -1008,7 +1073,11 @@ local function update_implicitly_floating(c)
             if cur then
                 c:emit_signal("request::border", "floating", {})
             else
-                c:emit_signal("request::border", (c.active and "" or "in").."active", {})
+                c:emit_signal(
+                    "request::border",
+                    (c.active and "" or "in") .. "active",
+                    {}
+                )
             end
         end
     end
@@ -1016,8 +1085,14 @@ end
 
 capi.client.connect_signal("property::type", update_implicitly_floating)
 capi.client.connect_signal("property::fullscreen", update_implicitly_floating)
-capi.client.connect_signal("property::maximized_vertical", update_implicitly_floating)
-capi.client.connect_signal("property::maximized_horizontal", update_implicitly_floating)
+capi.client.connect_signal(
+    "property::maximized_vertical",
+    update_implicitly_floating
+)
+capi.client.connect_signal(
+    "property::maximized_horizontal",
+    update_implicitly_floating
+)
 capi.client.connect_signal("property::maximized", update_implicitly_floating)
 capi.client.connect_signal("property::fullscreen", update_implicitly_floating)
 capi.client.connect_signal("property::size_hints", update_implicitly_floating)
@@ -1109,16 +1184,15 @@ end
 -- @see relative_move
 
 -- Add the geometry helpers to match the wibox API
-for _, v in ipairs {"x", "y", "width", "height"} do
-    client.object["get_"..v] = function(c)
+for _, v in ipairs({ "x", "y", "width", "height" }) do
+    client.object["get_" .. v] = function(c)
         return c:geometry()[v]
     end
 
-    client.object["set_"..v] = function(c, value)
-        return c:geometry({[v] = value})
+    client.object["set_" .. v] = function(c, value)
+        return c:geometry({ [v] = value })
     end
 end
-
 
 --- Restore (=unminimize) a random client.
 --
@@ -1156,18 +1230,18 @@ local function normalize(set, num)
     num = num or #set
     local total = 0
     if num then
-        for i = 1,num do
+        for i = 1, num do
             total = total + set[i]
         end
-        for i = 1,num do
+        for i = 1, num do
             set[i] = set[i] / total
         end
     else
-        for _,v in ipairs(set) do
+        for _, v in ipairs(set) do
             total = total + v
         end
 
-        for i,v in ipairs(set) do
+        for i, v in ipairs(set) do
             set[i] = v / total
         end
     end
@@ -1186,7 +1260,9 @@ end
 -- @treturn integer data.num The number of visible clients in the column.
 function client.idx(c)
     c = c or capi.client.focus
-    if not c then return end
+    if not c then
+        return
+    end
 
     -- Only check the tiled clients, the others un irrelevant
     local clients = client.tiled(c.screen)
@@ -1202,10 +1278,12 @@ function client.idx(c)
     local nmaster = t.master_count
 
     -- This will happen for floating or maximized clients
-    if not idx then return nil end
+    if not idx then
+        return nil
+    end
 
     if idx <= nmaster then
-        return {idx = idx, col=0, num=nmaster}
+        return { idx = idx, col = 0, num = nmaster }
     end
     local nother = #clients - nmaster
     idx = idx - nmaster
@@ -1222,21 +1300,20 @@ function client.idx(c)
     -- number of columns filled with [percol] clients
     local regcol = ncol - overcol
 
-    local col = math.floor( (idx - 1) / percol) + 1
-    if  col > regcol then
+    local col = math.floor((idx - 1) / percol) + 1
+    if col > regcol then
         -- col = math.floor( (idx - (percol*regcol) - 1) / (percol + 1) ) + regcol + 1
         -- simplified
-        col = math.floor( (idx + regcol + percol) / (percol+1) )
+        col = math.floor((idx + regcol + percol) / (percol + 1))
         -- calculate the index in the column
-        idx = idx - percol*regcol - (col - regcol - 1) * (percol+1)
-        percol = percol+1
+        idx = idx - percol * regcol - (col - regcol - 1) * (percol + 1)
+        percol = percol + 1
     else
-        idx = idx - percol*(col-1)
+        idx = idx - percol * (col - 1)
     end
 
-    return {idx = idx, col=col, num=percol}
+    return { idx = idx, col = col, num = percol }
 end
-
 
 --- Define how tall a client should be in the tile layout.
 --
@@ -1257,11 +1334,15 @@ end
 function client.setwfact(wfact, c)
     -- get the currently selected window
     c = c or capi.client.focus
-    if not c or not c:isvisible() then return end
+    if not c or not c:isvisible() then
+        return
+    end
 
     local w = client.idx(c)
 
-    if not w then return end
+    if not w then
+        return
+    end
 
     local t = c.screen.selected_tag
 
@@ -1282,18 +1363,18 @@ function client.setwfact(wfact, c)
         return
     end
 
-    local rest = 1-wfact
+    local rest = 1 - wfact
 
     -- calculate the current denominator
     local total = 0
-    for i = 1,w.num do
+    for i = 1, w.num do
         if i ~= w.idx then
             total = total + colfact[i]
         end
     end
 
     -- normalize the windows
-    for i = 1,w.num do
+    for i = 1, w.num do
         if i ~= w.idx then
             colfact[i] = (colfact[i] * rest) / total
         end
@@ -1321,11 +1402,15 @@ end
 -- @emits property::windowfact
 function client.incwfact(add, c)
     c = c or capi.client.focus
-    if not c then return end
+    if not c then
+        return
+    end
 
     local t = c.screen.selected_tag
     local w = client.idx(c)
-    if not w then return end
+    if not w then
+        return
+    end
 
     local data = t.windowfact or {}
     local colfact = data[w.col] or {}
@@ -1344,7 +1429,10 @@ end
 -- @treturn bool
 -- @deprecated awful.client.dockable.get
 function client.dockable.get(c)
-    gdebug.deprecate("Use c.dockable instead of awful.client.dockable.get", {deprecated_in=4})
+    gdebug.deprecate(
+        "Use c.dockable instead of awful.client.dockable.get",
+        { deprecated_in = 4 }
+    )
     return client.object.get_dockable(c)
 end
 
@@ -1366,7 +1454,7 @@ function client.object.get_dockable(c)
 
     -- Some sane defaults
     if value == nil then
-        if (c.type == "utility" or c.type == "toolbar" or c.type == "dock") then
+        if c.type == "utility" or c.type == "toolbar" or c.type == "dock" then
             value = true
         else
             value = false
@@ -1385,7 +1473,10 @@ end
 -- @tparam boolean value True or false.
 -- @deprecated awful.client.dockable.set
 function client.dockable.set(c, value)
-    gdebug.deprecate("Use c.dockable = value instead of awful.client.dockable.set", {deprecated_in=4})
+    gdebug.deprecate(
+        "Use c.dockable = value instead of awful.client.dockable.set",
+        { deprecated_in = 4 }
+    )
     client.property.set(c, "dockable", value)
 end
 
@@ -1402,10 +1493,14 @@ end
 
 function client.object.get_requests_no_titlebar(c)
     local hints = c.motif_wm_hints
-    if not hints then return false end
+    if not hints then
+        return false
+    end
 
     local decor = hints.decorations
-    if not decor then return false end
+    if not decor then
+        return false
+    end
 
     local result = not decor.title
     if decor.all then
@@ -1478,7 +1573,10 @@ function client.property.persist(prop, kind)
 
     -- Make already-set properties persistent
     for _, c in ipairs(capi.client.get()) do
-        if c._private.awful_client_properties and c._private.awful_client_properties[prop] ~= nil then
+        if
+            c._private.awful_client_properties
+            and c._private.awful_client_properties[prop] ~= nil
+        then
             c:set_xproperty(xprop, c._private.awful_client_properties[prop])
         end
     end
@@ -1506,7 +1604,7 @@ end
 function client.iterate(filter, start, s)
     local clients = capi.client.get(s)
     local focused = capi.client.focus
-    start         = start or gtable.hasitem(clients, focused)
+    start = start or gtable.hasitem(clients, focused)
     return gtable.iterate(clients, filter, start)
 end
 
@@ -1532,13 +1630,16 @@ end
 --     awful.client.run_or_raise('urxvt', matcher)
 -- end);
 function client.run_or_raise(cmd, matcher, merge)
-    gdebug.deprecate("Use awful.spawn.single_instance instead of"..
-        "awful.client.run_or_raise", {deprecated_in=5})
+    gdebug.deprecate(
+        "Use awful.spawn.single_instance instead of"
+            .. "awful.client.run_or_raise",
+        { deprecated_in = 5 }
+    )
 
     spawn = spawn or require("awful.spawn")
     local clients = capi.client.get()
-    local findex  = gtable.hasitem(clients, capi.client.focus) or 1
-    local start   = gmath.cycle(#clients, findex + 1)
+    local findex = gtable.hasitem(clients, capi.client.focus) or 1
+    local start = gmath.cycle(#clients, findex + 1)
 
     local c = client.iterate(matcher, start)()
     if c then
@@ -1557,8 +1658,11 @@ end
 --   a matching parent client is found.
 -- @treturn client|nil The matching parent client or nil.
 function client.get_transient_for_matching(c, matcher)
-    gdebug.deprecate("Use c:get_transient_for_matching(matcher) instead of"..
-        "awful.client.get_transient_for_matching", {deprecated_in=4})
+    gdebug.deprecate(
+        "Use c:get_transient_for_matching(matcher) instead of"
+            .. "awful.client.get_transient_for_matching",
+        { deprecated_in = 4 }
+    )
 
     return client.object.get_transient_for_matching(c, matcher)
 end
@@ -1590,8 +1694,11 @@ end
 -- @tparam client c2 The parent client to check.
 -- @treturn client|nil The parent client or nil.
 function client.is_transient_for(c, c2)
-    gdebug.deprecate("Use c:is_transient_for(c2) instead of"..
-        "awful.client.is_transient_for", {deprecated_in=4})
+    gdebug.deprecate(
+        "Use c:is_transient_for(c2) instead of"
+            .. "awful.client.is_transient_for",
+        { deprecated_in = 4 }
+    )
     return client.object.is_transient_for(c, c2)
 end
 
@@ -1621,17 +1728,35 @@ function client.object.is_transient_for(self, c2)
     return nil
 end
 
-object.properties._legacy_accessors(client, "buttons", "_buttons", true, function(new_btns)
-    return new_btns[1] and (
-        type(new_btns[1]) == "button" or new_btns[1]._is_capi_button
-    ) or false
-end, true, true, "mousebinding")
+object.properties._legacy_accessors(
+    client,
+    "buttons",
+    "_buttons",
+    true,
+    function(new_btns)
+        return new_btns[1]
+                and (type(new_btns[1]) == "button" or new_btns[1]._is_capi_button)
+            or false
+    end,
+    true,
+    true,
+    "mousebinding"
+)
 
-object.properties._legacy_accessors(client, "keys", "_keys", true, function(new_btns)
-    return new_btns[1] and (
-        type(new_btns[1]) == "key" or new_btns[1]._is_capi_key
-    ) or false
-end, true, true, "keybinding")
+object.properties._legacy_accessors(
+    client,
+    "keys",
+    "_keys",
+    true,
+    function(new_btns)
+        return new_btns[1]
+                and (type(new_btns[1]) == "key" or new_btns[1]._is_capi_key)
+            or false
+    end,
+    true,
+    true,
+    "keybinding"
+)
 
 --- Set the client shape.
 --
@@ -1650,14 +1775,14 @@ end
 -- Proxy those properties to decorate their accessors with an extra flag to
 -- define when they are set by the user. This allows to "manage" the value of
 -- those properties internally until they are manually overridden.
-for _, prop in ipairs { "border_width", "border_color", "opacity" } do
-    client.object["get_"..prop] = function(self)
-        return self["_"..prop]
+for _, prop in ipairs({ "border_width", "border_color", "opacity" }) do
+    client.object["get_" .. prop] = function(self)
+        return self["_" .. prop]
     end
-    client.object["set_"..prop] = function(self, value)
+    client.object["set_" .. prop] = function(self, value)
         if value ~= nil then
-            self._private["_user_"..prop] = true
-            self["_"..prop] = value
+            self._private["_user_" .. prop] = true
+            self["_" .. prop] = value
         end
     end
 end
@@ -1701,7 +1826,7 @@ end
 -- @see request::activate
 -- @see active
 function client.object.activate(c, args)
-    local new_args = setmetatable({}, {__index = args or {}})
+    local new_args = setmetatable({}, { __index = args or {} })
 
     -- Set the default arguments.
     new_args.raise = new_args.raise == nil and true or args.raise
@@ -1722,15 +1847,15 @@ function client.object.activate(c, args)
         amousec.resize(c)
     elseif new_args.action and new_args.action == "mouse_center" then
         local coords, geo = capi.mouse.coords(), c:geometry()
-        coords.width, coords.height = 1,1
+        coords.width, coords.height = 1, 1
 
         if not grect.area_intersect_area(geo, coords) then
             -- Do not use `awful.placement` to avoid an useless circular
             -- dependency. Centering is *very* simple.
-            capi.mouse.coords {
-                x = geo.x + math.ceil(geo.width /2),
-                y = geo.y + math.ceil(geo.height/2)
-            }
+            capi.mouse.coords({
+                x = geo.x + math.ceil(geo.width / 2),
+                y = geo.y + math.ceil(geo.height / 2),
+            })
         end
     end
 end
@@ -1833,7 +1958,7 @@ function client.object.set_active(c, value)
 end
 
 capi.client.connect_signal("property::active", function(c)
-    c:emit_signal("request::border", (c.active and "" or "in").."active", {})
+    c:emit_signal("request::border", (c.active and "" or "in") .. "active", {})
 end)
 
 --- The last geometry when client was floating.
@@ -1884,10 +2009,12 @@ end)
 -- Add clients during startup to focus history.
 -- This used to happen through permissions.activate, but that only handles visible
 -- clients now.
-capi.client.connect_signal("request::manage", function (c)
-    if capi.awesome.startup
-      and not c.size_hints.user_position
-      and not c.size_hints.program_position then
+capi.client.connect_signal("request::manage", function(c)
+    if
+        capi.awesome.startup
+        and not c.size_hints.user_position
+        and not c.size_hints.program_position
+    then
         -- Prevent clients from being unreachable after screen count changes.
         require("awful.placement").no_offscreen(c)
     end
@@ -1907,21 +2034,21 @@ capi.client.connect_signal("request::unmanage", client.floating.delete)
 capi.client.connect_signal("manage::connected", function()
     gdebug.deprecate(
         "Use `request::manage` rather than `manage`",
-        {deprecated_in=5}
+        { deprecated_in = 5 }
     )
 end)
 capi.client.connect_signal("unmanage::connected", function()
     gdebug.deprecate(
         "Use `request::unmanage` rather than `unmanage`",
-        {deprecated_in=5}
+        { deprecated_in = 5 }
     )
 end)
 
-for _, sig in ipairs {"marked", "unmarked"} do
-    capi.client.connect_signal(sig.."::connected", function()
+for _, sig in ipairs({ "marked", "unmarked" }) do
+    capi.client.connect_signal(sig .. "::connected", function()
         gdebug.deprecate(
-            "Use `property::marked` rather than `".. sig .. "`",
-            {deprecated_in=4}
+            "Use `property::marked` rather than `" .. sig .. "`",
+            { deprecated_in = 4 }
         )
     end)
 end
@@ -1958,8 +2085,8 @@ client.property.persist("floating", "boolean")
 
 -- Extend the luaobject
 object.properties(capi.client, {
-    getter_class    = client.object,
-    setter_class    = client.object,
+    getter_class = client.object,
+    setter_class = client.object,
     getter_fallback = client.property.get,
     setter_fallback = client.property.set,
 })

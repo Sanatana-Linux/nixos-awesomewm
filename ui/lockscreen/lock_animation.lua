@@ -11,28 +11,31 @@ local LOCK_ICON_PATH = assets_dir .. "lock.svg"
 local KEY_ICON_PATH = assets_dir .. "key.svg"
 
 local ANIMATION_COLORS = { -- Rainbow sequence 🌈
-    beautiful.red or "#fc618d", 
-    beautiful.magenta or "#c678dd", 
-    beautiful.accent or "#61afef", 
-    beautiful.cyan or "#56b6c2", 
+    beautiful.red or "#fc618d",
+    beautiful.magenta or "#c678dd",
+    beautiful.accent or "#61afef",
+    beautiful.cyan or "#56b6c2",
     beautiful.green or "#98c379",
-    beautiful.yellow or "#e5c07b"
+    beautiful.yellow or "#e5c07b",
 }
 
-local ANIMATION_DIRECTIONS = {"north", "west", "south", "east"}
+local ANIMATION_DIRECTIONS = { "north", "west", "south", "east" }
 
 local characters_entered = 0
 
-local icon = wibox.widget {
+local icon = wibox.widget({
     -- Set forced size to prevent flickering when the icon rotates
     forced_height = dpi(80),
     forced_width = dpi(80),
-    image = gcolor.recolor_image(LOCK_ICON_PATH, beautiful.light_black or "#888888"),
+    image = gcolor.recolor_image(
+        LOCK_ICON_PATH,
+        beautiful.light_black or "#888888"
+    ),
     resize = true,
-    widget = wibox.widget.imagebox
-}
+    widget = wibox.widget.imagebox,
+})
 
-local arc = wibox.widget {
+local arc = wibox.widget({
     bg = "transparent",
     forced_width = dpi(80),
     forced_height = dpi(80),
@@ -40,32 +43,33 @@ local arc = wibox.widget {
         -- Use consistent positioning - arc should match icon bounds
         gshape.arc(cr, width, height, dpi(5), 0, math.pi / 2, true, true)
     end,
-    widget = wibox.container.background
-}
+    widget = wibox.container.background,
+})
 
-local rotate = wibox.widget {
+local rotate = wibox.widget({
     {
         arc,
-        widget = wibox.container.place -- Center the arc
+        widget = wibox.container.place, -- Center the arc
     },
-    widget = wibox.container.rotate
-}
+    widget = wibox.container.rotate,
+})
 
-local lock_animation = wibox.widget {
+local lock_animation = wibox.widget({
     {
         rotate,
-        widget = wibox.container.place -- Center the rotated arc
+        widget = wibox.container.place, -- Center the rotated arc
     },
     {
         icon,
-        widget = wibox.container.place -- Center the icon
+        widget = wibox.container.place, -- Center the icon
     },
-    layout = wibox.layout.stack
-}
+    layout = wibox.layout.stack,
+})
 
 -- Lock helper functions
 function lock_animation.reset()
-    icon.image = gcolor.recolor_image(LOCK_ICON_PATH, beautiful.light_black or "#888888")
+    icon.image =
+        gcolor.recolor_image(LOCK_ICON_PATH, beautiful.light_black or "#888888")
     rotate.direction = "north"
     arc.bg = "transparent"
 
@@ -73,7 +77,8 @@ function lock_animation.reset()
 end
 
 function lock_animation.fail()
-    icon.image = gcolor.recolor_image(LOCK_ICON_PATH, beautiful.red or "#fc618d")
+    icon.image =
+        gcolor.recolor_image(LOCK_ICON_PATH, beautiful.red or "#fc618d")
     rotate.direction = "north"
     arc.bg = "transparent"
 
