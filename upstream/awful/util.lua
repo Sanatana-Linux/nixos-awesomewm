@@ -526,6 +526,79 @@ function util.round(x)
     return gmath.round(x)
 end
 
+-----------------------------------------------------------------
+--- Custom overlay additions for this config
+-----------------------------------------------------------------
+
+--- DPI-aware scaling helper.
+-- Re-export of `beautiful.xresources.apply_dpi`, but available without having to satisfy
+-- `beautiful` module requirements first. This is the canonical way to scale a pixel value
+-- in this config — never re-derive `beautiful.xresources.apply_dpi` directly.
+-- @tparam integer|number x Pixel value at 96 DPI
+-- @treturn integer Scaled pixel value for the current X screen
+-- @see beautiful.xresources.apply_dpi
+function util.dpi(x)
+    return require("beautiful").xresources.apply_dpi(x)
+end
+
+--- Apply hex alpha (00..FF) to a color string.
+-- A shortcut for the very common beautiful.fg .. "88" pattern.
+-- The input must be exactly 6 hex digits (with or without leading `#`); the
+-- resulting output is always 8 hex digits.
+-- @tparam string color Hex color (`#RRGGBB` or `RRGGBB`)
+-- @tparam string alpha Two-hex-digit alpha string ("00".."FF")
+-- @treturn string Combined "#RRGGBBAA" color
+function util.color_alpha(color, alpha)
+    local base = color:gsub("^#", "")
+    return "#" .. base .. alpha
+end
+
+--- Resolve a path under ~/.config/awesome through $HOME.
+-- Avoids hardcoded "/home/user/..." in UI code.
+-- @tparam string ... Relative path components
+-- @treturn string Absolute path
+function util.config_path(...)
+    return (os.getenv("HOME") or "")
+        .. "/.config/awesome/"
+        .. table.concat({ ... }, "/")
+end
+
+--- Time a function call and log the milliseconds if over a threshold.
+-- Mainly used to profile layout arrange() functions and find the choppy ones.
+-- @tparam number threshold_ms Calls slower than this are logged (default 16ms / ~1 frame @ 60fps)
+-- @tparam function fn Function to time
+-- @treturn function Wrapped function
+-- @treturn number Last elapsed ms (for inspection)
+function util.timed(threshold_ms, fn)
+    threshold_ms = threshold_ms or 16
+    local last_ms = 0
+    return setmetatable({}, {
+        __call = function(_, ...)
+            local t0 = gdebug.elapsed_ms and gdebug.elapsed_ms()
+                or os.clock() * 1000
+            local r = { fn(...) }
+            local t1 = gdebug.elapsed_ms and gdebug.elapsed_ms()
+                or os.clock() * 1000
+            last_ms = t1 - t0
+            if last_ms >= threshold_ms then
+                local info = debug.getinfo(fn, "Sl")
+                print(
+                    string.format(
+                        "[awful.util.timed] %s:%d took %.2fms",
+                        info.short_src or "?",
+                        info.currentline or -1,
+                        last_ms
+                    )
+                )
+            end
+            return unpack(r)
+        end,
+    }),
+        function()
+            return last_ms
+        end
+end
+
 return util
 
 -- vim: filetype=lua:expandtab:shiftwidth=4:tabstop=8:softtabstop=4:textwidth=80

@@ -1,8 +1,8 @@
--- service/brightness.lua
--- This module provides a service for controlling screen brightness using the
--- 'brightnessctl' command-line utility.
--- It allows getting and setting brightness and emits signals when the brightness
--- is updated, enabling other widgets (like a slider or OSD) to react.
+--- Brightness service.
+-- Backlight control via the `brightnessctl` CLI. Reads both current and max
+-- brightness in a single shell call (one spawn) and emits
+-- `brightness::updated` / `brightness::error` signals accordingly.
+-- @module service.brightness
 
 local awful = require("awful")
 local gobject = require("gears.object")
@@ -10,81 +10,86 @@ local gtable = require("gears.table")
 local gtimer = require("gears.timer")
 local gdebug = require("gears.debug")
 
-local brightness_service = {} -- Renamed for clarity to avoid conflict with file name
+local brightness_service = {}
 
--- Fetches the current brightness percentage using brightnessctl.
--- Emits "brightness::updated" or "brightness::error".
+-- Single shell command that emits `current=N` and `max=M` lines.
+local POLL_CMD = [[
+printf 'current=%s\n' "$(brightnessctl g)"
+printf 'max=%s\n'     "$(brightnessctl m)"
+]]
+
+local function parse_poll(stdout)
+    local values = {}
+    for line in stdout:gmatch("[^\n]+") do
+        local k, v = line:match("^([^=]+)=(.*)$")
+        if k then
+            values[k] = v
+        end
+    end
+    return values
+end
+
+-- Fetches the current brightness percentage. Emits "brightness::updated" or
+-- "brightness::error".
+-- @tparam[opt] function callback Receives the percentage (0..100)
+-- @treturn number|nil Cached value if available, else nil
 function brightness_service:get(callback)
-    -- Use async to avoid blocking the UI
     awful.spawn.easy_async_with_shell(
-        "brightnessctl g",
+        POLL_CMD,
         function(stdout, stderr, reason, exit_code)
-            if exit_code == 0 then
-                local current_max_brightness_raw = ""
-                local current_brightness_raw = stdout
-
-                awful.spawn.easy_async_with_shell(
-                    "brightnessctl m",
-                    function(stdout_max)
-                        current_max_brightness_raw = stdout_max
-                        local current_brightness =
-                            tonumber(current_brightness_raw)
-                        local max_brightness =
-                            tonumber(current_max_brightness_raw)
-
-                        if
-                            current_brightness ~= nil
-                            and max_brightness ~= nil
-                            and max_brightness > 0
-                        then
-                            local percentage = math.floor(
-                                (current_brightness / max_brightness) * 100
-                            )
-                            self._private.current_brightness = percentage
-                            self:emit_signal("brightness::updated", percentage)
-                            if callback then
-                                callback(percentage)
-                            end
-                        else
-                            gdebug.print_error(
-                                "Brightness service: Failed to parse brightness output. Current: "
-                                    .. tostring(current_brightness_raw)
-                                    .. " Max: "
-                                    .. tostring(current_max_brightness_raw)
-                            )
-                            self:emit_signal(
-                                "brightness::error",
-                                "Failed to parse brightness output"
-                            )
-                        end
-                    end
-                )
-            else
+            if exit_code ~= 0 then
                 gdebug.print_error(
-                    "Brightness service: Failed to get brightness: "
-                        .. (stderr or reason)
+                    "Brightness service: poll failed: " .. (stderr or reason)
                 )
                 self:emit_signal("brightness::error", stderr or reason)
+                return
+            end
+
+            local values = parse_poll(stdout)
+            local current = tonumber(values.current)
+            local max = tonumber(values.max)
+
+            if not current or not max or max <= 0 then
+                gdebug.print_error(
+                    "Brightness service: failed to parse output ("
+                        .. tostring(values.current)
+                        .. " / "
+                        .. tostring(values.max)
+                        .. ")"
+                )
+                self:emit_signal(
+                    "brightness::error",
+                    "Failed to parse brightness output"
+                )
+                return
+            end
+
+            local percentage = math.floor((current / max) * 100)
+            self._private.current_brightness = percentage
+            self:emit_signal("brightness::updated", percentage)
+            if callback then
+                callback(percentage)
             end
         end
     )
-    -- Return cached value immediately, if available
+
+    -- Return the cached value immediately if known
     return self._private.current_brightness
 end
 
--- Sets the brightness to a specified percentage using brightnessctl.
--- @param value number The desired brightness percentage (0-100).
+-- Sets the brightness to a specified percentage.
+-- @tparam number value 0..100 (clamped and floored)
 function brightness_service:set(value)
-    local clamped_value = math.max(0, math.min(100, math.floor(value))) -- Clamp value between 0 and 100 and floor it
-    -- Use `awful.spawn.with_shell` to ensure the command is executed correctly
-    awful.spawn.with_shell("brightnessctl s " .. clamped_value .. "%", false)
-    -- Assume success and update internal state and emit signal immediately for responsiveness.
-    -- A timer could be added to verify the change by calling self:get() after a short delay.
-    self._private.current_brightness = clamped_value
-    self:emit_signal("brightness::updated", clamped_value)
+    local clamped = math.max(0, math.min(100, math.floor(value)))
+    awful.spawn.with_shell("brightnessctl s " .. clamped .. "%", false)
+    -- Assume success and update internal state for responsiveness. A follow-up
+    -- poll would confirm the actual value, but a 50ms debounce feels sluggish.
+    self._private.current_brightness = clamped
+    self:emit_signal("brightness::updated", clamped)
 end
 
--- Increases the brightness by a default step (e.g., 5%).
+-- Increases the brightness by `brightnessctl`'s default step (5%).
+-- @tparam[opt] function callback Invoked after the re-read settles
 function brightness_service:increase(callback)
     awful.spawn.with_shell("brightnessctl s 5%+")
     gtimer.delayed_call(function()
@@ -92,7 +97,8 @@ function brightness_service:increase(callback)
     end)
 end
 
--- Decreases the brightness by a default step (e.g., 5%).
+-- Decreases the brightness by `brightnessctl`'s default step (5%).
+-- @tparam[opt] function callback
 function brightness_service:decrease(callback)
     awful.spawn.with_shell("brightnessctl s 5%-")
     gtimer.delayed_call(function()
@@ -101,16 +107,15 @@ function brightness_service:decrease(callback)
 end
 
 -- Creates a new brightness service instance.
--- @return gobject The new brightness service object.
+-- @treturn gobject
 local function new()
-    local ret = gobject({}) -- Create a gears object for signal emission
-    gtable.crush(ret, brightness_service, true) -- Mixin the brightness_service methods
+    local ret = gobject({})
+    gtable.crush(ret, brightness_service, true)
     ret._private = {
-        current_brightness = nil, -- Store the last known brightness
+        current_brightness = nil,
     }
 
-    -- Fetch initial brightness state
-    -- A short delay ensures Awesome is fully up and running before the first call
+    -- Defer the first read so Awesome is fully up before we ask
     gtimer.delayed_call(function()
         ret:get()
     end)
@@ -119,7 +124,7 @@ local function new()
 end
 
 -- Manages the singleton instance of the brightness service.
-local instance = nil
+local instance
 local function get_default()
     if not instance then
         instance = new()

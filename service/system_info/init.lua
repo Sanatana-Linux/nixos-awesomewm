@@ -1,8 +1,9 @@
 ---@diagnostic disable: undefined-global
---[[
-System information service for collecting CPU, memory, swap and disk usage data.
-Provides real-time system statistics with signal-based updates.
---]]
+--- System information service.
+-- Polls CPU, RAM, swap, disk, and GPU usage every 2 seconds and emits
+-- `property::*` signals on change. Subscribers get live usage percentages
+-- and (where applicable) absolute totals in MB or human-readable strings.
+-- @module service.system_info
 
 local gobject = require("gears.object")
 local gtable = require("gears.table")
@@ -226,24 +227,38 @@ function system_info:_update_system_info()
 end
 
 -- Getters for current values
+--- Current CPU usage as 0..100.
+-- @treturn number
 function system_info:get_cpu_usage()
     return self._private.cpu_usage
 end
 
+--- Current RAM usage.
+-- @treturn number percent 0..100
+-- @treturn number total Total RAM in MB
 function system_info:get_ram_usage()
     return self._private.ram_usage, self._private.ram_total
 end
 
+--- Current swap usage.
+-- @treturn number percent 0..100
+-- @treturn number total Total swap in MB
 function system_info:get_swap_usage()
     return self._private.swap_usage, self._private.swap_total
 end
 
+--- Current root-filesystem usage.
+-- @treturn number percent 0..100
+-- @treturn string total Human-readable total (`df -h` format)
+-- @treturn string free Human-readable free
 function system_info:get_disk_usage()
     return self._private.disk_usage,
         self._private.disk_total,
         self._private.disk_free
 end
 
+--- Current GPU usage (NVIDIA / AMD / Intel) as 0..100, or 0 if unavailable.
+-- @treturn number
 function system_info:get_gpu_usage()
     return self._private.gpu_usage
 end

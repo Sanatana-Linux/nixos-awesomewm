@@ -1,3 +1,8 @@
+--- Screenshot mode picker.
+-- Three-tile popup (`Full screen`, `Region`, `Delayed`) that invokes the
+-- `service.screenshot` callbacks. Backs the `Print` key (`hardware.lua`).
+-- @module ui.popups.screenshot_popup
+
 local wibox = require("wibox")
 local awful = require("awful")
 local beautiful = require("beautiful")
@@ -207,6 +212,10 @@ function screenshot_popup:new()
             self:show()
         end
     end
+
+-- Build the popup widget tree.
+-- @treturn table Popup instance with show/hide/toggle methods
+function screenshot_popup:new()
 
     -- Setup click-to-hide behavior
     click_to_hide.popup(ret.widget, function()

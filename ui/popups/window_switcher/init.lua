@@ -120,6 +120,9 @@ end
 -- --------------------------------------------------------------------------
 -- Show / hide
 -- --------------------------------------------------------------------------
+--- Show the switcher. If a popup already exists it's reused (and the
+-- client list is rebuilt); otherwise a fresh `awful.popup` is created.
+-- Auto-hides when the focused tag has no clients.
 function window_switcher:show()
     local wp = self._private
     if wp.popup then
@@ -151,6 +154,8 @@ function window_switcher:show()
     wp.popup = popup
 end
 
+--- Hide the switcher and release the popup. Triggers a Lua GC pass to
+-- reclaim the cached widget tree promptly.
 function window_switcher:hide()
     local wp = self._private
     if wp.popup then

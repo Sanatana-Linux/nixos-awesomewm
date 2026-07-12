@@ -5,6 +5,7 @@
 local awful = require("awful")
 local wibox = require("wibox")
 local beautiful = require("beautiful")
+local gtable = require("gears.table")
 local dpi = beautiful.xresources.apply_dpi
 local menu = require("ui.popups.menu").get_default()
 local hover_bar = require("ui.bar.hover_bar")
@@ -21,7 +22,7 @@ local battery_widget = require("ui.bar.modules.battery")
 local bar = {}
 
 -- Define button configurations once to be reused
-local taglist_buttons = awful.util.table.join(
+local taglist_buttons = gtable.join(
     awful.button({}, 1, function(t)
         t:view_only()
     end),
@@ -39,7 +40,7 @@ local taglist_buttons = awful.util.table.join(
 )
 
 -- Define the correct behavior for tasklist (client icon) clicks
-local tasklist_buttons = awful.util.table.join(
+local tasklist_buttons = gtable.join(
     awful.button({}, 1, function(c)
         awful.client.jumpto(c)
     end),

@@ -1,16 +1,27 @@
--- Garbage Collection Service
--- Manages memory cleanup with intelligent scheduling to prevent excessive collections
+--- Garbage collection service.
+-- Schedules periodic `collectgarbage()` calls, gated by a memory-growth threshold
+-- or a long-idle interval, whichever comes first. The dual-pass pattern (two
+-- `collectgarbage("collect")` calls back-to-back) is intentional — it lets
+-- finalizers on first-pass garbage run and create new garbage which the second
+-- pass then collects.
+-- @module service.garbage_collection
 
 local gtimer = require("gears.timer")
 
 local gc_service = {}
 
--- Configuration parameters
+-- Tunable parameters. Override at module load time before `start()` if you
+-- need a different memory-growth sensitivity.
+-- @table config
 local config = {
-    memory_growth_factor = 1.05, -- Trigger collection when memory grows 5% over last check
-    memory_long_collection_time = 300, -- Force collection after 5 minutes regardless of growth
-    check_interval = 60, -- Check memory usage every 5 seconds
-    initial_gc_params = { 105, 300 }, -- Initial garbage collection parameters
+    -- Trigger collection when memory grows by this factor over the last check
+    memory_growth_factor = 1.05,
+    -- Force collection after this many seconds of idle regardless of growth
+    memory_long_collection_time = 300,
+    -- How often (in seconds) to poll memory usage
+    check_interval = 60,
+    -- Initial `collectgarbage("collect", pause, stepmul)` parameters
+    initial_gc_params = { 105, 300 },
 }
 
 -- Private state variables
@@ -19,6 +30,8 @@ local memory_last_run_time = 0
 local timer = nil
 
 -- Initialize garbage collection service
+--- Start the periodic GC timer. Idempotent — calling `start` while already
+-- running is safe.
 function gc_service.start()
     -- Perform initial garbage collection with specified parameters
     collectgarbage(
@@ -58,6 +71,7 @@ function gc_service.start()
 end
 
 -- Stop garbage collection service
+--- Stop the periodic GC timer. Safe to call when the timer isn't running.
 function gc_service.stop()
     if timer then
         timer:stop()
@@ -66,6 +80,8 @@ function gc_service.stop()
 end
 
 -- Get current memory usage statistics
+--- @treturn table Memory stats:
+--   `current_memory`, `last_check_memory`, `last_collection_time`, `time_since_last_collection`
 function gc_service.get_stats()
     return {
         current_memory = collectgarbage("count"),
@@ -76,6 +92,7 @@ function gc_service.get_stats()
 end
 
 -- Manually trigger garbage collection
+--- Force a two-pass collection right now, regardless of threshold.
 function gc_service.force_collect()
     collectgarbage("collect")
     collectgarbage("collect")
@@ -84,6 +101,9 @@ function gc_service.force_collect()
 end
 
 -- Update configuration parameters
+--- Merge new config values into the live config and restart the timer if
+-- `check_interval` changed. Unknown keys are ignored.
+-- @tparam table new_config
 function gc_service.configure(new_config)
     for key, value in pairs(new_config) do
         if config[key] ~= nil then

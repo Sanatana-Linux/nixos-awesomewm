@@ -1,10 +1,21 @@
 local awful = require("awful")
 local naughty = require("naughty")
+local gtable = require("gears.table")
 local ipairs = ipairs
 local alayout = awful.layout
 local utils = require("modules.utils")
 local common = { handler = {}, last = {}, tips = {}, keys = {}, mouse = {} }
 common.wfactstep = 0.05
+
+--- Layout Navigator shared state.
+-- Exposes a uniform API so any custom layout can plug into the Mod4+F2 navigation
+-- mode without re-implementing key grabbing, tips, or mouse move handling.
+-- @field handler table<awful.layout, function> Key handler per layout object
+-- @field tips table<awful.layout, table> Hotkey tip entries per layout object
+-- @field keys table<string, table> Default key tables (base, swap, tile, corner, magnifier)
+-- @field mouse table Mouse-move handlers
+-- @field wfactstep number Master width step (default 0.05)
+-- @table common
 
 -- default keys
 common.keys.base = {
@@ -236,11 +247,13 @@ common.keys._fake = {
 -----------------------------------------------------------------------------------------------------------------------
 common.action = {}
 
+--- Exit the Mod4+F2 navigator and clear pending state.
 function common.action.exit()
     utils.get_navigator():close()
     common.last = {}
 end
 
+--- Kill the focused client and restart the navigator.
 function common.action.kill()
     client.focus:kill()
     utils.get_navigator():restart()
@@ -255,15 +268,11 @@ end
 common.updates = {}
 
 local function build_base_tip()
-    return awful.util.table.join(
-        common.keys.swap,
-        common.keys.base,
-        common.keys._fake
-    )
+    return gtable.join(common.keys.swap, common.keys.base, common.keys._fake)
 end
 
 local function build_tile_tip()
-    return awful.util.table.join(
+    return gtable.join(
         common.keys.swap,
         common.keys.tile,
         common.keys.base,
@@ -272,7 +281,7 @@ local function build_tile_tip()
 end
 
 local function build_corner_tip()
-    return awful.util.table.join(
+    return gtable.join(
         common.keys.swap,
         common.keys.corner,
         common.keys.base,
@@ -281,7 +290,7 @@ local function build_corner_tip()
 end
 
 local function build_magnifier_tip()
-    return awful.util.table.join(
+    return gtable.join(
         common.keys.magnifier,
         common.keys.base,
         common.keys._fake
@@ -334,6 +343,9 @@ end
 
 -- Keys setup function
 --------------------------------------------------------------------------------
+--- Set or update key bindings for a given layout, then rebuild the tip table.
+-- @tparam[opt] table keys New key bindings to register under `common.keys[layout]`
+-- @tparam string layout Layout name (`"base"`, `"swap"`, `"tile"`, `"corner"`, `"magnifier"`)
 function common:set_keys(keys, layout)
     if keys then
         common.keys[layout] = keys
@@ -359,13 +371,13 @@ common.grabbers.base = function(mod, key)
 
     -- if numkey pressed
     local nav = utils.get_navigator()
-    local index = awful.util.table.hasitem(nav.style.num, key)
+    local index = gtable.hasitem(nav.style.num, key)
 
     -- swap or focus client
     if index then
         if
             nav.data[index]
-            and awful.util.table.hasitem(nav.cls, nav.data[index].client)
+            and gtable.hasitem(nav.cls, nav.data[index].client)
         then
             if common.last.key then
                 if common.last.key == index then
@@ -499,6 +511,10 @@ common.handler[alayout.suit.spiral.dwindle] = fair_handler
 
 -- Custom layout handler/tip registration
 -- Called from init.lua after all layouts are loaded (avoids circular dep)
+--- Register the layout-agnostic key handler and tip entries for every custom layout.
+-- Master/slave layouts get the `tile_handler` (mwfact, nmaster, ncol). Others
+-- get the simpler `fair_handler` (swap + base only).
+-- @tparam table layouts Table of all loaded layout modules keyed by short name
 function common.register_custom_layouts(layouts)
     -- Master/slave layouts get tile_handler (supports mwfact, nmaster, ncol)
     common.handler[layouts.mstab] = tile_handler
@@ -542,6 +558,11 @@ common:set_keys(nil, "base")
 
 -- Slightly changed awful mouse move handler
 -----------------------------------------------------------------------------------------------------------------------
+--- Mouse-move handler that swaps the focused client when the user moves a client onto it.
+-- Slightly changed from the stock awful handler to honor custom layout `move_handler` overrides.
+-- @tparam client c Client being moved
+-- @tparam string context `awful.mouse.move` context token
+-- @tparam table hints Geometry hints from the mouse-move event
 function common.mouse.move(c, context, hints)
     -- Quit if it isn't a mouse.move on a tiled layout, that's handled elsewhere (WHERE?)
     if c.floating then

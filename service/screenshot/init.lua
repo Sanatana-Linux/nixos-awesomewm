@@ -1,45 +1,69 @@
-local lgi = require("lgi")
-local Gtk, Gdk, GdkPixbuf
+--- Screenshot service.
+-- Thin wrapper over the `maim` capture utility and the `satty` annotator.
+-- Captured PNGs land in `$HOME/Pictures/` (overridable via
+-- `service.screenshot.OUTPUT_DIR`), and the service emits `saved` /
+-- `canceled` / `annotated` / `deleted` signals as appropriate.
+-- @module service.screenshot
 
-local success, err = pcall(function()
+local lgi = require("lgi")
+local Gtk, Gdk, GdkPixbuf -- Loaded with a fallback below
+
+local success = pcall(function()
     Gtk = lgi.require("Gtk", "3.0")
     Gdk = lgi.require("Gdk", "3.0")
     GdkPixbuf = lgi.require("GdkPixbuf")
 end)
-
 if not success then
-    Gtk = nil
-    Gdk = nil
-    GdkPixbuf = nil
+    Gtk, Gdk, GdkPixbuf = nil, nil, nil
 end
+
 local awful = require("awful")
-local naughty = require("naughty") -- Added for error notifications
+local naughty = require("naughty")
 local gobject = require("gears.object")
 local gtable = require("gears.table")
 local file_exists = require("lib").file_exists
 
-local screenshot = {}
+-- Default output directory. Callers can override `screenshot.OUTPUT_DIR`
+-- before the first capture.
+local DEFAULT_OUTPUT_DIR = (os.getenv("HOME") or "") .. "/Pictures"
 
+local screenshot = {}
+screenshot.OUTPUT_DIR = DEFAULT_OUTPUT_DIR
+
+--- Quote a path for safe inclusion in a shell command.
+-- Single-quote escaping with the standard `'…'\''` trick. Use this when
+-- the path may contain spaces, `'` characters, or other shell metacharacters.
+-- @tparam string path
+-- @treturn string Safe-for-shell path
+local function shell_quote(path)
+    return "'" .. path:gsub("'", "'\\''") .. "'"
+end
+
+-- Build a shell-safe `maim` invocation. The `args` parameter is
+-- passed through verbatim because it's only ever populated by hardcoded
+-- flags (`-s`, `-u -d N`, or empty), never user input.
+-- @tparam string args Empty for full-screen, `-s` for select, `-u -d N` for delayed
+-- @tparam string outpath Absolute path for the captured PNG
+-- @treturn string Shell command
+local function build_maim_cmd(args, outpath)
+    return string.format("maim %s %s", args or "", shell_quote(outpath))
+end
+
+-- Take a screenshot.
+-- @tparam[opt] string args `maim` flags (e.g. `"-s"` for selection)
 function screenshot:take(args)
-    -- Capture self in a local variable to be used in the async callback
     local self_ref = self
-    -- The screenshot folder is now hardcoded to the user's Pictures directory.
-    local folder = os.getenv("HOME") .. "/Pictures"
+    local folder = self.OUTPUT_DIR or DEFAULT_OUTPUT_DIR
     local dir = string.match(folder, "/$") and folder or folder .. "/"
     local name = "satty-" .. os.date("%Y%m%d-%H:%M:%S") .. ".png"
     local outpath = dir .. name
 
-    -- The command now only runs maim to capture the screenshot.
-    local cmd = string.format("maim %s '%s'", args or "", outpath)
-
     awful.spawn.easy_async_with_shell(
-        cmd,
+        build_maim_cmd(args, outpath),
         function(stdout, stderr, reason, exit_code)
-            -- Check if the command was successful
             if exit_code == 0 and file_exists(outpath) then
                 self_ref:emit_signal("saved", dir, name)
             else
-                -- If the command fails, create a notification to show the error
                 naughty.notification({
                     app_name = "Screenshot",
                     urgency = "critical",
@@ -54,49 +78,54 @@ function screenshot:take(args)
     )
 end
 
+--- Take a full-screen screenshot.
 function screenshot:take_full()
     self:take("")
 end
 
+--- Take a screenshot after a delay.
+-- @tparam[opt=1] number delay Delay in seconds
 function screenshot:take_delay(delay)
     delay = delay or 1
     self:take("-u -d " .. delay)
 end
 
+--- Take a screenshot of a region selected with the mouse.
 function screenshot:take_select()
     self:take("-s")
 end
 
--- New function to annotate an existing screenshot
+-- Open an existing screenshot in the satty annotator.
+-- @tparam string path
 function screenshot:annotate(path)
     if not file_exists(path) then
         return
     end
     local self_ref = self
-    -- The satty command now opens the existing file for annotation.
     local cmd = string.format(
-        "satty --filename '%s' --fullscreen --output-filename '%s'",
-        path,
-        path
+        "satty --filename %s --fullscreen --output-filename %s",
+        shell_quote(path),
+        shell_quote(path)
     )
     awful.spawn.easy_async_with_shell(cmd, function()
-        -- You might want to emit a signal here if you need to know when annotation is done.
         self_ref:emit_signal("annotated", path)
     end)
 end
 
--- New function to delete a screenshot file
+-- Delete a screenshot file.
+-- @tparam string path
 function screenshot:delete(path)
     if not file_exists(path) then
         return
     end
     local self_ref = self
-    local cmd = string.format("rm '%s'", path)
-    awful.spawn.easy_async_with_shell(cmd, function()
+    awful.spawn.easy_async_with_shell("rm " .. shell_quote(path), function()
         self_ref:emit_signal("deleted", path)
     end)
 end
 
+-- Copy a screenshot's image data to the system clipboard.
+-- @tparam string path
 function screenshot:copy_screenshot(path)
     if not file_exists(path) then
         return
@@ -118,6 +147,8 @@ function screenshot:copy_screenshot(path)
     end
 end
 
+-- Construct a fresh service instance (used internally by `get_default`).
+-- @treturn gobject
 local function new()
     local ret = gobject({})
     gtable.crush(ret, screenshot, true)
@@ -128,7 +159,8 @@ local function new()
     return ret
 end
 
-local instance = nil
+-- Singleton accessor.
+local instance
 local function get_default()
     if not instance then
         instance = new()

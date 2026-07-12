@@ -13,11 +13,12 @@ local unpack = unpack or table.unpack
 
 local awful = require("awful")
 local timer = require("gears.timer")
+local gtable = require("gears.table")
 local utils = require("modules.utils")
 local common = require("modules.layouts.widgets.common")
 local naughty = require("naughty")
 
-local hasitem = awful.util.table.hasitem
+local hasitem = gtable.hasitem
 
 -- Initialize tables for module
 -----------------------------------------------------------------------------------------------------------------------
@@ -260,7 +261,7 @@ map.keys.resize = {
     },
 }
 
-map.keys.all = awful.util.table.join(map.keys.layout, map.keys.resize)
+map.keys.all = gtable.join(map.keys.layout, map.keys.resize)
 
 -- Support functions
 -----------------------------------------------------------------------------------------------------------------------
@@ -407,7 +408,7 @@ function map.construct_itempack(cls, wa, is_vertical, parent)
         -- vars
         local geometries = {}
         local weight = 0
-        local area = awful.util.table.clone(self.wa)
+        local area = gtable.clone(self.wa)
         local direction = self.is_vertical and "height" or "width"
 
         -- check factor norming
@@ -577,19 +578,17 @@ local function construct_tree(wa, t)
                 if self.autoaim then
                     self.active = self:aim()
                 end
-                local refill = awful.util.table.join(
-                    self.set[self.active]:get_cls(),
-                    { c }
-                )
+                local refill =
+                    gtable.join(self.set[self.active]:get_cls(), { c })
                 self.set[self.active]:set_cls(refill)
             end
-            -- local refill = awful.util.table.join(self.set[self.active]:get_cls(), current)
+            -- local refill = gtable.join(self.set[self.active]:get_cls(), current)
             -- self.set[self.active]:set_cls(refill)
         end
 
         -- recalculate geomery for every container in tree
         for _, pack in ipairs(self.set) do
-            geometries = awful.util.table.join(geometries, pack:rebuild())
+            geometries = gtable.join(geometries, pack:rebuild())
         end
 
         return geometries
@@ -832,7 +831,7 @@ end
 -- Tile function
 -----------------------------------------------------------------------------------------------------------------------
 function map.arrange(p)
-    local wa = awful.util.table.clone(p.workarea)
+    local wa = gtable.clone(p.workarea)
     local cls = p.clients
     local data = map.data
     local t = p.tag or screen[p.screen].selected_tag
@@ -884,12 +883,11 @@ function map:set_keys(keys, layout)
     if keys then
         self.keys[layout] = keys
         if layout ~= "all" then
-            self.keys.all =
-                awful.util.table.join(self.keys.layout, map.keys.resize)
+            self.keys.all = gtable.join(self.keys.layout, map.keys.resize)
         end
     end
 
-    self.tip = awful.util.table.join(
+    self.tip = gtable.join(
         self.keys.all,
         common.keys.swap,
         common.keys.base,

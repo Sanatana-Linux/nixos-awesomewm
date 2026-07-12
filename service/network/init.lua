@@ -1,12 +1,40 @@
+--- NetworkManager integration service.
+-- Watches the NetworkManager D-Bus service for state changes and exposes a
+-- Lua-side object model (clients, devices, connections, access points) that
+-- the UI layer can iterate. When NetworkManager is unavailable (no DBus
+-- service, missing permissions, headless boot), the service still loads but
+-- exposes empty collections — UI code can guard with `if network.NM then …`.
+-- @module service.network
+
 local lgi = require("lgi")
-local _NM_status, NM = pcall(function()
-    return require("lgi").NM
-end)
+
+-- Probe the NetworkManager GIR binding. The service degrades gracefully
+-- (no D-Bus introspection) when NM is missing — UI code should check
+-- `network.NM` before driving the API.
+local NM
+do
+    local ok, mod = pcall(function()
+        return require("lgi").NM
+    end)
+    if ok then
+        NM = mod
+    else
+        -- Best-effort: log once via gears.debug if it's loaded; the rest of
+        -- the module just sees `network.NM == nil` and skips the D-Bus wiring.
+        pcall(function()
+            require("gears.debug").print_warning(
+                "service.network: NetworkManager GIR not available; service disabled"
+            )
+        end)
+    end
+end
+
 local dbus_proxy = require("lib.dbus_proxy")
 local gobject = require("gears.object")
 local gtable = require("gears.table")
 
 local network = {}
+network.NM = NM -- Exposed for callers to test availability
 local client = {}
 local connection = {}
 local wired = {}
@@ -14,6 +42,8 @@ local wireless = {}
 local access_point = {}
 local device = {}
 
+-- @table network.NMState
+-- Numeric state constants exposed by NetworkManager. Mirrors `NM.State` enum.
 network.NMState = {
     UNKNOWN = 0,
     ASLEEP = 10,

@@ -1,12 +1,18 @@
--- Simple caps lock state tracking
+--- Caps-lock state tracking.
+-- Polls the kernel LED state via `setleds` and emits
+-- `signal::peripheral::caps::state` on the global `awesome` signal bus
+-- whenever the state changes. The first call kicks off the polling loop;
+-- callers trigger refreshes by emitting `signal::peripheral::caps::update`.
+-- @module service.caps
+
 local awful = require("awful")
 
--- Track caps lock state
+-- Current known caps-lock state (false = off, true = on)
 local caps_state = false
 
--- Function to check caps lock state via system command
+--- Read the caps-lock LED state and emit a global signal on change.
 local function check_caps_state()
-    awful.spawn.easy_async("bash -c 'setleds | grep -i caps'", function(stdout)
+    awful.spawn.easy_async("setleds", function(stdout)
         local new_state = stdout:match("Caps Lock on") ~= nil
         if new_state ~= caps_state then
             caps_state = new_state
@@ -15,10 +21,11 @@ local function check_caps_state()
     end)
 end
 
--- Handle caps lock updates
+-- External update hook — emit `signal::peripheral::caps::update` on awesome
+-- to trigger a re-read.
 awesome.connect_signal("signal::peripheral::caps::update", function()
     check_caps_state()
 end)
 
--- Initial check
+-- Initial read at module load
 check_caps_state()

@@ -14,10 +14,11 @@ local math = math
 local unpack = unpack or table.unpack
 
 local awful = require("awful")
+local gtable = require("gears.table")
 local common = require("modules.layouts.widgets.common")
 local utils = require("modules.utils")
 
-local hasitem = awful.util.table.hasitem
+local hasitem = gtable.hasitem
 
 local function size_correction(c, geometry, is_restore)
     local sign = is_restore and -1 or 1
@@ -291,7 +292,7 @@ grid.keys.resize = {
     },
 }
 
-grid.keys.all = awful.util.table.join(grid.keys.move, grid.keys.resize)
+grid.keys.all = gtable.join(grid.keys.move, grid.keys.resize)
 
 -- Support functions
 -----------------------------------------------------------------------------------------------------------------------
@@ -685,12 +686,11 @@ function grid:set_keys(keys, layout)
     if keys then
         self.keys[layout] = keys
         if layout ~= "all" then
-            grid.keys.all =
-                awful.util.table.join(grid.keys.move, grid.keys.resize)
+            grid.keys.all = gtable.join(grid.keys.move, grid.keys.resize)
         end
     end
 
-    self.tip = awful.util.table.join(self.keys.all, common.keys.base)
+    self.tip = gtable.join(self.keys.all, common.keys.base)
 end
 
 function grid.startup()

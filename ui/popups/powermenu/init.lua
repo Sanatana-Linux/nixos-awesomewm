@@ -1,3 +1,9 @@
+--- Power menu popup.
+-- Paged overlay with system actions (power off, reboot, suspend, lock, …).
+-- Page 1 is the menu of action tiles; page 2 is a confirm dialog for the
+-- destructive actions. Backs the `Mod4+x` system keybinding.
+-- @module ui.popups.powermenu
+
 local awful = require("awful")
 local wibox = require("wibox")
 local beautiful = require("beautiful")
@@ -49,6 +55,7 @@ local function run_keygrabber(self)
     end)
 end
 
+--- Move the selection cursor to the next element. Wraps around at the end.
 function powermenu:next()
     local wp = self._private
     if wp.select_index ~= #wp.elements then
@@ -58,6 +65,7 @@ function powermenu:next()
     end
 end
 
+--- Move the selection cursor to the previous element. Wraps around at the start.
 function powermenu:back()
     local wp = self._private
     if wp.select_index ~= 1 then
@@ -67,6 +75,9 @@ function powermenu:back()
     end
 end
 
+--- Rebuild the elements container widget from the current `wp.elements` table.
+-- Call this after mutating `wp.elements` (e.g. on hover or selection change)
+-- to reflect the new state in the popup.
 function powermenu:update_elements()
     local wp = self._private
     local elements_container =
@@ -150,6 +161,8 @@ function powermenu:update_elements()
     end
 end
 
+--- Show the power menu. Idempotent. Resets the selection to the first
+-- element and starts the keyboard grabber for `Up`/`Down`/`Return` navigation.
 function powermenu:show()
     local wp = self._private
     if wp.shown then
@@ -163,6 +176,8 @@ function powermenu:show()
     run_keygrabber(self)
 end
 
+--- Hide the power menu. Releases the keygrabber and resets the selection
+-- cursor. Idempotent.
 function powermenu:hide()
     local wp = self._private
     if not wp.shown then
@@ -178,6 +193,7 @@ function powermenu:hide()
     self:emit_signal("property::shown", wp.shown)
 end
 
+--- Show or hide based on `self.visible`. Backs the `Mod4+x` keybinding.
 function powermenu:toggle()
     if not self.visible then
         self:show()

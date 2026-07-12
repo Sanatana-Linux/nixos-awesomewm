@@ -5,6 +5,7 @@
 local awful = require("awful")
 local wibox = require("wibox")
 local beautiful = require("beautiful")
+local gtable = require("gears.table")
 local dpi = beautiful.xresources.apply_dpi
 local menu = require("ui.popups.menu").get_default()
 local gears = require("gears") -- Required for filesystem checks
@@ -37,7 +38,7 @@ local function create_single_tag(tag, s)
         if #cls > 0 then
             for _, c in ipairs(cls) do
                 -- Define buttons for the client icon (tasklist item)
-                local client_buttons = awful.util.table.join(
+                local client_buttons = gtable.join(
                     awful.button({}, 1, function()
                         -- Left click: jump to the client, focusing it and its tag.
                         c:jump_to()

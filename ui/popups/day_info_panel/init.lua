@@ -1,3 +1,8 @@
+--- Day info popup.
+-- Bottom-right calendar widget that animates in from below on show, and back
+-- out on hide. Backs the `Mod4+d` system keybinding (`system.lua`).
+-- @module ui.popups.day_info_panel
+
 local awful = require("awful")
 local wibox = require("wibox")
 local beautiful = require("beautiful")
@@ -13,6 +18,8 @@ local rrect = shapes.rrect
 
 local day_info = {}
 
+--- Animate the popup in. Idempotent — calling `show` while already shown
+-- is a no-op so the keybinding is safe to mash.
 function day_info:show()
     local wp = self._private
     if wp.shown then
@@ -73,6 +80,7 @@ function day_info:hide()
     })
 end
 
+--- Toggle visibility. Calls `show` or `hide` based on `self.visible`.
 function day_info:toggle()
     if self.visible then
         self:hide()

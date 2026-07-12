@@ -6,6 +6,18 @@ A modern, feature-rich AwesomeWM configuration with custom UI components, animat
 
 ---
 
+## Highlights
+
+- **13 hand-crafted tiling layouts** with a Mod4+F2 keyboard navigation overlay
+- **13 system services** — audio, brightness, network, bluetooth, battery, system info, … — all as observable singletons
+- **Hover-reveal wibar** with auto-hide, animated slide-in, 30s keyboard lock
+- **D-Bus native** — no `awesome-extra` shell-out for NetworkManager / BlueZ / UPower
+- **Live OSDs** for volume, brightness, and layout (animated progress arcs)
+- **Picom-friendly** transparency and blur, with native Lua fallbacks
+- **Typed overlay helpers** (`awful.util.dpi`, `awful.util.color_alpha`, `awful.util.config_path`, `awful.util.timed`) for cleaner config code
+- **Pure-Lua test suite** — no X server required, runs in CI on every PR
+- **Strict StyLua formatting** enforced by CI
+
 ## Features
 
 - **Custom UI Components**: Modern control panels, popups, hotkeys help overlay, and notification system
@@ -15,6 +27,24 @@ A modern, feature-rich AwesomeWM configuration with custom UI components, animat
 - **Popups & Overlays**: Control panel, application launcher, window switcher, power menu, screenshot selection, battery details, day info panel, and paginated hotkeys reference
 - **Animations**: Smooth slide/fade transitions and visual feedback throughout the interface
 - **Modular Architecture**: Well-organized codebase with clear separation of concerns and reusable UI module library
+
+## Development
+
+```bash
+# Validate Lua syntax (no X server required)
+awesome -c rc.lua --check
+
+# Run the unit tests
+lua tests/run.lua
+
+# Format Lua code
+stylua .
+
+# Open a Xephyr test session with auto-reload
+./bin/awmtt-ng.sh start -R
+```
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for code conventions, the singleton pattern, and how to add new layouts / services / popups.
 
 ## Installation
 
@@ -66,7 +96,6 @@ for picom, especially for the blur effect between transparent surfaces and the w
 │   ├── layouts/            # 13 custom layout implementations
 │   ├── menu/               # Context menu system
 │   ├── page_container/     # Swipeable page container for multi-view popups
-│   ├── popup_animations/   # Popup-specific animation helpers
 │   ├── remote_watch/       # Watch remote resources for changes
 │   ├── shapes/             # Shape function library
 │   ├── snap_edge/          # Window edge snapping with preview
@@ -103,7 +132,9 @@ for picom, especially for the blur effect between transparent surfaces and the w
 │   ├── tabbar/             # Window tab bar
 │   ├── titlebar/           # Window title bars with close/maximize buttons
 │   └── wallpaper/          # Dynamic wallpaper management
-└── upstream/               # Modified AwesomeWM builtin libraries (awful, beautiful, gears, etc.)
+├── upstream/               # Modified AwesomeWM builtin libraries (awful, beautiful, gears, etc.)
+├── bin/                    # Shell scripts (awmtt-ng for Xephyr test sessions, showcase recorder)
+└── tests/                  # Pure-Lua unit tests (run with `lua tests/run.lua`)
 ```
 
 ## Key Components

@@ -4,6 +4,7 @@
 
 local awful = require("awful")
 local gcolor = require("gears.color")
+local gtable = require("gears.table")
 local math = math
 
 local M = {}
@@ -14,14 +15,14 @@ local ignored_mod = { "Unknown", "Mod2" }
 -- Key matching for keygrabbers
 function M.match_grabber(rawkey, mod, _key)
     for i, m in ipairs(mod) do
-        if awful.util.table.hasitem(ignored_mod, m) then
+        if gtable.hasitem(ignored_mod, m) then
             table.remove(mod, i)
             break
         end
     end
     local modcheck = #mod == #rawkey[1]
     for _, v in ipairs(mod) do
-        modcheck = modcheck and awful.util.table.hasitem(rawkey[1], v)
+        modcheck = modcheck and gtable.hasitem(rawkey[1], v)
     end
     return modcheck and _key:lower() == rawkey[2]:lower()
 end
@@ -64,7 +65,7 @@ end
 
 -- Table utilities
 function M.table_merge(t1, t2)
-    local ret = awful.util.table.clone(t1)
+    local ret = gtable.clone(t1)
     for k, v in pairs(t2) do
         if type(v) == "table" and ret[k] and type(ret[k]) == "table" then
             ret[k] = M.table_merge(ret[k], v)

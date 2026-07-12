@@ -2,6 +2,9 @@
 -- This service provides battery status information by polling system files.
 -- It is structured as a singleton object to ensure a single source of truth for
 -- battery data and emits signals when the level or charging status changes.
+--
+-- Performance: a single `cat` invocation reads every field at once, instead of
+-- 7 separate spawns per poll. This is materially cheaper on the awesome main loop.
 
 local awful = require("awful")
 local gears = require("gears")
@@ -11,109 +14,86 @@ local gtable = require("gears.table")
 -- The battery service object definition
 local battery_service = {}
 
--- Fetches the current battery level and status, then emits signals.
-function battery_service:update()
-    -- Asynchronously get battery capacity
-    awful.spawn.easy_async_with_shell(
-        "cat /sys/class/power_supply/BAT0/capacity",
-        function(stdout_level)
-            local level = tonumber(stdout_level)
-            if level and self.level ~= level then
-                self.level = level
-                self:emit_signal("property::level", self.level)
-            end
-        end
-    )
+-- Path to the power supply sysfs root. Override at the top to support systems
+-- with a different battery name (e.g. BAT1 on dual-battery laptops).
+local BAT_PATH = "/sys/class/power_supply/BAT0"
 
-    -- Asynchronously get battery status (charging/discharging)
-    awful.spawn.easy_async_with_shell(
-        "cat /sys/class/power_supply/BAT0/status",
-        function(stdout_status)
-            local is_charging = not stdout_status:match("Discharging")
-            if self.is_charging ~= is_charging then
-                self.is_charging = is_charging
-                self:emit_signal("property::is_charging", self.is_charging)
-            end
-        end
-    )
+-- One shell call reads all the fields we care about. The output is one
+-- `key=value` line per field, blank lines for missing files. Parsing this in
+-- Lua is faster than 7 individual spawn+read round-trips on the awesome
+-- main loop.
+local POLL_CMD = string.format(
+    [[
+for f in capacity status health voltage_now power_now energy_full energy_now; do
+    if [ -r "%s/$f" ]; then
+        printf '%%s=%%s\n' "$f" "$(cat '%s'/"$f" 2>/dev/null)"
+    fi
+done]],
+    BAT_PATH,
+    BAT_PATH
+)
 
-    -- Get additional battery details for popup
-    self:update_detailed_info()
+--- Parse a single `key=value` line into a key/value pair.
+-- @tparam string line Output from POLL_CMD
+-- @treturn string|nil key, string|nil value
+local function parse_kv(line)
+    local k, v = line:match("^([^=]+)=(.*)$")
+    if not k then
+        return nil, nil
+    end
+    return k, v
 end
 
--- Get detailed battery information for popup display
-function battery_service:update_detailed_info()
-    -- Get health status
-    awful.spawn.easy_async_with_shell(
-        "cat /sys/class/power_supply/BAT0/health 2>/dev/null || echo 'Unknown'",
-        function(stdout)
-            local health = stdout:gsub("\n", "")
-            if self.health ~= health then
-                self.health = health
-                self:emit_signal("property::health", self.health)
+-- Fetches the current battery level and status, then emits signals.
+function battery_service:update()
+    awful.spawn.easy_async_with_shell(POLL_CMD, function(stdout)
+        local values = {}
+        for line in stdout:gmatch("[^\n]+") do
+            local k, v = parse_kv(line)
+            if k then
+                values[k] = v
             end
         end
-    )
 
-    -- Get voltage (if available)
-    awful.spawn.easy_async_with_shell(
-        "cat /sys/class/power_supply/BAT0/voltage_now 2>/dev/null",
-        function(stdout)
-            local voltage_raw = tonumber(stdout)
-            if voltage_raw then
-                local voltage = math.floor(voltage_raw / 1000000 * 10) / 10 -- Convert to volts with 1 decimal
-                if self.voltage ~= voltage then
-                    self.voltage = voltage
-                    self:emit_signal("property::voltage", self.voltage)
-                end
-            end
+        local level = tonumber(values.capacity)
+        if level and self.level ~= level then
+            self.level = level
+            self:emit_signal("property::level", self.level)
         end
-    )
 
-    -- Get power consumption (if available)
-    awful.spawn.easy_async_with_shell(
-        "cat /sys/class/power_supply/BAT0/power_now 2>/dev/null",
-        function(stdout)
-            local power_raw = tonumber(stdout)
-            if power_raw then
-                local power = math.floor(power_raw / 1000000 * 10) / 10 -- Convert to watts with 1 decimal
-                if self.power ~= power then
-                    self.power = power
-                    self:emit_signal("property::power", self.power)
-                end
-            end
+        local is_charging = not (values.status or ""):match("Discharging")
+        if self.is_charging ~= is_charging then
+            self.is_charging = is_charging
+            self:emit_signal("property::is_charging", self.is_charging)
         end
-    )
 
-    -- Get battery capacity and cycle count for better estimates
-    awful.spawn.easy_async_with_shell(
-        "cat /sys/class/power_supply/BAT0/energy_full 2>/dev/null",
-        function(stdout)
-            local energy_full = tonumber(stdout)
-            if energy_full then
-                energy_full = energy_full / 1000000 -- Convert to Wh
-                if self.energy_full ~= energy_full then
-                    self.energy_full = energy_full
-                    self:emit_signal("property::energy_full", self.energy_full)
-                end
-            end
+        local health = (values.health or "Unknown"):gsub("\n", "")
+        if self.health ~= health then
+            self.health = health
+            self:emit_signal("property::health", self.health)
         end
-    )
 
-    -- Get current energy
-    awful.spawn.easy_async_with_shell(
-        "cat /sys/class/power_supply/BAT0/energy_now 2>/dev/null",
-        function(stdout)
-            local energy_now = tonumber(stdout)
-            if energy_now then
-                energy_now = energy_now / 1000000 -- Convert to Wh
-                if self.energy_now ~= energy_now then
-                    self.energy_now = energy_now
-                    self:emit_signal("property::energy_now", self.energy_now)
-                end
+        -- Numeric fields — only update when the file is present and the
+        -- value actually changed (in volts/watts). We don't pollute the
+        -- signal stream with no-op updates.
+        local function update_num(field, divisor, decimals)
+            local raw = tonumber(values[field])
+            if not raw then
+                return
+            end
+            local factor = 10 ^ decimals
+            local value = math.floor(raw / divisor * factor) / factor
+            if self[field] ~= value then
+                self[field] = value
+                self:emit_signal("property::" .. field, value)
             end
         end
-    )
+
+        update_num("voltage_now", 1000000, 1) -- → volts
+        update_num("power_now", 1000000, 1) -- → watts
+        update_num("energy_full", 1000000, 3) -- → Wh
+        update_num("energy_now", 1000000, 3) -- → Wh
+    end)
 end
 
 -- Constructor for a new battery service instance.

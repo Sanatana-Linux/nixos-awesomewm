@@ -7,6 +7,7 @@ local math = math
 local awful = require("awful")
 local wibox = require("wibox")
 local color = require("gears.color")
+local gtable = require("gears.table")
 local beautiful = require("beautiful")
 local timer = require("gears.timer")
 local utils = require("modules.utils")
@@ -142,7 +143,7 @@ function navigator.make_paint(c)
         cr:fill()
 
         -- label
-        local index = navigator.style.num[awful.util.table.hasitem(
+        local index = navigator.style.num[gtable.hasitem(
             navigator.cls,
             widg._data.client
         )]
@@ -275,7 +276,7 @@ function navigator:run()
         #self.cls == 0
         or not client.focus
         or client.focus.fullscreen
-        or awful.util.table.hasitem(navigator.ignored, client.focus.type)
+        or gtable.hasitem(navigator.ignored, client.focus.type)
     then
         return
     end
