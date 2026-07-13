@@ -1,3 +1,10 @@
+--- Text input widget.
+-- Reusable text-entry widget with cursor, selection, copy/paste, and key
+-- focus. Byte-based text handling (Lua 5.1 string functions — no UTF-8
+-- awareness). Built on `awful.keygrabber` for input capture and exposed
+-- via the instantiable widget pattern (`setmetatable __call`).
+-- @module modules.text_input
+
 -- This module provides a reusable text input widget for AwesomeWM.
 -- It handles text entry, cursor movement, selection, and clipboard operations.
 -- Text handling and key event processing now use standard Lua 5.1 string
@@ -113,10 +120,13 @@ local function create_markup(args)
     return markup
 end
 
--- Checks if a key is in the exclusion list (non-printable/control keys).
--- Adapted from the provided launcher snippet.
--- @param key string The name of the key.
--- @return boolean True if the key should be excluded from text input.
+--- Check whether a key should be filtered from text input.
+-- Non-printable keys (modifiers, navigation, function keys) are
+-- excluded so they don't appear in the typed text. This is the same
+-- exclusion set used by the upstream `awful.widget.textbox` widget.
+-- @tparam string key The X11 keysym name (e.g. "Shift_L", "a", "BackSpace")
+-- @treturn boolean True if the key should be excluded from text input
+-- @see modules.text_input.run_keygrabber
 local function is_excluded_key(key)
     local exclude = {
         "Shift_R",

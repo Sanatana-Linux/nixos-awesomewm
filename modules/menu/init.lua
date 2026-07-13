@@ -1,3 +1,9 @@
+--- Hierarchical popup menu widget.
+-- Builds a navigable menu with submenu support, keyboard nav (`Up`/`Down`/
+-- `Left`/`Right`/`Return`/`Escape`), and themed items. Construct with
+-- `menu.new({items, theme?}, parent?)`; show with `:show()`.
+-- @module modules.menu
+
 ---@diagnostic disable: undefined-global
 --[[
     AwesomeWM Custom Menu Module
