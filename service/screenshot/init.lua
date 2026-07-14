@@ -39,9 +39,10 @@ local function shell_quote(path)
     return "'" .. path:gsub("'", "'\\''") .. "'"
 end
 
--- Build a shell-safe `maim` invocation. The `args` parameter is
--- passed through verbatim because it's only ever populated by hardcoded
--- flags (`-s`, `-u -d N`, or empty), never user input.
+--- Build a shell-safe `maim` invocation.
+-- The `args` parameter is passed through verbatim because it's only
+-- ever populated by hardcoded flags (`-s`, `-u -d N`, or empty),
+-- never user input. Paths are quoted via `shell_quote`.
 -- @tparam string args Empty for full-screen, `-s` for select, `-u -d N` for delayed
 -- @tparam string outpath Absolute path for the captured PNG
 -- @treturn string Shell command
@@ -49,8 +50,12 @@ local function build_maim_cmd(args, outpath)
     return string.format("maim %s %s", args or "", shell_quote(outpath))
 end
 
--- Take a screenshot.
--- @tparam[opt] string args `maim` flags (e.g. `"-s"` for selection)
+--- Capture a screenshot to a timestamped PNG in `OUTPUT_DIR`.
+-- Emits `saved` (with the output directory and filename) on success
+-- or `canceled` if `maim` returns non-zero. Surfaces a critical
+-- naughty.notification on failure.
+-- @tparam[opt] string args `maim` flags (e.g. `"-s"` for selection, `"-u -d 3"` for delay)
+-- @treturn nil
 function screenshot:take(args)
     local self_ref = self
     local folder = self.OUTPUT_DIR or DEFAULT_OUTPUT_DIR
@@ -78,7 +83,8 @@ function screenshot:take(args)
     )
 end
 
---- Take a full-screen screenshot.
+--- Capture a full-screen screenshot.
+-- Wrapper around `take("")`.
 function screenshot:take_full()
     self:take("")
 end
@@ -95,8 +101,9 @@ function screenshot:take_select()
     self:take("-s")
 end
 
--- Open an existing screenshot in the satty annotator.
--- @tparam string path
+--- Open an existing screenshot in the satty annotator.
+-- No-op if `path` doesn't exist. Emits `annotated` when satty closes.
+-- @tparam string path Path to the PNG to annotate
 function screenshot:annotate(path)
     if not file_exists(path) then
         return
@@ -112,8 +119,10 @@ function screenshot:annotate(path)
     end)
 end
 
--- Delete a screenshot file.
--- @tparam string path
+--- Delete a screenshot file via `rm`.
+-- No-op if `path` doesn't exist. Emits `deleted` after the rm
+-- completes.
+-- @tparam string path Absolute path to delete
 function screenshot:delete(path)
     if not file_exists(path) then
         return
@@ -124,8 +133,11 @@ function screenshot:delete(path)
     end)
 end
 
--- Copy a screenshot's image data to the system clipboard.
--- @tparam string path
+--- Copy a PNG to the system clipboard via GTK.
+-- Requires the GIR bindings (loaded at module init). No-op + a
+-- notification if GTK isn't available, or if the image fails to
+-- load. Stores the image persistently (`clipboard:store()`).
+-- @tparam string path Absolute path to the PNG to copy
 function screenshot:copy_screenshot(path)
     if not file_exists(path) then
         return
@@ -147,8 +159,10 @@ function screenshot:copy_screenshot(path)
     end
 end
 
--- Construct a fresh service instance (used internally by `get_default`).
--- @treturn gobject
+--- Construct a fresh screenshot service instance.
+-- Initialises `_private` state and, if GTK is available, sets up
+-- a clipboard reference.
+-- @treturn table A gobject with the public methods of `screenshot`
 local function new()
     local ret = gobject({})
     gtable.crush(ret, screenshot, true)
@@ -159,7 +173,8 @@ local function new()
     return ret
 end
 
--- Singleton accessor.
+--- Singleton accessor: returns (and lazily constructs) the screenshot service.
+-- @treturn table Cached service instance (same object on every call)
 local instance
 local function get_default()
     if not instance then

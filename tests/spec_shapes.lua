@@ -25,6 +25,13 @@ end
 -- Stub the require.
 package.loaded["gears.shape"] = fake_shape
 
+-- Force a fresh load of the production module. Earlier specs (e.g.
+-- spec_menu) may have already required it, in which case Lua would
+-- return the cached module — bound to whatever `gears.shape` looked
+-- like at that earlier load. Reset to nil so we get a fresh module
+-- bound to the recorder above.
+package.loaded["modules.shapes"] = nil
+
 -- Now load the production module.
 -- It also requires `beautiful`, so stub that too with a fake dpi().
 package.loaded["beautiful"] = {
