@@ -18,6 +18,9 @@ printf 'current=%s\n' "$(brightnessctl g)"
 printf 'max=%s\n'     "$(brightnessctl m)"
 ]]
 
+--- Parse `current=N` / `max=M` lines from the POLL_CMD output.
+-- @tparam string stdout The raw output of the brightnessctl poll
+-- @treturn table Map of `current` and `max` to their string values
 local function parse_poll(stdout)
     local values = {}
     for line in stdout:gmatch("[^\n]+") do
@@ -106,8 +109,11 @@ function brightness_service:decrease(callback)
     end)
 end
 
--- Creates a new brightness service instance.
--- @treturn gobject
+--- Construct a new brightness service instance.
+-- Sets up `_private.current_brightness = nil` and schedules the
+-- initial poll via `gtimer.delayed_call` so the awesome main loop
+-- has fully started before the spawn fires.
+-- @treturn table A gobject with the public methods of `brightness_service`
 local function new()
     local ret = gobject({})
     gtable.crush(ret, brightness_service, true)
@@ -123,7 +129,8 @@ local function new()
     return ret
 end
 
--- Manages the singleton instance of the brightness service.
+--- Singleton accessor: returns (and lazily constructs) the brightness service.
+-- @treturn table Cached service instance (same object on every call)
 local instance
 local function get_default()
     if not instance then

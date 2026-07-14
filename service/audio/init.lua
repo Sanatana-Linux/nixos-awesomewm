@@ -73,7 +73,9 @@ local function parse_mute_bool(raw)
     return raw:match("(%w+)$") == "yes"
 end
 
+--- Read sink volume + mute in a single shell call, emit signals on change.
 -- @tparam[opt] function callback Receives (volume, mute) when the read finishes
+-- @treturn nil
 function audio:get_default_sink_data(callback)
     awful.spawn.easy_async_with_shell(
         build_poll_cmd("@DEFAULT_SINK@", { "sink-volume", "sink-mute" }),
@@ -99,8 +101,9 @@ function audio:get_default_sink_data(callback)
     )
 end
 
+--- Set the default sink volume via pactl, then re-poll for confirmation.
 -- @tparam number|string value 0..100 — written as a relative or absolute percent
--- @tparam[opt] function callback
+-- @tparam[opt] function callback Forwarded to `get_default_sink_data`
 function audio:set_default_sink_volume(value, callback)
     awful.spawn.with_shell(
         "pactl set-sink-volume @DEFAULT_SINK@ " .. tostring(value) .. "%"
@@ -108,12 +111,14 @@ function audio:set_default_sink_volume(value, callback)
     self:get_default_sink_data(callback)
 end
 
--- @tparam[opt] function callback
+--- Toggle the default sink mute via pactl, then re-poll.
+-- @tparam[opt] function callback Forwarded to `get_default_sink_data`
 function audio:toggle_default_sink_mute(callback)
     awful.spawn.with_shell("pactl set-sink-mute @DEFAULT_SINK@ toggle")
     self:get_default_sink_data(callback)
 end
 
+--- Read source volume + mute in a single shell call, emit signals on change.
 -- @tparam[opt] function callback Receives (volume, mute) when the read finishes
 function audio:get_default_source_data(callback)
     awful.spawn.easy_async_with_shell(
@@ -140,6 +145,7 @@ function audio:get_default_source_data(callback)
     )
 end
 
+--- Set the default source (microphone) volume via pactl.
 -- @tparam number|string value 0..100
 function audio:set_default_source_volume(value)
     awful.spawn.with_shell(
@@ -147,12 +153,16 @@ function audio:set_default_source_volume(value)
     )
 end
 
+--- Toggle the default source (microphone) mute via pactl.
 function audio:toggle_default_source_mute()
     awful.spawn.with_shell("pactl set-source-mute @DEFAULT_SOURCE@ toggle")
 end
 
--- Construct a fresh service instance (used internally by `get_default`).
--- @treturn gobject
+--- Construct a fresh audio service instance.
+-- Initialises cached state to safe defaults and kicks off the
+-- first sink/source polls inside `pcall` (so missing `pactl`
+-- doesn't break awesome startup).
+-- @treturn table A gobject with the public methods of `audio`
 local function new()
     local ret = gobject({})
     gtable.crush(ret, audio, true)
@@ -174,7 +184,8 @@ local function new()
     return ret
 end
 
--- Singleton accessor.
+--- Singleton accessor: returns (and lazily constructs) the audio service.
+-- @treturn table Cached service instance (same object on every call)
 local instance
 local function get_default()
     if not instance then

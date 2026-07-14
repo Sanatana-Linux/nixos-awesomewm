@@ -10,7 +10,10 @@ local awful = require("awful")
 -- Current known caps-lock state (false = off, true = on)
 local caps_state = false
 
---- Read the caps-lock LED state and emit a global signal on change.
+--- Read the kernel's caps-lock LED state and emit a signal on change.
+-- Async via `easy_async` on `setleds` (no `bash -c` wrapper). The result
+-- is parsed with a single `match("Caps Lock on")` call. No-op emission
+-- when the state hasn't changed.
 local function check_caps_state()
     awful.spawn.easy_async("setleds", function(stdout)
         local new_state = stdout:match("Caps Lock on") ~= nil
