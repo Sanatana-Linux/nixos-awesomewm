@@ -1,25 +1,12 @@
---[[
-    Crop a Cairo surface to a specified aspect ratio, centering the crop.
-
-    @param ratio (number) Desired aspect ratio (width / height).
-    @param surf (cairo.Surface) Source Cairo surface to crop.
-
-    @return (cairo.Surface) Cropped Cairo surface with the specified aspect ratio.
---]]
-
-local awful = require("awful")
-local beautiful = require("beautiful")
-local gears = require("gears")
-local dpi = beautiful.xresources.apply_dpi
-local cairo = require("lgi").cairo
-local gmatrix = require("gears.matrix")
-local json = require("lib.json")
-local wibox = require("wibox")
-
+---@diagnostic disable: undefined-global
 --- Crop a Cairo surface to a given aspect ratio, centering the crop.
--- @param ratio Desired aspect ratio (width / height).
--- @param surf Source Cairo surface.
--- @return Cropped Cairo surface.
+-- If the source already has the requested aspect ratio, returns the
+-- input surface unchanged. Otherwise, crops symmetrically and
+-- returns a new ImageSurface with the requested aspect ratio.
+-- @tparam number ratio Desired aspect ratio (width / height)
+-- @tparam cairo.Surface surf Source Cairo surface
+-- @treturn cairo.Surface Cropped Cairo surface (or the input when ratios match)
+-- @module modules.crop_surface
 return function(ratio, surf)
     local old_w, old_h = gears.surface.get_size(surf)
     local old_ratio = old_w / old_h

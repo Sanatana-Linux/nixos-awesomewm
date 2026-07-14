@@ -1,28 +1,12 @@
 ---@diagnostic disable: undefined-global
--------------------------------------------------------------------
--- Drop-down applications manager for the awesome window manager
--------------------------------------------------------------------
--- Coded  by: * Lucas de Vries <lucas@glacicle.com>
--- Hacked by: * Adrian C. (anrxc) <anrxc@sysphere.org>
--- Licensed under the WTFPL version 2
---   * http://sam.zoy.org/wtfpl/COPYING
--------------------------------------------------------------------
--- To use this module add:
---   local Dropdown = require("Dropdown")
--- to the top of your rc.lua, and call it from a keybinding:
---   Dropdown(prog, vert, horiz, width, height, sticky, screen)
+--- Dropdown application manager.
+-- Toggle-style window spawner for "quaked" applications (terminals,
+-- calculators, etc.) that slide in from a screen edge, similar to
+-- guake/yaquake. Each registered program has at most one window
+-- per screen; subsequent toggles show/hide the existing window.
 --
--- Parameters:
---   prog   - Program to run; "urxvt", "gmrun", "thunderbird"
---   vert   - Vertical; "bottom", "center" or "top" (default)
---   horiz  - Horizontal; "left", "right" or "center" (default)
---   width  - Width in absolute pixels, or width percentage
---            when <= 1 (1 (100% of the screen) by default)
---   height - Height in absolute pixels, or height percentage
---            when <= 1 (0.25 (25% of the screen) by default)
---   sticky - Visible on all tags, false by default
---   screen - Screen (optional), mouse.screen by default
--------------------------------------------------------------------
+-- @module modules.dropdown
+-- @see awful.placement
 
 -- Grab environment
 local pairs = pairs
@@ -39,9 +23,9 @@ local capi = {
 
 local dropdown = {}
 
--- Use Meta + X to run
---      require('dropdown').showall()
--- if some of your windows lost in hidden space
+--- Reveal every hidden dropdown window across all programs and screens.
+-- Used to recover from tag/monitor reassignments when windows have
+-- been "lost" in hidden space.
 function dropdown.showall()
     for prog, scrs in pairs(dropdown) do
         for src, c in pairs(scrs) do
@@ -53,7 +37,10 @@ function dropdown.showall()
     end
 end
 
--- Attach window under cursor to prog
+--- Bind the window currently under the cursor as the dropdown for `prog`.
+-- On next `toggle(prog, ...)`, the existing window will be reused
+-- instead of spawning a new one.
+-- @tparam string prog Program key (the spawn command)
 function dropdown.attach(prog)
     if not dropdown[prog] then
         dropdown[prog] = {}
@@ -64,8 +51,17 @@ function dropdown.attach(prog)
     dropdown[prog][screen] = c
 end
 
--- Create a new window for the drop-down application when it doesn't
--- exist, or toggle between hidden and visible states when it does
+--- Spawn (or toggle) a dropdown window for `prog`.
+-- First call spawns the program and registers a manage-signal handler
+-- to position the window. Subsequent calls hide or show the existing
+-- window — sliding in from the configured edge.
+-- @tparam string prog Program/command to spawn
+-- @tparam[opt="top"] string vert Vertical placement: "top" | "center" | "bottom"
+-- @tparam[opt="center"] string horiz Horizontal placement: "left" | "center" | "right"
+-- @tparam[opt=1] number width Absolute pixels, or fraction of screen (0..1)
+-- @tparam[opt=0.25] number height Absolute pixels, or fraction of screen (0..1)
+-- @tparam[opt=false] boolean sticky Whether the dropdown is visible on all tags
+-- @tparam[opt=nil] number screen Screen index (defaults to mouse screen)
 function dropdown.toggle(prog, vert, horiz, width, height, sticky, screen)
     vert = vert or "top"
     horiz = horiz or "center"
