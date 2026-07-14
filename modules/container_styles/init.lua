@@ -1,3 +1,10 @@
+---@diagnostic disable: undefined-global
+--- Container style presets.
+-- Pre-configured wibox container declarations (backgrounds, margins,
+-- separators, icon+text rows). Returned as plain table widgets that
+-- can be dropped into a wibox hierarchy.
+-- @module modules.container_styles
+
 local wibox = require("wibox")
 local beautiful = require("beautiful")
 local ui_constants = require("modules.ui_constants")
@@ -6,7 +13,14 @@ local shapes = require("modules.shapes")
 -- Common container and layout patterns
 local container_styles = {}
 
--- Standard background container with rounded corners
+--- Rounded background container with border.
+-- @tparam[opt] table args Configuration:
+--   * `bg` (string): background color (default `beautiful.bg_alt`)
+--   * `fg` (string): foreground color (default `beautiful.fg`)
+--   * `radius` (number): corner radius (default `RADIUS.MEDIUM`)
+--   * `border_width` (number): border width (default `BORDER.THIN`)
+--   * `border_color` (string): border color (default `beautiful.border_color_normal`)
+-- @treturn table A wibox.container.background widget
 function container_styles.rounded_bg(args)
     args = args or {}
     return {
@@ -19,7 +33,13 @@ function container_styles.rounded_bg(args)
     }
 end
 
--- Standard margin container with consistent spacing
+--- Margin container with consistent per-side spacing.
+-- Defaults all four sides to `SPACING.LARGE` unless overridden.
+-- @tparam[opt] table args Configuration:
+--   * `margin` (number): default per-side margin
+--   * `margins` (table): explicit `{left, right, top, bottom}` table
+--   * `left`, `right`, `top`, `bottom` (number): per-side overrides
+-- @treturn table A wibox.container.margin widget
 function container_styles.padded(args)
     args = args or {}
     local margin_size = args.margin or ui_constants.SPACING.LARGE
@@ -35,7 +55,11 @@ function container_styles.padded(args)
     }
 end
 
--- Combined rounded background with padding
+--- Rounded background container with padding nested inside.
+-- Combines `rounded_bg` and `padded`; the padding is the only child
+-- of the background.
+-- @tparam[opt] table args Same args as `rounded_bg` and `padded`
+-- @treturn table A nested background/margin widget
 function container_styles.rounded_padded(args)
     args = args or {}
     local bg_args = {
@@ -62,7 +86,10 @@ function container_styles.rounded_padded(args)
     return bg_container
 end
 
--- Separator widget
+--- Build a separator widget (thin colored line).
+-- @tparam[opt="horizontal"] string orientation `"horizontal"` or `"vertical"`
+-- @tparam[opt] number thickness Line thickness in px (default `beautiful.separator_thickness`)
+-- @treturn table A wibox container holding a separator line
 function container_styles.separator(orientation, thickness)
     orientation = orientation or "horizontal"
     thickness = thickness or beautiful.separator_thickness
@@ -78,7 +105,11 @@ function container_styles.separator(orientation, thickness)
     }
 end
 
--- Icon + text horizontal layout
+--- Horizontal layout containing an icon widget followed by a text widget.
+-- @tparam table icon_widget Widget to render on the left
+-- @tparam table text_widget Widget to render on the right
+-- @tparam[opt] number spacing Pixels between the two widgets
+-- @treturn table A wibox.layout.fixed.horizontal widget
 function container_styles.icon_text_layout(icon_widget, text_widget, spacing)
     return {
         layout = wibox.layout.fixed.horizontal,

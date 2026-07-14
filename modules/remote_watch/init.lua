@@ -1,6 +1,20 @@
+---@diagnostic disable: undefined-global
+--- Remote-resource watcher.
+-- Polls a shell command on a fixed interval, caches its output to a
+-- file, and invokes a callback with the new output. Avoids re-running
+-- the command when the cache is fresh.
+-- @module modules.remote_watch
+
 local awful = require("awful")
 local gtimer = require("gears.timer")
 
+--- Start polling a remote command.
+-- @tparam string command Shell command whose stdout to watch
+-- @tparam number interval Poll interval in seconds
+-- @tparam string output_file Cache file path; mtime is checked to skip
+--   re-running when the cache is fresh
+-- @tparam function callback Called with the command's stdout each tick
+-- @treturn table The underlying `gears.timer`
 local function new(command, interval, output_file, callback)
     local timer
     timer = gtimer({

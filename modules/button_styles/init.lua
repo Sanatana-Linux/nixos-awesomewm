@@ -1,16 +1,9 @@
---[[
-Button Styles - Shared button styling presets
-
-Provides consistent button styling across the UI. Use these presets
-to ensure buttons match the bar/control panel button aesthetic.
-
-Usage:
-local button_styles = require("modules.button_styles")
-local btn = modules.hover_button(button_styles.icon_button({
-    icon = "path/to/icon.svg",
-    size = dpi(22),
-}))
-]]
+---@diagnostic disable: undefined-global
+--- Button styling presets.
+-- Pre-configured style tables used by `modules.hover_button` to
+-- keep visual consistency across the bar, control panel, and
+-- popups. Each preset returns a plain table of style hints.
+-- @module modules.button_styles
 
 local beautiful = require("beautiful")
 local wibox = require("wibox")
@@ -19,6 +12,8 @@ local dpi = beautiful.xresources.apply_dpi
 
 local M = {}
 
+-- Base style shared by every preset. Pulls colors from beautiful.
+-- @table BASE_STYLE
 local BASE_STYLE = {
     bg_normal = beautiful.bg_gradient_button,
     bg_hover = beautiful.bg_gradient_button_alt,
@@ -26,8 +21,16 @@ local BASE_STYLE = {
     fg_hover = beautiful.fg,
 }
 
-local ICON_BUTTON_RADIUS = 8
+--- Default corner radius for icon/text buttons.
+M.ICON_BUTTON_RADIUS = 8
 
+--- Build a style preset for an icon-only button.
+-- @tparam[opt] table opts Configuration:
+--   * `icon` (string): image path or markup
+--   * `size` (number): image size in pixels (default `dpi(22)`)
+--   * `radius` (number): corner radius (default `ICON_BUTTON_RADIUS`)
+--   * `margins` (number): inner margins (default `dpi(2)`)
+-- @treturn table Style table consumable by `hover_button`
 function M.icon_button(opts)
     opts = opts or {}
     local size = opts.size or dpi(22)
@@ -53,6 +56,11 @@ function M.icon_button(opts)
     }
 end
 
+--- Build a style preset for a text-only button.
+-- @tparam[opt] table opts Configuration:
+--   * `label` (string): button label
+--   * `radius` (number): corner radius (default `ICON_BUTTON_RADIUS`)
+-- @treturn table Style table consumable by `hover_button`
 function M.text_button(opts)
     opts = opts or {}
     local radius = opts.radius or ICON_BUTTON_RADIUS
