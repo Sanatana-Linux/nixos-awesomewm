@@ -1,8 +1,9 @@
 ---@diagnostic disable: undefined-global
---[[
-Arc chart widget for displaying circular progress indicators.
-Wraps wibox.container.arcchart with animations and convenient API.
---]]
+--- Arc chart widget.
+-- Circular progress indicator wrapping `wibox.container.arcchart`,
+-- with a centered percentage text and label, and an optional
+-- tweening animation when the value changes.
+-- @module modules.arc_chart
 
 local wibox = require("wibox")
 local beautiful = require("beautiful")
@@ -10,6 +11,20 @@ local animations = require("modules.animations")
 
 local arc_chart = {}
 
+--- Construct a new arc chart instance.
+-- @tparam[opt] table args Configuration:
+--   * `value` (number, 0..max_value): current value
+--   * `min_value` (number): minimum value (default 0)
+--   * `max_value` (number): maximum value (default 100)
+--   * `thickness` (number): arc thickness in pixels (default dpi(8))
+--   * `color` (string): arc color (default beautiful.accent_color)
+--   * `bg_color` (string): track color (default beautiful.bg_3)
+--   * `rounded_edge` (boolean): round arc ends (default true)
+--   * `start_angle` (number): start angle in radians (default -π/2 = top)
+--   * `label` (string): label text shown below the percentage
+--   * `animate_duration` (number): tween duration in seconds (default 0.3)
+--   * `animate_easing` (function): easing function from modules.animations
+-- @treturn table An arc-chart widget with set_value, set_label, set_color, get_value
 function arc_chart.new(args)
     args = args or {}
 

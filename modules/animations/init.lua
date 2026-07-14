@@ -1,71 +1,63 @@
---[[
-Animation Module
-
-Provides smooth value transitions over time using various easing functions.
-Built on gears.timer for AwesomeWM integration.
-
-QUICK START:
-    local anim = require("modules.animations")
-
-    -- Animate a value from 0 to 100 over 1 second
-    anim.animate({
-        start = 0,
-        target = 100,
-        duration = 1,
-        update = function(value)
-            print("Current: " .. value)
-        end,
-    })
-
-HELPER FUNCTIONS:
-    anim.slide_y(wibox, {...})   -- Animate vertical position
-    anim.slide(wibox, {...})      -- Animate horizontal position
-    anim.fade(wibox, {...})       -- Animate opacity (0-1)
-    anim.resize(wibox, {...})     -- Animate width/height
-
-EASING FUNCTIONS:
-    linear, quadratic, cubic, sinusoidal, exponential, elastic, bounce
-
-CONTROLLER METHODS:
-    controller.stop()        -- Stop animation
-    controller.pause()       -- Pause animation
-    controller.resume()      -- Resume paused animation
-    controller.set_speed(n)  -- Adjust speed (2 = double speed)
-    controller.get_value()   -- Get current animated value
---]]
+--- Animation module.
+-- Smooth value transitions over time using various easing functions.
+-- Built on `gears.timer` for AwesomeWM integration.
+--
+-- Quick start:
+--     local anim = require("modules.animations")
+--     anim.animate({ start = 0, target = 100, duration = 1,
+--                    update = function(v) print(v) end })
+-- @module modules.animations
 
 local gears = require("gears")
 
 local M = {}
 
--- ============================================================================
--- EASING FUNCTIONS
--- ============================================================================
+-- Easing functions: all take a progress value t in [0, 1] and return
+-- the eased value (also in [0, 1]). Used as `params.easing` in `animate`.
 
+--- @table M.easing
 M.easing = {}
 
+--- Linear easing (no acceleration).
+-- @tparam number t Progress 0..1
+-- @treturn number Eased value
 function M.easing.linear(t)
     return t
 end
 
+--- Quadratic ease-in (slow start).
+-- @tparam number t Progress 0..1
+-- @treturn number Eased value
 function M.easing.easin(t)
     return t * t
 end
 
+--- Quadratic ease-out (slow end).
+-- @tparam number t Progress 0..1
+-- @treturn number Eased value
 function M.easing.quadratic(t)
     local v = 1 - t
     return 1 - v * v
 end
 
+--- Cubic ease-out.
+-- @tparam number t Progress 0..1
+-- @treturn number Eased value
 function M.easing.cubic(t)
     local v = 1 - t
     return 1 - v * v * v
 end
 
+--- Sinusoidal ease-out (smooth decel).
+-- @tparam number t Progress 0..1
+-- @treturn number Eased value
 function M.easing.sinusoidal(t)
     return math.sin(t * math.pi / 2)
 end
 
+--- Exponential ease-out (sharp decel).
+-- @tparam number t Progress 0..1
+-- @treturn number Eased value
 function M.easing.exponential(t)
     if t == 1 then
         return 1
@@ -73,11 +65,17 @@ function M.easing.exponential(t)
     return 1 - 2 ^ (-10 * t)
 end
 
+--- Elastic ease-out (overshoot + oscillate).
+-- @tparam number t Progress 0..1
+-- @treturn number Eased value
 function M.easing.elastic(t)
     local p = 0.3
     return 2 ^ (-10 * t) * math.sin((t - p / 4) * (2 * math.pi) / p) + 1
 end
 
+--- Bounce ease-out (squashy decel).
+-- @tparam number t Progress 0..1
+-- @treturn number Eased value
 function M.easing.bounce(t)
     if t < 0.5 then
         return 4 * t * t
@@ -91,6 +89,16 @@ end
 -- CORE ANIMATION FUNCTION
 -- ============================================================================
 
+--- Animate a value from `start` to `target` over `duration` seconds.
+-- @tparam table params Animation spec
+-- @tparam number params.start Starting value (default 0)
+-- @tparam number params.target Ending value (default 1)
+-- @tparam number params.duration Total duration in seconds (default 0.5)
+-- @tparam number params.interval Tick interval in seconds (default 0.02)
+-- @tparam function params.easing Easing function from `M.easing` (default `quadratic`)
+-- @tparam function params.update Called every tick with the current value
+-- @tparam function params.complete Called once when the animation ends
+-- @treturn table Animation controller with `stop()` / `pause()` / `resume()` / `set_speed(n)` / `get_value()`
 function M.animate(params)
     local start_value = params.start or 0
     local target_value = params.target or 1
@@ -162,6 +170,10 @@ end
 -- HELPER FUNCTIONS
 -- ============================================================================
 
+--- Animate an element's `y` (vertical position).
+-- @tparam table element Target element with a writable `.y` field
+-- @tparam table params Animation params (see `animate`); missing `update` is auto-filled
+-- @treturn table Animation controller
 function M.slide_y(element, params)
     params = params or {}
     params.update = params.update
@@ -171,6 +183,10 @@ function M.slide_y(element, params)
     return M.animate(params)
 end
 
+--- Animate an element's `x` (horizontal position).
+-- @tparam table element Target element with a writable `.x` field
+-- @tparam table params Animation params (see `animate`); missing `update` is auto-filled
+-- @treturn table Animation controller
 function M.slide(element, params)
     params = params or {}
     params.update = params.update
@@ -180,6 +196,10 @@ function M.slide(element, params)
     return M.animate(params)
 end
 
+--- Animate an element's `opacity` (0..1).
+-- @tparam table element Target element with a writable `.opacity` field
+-- @tparam table params Animation params (see `animate`); missing `update` is auto-filled
+-- @treturn table Animation controller
 function M.fade(element, params)
     params = params or {}
     params.update = params.update
@@ -189,6 +209,11 @@ function M.fade(element, params)
     return M.animate(params)
 end
 
+--- Animate a progress value through `params.progress_bar:set_value(v)`.
+-- If `params.progress_bar` is set, the default `update` calls
+-- `:set_value` on it. Override `update` to customise.
+-- @tparam table params Animation params (see `animate`); missing `update` is auto-filled
+-- @treturn table Animation controller
 function M.progress(params)
     params = params or {}
     params.update = params.update
@@ -200,6 +225,15 @@ function M.progress(params)
     return M.animate(params)
 end
 
+--- Animate an element's `width` and `height` simultaneously.
+-- `params.start_width`/`target_width` (or `params.start_height`/...)
+-- default to the current element size.
+-- @tparam table element Target element with writable `.width`/`.height`
+-- @tparam table params Animation params:
+--   * `start_width`, `target_width` (default: element.width)
+--   * `start_height`, `target_height` (default: element.height)
+--   * `on_resize(width, height, progress)`: extra callback per tick
+-- @treturn table Animation controller
 function M.resize(element, params)
     params = params or {}
     local start_width = params.start_width or element.width
