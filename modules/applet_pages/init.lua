@@ -1,8 +1,10 @@
---[[
-Applet Page Module
-
-Common styling and structure for control panel applet pages.
---]]
+---@diagnostic disable: undefined-global
+--- Applet page builders.
+-- Helpers for constructing the standard control-panel page
+-- layout: outer rounded background, scrolling content area, and
+-- bottom action bar. Plus the per-item widgets rendered inside
+-- each page (buttons, list items, empty state).
+-- @module modules.applet_pages
 
 local wibox = require("wibox")
 local beautiful = require("beautiful")
@@ -12,8 +14,17 @@ local dpi = beautiful.xresources.apply_dpi
 
 local M = {}
 
+--- Hex literal used as the standard border/icon color.
 M.WHITE = "#FFFFFF"
 
+--- Build the standard outer page frame.
+-- Returns a wibox widget with three named children: `content-layout`
+-- (the scrolling list area) and `bottom-bar` (with `left_buttons` and
+-- `right_buttons` slots).
+-- @tparam[opt] table args Configuration:
+--   * `left_buttons` (table): widgets for the bottom-left slot
+--   * `right_buttons` (table): widgets for the bottom-right slot
+-- @treturn table A wibox widget
 function M.create_base_page(args)
     return wibox.widget({
         widget = wibox.container.background,
@@ -74,6 +85,13 @@ function M.create_base_page(args)
     })
 end
 
+--- Build a square icon button (40x40 with centered image).
+-- @tparam[opt] table args Configuration:
+--   * `id` (string): widget id for later lookup
+--   * `icon_id` (string): id for the inner imagebox
+--   * `icon` (string): image path
+--   * `width` (number): forced width (default dpi(40))
+-- @treturn table A wibox widget
 function M.create_button(args)
     return {
         id = args.id,
@@ -104,6 +122,12 @@ function M.create_button(args)
     }
 end
 
+--- Build a pill-shaped action button with centered white label.
+-- @tparam[opt] table args Configuration:
+--   * `id` (string): outer widget id
+--   * `label_id` (string): inner textbox id (default "label")
+--   * `text` (string): label markup text
+-- @treturn table A wibox widget
 function M.create_action_button(args)
     return {
         id = args.id,
@@ -129,6 +153,16 @@ function M.create_action_button(args)
     }
 end
 
+--- Build a list-item widget (check icon + name + status).
+-- @tparam[opt] table args Configuration:
+--   * `id` (string): outer widget id
+--   * `check_icon` (string): image for the active checkmark
+--   * `is_active` (boolean): whether the check is visible
+--   * `name` (string): item name markup
+--   * `name_width` (number): width constraint for the name column
+--   * `status_markup` (string): markup for the right-side status text
+--   * `height` (number): forced height (default dpi(50))
+-- @treturn table A wibox widget
 function M.create_item_widget(args)
     return {
         id = args.id,
@@ -183,6 +217,12 @@ function M.create_item_widget(args)
     }
 end
 
+--- Build an empty-state placeholder (icon or text, centered).
+-- Rendered when a list page has no items.
+-- @tparam[opt] table args Configuration:
+--   * `icon` (string): image path (preferred over `text`)
+--   * `text` (string): text to show when no icon
+-- @treturn table A wibox widget
 function M.create_empty_state(args)
     local content
     if args.icon then
@@ -215,6 +255,10 @@ function M.create_empty_state(args)
     })
 end
 
+--- Wire mouse hover effects to a button widget.
+-- No-op when `button` is nil. Sets `bg` to the alt gradient on
+-- `mouse::enter` and back to the normal gradient on `mouse::leave`.
+-- @tparam[opt] table button Widget to attach signals to
 function M.setup_button_effects(button)
     if not button then
         return
@@ -227,6 +271,10 @@ function M.setup_button_effects(button)
     end)
 end
 
+--- Wire mouse hover effects to a list-item widget.
+-- No-op when `item` is nil. Sets `bg` to `beautiful.bg_urg` on
+-- `mouse::enter` and clears it on `mouse::leave`.
+-- @tparam[opt] table item Widget to attach signals to
 function M.setup_item_effects(item)
     if not item then
         return

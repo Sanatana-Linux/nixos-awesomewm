@@ -1,3 +1,10 @@
+---@diagnostic disable: undefined-global
+--- Button behavior patterns.
+-- Reusable button-builder helpers used throughout the bar, control
+-- panel, and popups. Each builder returns a wibox widget with the
+-- standard hover/press behaviour baked in.
+-- @module modules.button_patterns
+
 local wibox = require("wibox")
 local awful = require("awful")
 local beautiful = require("beautiful")
@@ -9,7 +16,16 @@ local hover_button = require("modules.hover_button")
 -- Common button patterns and styles
 local button_patterns = {}
 
--- Standard bar button (used in launcher, control panel, etc.)
+--- Build a bar-style button (square chip with child widget inside).
+-- @tparam[opt] table args Configuration:
+--   * `child` (widget): inner widget (or pass as positional arg)
+--   * `width` (number): forced width in px (default `BUTTON.BAR_SIZE`)
+--   * `height` (number): forced height in px
+--   * `bg` (string): background color/gradient
+--   * `radius` (number): corner radius (default `RADIUS.MEDIUM`)
+--   * `margins` (number|table): inner margins
+--   * `buttons` (table): awful.button bindings
+-- @treturn table A wibox container widget
 function button_patterns.bar_button(args)
     args = args or {}
 
@@ -28,7 +44,17 @@ function button_patterns.bar_button(args)
     })
 end
 
--- Icon button with hover effects
+--- Build an icon button with hover effects.
+-- Wraps an imagebox in a `hover_button` (or `bar_button` if
+-- `use_hover_button = false`) with the standard gradient.
+-- @tparam[opt] table args Configuration:
+--   * `icon` (string): image path
+--   * `icon_color` (string): recolor target (default `beautiful.fg`)
+--   * `icon_size` (number): image size in px (default `BUTTON.ICON_SIZE`)
+--   * `bg_normal`, `bg_hover` (string): background colors
+--   * `use_hover_button` (boolean): default true; set false for static
+--   * other args passed through to the underlying builder
+-- @treturn table A wibox widget
 function button_patterns.icon_button(args)
     args = args or {}
 
@@ -67,7 +93,15 @@ function button_patterns.icon_button(args)
     end
 end
 
--- Text button with consistent styling
+--- Build a text button with consistent styling.
+-- @tparam[opt] table args Configuration:
+--   * `label` (string): button text (alias: `text`)
+--   * `bg_normal`, `bg_hover` (string): background colors
+--   * `fg_normal`, `fg_hover` (string): foreground colors
+--   * `radius` (number): corner radius
+--   * `margins` (number|table): inner margins
+--   * `buttons` (table): awful.button bindings
+-- @treturn table A hover_button widget with the text label
 function button_patterns.text_button(args)
     args = args or {}
 
@@ -88,7 +122,12 @@ function button_patterns.text_button(args)
     })
 end
 
--- Close button (red X button pattern with red gradient hover effect)
+--- Build a close (red X) button.
+-- Defaults to a red icon that gains a red-gradient hover background
+-- (matches the powermenu's destructive action styling).
+-- @tparam[opt] table args Configuration (same as `icon_button`, plus
+--   red-themed defaults for `bg_hover`, `fg_*`, `icon_*`).
+-- @treturn table A wibox widget
 function button_patterns.close_button(args)
     args = args or {}
 
@@ -131,7 +170,13 @@ function button_patterns.close_button(args)
     end
 end
 
--- Add hover effects to existing widgets
+--- Attach hover-driven background changes to an existing widget.
+-- Wires `mouse::enter`/`mouse::leave` to swap `bg` between the
+-- normal and hover colors.
+-- @tparam table widget Target widget (must support `set_bg` and signals)
+-- @tparam[opt] string bg_normal Background color when idle
+-- @tparam[opt] string bg_hover Background color when hovered
+-- @treturn table The same widget (for chaining)
 function button_patterns.add_hover_effect(widget, bg_normal, bg_hover)
     bg_normal = bg_normal or beautiful.bg_gradient_button
     bg_hover = bg_hover or beautiful.bg_gradient_button_alt
