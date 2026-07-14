@@ -1,3 +1,13 @@
+--- Centralized icon lookup.
+-- Resolves a usable SVG/PNG path for a `client`, an `app_name`, or a generic
+-- theme icon name. Sources, in priority order:
+--   1. Theme icon by class mapping (e.g. `firefox` → `firefox`)
+--   2. `Gio.DesktopAppInfo.lookup` via GIR
+--   3. `awful.client.icon` (the app-set icon)
+--   4. `Colloid-Dark` fallback (`application-executable.svg`)
+-- Results are memoized in `icon_cache` to avoid repeated GIR lookups.
+-- @module modules.icon_lookup
+
 -- modules/icon-lookup/init.lua
 -- Centralized icon lookup module for consistent icon resolution across all UI components
 -- Supports system icon themes, client icons, desktop app info, and fallbacks
@@ -99,12 +109,15 @@ local CLASS_MAPPINGS = {
     ["synaptic"] = "synaptic",
 }
 
--- Get the configured icon theme
+--- Read the active icon theme (falls back to `Colloid-Dark`).
+-- @treturn string Theme name
 local function get_icon_theme()
     return beautiful.icon_theme or DEFAULT_ICON_THEME
 end
 
--- Cache key generator for apps
+--- Build a stable cache key for an app descriptor.
+-- @tparam table|nil app App-like with `get_id` and `get_name`
+-- @treturn string|nil Cache key, or nil if `app` is nil
 local function get_app_cache_key(app)
     if not app then
         return nil
@@ -114,7 +127,9 @@ local function get_app_cache_key(app)
     return string.format("app:%s:%s", app_id or "nil", app_name or "nil")
 end
 
--- Cache key generator for clients
+--- Build a stable cache key for a client window.
+-- @tparam table|nil client Client with `.class` and `.instance`
+-- @treturn string|nil Cache key, or nil if `client` is nil
 local function get_client_cache_key(client)
     if not client then
         return nil
@@ -124,7 +139,11 @@ local function get_client_cache_key(client)
     return string.format("client:%s:%s", class_name, instance_name)
 end
 
--- Generic cached lookup function
+--- Memoize an icon lookup keyed by `cache_key`.
+-- Calls `lookup_func()` once per unique key, caches the result.
+-- @tparam string|nil cache_key Cache key, or nil to bypass caching
+-- @tparam function lookup_func Factory returning the icon path
+-- @treturn string|nil Cached or freshly-computed result
 local function get_cached_icon(cache_key, lookup_func)
     if not cache_key then
         return lookup_func()
@@ -137,7 +156,9 @@ local function get_cached_icon(cache_key, lookup_func)
     return icon_cache[cache_key]
 end
 
--- Look up an icon in the system theme
+--- Look up an icon by name in the current icon theme.
+-- @tparam string|nil icon_name Theme icon name
+-- @treturn string|nil Absolute path, or nil if not found
 local function lookup_system_icon(icon_name)
     if not icon_name or icon_name == "" then
         return nil
@@ -153,7 +174,11 @@ local function lookup_system_icon(icon_name)
     return nil
 end
 
--- Get icon name from desktop file using application ID or class name
+--- Resolve the icon name from a desktop file via GIR.
+-- Tries the app id, the class name, and both with `.desktop` suffix.
+-- @tparam[opt] string app_id Application id (e.g. `"firefox.desktop"`)
+-- @tparam[opt] string class_name WM class name
+-- @treturn string|nil Icon name from the desktop entry
 local function get_desktop_icon_name(app_id, class_name)
     if not app_id and not class_name then
         return nil
@@ -191,7 +216,12 @@ local function get_desktop_icon_name(app_id, class_name)
     return success and result or nil
 end
 
--- Get icon for a client window
+--- Resolve an icon path for a `client` window.
+-- Tries multiple resolution strategies (desktop file, class name, instance
+-- name, class mapping, generic pattern) and returns the first match.
+-- Memoized in `icon_cache` keyed by the client's identity.
+-- @tparam[opt] client client A `awful.client` (or nil for fallback)
+-- @treturn string Absolute path to an SVG/PNG icon file
 function icon_lookup.get_client_icon(client)
     if not client then
         return FALLBACK_ICON
@@ -247,7 +277,10 @@ function icon_lookup.get_client_icon(client)
     end)
 end
 
--- Get icon for an application (from launcher/app list)
+--- Resolve an icon path for an application descriptor (from the launcher
+-- app list or a `Gio.DesktopAppInfo`).
+-- @tparam[opt] table app A `Gio.DesktopAppInfo` or app-like table
+-- @treturn string Absolute path to an SVG/PNG icon file
 function icon_lookup.get_app_icon(app)
     if not app then
         return FALLBACK_ICON
@@ -324,27 +357,31 @@ function icon_lookup.get_app_icon(app)
     end)
 end
 
--- Get fallback icon path
+--- @treturn string Absolute path to the absolute fallback icon
 function icon_lookup.get_fallback_icon()
     return FALLBACK_ICON
 end
 
--- Check if a file is readable
+--- @tparam[opt] string path
+--- @treturn boolean `true` if `path` is non-nil and readable
 function icon_lookup.is_readable(path)
     return path and gears.filesystem.file_readable(path)
 end
 
--- Get current icon theme name
+--- @treturn string The active icon theme name (e.g. `Colloid-Dark`)
 function icon_lookup.get_theme_name()
     return get_icon_theme()
 end
 
--- Clear the icon cache (useful when icon theme changes)
+--- Clear the icon cache.
+-- Call after changing `beautiful.icon_theme` or installing new icons.
 function icon_lookup.clear_cache()
     icon_cache = {}
 end
 
--- Get cache statistics (for debugging)
+--- Read cache statistics (for debugging / status popups).
+-- @treturn table `{cached_icons=number, theme=string}` count of cached
+--   entries and the active theme name
 function icon_lookup.get_cache_stats()
     local count = 0
     for _ in pairs(icon_cache) do

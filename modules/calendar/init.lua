@@ -1,3 +1,10 @@
+--- Calendar widget.
+-- Instantiable (uses the `setmetatable __call` pattern, not singleton — you can
+-- create multiple calendars). Supports month navigation, day selection, and
+-- optional Hebrew-format weekday layout. Backed by `wibox.widget` so it can
+-- be embedded inside any container.
+-- @module modules.calendar
+
 local awful = require("awful")
 local wibox = require("wibox")
 local gtable = require("gears.table")
@@ -17,6 +24,10 @@ local hebr_format = {
     [7] = 6,
 }
 
+--- Build a single weekday header cell (Mon, Tue, ...).
+-- @tparam table self The calendar instance (for `_private` access)
+-- @tparam number index 1..7 weekday index
+-- @treturn table A wibox widget
 local function wday_widget(self, index)
     local wp = self._private
     return wibox.widget({
@@ -42,6 +53,14 @@ local function wday_widget(self, index)
     })
 end
 
+--- Build a single day cell.
+-- Colours come from the per-state `_*_fg`/`_*_bg` `_private` fields
+-- (priority: current > another-month > default).
+-- @tparam table self The calendar instance
+-- @tparam number|string day Day-of-month (1..31)
+-- @tparam boolean is_current Whether this is today's date
+-- @tparam boolean is_another_month Whether this day belongs to prev/next month
+-- @treturn table A wibox widget
 local function day_widget(self, day, is_current, is_another_month)
     local wp = self._private
     local fg_color = (
@@ -70,6 +89,8 @@ local function day_widget(self, day, is_current, is_another_month)
     })
 end
 
+--- Switch the calendar to a different month/year. Re-renders the day grid.
+-- @tparam table date `{year=N, month=N, day=N}` like `os.date("*t")`
 function calendar:set_date(date)
     local wp = self._private
     local days_layout = self:get_children_by_id("days-layout")[1]
@@ -128,6 +149,8 @@ function calendar:set_date(date)
     end
 end
 
+--- Step the calendar forward or backward by one month.
+-- @tparam number dir +1 (next month) or -1 (previous month)
 function calendar:inc(dir)
     local wp = self._private
     local new_calendar_month = wp.date.month + dir
@@ -138,10 +161,27 @@ function calendar:inc(dir)
     })
 end
 
+--- Reset the calendar view to the current system date.
 function calendar:set_current_date()
     self:set_date(os.date("*t"))
 end
 
+--- Construct a new calendar widget.
+-- Sets up the title, weekday headers, prev/next buttons, and renders
+-- the current month. The widget is instantiable (not a singleton).
+-- @tparam[opt] table args Configuration:
+--   * `shape` (function): outer shape
+--   * `day_shape` (function): per-day cell shape
+--   * `margins` (number|table): outer margins (default `dpi(20)`)
+--   * `sun_start` (boolean): if true, week starts on Sunday (default
+--     is Monday — Hebrew / ISO layout)
+--   * `bg` (string): outer background
+--   * `day_fg`/`day_bg` (string): default day colours
+--   * `current_day_fg`/`current_day_bg` (string): today's colours
+--   * `current_month_fg`/`current_month_bg` (string): this month
+--   * `another_month_fg`/`another_month_bg` (string): other months
+--   * `weekend_fg` (string): weekend (Sat/Sun) header colour
+-- @treturn table A wibox widget with set_date/inc/set_current_date methods
 local function new(args)
     args = args or {}
     local ret = wibox.widget({

@@ -33,6 +33,14 @@
         button::press             -- Reverts to normal colors/borders
 ]]
 
+--- hover_button — themed button with hover effects.
+-- Builds a `wibox` with the standard normal/hover color states. Color/border
+-- setters (`set_bg_normal`, `set_fg_normal`, `set_bg_hover`, `set_fg_hover`)
+-- mutate the button's `_private` state and apply normal-state colors
+-- immediately (hover colors are picked up on the next `mouse::enter`).
+-- The label can be updated at runtime via `set_label`.
+-- @module modules.hover_button
+
 local wibox = require("wibox")
 local gtable = require("gears.table")
 local gcolor = require("gears.color")
@@ -42,7 +50,7 @@ local beautiful = require("beautiful")
 local button = {}
 
 --- Set the button label text.
--- @param label (string) Markup/text for the label.
+-- @tparam string label Markup/text for the label
 function button:set_label(label)
     local label_widget = self:get_children_by_id("label-role")
     if label_widget then
@@ -51,7 +59,7 @@ function button:set_label(label)
 end
 
 --- Set the normal background color and apply it immediately.
--- @param color (string) Background color.
+-- @tparam string color Background color
 function button:set_bg_normal(color)
     local wp = self._private
     wp.bg_normal = color
@@ -59,30 +67,45 @@ function button:set_bg_normal(color)
 end
 
 --- Set the normal foreground color and apply it immediately.
--- @param color (string) Foreground color.
+-- @tparam string color Foreground color
 function button:set_fg_normal(color)
     local wp = self._private
     wp.fg_normal = color
     self:set_fg(wp.fg_normal)
 end
 
---- Set the hover background color.
--- @param color (string) Background color for hover state.
+--- Set the hover background color (applied on next `mouse::enter`).
+-- @tparam string color Background color for hover state
 function button:set_bg_hover(color)
     local wp = self._private
     wp.bg_hover = color
 end
 
---- Set the hover foreground color.
--- @param color (string) Foreground color for hover state.
+--- Set the hover foreground color (applied on next `mouse::enter`).
+-- @tparam string color Foreground color for hover state
 function button:set_fg_hover(color)
     local wp = self._private
     wp.fg_hover = color
 end
 
 --- Create a new hover button widget.
--- @param args (table) Widget configuration options.
--- @return wibox.widget Widget instance.
+-- @tparam[opt] table args Widget configuration options:
+--   * `label` (string): label text (or pass `child_widget` to override)
+--   * `child_widget` (table): custom inner widget (default: textbox with `label`)
+--   * `font` (string): label font (default `beautiful.font`)
+--   * `align` (string): label alignment (default "center")
+--   * `bg_normal`, `bg_hover` (string): background colors
+--   * `fg_normal`, `fg_hover` (string): foreground colors
+--   * `border_color` (string): idle border (alias `border_color_normal`)
+--   * `border_hover` (string): hovered border
+--   * `border_width` (number): border width
+--   * `shape` (function): shape closure
+--   * `forced_width`, `forced_height` (number): widget dimensions
+--   * `margins` (number|table): inner margins
+--   * `buttons` (table): awful.button bindings
+--   * `icon_source` (string): image path; auto-recoloured on hover
+--   * `icon_normal_color`, `icon_hover_color` (string): icon colors
+-- @treturn table A wibox widget with `set_label`, `set_bg_normal`, etc.
 local function new(args)
     args = args or {}
 

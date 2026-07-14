@@ -1,3 +1,11 @@
+--- Window edge snap helper.
+-- Single function: `snap_edge(c, where, geom?)` resizes and positions a
+-- client against a screen edge or quadrant. The 9 supported `where` values
+-- are: `left`, `right`, `top`, `bottom`, `topleft`, `topright`,
+-- `bottomleft`, `bottomright`, `center`. Passing `nil` instead of a
+-- direction resets the client's struts.
+-- @module modules.snap_edge
+
 -- NOTE: originally from https://www.reddit.com/r/awesomewm/comments/kw1kr7/awesomewm_question_snap_to_leftright/
 
 --   +---------------------------------------------------------------+
@@ -5,6 +13,11 @@
 --
 local awful = require("awful")
 
+--- Snap a client to a screen edge or quadrant.
+-- @tparam client c The client to snap
+-- @tparam[opt] string where Edge or quadrant (see module doc)
+-- @tparam[opt] table geom Override geometry instead of reading from `c`
+-- @treturn nil
 return function(c, where, geom)
     local sg = screen[c.screen].geometry --screen geometry
     local sw = screen[c.screen].workarea --screen workarea

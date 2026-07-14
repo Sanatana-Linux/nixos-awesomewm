@@ -1,3 +1,10 @@
+---@diagnostic disable: undefined-global
+--- Styled button widget.
+-- Taglist/tasklist-style button with inner+outer containers, gradient
+-- background, and hover/leave callbacks. Replicates the standard
+-- AwesomeWM taglist appearance.
+-- @module modules.styled_button
+
 local awful = require("awful")
 local beautiful = require("beautiful")
 local gears = require("gears")
@@ -9,20 +16,19 @@ local shapes = require("modules.shapes")
 -- with inner + outer containers, proper gradient backgrounds, and hover effects
 local styled_button = {}
 
--- Creates a button with the exact styling used by taglist/tasklist buttons
--- @param args Table with the following optional fields:
---   - content: The widget content (required)
---   - width: Fixed width for the content area (default: dpi(26))
---   - height: Fixed height for the content area (default: dpi(26))
---   - margin_top: Top margin (default: dpi(2))
---   - margin_bottom: Bottom margin (default: dpi(2))
---   - margin_left: Left margin (default: dpi(12))
---   - margin_right: Right margin (default: dpi(12))
---   - buttons: Button bindings table (default: {})
---   - selected: Whether button should appear selected (default: false)
---   - on_hover: Custom hover callback function (optional)
---   - on_leave: Custom leave callback function (optional)
--- @return widget The styled button widget
+--- Build a styled button widget.
+-- @tparam[opt] table args Configuration:
+--   * `content` (widget): inner content (required)
+--   * `width` (number): fixed content width (default `dpi(26)`)
+--   * `height` (number): fixed content height
+--   * `margin_top`, `margin_bottom` (number): vertical margins
+--   * `margin_left`, `margin_right` (number): horizontal margins
+--   * `buttons` (table): awful.button bindings (default `{}`)
+--   * `selected` (boolean): renders as selected (default `false`)
+--   * `on_hover` (function): custom hover callback
+--   * `on_leave` (function): custom leave callback
+--   * `shape` (function): shape closure (default `shapes.rrect(border_radius)`)
+-- @treturn table A wibox widget
 function styled_button.create(args)
     args = args or {}
 
