@@ -1,14 +1,9 @@
---[[
-Generic Applet Button Module
-
-Creates a consistent, styled button widget for control panel applets.
-Abstracts background colors, border styles, and state-based styling for consistency.
-
-Accepts configuration options for:
-- Icon and labels
-- Actions for toggle and reveal
-- Service/Adapter integration for state-based styling
---]]
+---@diagnostic disable: undefined-global
+--- Generic applet button.
+-- Reusable toggle/launcher button for control panel applets. Provides
+-- consistent styling (rounded background, label, icon) and binds to
+-- a service's `property::state` signal for live on/off styling.
+-- @module modules.applet_button
 
 local awful = require("awful")
 local wibox = require("wibox")
@@ -19,6 +14,22 @@ local dpi = beautiful.xresources.apply_dpi
 
 local WHITE = "#FFFFFF"
 
+--- Construct a new applet button.
+-- @tparam[opt] table opts Configuration:
+--   * `icon` (string): icon text or markup
+--   * `name` (string): header text (default "Applet")
+--   * `active_text` (string): label when toggled on (default "Enabled")
+--   * `inactive_text` (string): label when toggled off (default "Disabled")
+--   * `arrow_icon` (string): trailing chevron icon
+--   * `on_toggle` (function): called with `(state: boolean)` on click
+--   * `on_reveal` (function): called when the reveal area is clicked
+--   * `service` (table): object with `connect_signal(name, cb)` and the
+--     property signal named below
+--   * `state_property` (string): signal name on `service` for state
+--     (e.g. `"property::powered"`)
+--   * `get_state_func` (function): optional `() -> boolean` to read the
+--     current state at construction time
+-- @treturn table A wibox widget
 local function new(opts)
     opts = opts or {}
 
