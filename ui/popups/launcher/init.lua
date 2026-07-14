@@ -1,3 +1,10 @@
+--- Application launcher.
+-- Search-driven popup with keyboard navigation. Reads the user desktop apps at
+-- show time and caches them for fast subsequent filtering. Apps designated as
+-- `Terminal=true` in their `.desktop` file get spawned inside `kitty`.
+-- Backs `Mod4+Shift+Return` (`launcher.lua` keybinding).
+-- @module ui.popups.launcher
+
 local lgi = require("lgi")
 local Gio = lgi.Gio
 local awful = require("awful")
@@ -31,6 +38,10 @@ local power_icon_path = gfs.get_configuration_dir()
 local power_icon_black_path = gfs.get_configuration_dir()
     .. "ui/popups/launcher/icons/shut-down-line-black.svg"
 
+--- Spawn the app's executable, honouring its `Terminal=true` flag.
+-- Apps marked `Terminal=true` are wrapped in the user's default
+-- terminal emulator (resolved via `Gio.AppInfo.get_default_for_uri_scheme`).
+-- @tparam table app A `Gio.DesktopAppInfo`-like object
 local function launch_app(app)
     if not app then
         return
@@ -77,6 +88,14 @@ local function launch_app(app)
     )
 end
 
+--- Filter the unfiltered app list by the current search query.
+-- Two-tier sort: prefix matches first (sorted alphabetically), then
+-- substring matches (also sorted). Hidden apps (`should_show() ==
+-- false`) are skipped. The query is `lua_escape`'d to neutralise
+-- pattern metacharacters.
+-- @tparam table apps Array of `Gio.DesktopAppInfo`-like objects
+-- @tparam string query User-typed search string
+-- @treturn table Filtered and sorted app list
 local function filter_apps(apps, query)
     query = lua_escape(query)
     local filtered = {}
@@ -117,6 +136,8 @@ local function filter_apps(apps, query)
     return filtered
 end
 
+--- Move selection to the next entry. Wraps to the top and resets the
+-- scroll offset when pressing `Down` at the last entry.
 function launcher:next()
     local wp = self._private
     if #wp.filtered > 1 and wp.select_index ~= #wp.filtered then
@@ -130,6 +151,7 @@ function launcher:next()
     end
 end
 
+--- Move selection to the previous entry. Wraps to the bottom at the top.
 function launcher:back()
     local wp = self._private
     if #wp.filtered > 1 and wp.select_index ~= 1 then
@@ -147,6 +169,9 @@ function launcher:back()
     end
 end
 
+--- Rebuild the entries container widget from the current `wp.filtered`
+-- list. Called after any change to the filtered set (text input, scroll,
+-- selection).
 function launcher:update_entries()
     local wp = self._private
     local entries_container =
@@ -266,6 +291,9 @@ function launcher:update_entries()
     end
 end
 
+--- Show the launcher. Idempotent. Resets the visible entry list to the
+-- pre-filtered unfiltered apps and clears the search input before
+-- starting the keyboard grabber and rebuilding the entry widget tree.
 function launcher:show()
     local wp = self._private
     if wp.shown then
@@ -323,6 +351,7 @@ function launcher:show()
     end)
 end
 
+--- Hide the launcher. Releases the keygrabber.
 function launcher:hide()
     local wp = self._private
     if not wp.shown then
@@ -353,6 +382,7 @@ function launcher:hide()
     })
 end
 
+--- Toggle launcher visibility. Backs the `Mod4+Shift+Return` keybinding.
 function launcher:toggle()
     if not self.visible then
         self:show()
@@ -361,6 +391,11 @@ function launcher:toggle()
     end
 end
 
+--- Construct the launcher popup (used internally by `get_default`).
+-- Builds the full widget tree: sidebar with lock + powermenu buttons,
+-- search field, entries container, and signal wiring for
+-- keypress / text-input / scroll / click-outside.
+-- @treturn table A launcher instance with show/hide/toggle/next/back
 local function new()
     local ret = awful.popup({
         ontop = true,
@@ -671,6 +706,8 @@ local function new()
     return ret
 end
 
+--- Singleton accessor: returns (and lazily constructs) the launcher.
+-- @treturn table Cached launcher instance (same object on every call)
 local instance = nil
 local function get_default()
     if not instance then
