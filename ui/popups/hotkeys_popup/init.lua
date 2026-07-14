@@ -98,6 +98,11 @@ local key_labels = {
     XF86AudioNext = "▶▶",
 }
 
+--- Format a modifier list as a sorted, "+"-joined string for display.
+-- Unknown modifiers are passed through unchanged. An empty list returns
+-- the literal `"none"` so the UI can render a placeholder pill.
+-- @tparam table modifiers Array of X11 keysym names (e.g. `{"Mod4", "Shift_L"}`)
+-- @treturn string Display string (e.g. `"Ctrl+Shift"` or `"none"`)
 local function join_mods(modifiers)
     if #modifiers < 1 then
         return "none"
@@ -110,6 +115,15 @@ local function join_mods(modifiers)
     return table.concat(readable, "+")
 end
 
+--- Build a new hotkeys-popup instance.
+-- Collects keybinds from registered descriptors and awful.key globals,
+-- groups them, builds the page widgets, and sets up keyboard navigation
+-- (Left/Right/h/l to switch pages, Escape/Enter to close).
+-- @tparam[opt] table args Optional overrides:
+--   - `hide_without_description` (boolean): drop rows lacking a description
+--   - `merge_duplicates` (boolean): collapse identical keybinds
+--   - `group_rules` (table): per-group ordering/visibility rules
+-- @treturn table A hotkeys-popup instance with show/hide methods
 function widget.new(args)
     args = args or {}
     local instance = {
@@ -542,6 +556,10 @@ end
 
 local default_instance = nil
 
+--- Singleton accessor: returns (and lazily constructs) the default popup.
+-- Cached in `default_instance`; cleared on `awesome` restart via the
+-- `exit` signal so the next session builds fresh group state.
+-- @treturn table The cached hotkeys-popup instance
 local function get_default()
     if not default_instance then
         default_instance = widget.new()
@@ -555,14 +573,22 @@ capi.awesome.connect_signal("exit", function(reason_restart)
     end
 end)
 
+--- Show the hotkeys popup on the focused screen.
+-- Convenience wrapper around `get_default():show_help(...)`.
+-- @tparam ... Forwarded to the instance's `show_help` method
 function widget.show_help(...)
     return get_default():show_help(...)
 end
 
+--- Register additional keybind descriptors with the popup. Each entry has
+-- the same shape as `awful.key`: `{{mods}, "key", description, group}`.
+-- @tparam table ... One or more tables of keybind descriptors
 function widget.add_hotkeys(...)
     return get_default():add_hotkeys(...)
 end
 
+--- Add per-group styling / ordering rules. See `widget.group_rules`.
+-- @tparam table ... One or more rulesets
 function widget.add_group_rules(...)
     return get_default():add_group_rules(...)
 end
