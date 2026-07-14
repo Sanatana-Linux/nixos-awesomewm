@@ -1,10 +1,10 @@
--- service/battery.lua
--- This service provides battery status information by polling system files.
--- It is structured as a singleton object to ensure a single source of truth for
--- battery data and emits signals when the level or charging status changes.
---
--- Performance: a single `cat` invocation reads every field at once, instead of
--- 7 separate spawns per poll. This is materially cheaper on the awesome main loop.
+--- Battery status service.
+-- Polls `/sys/class/power_supply/BAT0` every 15 seconds and emits
+-- `property::level`, `property::is_charging`, `property::health`,
+-- `property::voltage`, `property::power`, `property::energy_full`,
+-- and `property::energy_now` when values change. The single-shell
+-- poll keeps the awesome main loop responsive (vs 7 separate spawns).
+-- @module service.battery
 
 local awful = require("awful")
 local gears = require("gears")
@@ -44,7 +44,10 @@ local function parse_kv(line)
     return k, v
 end
 
--- Fetches the current battery level and status, then emits signals.
+--- Poll `/sys/class/power_supply/BAT0` and emit `property::*` signals.
+-- Only emits when a value actually changes — see the early `if self.x ~= y`
+-- guards. Asynchronous via `easy_async_with_shell`; safe to call from the
+-- awesome main loop.
 function battery_service:update()
     awful.spawn.easy_async_with_shell(POLL_CMD, function(stdout)
         local values = {}
@@ -96,8 +99,9 @@ function battery_service:update()
     end)
 end
 
--- Constructor for a new battery service instance.
--- @return gobject The new battery service object.
+--- Construct a battery service instance.
+-- Sets up a 15-second `gears.timer` to call `update()` periodically.
+-- @treturn table A gobject with the public methods of `battery_service`
 local function new()
     local ret = gobject({})
     gtable.crush(ret, battery_service, true)
@@ -124,7 +128,8 @@ local function new()
     return ret
 end
 
--- Singleton pattern: ensures only one instance of the service exists.
+--- Singleton accessor: returns (and lazily constructs) the battery service.
+-- @treturn table Cached service instance (same object on every call)
 local instance = nil
 local function get_default()
     if not instance then

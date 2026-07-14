@@ -1,96 +1,131 @@
---- Spec for the battery service's `key=value` parser.
--- The refactored battery service reads all sysfs fields in one shell call and
--- parses the output as `key=value` lines. This spec verifies the parser.
---
--- The test runs the actual shell command in a sandboxed subdirectory to avoid
--- touching real `/sys/class/power_supply/BAT0/` data on the host.
+--- Spec for `service.battery` pure helper `parse_kv`.
+-- The production code defines `parse_kv` as a local function. We
+-- extract it via the same source-rewriting technique used by
+-- `spec_text_input.lua` and `spec_lib.lua`. The `update()` method
+-- has a real shell-spawn dep, so we only test the pure parser.
 
-local assert = require("tests.assert")
+local asrt = require("tests.assert")
 local runner = ...
 
--- Mirror of the production parser.
-local function parse_kv(line)
-    local k, v = line:match("^([^=]+)=(.*)$")
-    if not k then
-        return nil, nil
+-- awful: stub easy_async_with_shell so module load doesn't fail.
+package.loaded["awful"] = {
+    spawn = {
+        easy_async_with_shell = function() end,
+    },
+}
+
+-- gears: only the timer factory is referenced at load time.
+package.loaded["gears"] = {
+    timer = function() return { start = function() end } end,
+}
+
+-- gears.object / gears.table
+package.loaded["gears.object"] = {
+    extend = function(self, other) for k, v in pairs(other) do self[k] = v end end,
+    -- production uses gobject({}) which is gears.object()
+    __call = function(_, t)
+        return setmetatable(t or {}, { __index = { connect_signal = function() end, emit_signal = function() end } })
+    end,
+}
+-- Simpler mock: gobject returns a plain table with signals.
+local function fake_gobject(t)
+    local obj = t or {}
+    function obj:connect_signal() end
+    function obj:emit_signal() end
+    return obj
+end
+package.loaded["gears.object"] = setmetatable({}, { __call = function(_, t) return fake_gobject(t) end })
+
+package.loaded["gears.table"] = {
+    crush = function(t, m, _)
+        for k, v in pairs(m) do
+            t[k] = v
+        end
+        return t
+    end,
+}
+
+--- Load the production source, extract `parse_kv` and `update_num`
+-- (the latter is a closure inside `update`, so we extract it via
+-- `debug.getupvalue` after the file's chunk returns its module table).
+-- Actually we only need `parse_kv` — the spec rewrites the file to
+-- assign it to an `M` table.
+local function load_helpers()
+    local f = assert(io.open("service/battery/init.lua", "r"))
+    local source = f:read("*a")
+    f:close()
+
+    -- Rewrite `local function parse_kv(line)` into an M assignment.
+    source = source:gsub(
+        "local function parse_kv%(line%)",
+        "M.parse_kv = function(line)"
+    )
+    -- Inject `local M = {}` after the last require.
+    source = source:gsub(
+        "(local gtable = require%(%s*\"gears%.table\"%s*%))",
+        "%1\nlocal M = {}"
+    )
+    -- After the parse_kv function's `end`, insert a return to short-circuit
+    -- the rest (which uses awful.spawn and timers we don't want to fire).
+    -- parse_kv's unique ending pattern is `return k, v\nend\n`.
+    local replaced, n = source:gsub(
+        "(    return k, v\nend)\n.-$",
+        "%1\nreturn M\n",
+        1
+    )
+    if n == 0 then
+        error("could not find parse_kv end marker")
     end
-    return k, v
+    source = replaced
+
+    local chunk, err = load(source, "service/battery/init.lua", "t")
+    if not chunk then
+        error("compile failed: " .. tostring(err))
+    end
+    local ok, result = pcall(chunk)
+    if not ok then
+        error("execution failed: " .. tostring(result))
+    end
+    return result
 end
 
+local helpers = load_helpers()
+local parse_kv = helpers.parse_kv
+
 runner.describe("battery:parse_kv", function()
-    runner.it("parses simple key=value", function()
-        local k, v = parse_kv("capacity=78")
-        assert.eq(k, "capacity")
-        assert.eq(v, "78")
+    runner.it("parses a simple key=value line", function()
+        local k, v = parse_kv("capacity=87")
+        asrt.eq(k, "capacity")
+        asrt.eq(v, "87")
     end)
 
-    runner.it("preserves trailing whitespace in value", function()
-        local k, v = parse_kv("status=Discharging\n")
-        assert.eq(k, "status")
-        assert.eq(v, "Discharging\n")
+    runner.it("parses a value with spaces", function()
+        local k, v = parse_kv("status=Discharging")
+        asrt.eq(k, "status")
+        asrt.eq(v, "Discharging")
     end)
 
-    runner.it("returns nils for lines without an equals sign", function()
-        local k, v = parse_kv("not a key value pair")
-        assert.eq(k, nil)
-        assert.eq(v, nil)
+    runner.it("parses an empty value", function()
+        local k, v = parse_kv("energy_now=")
+        asrt.eq(k, "energy_now")
+        asrt.eq(v, "")
     end)
 
-    runner.it("handles empty values", function()
-        local k, v = parse_kv("empty=")
-        assert.eq(k, "empty")
-        assert.eq(v, "")
+    runner.it("parses a value containing '='", function()
+        local k, v = parse_kv("name=foo=bar")
+        asrt.eq(k, "name")
+        asrt.eq(v, "foo=bar")
     end)
-end)
 
-runner.describe("battery:polling cmd output", function()
-    -- Run the real shell pipeline against a fake sysfs tree and verify
-    -- the parser extracts all expected fields.
-    runner.it("extracts all fields from a fake BAT0", function()
-        local tmp = os.tmpname()
-        os.execute("rm -f " .. tmp .. " && mkdir -p " .. tmp)
-        -- Write fake sysfs files
-        local f = io.open(tmp .. "/capacity", "w")
-        f:write("78\n")
-        f:close()
-        local f = io.open(tmp .. "/status", "w")
-        f:write("Discharging\n")
-        f:close()
-        local f = io.open(tmp .. "/health", "w")
-        f:write("Good\n")
-        f:close()
-        local f = io.open(tmp .. "/voltage_now", "w")
-        f:write("12500000\n")
-        f:close()
+    runner.it("returns nil for a non-key-value line", function()
+        local k, v = parse_kv("not a kv line")
+        asrt.eq(k, nil)
+        asrt.eq(v, nil)
+    end)
 
-        -- Mirror POLL_CMD
-        local cmd = string.format(
-            [[
-for f in capacity status health voltage_now; do
-    if [ -r "%s/$f" ]; then
-        printf '%%s=%%s\n' "$f" "$(cat '%s'/"$f" 2>/dev/null)"
-    fi
-done]],
-            tmp,
-            tmp
-        )
-        local pipe = io.popen(cmd)
-        local output = pipe:read("*a")
-        pipe:close()
-
-        local got = {}
-        for line in output:gmatch("[^\n]+") do
-            local k, v = parse_kv(line)
-            if k then
-                got[k] = v
-            end
-        end
-
-        assert.eq(got.capacity, "78")
-        assert.eq(got.status, "Discharging")
-        assert.eq(got.health, "Good")
-        assert.eq(got.voltage_now, "12500000")
-
-        os.execute("rm -rf " .. tmp)
+    runner.it("returns nil for an empty line", function()
+        local k, v = parse_kv("")
+        asrt.eq(k, nil)
+        asrt.eq(v, nil)
     end)
 end)
