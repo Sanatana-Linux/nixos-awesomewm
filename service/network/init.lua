@@ -76,6 +76,10 @@ network.DeviceState = {
     FAILED = 120,
 }
 
+--- Convert a NetworkManager device state integer to a human-readable string.
+-- @tparam integer state DeviceState enum value (0..120)
+-- @treturn string Human-readable state name, or `nil` if unknown
+-- @see network.NMState
 function network.device_state_to_string(state)
     local device_state_to_string = {
         [0] = "Unknown",
@@ -96,6 +100,10 @@ function network.device_state_to_string(state)
     return device_state_to_string[state]
 end
 
+--- Convert a NetworkManager device type integer to a human-readable string.
+-- @tparam integer dtype DeviceType enum value (1 = Ethernet, 2 = WiFi)
+-- @treturn string Human-readable device type, or `"Unknown"` if unrecognised
+-- @see network.device_type_to_string
 function network.device_type_to_string(dtype)
     local device_type_to_string = {
         [1] = "Ethernet",
@@ -104,38 +112,45 @@ function network.device_type_to_string(dtype)
     return device_type_to_string[dtype] or "Unknown"
 end
 
+--- @treturn string|nil Interface name (e.g. `"wlan0"`, `"eth0"`)
 function device:get_interface()
     if self._private.device_proxy then
         return self._private.device_proxy.Interface
     end
 end
 
+--- @treturn integer DeviceType enum value (1 = Ethernet, 2 = WiFi)
 function device:get_type()
     if self._private.device_proxy then
         return self._private.device_proxy.DeviceType
     end
 end
 
+--- @treturn string Human-readable device type
 function device:get_type_string()
     return network.device_type_to_string(self:get_type())
 end
 
+--- @treturn integer DeviceState enum value (10..120)
 function device:get_state()
     if self._private.device_proxy then
         return self._private.device_proxy.State
     end
 end
 
+--- @treturn string Human-readable device state
 function device:get_state_string()
     return network.device_state_to_string(self:get_state())
 end
 
+--- @treturn string|nil MAC address (e.g. `"AA:BB:CC:DD:EE:FF"`)
 function device:get_hw_address()
     if self._private.device_proxy then
         return self._private.device_proxy.HwAddress
     end
 end
 
+--- @treturn string|nil CIDR-style IPv4 address (e.g. `"192.168.1.42/24"`)
 function device:get_ip4_address()
     if self._private.ip4_config_proxy then
         local addrs = self._private.ip4_config_proxy.AddressData
@@ -145,24 +160,29 @@ function device:get_ip4_address()
     end
 end
 
+--- @treturn string|nil D-Bus path of the active connection
 function device:get_active_connection()
     if self._private.device_proxy then
         return self._private.device_proxy.ActiveConnection
     end
 end
 
+--- @treturn table Wireless access-point objects keyed by D-Bus path
 function device:get_access_points()
     if self._private.wireless_proxy then
         return self.access_points
     end
 end
 
+--- @tparam string path D-Bus path of the access point
+--- @return access-point object or nil
 function device:get_access_point(path)
     if self._private.wireless_proxy and self.access_points then
         return self.access_points[path]
     end
 end
 
+--- @treturn access-point|nil Currently-active access point, or nil if not connected
 function device:get_active_access_point()
     if self._private.wireless_proxy then
         return self:get_access_point(
@@ -171,12 +191,20 @@ function device:get_active_access_point()
     end
 end
 
+--- Trigger a WiFi scan on this device. No-op on non-wireless devices.
 function device:request_scan()
     if self._private.wireless_proxy then
         self._private.wireless_proxy:RequestScanAsync(nil, {}, {})
     end
 end
 
+--- Convert NetworkManager security flag bitfields to a short human label.
+-- Maps combinations of `(flags, wpa_flags, rsn_flags)` to security
+-- keywords like "WEP", "WPA1", "WPA2", "802.1X".
+-- @tparam integer flags NM_802_11_AP_SEC flags (privacy bit)
+-- @tparam integer wpa_flags NM_802_11_AP_SEC wpa_flags
+-- @tparam integer rsn_flags NM_802_11_AP_SEC rsn_flags
+-- @treturn string Concatenated security keywords (trimmed)
 local function flags_to_security(flags, wpa_flags, rsn_flags)
     local str = ""
     if flags == 1 and wpa_flags == 0 and rsn_flags == 0 then
@@ -195,6 +223,11 @@ local function flags_to_security(flags, wpa_flags, rsn_flags)
     return (str:gsub("^%s", ""))
 end
 
+--- Generate a random UUIDv4 string.
+-- Uses the standard "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx" template
+-- with `math.random` for hex digits. Not cryptographically secure —
+-- suitable for NetworkManager connection identifiers only.
+-- @treturn string A 36-character UUIDv4
 local function generate_uuid()
     local template = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx"
     local uuid = string.gsub(template, "[xy]", function(c)
@@ -204,10 +237,21 @@ local function generate_uuid()
     return uuid
 end
 
+--- Trim leading and trailing whitespace from a string.
+-- @tparam string str Input string
+-- @treturn string Trimmed string
 local function trim_string(str)
     return str:gsub("^%s*(.-)%s*$", "%1")
 end
 
+--- Build a NetworkManager connection profile dict for an access point.
+-- Assembles a settings dict (wireless + wireless-security sections)
+-- ready to pass to `client:add_connection`. Used by the UI's
+-- "connect to network" action.
+-- @tparam access_point ap The access point to build a profile for
+-- @tparam string|nil password WPA passphrase (or nil for open networks)
+-- @tparam boolean auto_connect Whether to mark the connection as autoconnect
+-- @treturn table A settings dict consumable by `AddConnection` D-Bus method
 local function create_ap_profile(ap, password, auto_connect)
     local s_con = {
         ["uuid"] = lgi.GLib.Variant("s", generate_uuid()),
@@ -251,6 +295,9 @@ local function create_ap_profile(ap, password, auto_connect)
     }
 end
 
+--- Build a `connection` object wrapping the NM.Settings.Connection D-Bus proxy.
+-- @tparam string path D-Bus object path of the connection
+-- @treturn connection|nil The wrapped object, or nil if path is empty
 local function create_connection_object(path)
     if not path or path == "/" then
         return
@@ -268,6 +315,9 @@ local function create_connection_object(path)
     return connection_object
 end
 
+--- Build an `access_point` object wrapping the NM.AccessPoint D-Bus proxy.
+-- @tparam string path D-Bus object path of the access point
+-- @treturn access_point|nil The wrapped object, or nil if path is empty
 local function create_access_point_object(path)
     if not path or path == "/" then
         return
@@ -285,6 +335,8 @@ local function create_access_point_object(path)
     return access_point_object
 end
 
+--- @treturn integer|nil NM global state (see `network.NMState`)
+--- @treturn integer|nil NM global state (see `network.NMState`)
 function client:get_state()
     if not self._private.client_proxy then
         return
@@ -292,6 +344,7 @@ function client:get_state()
     return self._private.client_proxy.State
 end
 
+--- @treturn boolean|nil Whether the system has networking enabled at all
 function client:get_networking_enabled()
     if not self._private.client_proxy then
         return
@@ -299,6 +352,8 @@ function client:get_networking_enabled()
     return self._private.client_proxy.NetworkingEnabled
 end
 
+--- Toggle the global networking on/off switch.
+-- @tparam boolean state
 function client:enable(state)
     if not self._private.client_proxy then
         return
@@ -308,6 +363,7 @@ function client:enable(state)
     end
 end
 
+--- @treturn boolean `false` if no proxy (D-Bus unavailable), else the live state
 function client:get_wireless_enabled()
     if not self._private.client_proxy then
         return false
@@ -315,6 +371,8 @@ function client:get_wireless_enabled()
     return self._private.client_proxy.WirelessEnabled
 end
 
+--- Toggle wireless on/off. Also enables networking if it's currently off.
+-- @tparam boolean state
 function client:set_wireless_enabled(state)
     if not self._private.client_proxy then
         return
@@ -338,14 +396,25 @@ function client:set_wireless_enabled(state)
     end
 end
 
+--- @treturn table All configured connections keyed by D-Bus path
 function client:get_connections()
     return self.connections
 end
 
+--- @tparam string path
+--- @return connection object or nil
 function client:get_connection(path)
     return self.connections[path]
 end
 
+--- Trigger AddAndActivateConnection for a wireless access point.
+-- Builds a settings dict from `ap` (via `create_ap_profile`) and
+-- activates it asynchronously. If the AP is already known to NM
+-- (has a saved connection path), that connection is reused.
+-- @tparam access_point ap The AP to connect to
+-- @tparam string|nil password WPA passphrase, or nil for open networks
+-- @tparam boolean auto_connect Whether the saved connection should auto-connect
+-- @return boolean success whether the activation call was dispatched
 function client:connect_access_point(ap, password, auto_connect)
     if not ap or not self._private.client_proxy then
         return
@@ -389,6 +458,8 @@ function client:connect_access_point(ap, password, auto_connect)
     end
 end
 
+--- Deactivate the wireless device's active connection.
+-- No-op if the client proxy is unavailable.
 function client:disconnect_active_access_point()
     if not self._private.client_proxy then
         return
@@ -400,6 +471,8 @@ function client:disconnect_active_access_point()
     )
 end
 
+--- Deactivate a specific device's active connection.
+-- @tparam device dev The device whose active connection should drop
 function client:disconnect_access_point(dev)
     if not self._private.client_proxy then
         return
@@ -413,40 +486,49 @@ function client:disconnect_access_point(dev)
     end
 end
 
+--- @treturn string Path of the connection's settings file on disk
 function connection:get_filename()
     return self._private.connection_proxy.Filename
 end
 
+--- @treturn string D-Bus object path of the connection
 function connection:get_path()
     return self._private.connection_proxy.object_path
 end
 
+--- @treturn string|nil MAC address (e.g. `"AA:BB:CC:DD:EE:FF"`)
 function wireless:get_hw_address()
     if self._private.device_proxy then
         return self._private.device_proxy.HwAddress
     end
 end
 
+--- @treturn integer DeviceState enum value
 function wireless:get_state()
     if self._private.device_proxy then
         return self._private.device_proxy.State
     end
 end
 
+--- @treturn integer Bitrate in kbit/s
 function wireless:get_bitrate()
     if self._private.wireless_proxy then
         return self._private.wireless_proxy.Bitrate
     end
 end
 
+--- @treturn table Wireless access-point objects keyed by D-Bus path
 function wireless:get_access_points()
     return self.access_points
 end
 
+--- @tparam string path D-Bus path of the access point
+--- @treturn access-point|nil The matching access point, or nil
 function wireless:get_access_point(path)
     return self.access_points[path]
 end
 
+--- @treturn access-point|nil Currently-active access point, or nil
 function wireless:get_active_access_point()
     if not self._private.wireless_proxy then
         return
@@ -454,20 +536,24 @@ function wireless:get_active_access_point()
     return self:get_access_point(self._private.wireless_proxy.ActiveAccessPoint)
 end
 
+-- Trigger a WiFi scan on this wireless device. No-op if no proxy.
 function wireless:request_scan()
     if self._private.wireless_proxy then
         self._private.wireless_proxy:RequestScanAsync(nil, {}, {})
     end
 end
 
+--- @treturn string Network SSID (decoded from raw bytes via NM utils)
 function access_point:get_ssid()
     return NM.utils_ssid_to_utf8(self._private.access_point_proxy.Ssid)
 end
 
+--- @treturn string MAC address of the AP's BSS
 function access_point:get_hw_address()
     return self._private.access_point_proxy.HwAddress
 end
 
+--- @treturn string Human-readable security description (e.g. "WPA2")
 function access_point:get_security()
     return flags_to_security(
         self._private.access_point_proxy.Flags,
@@ -476,16 +562,19 @@ function access_point:get_security()
     )
 end
 
+--- @treturn integer Signal strength (0..100)
 function access_point:get_strength()
     return self._private.access_point_proxy.Strength
 end
 
+--- @treturn integer|nil Frequency in MHz
 function access_point:get_frequency()
     if self._private.access_point_proxy then
         return self._private.access_point_proxy.Frequency
     end
 end
 
+--- @treturn string Frequency band: "2.4 GHz", "5 GHz", "6 GHz", or "Unknown"
 function access_point:get_frequency_band()
     local freq = self:get_frequency()
     if not freq then
@@ -500,6 +589,7 @@ function access_point:get_frequency_band()
     end
 end
 
+--- @treturn integer|nil Channel number derived from frequency
 function access_point:get_channel()
     local freq = self:get_frequency()
     if not freq then
@@ -515,12 +605,14 @@ function access_point:get_channel()
     return math.floor(freq / 5) - 400 -- fallback approximation
 end
 
+--- @treturn integer|nil Maximum bitrate in kbit/s
 function access_point:get_max_bitrate()
     if self._private.access_point_proxy then
         return self._private.access_point_proxy.MaxBitrate
     end
 end
 
+--- @treturn string|nil Network mode: "Infrastructure", "Ad-Hoc", or "Unknown"
 function access_point:get_mode()
     if self._private.access_point_proxy then
         local mode = self._private.access_point_proxy.Mode
@@ -534,22 +626,26 @@ function access_point:get_mode()
     end
 end
 
+--- @treturn integer|nil Last-seen timestamp (Unix epoch seconds)
 function access_point:get_last_seen()
     if self._private.access_point_proxy then
         return self._private.access_point_proxy.LastSeen
     end
 end
 
+--- @treturn string D-Bus object path of the access point
 function access_point:get_path()
     return self._private.access_point_proxy.object_path
 end
 
+--- @treturn integer|nil Wired link speed in Mbit/s
 function wired:get_speed()
     if self._private.wired_proxy then
         return self._private.wired_proxy.Speed
     end
 end
 
+--- @treturn integer|nil Link speed (Mbit/s for wired, kbit/s for wireless)
 function device:get_speed()
     if self._private.wired_proxy then
         return self._private.wired_proxy.Speed
@@ -558,6 +654,7 @@ function device:get_speed()
     end
 end
 
+--- @treturn string Human-readable link speed, e.g. "100 Mbps" or "300.0 Mbps"
 function device:get_speed_string()
     local speed = self:get_speed()
     if not speed then
@@ -570,6 +667,11 @@ function device:get_speed_string()
     end
 end
 
+--- Construct a fully-wired network service instance.
+-- Wires up the NetworkManager D-Bus client, settings, and per-device
+-- proxies. Populates `ret.devices`, `ret.wireless`, `ret.wired`,
+-- and `ret.connections` from current NM state.
+-- @treturn table Service instance with public methods from `client`
 local function new()
     local ret = gobject({})
     gtable.crush(ret, client, true)
@@ -905,6 +1007,11 @@ local function new()
     return ret
 end
 
+--- Construct a fallback no-D-Bus service instance.
+-- Used when NetworkManager lgi binding fails to load. All methods
+-- short-circuit gracefully (returning nil/empty). Lets the UI
+-- render the popup without crashing when D-Bus is unavailable.
+-- @treturn table Empty service instance with the same public surface
 local function create_fallback()
     local ret = gobject({})
     gtable.crush(ret, client, true)
@@ -923,6 +1030,10 @@ local function create_fallback()
 end
 
 local instance = nil
+--- Singleton accessor: returns (and lazily constructs) the network service.
+-- Caches the result in a closure so subsequent calls return the same
+-- instance. Falls back to a stub if the NM lgi binding is missing.
+-- @treturn table The cached network service instance
 local function get_default()
     if not instance then
         if not _NM_status or not NM then
