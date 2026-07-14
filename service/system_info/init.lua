@@ -263,6 +263,8 @@ function system_info:get_gpu_usage()
     return self._private.gpu_usage
 end
 
+--- Singleton accessor: returns (and lazily constructs) the system info service.
+-- @treturn table Cached service instance (same object on every call)
 local function get_default()
     if not instance then
         instance = new()

@@ -29,9 +29,11 @@ local memory_last_check_count = 0
 local memory_last_run_time = 0
 local timer = nil
 
--- Initialize garbage collection service
---- Start the periodic GC timer. Idempotent — calling `start` while already
--- running is safe.
+--- Start the periodic GC timer. Idempotent.
+-- Performs an initial dual-pass `collectgarbage` with the configured
+-- pause/stepmul, then starts a 60s `gears.timer` that re-checks
+-- memory growth and idle time. Safe to call when the timer is
+-- already running.
 function gc_service.start()
     -- Perform initial garbage collection with specified parameters
     collectgarbage(
@@ -70,7 +72,6 @@ function gc_service.start()
     end)
 end
 
--- Stop garbage collection service
 --- Stop the periodic GC timer. Safe to call when the timer isn't running.
 function gc_service.stop()
     if timer then
@@ -79,9 +80,12 @@ function gc_service.stop()
     end
 end
 
--- Get current memory usage statistics
---- @treturn table Memory stats:
---   `current_memory`, `last_check_memory`, `last_collection_time`, `time_since_last_collection`
+--- Read the current memory tracking stats.
+-- @treturn table Memory stats:
+--   * `current_memory`: current Lua heap size in KB
+--   * `last_check_memory`: previous sample (used for growth comparison)
+--   * `last_collection_time`: Unix epoch seconds of last actual collection
+--   * `time_since_last_collection`: seconds since last collection
 function gc_service.get_stats()
     return {
         current_memory = collectgarbage("count"),
@@ -91,8 +95,10 @@ function gc_service.get_stats()
     }
 end
 
--- Manually trigger garbage collection
 --- Force a two-pass collection right now, regardless of threshold.
+-- Resets the last-collection timestamp and memory baseline so the
+-- next timer's threshold check is computed from the post-collect
+-- state.
 function gc_service.force_collect()
     collectgarbage("collect")
     collectgarbage("collect")
@@ -100,10 +106,9 @@ function gc_service.force_collect()
     memory_last_check_count = collectgarbage("count")
 end
 
--- Update configuration parameters
---- Merge new config values into the live config and restart the timer if
--- `check_interval` changed. Unknown keys are ignored.
--- @tparam table new_config
+--- Merge new config values into the live config and restart the timer
+-- if `check_interval` changed. Unknown keys are ignored.
+-- @tparam table new_config Map of config key -> new value
 function gc_service.configure(new_config)
     for key, value in pairs(new_config) do
         if config[key] ~= nil then
