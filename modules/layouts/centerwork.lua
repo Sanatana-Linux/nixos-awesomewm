@@ -1,3 +1,10 @@
+--- Center-work tiling layout.
+-- Places the first (master) client in a centered column; remaining (slave)
+-- clients tile vertically (centerwork) or horizontally (centerworkh) on
+-- both sides / top-and-bottom. Master width/height is controlled by
+-- `tag.master_width_factor`.
+-- @module modules.layouts.centerwork
+
 local floor, max, mouse, mousegrabber, screen =
     math.floor, math.max, mouse, mousegrabber, screen
 
@@ -6,6 +13,13 @@ local centerwork = {
     horizontal = { name = "centerworkh" },
 }
 
+--- Arrange clients in the centerwork layout.
+-- Master client gets a centred region sized by `t.master_width_factor`.
+-- Remaining clients fill the surrounding areas: left/right (vertical) or
+-- top/bottom (horizontal).
+-- @tparam table p Layout parameters object (`p.clients`, `p.workarea`, `p.screen`, `p.tag`)
+-- @tparam table layout Centerwork layout descriptor (`.name == "centerwork"` or `"centerworkh"`)
+-- @local
 local function arrange(p, layout)
     local t = p.tag or screen[p.screen].selected_tag
     local wa = p.workarea
@@ -126,6 +140,13 @@ local function arrange(p, layout)
     end
 end
 
+--- Mouse resize handler for the master column.
+-- Grabs the mouse and adjusts `tag.master_width_factor` as the user drags.
+-- Vertical orientation adjusts width; horizontal orientation adjusts height.
+-- @tparam client c The client being resized
+-- @param ... Unused corner/x/y arguments
+-- @tparam string orientation `"vertical"` or `"horizontal"`
+-- @local
 local function mouse_resize_handler(c, _, _, _, orientation)
     local wa = c.screen.workarea
     local mwfact = c.screen.selected_tag.master_width_factor
@@ -181,18 +202,28 @@ local function mouse_resize_handler(c, _, _, _, orientation)
     end, cursor)
 end
 
+--- Arrange clients in the vertical centerwork layout.
+-- Wraps `arrange(p, centerwork)`.
+-- @tparam table p Layout parameters
 function centerwork.arrange(p)
     return arrange(p, centerwork)
 end
 
+--- Arrange clients in the horizontal centerwork layout.
+-- Wraps `arrange(p, centerwork.horizontal)`.
+-- @tparam table p Layout parameters
 function centerwork.horizontal.arrange(p)
     return arrange(p, centerwork.horizontal)
 end
 
+--- Mouse resize handler (vertical).
+-- @param ... Forwarded to `mouse_resize_handler` with `"vertical"` orientation
 function centerwork.mouse_resize_handler(c, corner, x, y)
     return mouse_resize_handler(c, corner, x, y, "vertical")
 end
 
+--- Mouse resize handler (horizontal).
+-- @param ... Forwarded to `mouse_resize_handler` with `"horizontal"` orientation
 function centerwork.horizontal.mouse_resize_handler(c, corner, x, y)
     return mouse_resize_handler(c, corner, x, y, "horizontal")
 end
@@ -203,6 +234,11 @@ end
 local awful = require("awful")
 local gears = require("gears")
 
+--- Compare two clients by position (x then y) for consistent focus ordering.
+-- @tparam client a First client
+-- @tparam client b Second client
+-- @treturn boolean True if `a` should sort before `b`
+-- @local
 local function compare_position(a, b)
     if a.x == b.x then
         return a.y < b.y
@@ -211,6 +247,11 @@ local function compare_position(a, b)
     end
 end
 
+--- Return clients on the focused tag sorted by position.
+-- Used by `centerwork.focus.byidx` and `centerwork.swap.byidx` for
+-- predictable focus/swap order consistent with other layouts.
+-- @treturn table `{ sorted = {client, ...}, idx = number }` or `{}` if unfocused
+-- @local
 local function clients_by_position()
     local this = client.focus
     if this then
@@ -231,6 +272,9 @@ local function clients_by_position()
     return {}
 end
 
+--- Check if the focused tag uses the centerwork layout.
+-- @treturn boolean
+-- @local
 local function in_centerwork()
     return client.focus and client.focus.first_tag.layout.name == "centerwork"
 end
@@ -242,6 +286,10 @@ Drop in replacements for awful.client.focus.byidx and awful.client.swap.byidx
 that behaves consistently with other layouts
 --]]
 
+--- Focus next/previous client in position-sorted order.
+-- Drop-in replacement for `awful.client.focus.byidx` that uses the
+-- position-sorted client list instead of stack order.
+-- @tparam number i Direction: +1 forward, -1 backward
 function centerwork.focus.byidx(i)
     if in_centerwork() then
         local cls = clients_by_position()
@@ -257,6 +305,9 @@ end
 
 centerwork.swap = {}
 
+--- Swap focused client with next/previous in position-sorted order.
+-- Drop-in replacement for `awful.client.swap.byidx`.
+-- @tparam number i Direction: +1 forward, -1 backward
 function centerwork.swap.byidx(i)
     if in_centerwork() then
         local cls = clients_by_position()

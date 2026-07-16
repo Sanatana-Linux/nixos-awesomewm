@@ -1,3 +1,11 @@
+--- Battery-level notification.
+-- Subscribes to the `service.battery` service and shows:
+--   * `category = "battery-low"`      when the cell is ≤ 15% and discharging
+--   * `category = "battery-critical"` when the cell is ≤ 8%  and discharging
+-- The two notification states (low, critical) are sticky: once fired, they
+-- only reset when the cell starts charging again.
+-- @module ui.notification.battery
+
 -- ui/notification/battery.lua
 -- Low battery notification service that monitors battery levels and shows
 -- warnings when the battery is getting low or critically low.

@@ -13,6 +13,10 @@ local spawn = require("awful.spawn")
 local system_info = {}
 local instance = nil
 
+--- Construct the system info singleton.
+-- Initialises default values (0 for all counters), sets up CPU delta tracking,
+-- and starts a 2-second polling timer for all subsystems.
+-- @treturn table A gobject with the public methods of `system_info`
 local function new()
     local ret = gobject({})
     gtable.crush(ret, system_info, true)
@@ -48,6 +52,8 @@ local function new()
     return ret
 end
 
+--- Read and parse CPU usage from `/proc/stat`.
+-- Computes delta from previous sample and emits `property::cpu_usage`.
 function system_info:_update_cpu_usage()
     local wp = self._private
 
@@ -87,6 +93,9 @@ function system_info:_update_cpu_usage()
     end)
 end
 
+--- Read and parse RAM / swap usage from `/proc/meminfo`.
+-- Converts KB to MB for totals and emits `property::ram_usage` /
+-- `property::swap_usage` with (percent, used_mb, total_mb).
 function system_info:_update_memory_usage()
     local wp = self._private
 
@@ -127,6 +136,8 @@ function system_info:_update_memory_usage()
     end)
 end
 
+--- Read root-filesystem usage via `df -h /` and emit `property::disk_usage`.
+-- Emits (percent, used_str, total_str, free_str).
 function system_info:_update_disk_usage()
     local wp = self._private
 
@@ -162,6 +173,8 @@ function system_info:_update_disk_usage()
     end)
 end
 
+--- Poll GPU utilisation via nvidia-smi → radeontop → intel_gpu_top fallback chain.
+-- Emits `property::gpu_usage` (0..100) or 0 if no tool is available.
 function system_info:_update_gpu_usage()
     local wp = self._private
 
@@ -219,6 +232,8 @@ function system_info:_update_gpu_usage()
     )
 end
 
+--- Kick off all four monitoring polls (CPU, memory, disk, GPU).
+-- Called every 2 seconds by the internal timer.
 function system_info:_update_system_info()
     self:_update_cpu_usage()
     self:_update_memory_usage()

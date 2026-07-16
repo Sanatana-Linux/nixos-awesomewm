@@ -21,7 +21,7 @@ local awful = require("awful")
 local naughty = require("naughty")
 local gobject = require("gears.object")
 local gtable = require("gears.table")
-local file_exists = require("lib").file_exists
+local file_exists = require("lib.util").file_exists
 
 -- Default output directory. Callers can override `screenshot.OUTPUT_DIR`
 -- before the first capture.

@@ -493,7 +493,10 @@ function Proxy:connect_signal(signal_name, callback, sender_name)
         self._signal_handlers = {}
         self._proxy.on_g_signal = function(_, sender, signal, params)
             for _, handler in ipairs(self._signal_handlers) do
-                if handler.sender_name ~= nil and handler.sender_name ~= sender then
+                if
+                    handler.sender_name ~= nil
+                    and handler.sender_name ~= sender
+                then
                     -- skip
                 elseif signal == handler.signal_name then
                     local stripped = variant.strip(params)

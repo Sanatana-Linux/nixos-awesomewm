@@ -21,8 +21,8 @@ package.loaded["gears"] = {
 -- Load via source-rewriting trick: extract the M table via `return M`
 -- at end. But the file's last line is just `return M`, so a direct
 -- require works.
-package.loaded["modules.animations"] = nil
-local animations = require("modules.animations")
+package.loaded["modules.infra.animations"] = nil
+local animations = require("modules.infra.animations")
 
 runner.describe("animations:easing.linear", function()
     runner.it("returns the input unchanged", function()

@@ -16,7 +16,7 @@ local unpack = unpack or table.unpack
 local awful = require("awful")
 local gtable = require("gears.table")
 local common = require("modules.layouts.widgets.common")
-local utils = require("modules.utils")
+local utils = require("modules.layouts.widgets.utils")
 
 local hasitem = gtable.hasitem
 

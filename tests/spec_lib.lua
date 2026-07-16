@@ -16,14 +16,14 @@ local function create_markup(text, args)
     local weight = args.weight and "weight='" .. args.weight .. "' " or ""
     local stretch = args.stretch and "stretch='" .. args.stretch .. "' " or ""
     local font_scale = args.font_scale
-        and "font_scale='" .. args.font_scale .. "' "
+            and "font_scale='" .. args.font_scale .. "' "
         or ""
     local underline = args.underline and "underline='" .. args.underline .. "' "
         or ""
     local overline = args.overline and "overline='" .. args.overline .. "' "
         or ""
     local local_strike = args.strikethrough
-        and "strikethrough='" .. args.strikethrough .. "' "
+            and "strikethrough='" .. args.strikethrough .. "' "
         or ""
     local alpha = args.alpha and "alpha='" .. args.alpha .. "' " or ""
     local fg = args.fg and "foreground='" .. args.fg .. "' " or ""
@@ -88,6 +88,26 @@ local function is_supported(file, formats)
         end
     end
     return supported
+end
+
+-- Use the real inspect library (pure Lua) for table_to_file tests.
+local inspect = require("lib.inspect")
+-- Mirror of `lib.table_to_file` — writes a Lua table as a returnable string
+-- using `inspect` with tab-indent, then reads it back to verify.
+local function table_to_file(tbl, file)
+    if not file or not tbl then
+        return
+    end
+    local success, inspected = pcall(inspect, tbl, { indent = "\t" })
+    if not success then
+        return
+    end
+    local wfile = io.open(file, "w")
+    if not wfile then
+        return
+    end
+    wfile:write("return " .. inspected)
+    wfile:close()
 end
 
 runner.describe("lib.create_markup", function()
@@ -190,17 +210,20 @@ runner.describe("lib.has_common", function()
 end)
 
 runner.describe("lib.remove_nonindex", function()
-    runner.it("removes the first matching occurrence (then continues)", function()
-        -- {1,2,3,2,5} → first 2 at i=2 is removed → {1,3,2,5}.
-        -- Next i=3 hits the other 2, removed → {1,3,5}.
-        -- i=4 is then out of range (table is now length 3).
-        local t = { 1, 2, 3, 2, 5 }
-        remove_nonindex(t, 2)
-        assert.eq(#t, 3)
-        assert.eq(t[1], 1)
-        assert.eq(t[2], 3)
-        assert.eq(t[3], 5)
-    end)
+    runner.it(
+        "removes the first matching occurrence (then continues)",
+        function()
+            -- {1,2,3,2,5} → first 2 at i=2 is removed → {1,3,2,5}.
+            -- Next i=3 hits the other 2, removed → {1,3,5}.
+            -- i=4 is then out of range (table is now length 3).
+            local t = { 1, 2, 3, 2, 5 }
+            remove_nonindex(t, 2)
+            assert.eq(#t, 3)
+            assert.eq(t[1], 1)
+            assert.eq(t[2], 3)
+            assert.eq(t[3], 5)
+        end
+    )
 
     runner.it("with duplicates, removes the first 2 occurrences", function()
         local t = { 7, 7, 7, 8 }
@@ -250,5 +273,33 @@ runner.describe("lib.is_supported", function()
         -- A bare filename like "bar.png" does not contain "/" so the
         -- pattern won't match. Document this behavior.
         assert.eq(is_supported("bar.png", { "png" }), false)
+    end)
+end)
+
+runner.describe("lib.table_to_file", function()
+    runner.it("writes a flat table and reads it back", function()
+        local f = os.tmpname()
+        table_to_file({ a = 1, b = 2 }, f)
+        local ok, result = pcall(dofile, f)
+        assert.eq(ok, true)
+        assert.eq(result.a, 1)
+        assert.eq(result.b, 2)
+        os.remove(f)
+    end)
+
+    runner.it("writes a nested table and reads it back", function()
+        local f = os.tmpname()
+        table_to_file({ outer = { inner = 42 } }, f)
+        local ok, result = pcall(dofile, f)
+        assert.eq(ok, true)
+        assert.eq(result.outer.inner, 42)
+        os.remove(f)
+    end)
+
+    runner.it("returns nil when file or tbl is nil", function()
+        local f = os.tmpname()
+        assert.eq(table_to_file(nil, f), nil)
+        assert.eq(table_to_file({}, nil), nil)
+        os.remove(f)
     end)
 end)

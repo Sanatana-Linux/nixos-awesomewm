@@ -25,7 +25,9 @@ local function fake_gobject(t)
     return obj
 end
 package.loaded["gears.object"] = setmetatable({}, {
-    __call = function(_, t) return fake_gobject(t) end,
+    __call = function(_, t)
+        return fake_gobject(t)
+    end,
 })
 
 -- gears.table
@@ -51,7 +53,8 @@ local function load_helpers()
     f:close()
 
     -- Rewrite each `local function` decl to an M assignment.
-    local helpers = { "build_poll_cmd", "parse_kv", "parse_volume_pct", "parse_mute_bool" }
+    local helpers =
+        { "build_poll_cmd", "parse_kv", "parse_volume_pct", "parse_mute_bool" }
     for _, name in ipairs(helpers) do
         local pat = "local function " .. name .. "%("
         local repl = "M." .. name .. " = function("
@@ -64,7 +67,7 @@ local function load_helpers()
 
     -- Inject `local M = {}` after the gears.table require.
     source = source:gsub(
-        "(local gtable = require%(%s*\"gears%.table\"%s*%))",
+        '(local gtable = require%(%s*"gears%.table"%s*%))',
         "%1\nlocal M = {}"
     )
 
@@ -73,7 +76,7 @@ local function load_helpers()
     -- `return raw:match("(%w+)$") == "yes"\nend`. We match that
     -- unique pattern.
     local replaced, n = source:gsub(
-        "(    return raw:match%(\"%(%%%w%+%)$\"%) == \"yes\"\nend)\n.-$",
+        '(    return raw:match%("%(%%%w%+%)$"%) == "yes"\nend)\n.-$',
         "%1\nreturn M\n",
         1
     )
@@ -101,7 +104,8 @@ local parse_mute_bool = helpers.parse_mute_bool
 
 runner.describe("audio:build_poll_cmd", function()
     runner.it("emits one printf per field", function()
-        local cmd = build_poll_cmd("@DEFAULT_SINK@", { "sink-volume", "sink-mute" })
+        local cmd =
+            build_poll_cmd("@DEFAULT_SINK@", { "sink-volume", "sink-mute" })
         asrt.truthy(cmd:find("pactl get-sink-volume", 1, true))
         asrt.truthy(cmd:find("pactl get-sink-mute", 1, true))
         asrt.truthy(cmd:find("@DEFAULT_SINK@", 1, true))

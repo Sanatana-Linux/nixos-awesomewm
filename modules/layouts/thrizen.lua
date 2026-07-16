@@ -1,13 +1,8 @@
--- Thrizen Layout - 3-column grid layout with intelligent row distribution
--- NOTE: Area is divided into 1-3 even columns, then new rows start after that.
--- Based on: https://github.com/ciiqr/thrizen
---
--- Layout behavior:
--- - Divides screen into up to 3 columns
--- - Distributes clients evenly across columns and rows
--- - Last client in second-to-last row gets double height if space available
---
--- Configuration:
+--- Thrizen 3-column grid layout.
+-- Divides the screen into up to 3 even columns, then creates new rows as
+-- needed. The last client in the second-to-last row may get double height
+-- if space permits.
+-- @module modules.layouts.thrizen
 local config = {
     max_columns = 3,    -- Maximum number of columns (1-3)
     min_width = 200,    -- Minimum client width in pixels
@@ -20,7 +15,10 @@ local pairs = pairs
 -- Create the layout table
 local thrizen = { name = "thrizen" }
 
--- Helper function to validate inputs
+--- Validate that layout parameters are usable.
+-- @tparam table p Layout parameters object
+-- @treturn boolean, string|nil Valid flag and optional error message
+-- @local
 local function validate_inputs(p)
     if not p then
         return false, "No layout parameters provided"
@@ -34,7 +32,11 @@ local function validate_inputs(p)
     return true, nil
 end
 
--- Helper function to calculate layout dimensions
+--- Calculate grid dimensions (columns, rows, cell width/height).
+-- @tparam table workarea Screen workarea geometry
+-- @tparam number num_clients Number of clients to arrange
+-- @treturn table `{ columns, rows, width, height }`
+-- @local
 local function calculate_dimensions(workarea, num_clients)
     -- Determine the number of columns (minimum of num_clients and max_columns)
     local num_columns = math.min(num_clients, config.max_columns)
@@ -58,7 +60,12 @@ local function calculate_dimensions(workarea, num_clients)
     }
 end
 
--- Helper function to check if client should get double height
+--- Check if a client in the second-to-last row should get double height.
+-- @tparam number client_index 1-based index
+-- @tparam table dimensions `{ columns, rows, ... }`
+-- @tparam number num_clients Total client count
+-- @treturn boolean
+-- @local
 local function should_double_height(client_index, dimensions, num_clients)
     local current_row = math.floor((client_index - 1) / dimensions.columns)
     local is_second_last_row = current_row == (dimensions.rows - 2)
@@ -67,7 +74,8 @@ local function should_double_height(client_index, dimensions, num_clients)
     return has_room_to_fill and is_second_last_row and dimensions.rows > 1
 end
 
--- Main arrangement function
+--- Arrange clients in a 3-column grid.
+-- @tparam table p Layout parameters
 function thrizen.arrange(p)
     -- Validate inputs
     local valid, error_msg = validate_inputs(p)

@@ -9,11 +9,11 @@ local beautiful = require("beautiful")
 local gtable = require("gears.table")
 local modules = require("modules")
 local dpi = beautiful.xresources.apply_dpi
-local anim = require("modules.animations")
+local anim = require("modules.infra.animations")
 local capi = { screen = screen }
-local click_to_hide = require("modules.click_to_hide")
+local click_to_hide = require("modules.infra.click_to_hide")
 
-local shapes = require("modules.shapes")
+local shapes = require("modules.style.shapes")
 local rrect = shapes.rrect
 
 local day_info = {}
@@ -54,6 +54,7 @@ function day_info:show()
     })
 end
 
+--- Animate the popup out (slide down + fade). Idempotent.
 function day_info:hide()
     local wp = self._private
     if not wp.shown then
@@ -89,6 +90,10 @@ function day_info:toggle()
     end
 end
 
+--- Construct the day info popup (lazy singleton).
+-- Builds a calendar widget in a rounded popup placed at bottom-right.
+-- Uses click-to-hide for outside-click dismissal.
+-- @treturn table Popup instance with show/hide/toggle methods
 local function new()
     local calendar_widget = modules.calendar({
         sun_start = false,
@@ -138,6 +143,8 @@ local function new()
 end
 
 local instance = nil
+--- Singleton accessor: returns (and lazily constructs) the day info popup.
+-- @treturn table Cached popup instance
 local function get_default()
     if not instance then
         instance = new()

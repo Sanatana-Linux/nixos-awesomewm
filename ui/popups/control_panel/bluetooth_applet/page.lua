@@ -4,9 +4,9 @@ local beautiful = require("beautiful")
 local gcolor = require("gears.color")
 local gfs = require("gears.filesystem")
 local gtable = require("gears.table")
-local shapes = require("modules.shapes.init")
+local shapes = require("modules.style.shapes.init")
 local dpi = beautiful.xresources.apply_dpi
-local applet_pages = require("modules.applet_pages")
+local applet_pages = require("modules.infra.applet_pages")
 local adapter = require("service.bluetooth").get_default()
 
 local ICONS_PATH = gfs.get_configuration_dir()
@@ -19,7 +19,7 @@ local ICON_CHECK = ICONS_PATH .. "trust.svg"
 local WHITE = applet_pages.WHITE
 local FG_ALT = beautiful.fg_alt
 
--- Tooltip helper: attaches an awful.tooltip to one or more widgets
+--- Tooltip helper: attaches an awful.tooltip to one or more widgets
 ----------------------------------------------------------------------
 local function add_tooltip(objects, text)
     if type(objects) ~= "table" then
@@ -36,7 +36,7 @@ local function add_tooltip(objects, text)
     })
 end
 
--- Tagbar-style button: matches the taskbar/taglist button appearance
+--- Tagbar-style button: matches the taskbar/taglist button appearance
 ----------------------------------------------------------------------
 local function create_tagbar_button(args)
     local btn = wibox.widget({
@@ -78,7 +78,7 @@ local function create_tagbar_button(args)
     return btn
 end
 
--- Slider-style container: matches audio_slider / brightness_slider panels
+--- Slider-style container: matches audio_slider / brightness_slider panels
 ----------------------------------------------------------------------
 local function slider_container(content)
     local bg_color = beautiful.bg_alt or beautiful.bg_normal or "#222222"
@@ -101,7 +101,7 @@ local function slider_container(content)
     })
 end
 
--- Tagbar action button (full-width, for Connect/Pair/Trust actions)
+--- Tagbar action button (full-width, for Connect/Pair/Trust actions)
 ----------------------------------------------------------------------
 local function create_tagbar_action(args)
     local btn = wibox.widget({
@@ -142,6 +142,7 @@ local function create_tagbar_action(args)
     return btn
 end
 
+--- Create a device widget for the Bluetooth device at the given path.
 local function create_dev_widget(path)
     local dev = adapter:get_device(path)
 
@@ -250,6 +251,8 @@ local function create_dev_widget(path)
     local buttons = inner:get_children_by_id("buttons")[1]
 
     local buttons_visible = false
+
+    --- Toggle visibility of the action buttons row.
     local function toggle_buttons()
         buttons_visible = not buttons_visible
         ret:set_forced_height(buttons_visible and dpi(94) or dpi(44))
@@ -362,6 +365,7 @@ local function create_dev_widget(path)
     return ret
 end
 
+--- Handle a newly added Bluetooth device.
 local function on_device_added(self, path)
     local devices_layout = self:get_children_by_id("content-layout")[1]
     local wp = self._private
@@ -393,6 +397,7 @@ local function on_device_added(self, path)
     end
 end
 
+--- Handle removal of a Bluetooth device.
 local function on_device_removed(self, path)
     local devices_layout = self:get_children_by_id("content-layout")[1]
     local wp = self._private
@@ -417,6 +422,7 @@ end
 ----------------------------------------------------------------------
 local bluetooth_page = {}
 
+--- Handle discovering state changes.
 function bluetooth_page:on_discovering(discovering)
     local wp = self._private
     if discovering then
@@ -452,6 +458,7 @@ function bluetooth_page:on_discovering(discovering)
     end
 end
 
+--- Handle powered state changes.
 function bluetooth_page:on_powered(powered)
     local wp = self._private
     local devices_layout = self:get_children_by_id("content-layout")[1]
@@ -482,6 +489,7 @@ function bluetooth_page:on_powered(powered)
     end
 end
 
+--- Handle blocked state changes.
 function bluetooth_page:on_blocked(blocked)
     local wp = self._private
     local devices_layout = self:get_children_by_id("content-layout")[1]
@@ -495,6 +503,7 @@ function bluetooth_page:on_blocked(blocked)
     end
 end
 
+--- Create a new Bluetooth applet page.
 local function new()
     -- Create bottom bar buttons with tagbar style
     local toggle_btn = create_tagbar_button({

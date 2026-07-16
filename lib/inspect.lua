@@ -392,6 +392,13 @@ function inspect.inspect(root, options)
     return table.concat(inspector.buf)
 end
 
+--- Deep table inspector (vendored kikito/inspect.lua 3.1.0).
+-- Returns a human-readable string representation of any Lua value, including
+-- nested tables, metatables, recursive references, and metatable-protected
+-- keys. Callable as either `inspect.inspect(root, options?)` or
+-- `inspect(root, options?)` (callable metatable).
+-- @module lib.inspect
+
 setmetatable(inspect, {
     __call = function(_, root, options)
         return inspect.inspect(root, options)

@@ -27,7 +27,10 @@ runner.describe("inspect:primitives", function()
     runner.it("renders strings with quotes", function()
         local out = inspect("hello")
         -- Strings are quoted; exact quoting style may differ
-        assert.truthy(out:find("hello", 1, true), "expected 'hello' in: " .. out)
+        assert.truthy(
+            out:find("hello", 1, true),
+            "expected 'hello' in: " .. out
+        )
     end)
 end)
 
@@ -75,14 +78,20 @@ runner.describe("inspect:options", function()
         local deep = { a = { b = { c = { d = 1 } } } }
         local out = inspect(deep, { depth = 2 })
         -- At depth 2 we should NOT see the innermost key
-        assert.falsy(out:find("d = ", 1, true), "depth=2 should not show d: " .. out)
+        assert.falsy(
+            out:find("d = ", 1, true),
+            "depth=2 should not show d: " .. out
+        )
     end)
 
     runner.it("accepts a newline option", function()
         local out = inspect({ a = 1 }, { newline = " " })
         -- With newline=" " instead of "\n", the output should be on a
         -- single line.
-        assert.falsy(out:find("\n", 1, true), "expected single-line output: " .. out)
+        assert.falsy(
+            out:find("\n", 1, true),
+            "expected single-line output: " .. out
+        )
     end)
 end)
 
@@ -90,7 +99,10 @@ runner.describe("inspect:indentation", function()
     runner.it("respects indent option", function()
         local out = inspect({ a = 1, b = 2 }, { indent = "    " })
         -- Indented output should contain 4 spaces somewhere
-        assert.truthy(out:find("    ", 1, true), "expected 4-space indent: " .. out)
+        assert.truthy(
+            out:find("    ", 1, true),
+            "expected 4-space indent: " .. out
+        )
     end)
 end)
 

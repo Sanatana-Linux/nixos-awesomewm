@@ -1,20 +1,8 @@
--- DEPRECATED: use mstab instead, kept for historical purposes
--- based on dovetail and bling's mbox, but without all the extra frills
-
---  Stack right layout:
---  +-------+------+
---  |       |      |
---  |   1   | 2... |
---  |       |      |
---  +-------+------+
---
---  Stack left layout:
---  +------+-------+
---  |      |       |
---  | 2... |   1   |
---  |      |       |
---  +------+-------+
--- ------------------------------------------------- --
+--- Stack layout (deprecated — use mstab instead).
+-- Two variants: `stack` (master on left, slaves stacked right) and
+-- `stackLeft` (master on right, slaves stacked left). Retained for
+-- historical reference.
+-- @module modules.layouts.stack
 
 -- Import necessary modules
 local math = math
@@ -23,7 +11,10 @@ local screen = screen
 -- Create a table for the custom layout
 local stack = {}
 
--- Function to arrange clients in the 'stack' layout
+--- Stack arrangement core: master left/right + slaves stacked on the other side.
+-- @tparam table p Layout parameters
+-- @tparam string dir `"right"` for master-left, `"left"` for master-right
+-- @local
 local function arrange(p, dir)
     local t = p.tag or screen[p.screen].selected_tag
     local wa = p.workarea
@@ -86,7 +77,8 @@ end
 -- Set the layout name
 stack.name = "stack"
 
--- Function to arrange clients in the 'stack' layout with right placement
+--- Arrange clients in right-stack mode (master left).
+-- @tparam table p Layout parameters
 function stack.arrange(p)
     return arrange(p, "right")
 end
@@ -97,7 +89,8 @@ stack.left = {}
 -- Set the layout name for left placement
 stack.left.name = "stackLeft"
 
--- Function to arrange clients in the 'stack' layout with left placement
+--- Arrange clients in left-stack mode (master right).
+-- @tparam table p Layout parameters
 function stack.left.arrange(p)
     return arrange(p, "left")
 end

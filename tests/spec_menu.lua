@@ -9,7 +9,7 @@ local assert = require("tests.assert")
 local runner = ...
 
 -- Reset the module cache so we always load the production code.
-package.loaded["modules.menu"] = nil
+package.loaded["modules.widgets.menu"] = nil
 package.loaded["awful"] = {
     keygrabber = { run = function() end, stop = function() end },
     mouse = { sensitive = function() end, client = { focus = {} } },
@@ -143,9 +143,9 @@ package.loaded["gears.shape"] = {
         return "circle"
     end,
 }
-package.loaded["modules.click_to_hide"] = { popup = function() end }
+package.loaded["modules.infra.click_to_hide"] = { popup = function() end }
 
-local menu = require("modules.menu")
+local menu = require("modules.widgets.menu")
 
 runner.describe("menu:module shape", function()
     runner.it("is a callable table (setmetatable __call)", function()

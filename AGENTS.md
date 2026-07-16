@@ -24,6 +24,13 @@
 ### Auto-reload Testing
 - **Enable auto-reload**: `./bin/awmtt-ng.sh start -R` (requires `entr`)
 
+### Unit Testing (pure Lua, no X server)
+- **Run the test suite**: `lua tests/run.lua`
+- Tests live in `tests/spec_*.lua` files. Each spec calls `runner.describe(name, fn)` and `runner.it(name, fn)`.
+- Assertions (`tests/assert.lua`): `eq`, `truthy`, `falsy`, `errors`, `type`, `has`.
+- Pure-Lua — no mocking framework. Mock upstream modules via `package.loaded["module"] = fake` before requiring the production module.
+- CI runs the full suite on every push / PR (`.github/workflows/check.yml`).
+
 ## Code Style Guidelines
 
 ### Formatting (StyLua Config)

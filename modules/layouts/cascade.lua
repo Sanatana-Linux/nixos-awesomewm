@@ -1,4 +1,8 @@
-local floor = math.floor
+--- Cascade / cascade-tile layout.
+-- Two variants: `cascade` stacks windows diagonally (offset by 32x8);
+-- `cascadetile` puts the master in a fixed-width column and cascades
+-- remaining clients in a slave column on the right.
+-- @module modules.layouts.cascade
 local screen = screen
 local cascade = {
     name = "cascade",
@@ -15,6 +19,10 @@ local cascade = {
         extra_padding = 0,
     },
 }
+--- Cascade arrangement core.
+-- @tparam table p Layout parameters
+-- @tparam boolean tiling If true, use master-column mode; else stack diagonally
+-- @local
 local function do_cascade(p, tiling)
     local t = p.tag or screen[p.screen].selected_tag
     local wa = p.workarea
@@ -168,10 +176,14 @@ local function do_cascade(p, tiling)
     end
 end
 
+--- Tile-mode arrange (master column + cascaded slaves).
+-- @tparam table p Layout parameters
 function cascade.tile.arrange(p)
     return do_cascade(p, true)
 end
 
+--- Cascade-mode arrange (diagonal stack).
+-- @tparam table p Layout parameters
 function cascade.arrange(p)
     return do_cascade(p, false)
 end

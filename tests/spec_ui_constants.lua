@@ -8,12 +8,16 @@ local runner = ...
 
 -- Mock `beautiful` so the module loads without a real X server.
 package.loaded["beautiful"] = {
-    xresources = { apply_dpi = function(x) return x end },
+    xresources = {
+        apply_dpi = function(x)
+            return x
+        end,
+    },
 }
 
 -- Reset and require the module.
-package.loaded["modules.ui_constants"] = nil
-local ui_constants = require("modules.ui_constants")
+package.loaded["modules.style.ui_constants"] = nil
+local ui_constants = require("modules.style.ui_constants")
 
 runner.describe("ui_constants:structure", function()
     runner.it("has a SPACING group with 6 tokens", function()

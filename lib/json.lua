@@ -1,3 +1,10 @@
+--- JSON encoder/decoder (vendored).
+-- Two public functions: `json.encode(value)` and `json.decode(string)`.
+-- The decoder rejects non-string input and trailing garbage. Note: empty Lua
+-- tables encode as `[]` (empty array) — there is no way to disambiguate
+-- "empty object" vs "empty array" without a marker.
+-- @module lib.json
+
 --
 -- json.lua
 --

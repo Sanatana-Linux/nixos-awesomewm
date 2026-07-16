@@ -34,13 +34,21 @@ local function make_widget_stub()
             h(w, ...)
         end
     end
-    function w:set_bg(c) self.bg_set = c end
-    function w:set_fg(c) self.fg_set = c end
-    function w:get_children_by_id(id) return self._children_by_id[id] end
+    function w:set_bg(c)
+        self.bg_set = c
+    end
+    function w:set_fg(c)
+        self.fg_set = c
+    end
+    function w:get_children_by_id(id)
+        return self._children_by_id[id]
+    end
     function w:set_widget(w2)
         self._current_widget = w2
     end
-    function w:set_markup(m) self._markup = m end
+    function w:set_markup(m)
+        self._markup = m
+    end
     return w
 end
 
@@ -114,8 +122,12 @@ local mock_wibox_widget = setmetatable({
             end
         end
         -- The real textbox widget has these methods
-        w.set_markup = function(self, m) self._markup = m end
-        w.set_image = function(self, img) self._image = img end
+        w.set_markup = function(self, m)
+            self._markup = m
+        end
+        w.set_image = function(self, img)
+            self._image = img
+        end
         return w
     end,
 }, {
@@ -151,7 +163,9 @@ local mock_wibox = {
 
 package.loaded["wibox"] = mock_wibox
 package.loaded["gears.color"] = {
-    recolor_image = function(path, color) return path .. "@" .. color end,
+    recolor_image = function(path, color)
+        return path .. "@" .. color
+    end,
 }
 package.loaded["gears.table"] = {
     crush = function(t, m, raw)
@@ -172,8 +186,8 @@ package.loaded["beautiful"] = {
 }
 
 -- Reset and load
-package.loaded["modules.hover_button"] = nil
-local hover_button = require("modules.hover_button")
+package.loaded["modules.widgets.hover_button"] = nil
+local hover_button = require("modules.widgets.hover_button")
 
 -- ------------------------------------------------------------------
 -- Tests
@@ -218,16 +232,19 @@ runner.describe("hover_button:set_fg_normal", function()
 end)
 
 runner.describe("hover_button:set_bg_hover", function()
-    runner.it("stores the hover bg in _private but does not apply immediately", function()
-        local btn = hover_button({})
-        -- Reset bg_set so we can detect that no set_bg call happens
-        btn.bg_set = nil
-        btn:set_bg_hover("#ff5500")
-        assert.eq(btn._private.bg_hover, "#ff5500")
-        -- No immediate set_bg call expected (the value is only applied
-        -- on mouse::enter)
-        assert.eq(btn.bg_set, nil)
-    end)
+    runner.it(
+        "stores the hover bg in _private but does not apply immediately",
+        function()
+            local btn = hover_button({})
+            -- Reset bg_set so we can detect that no set_bg call happens
+            btn.bg_set = nil
+            btn:set_bg_hover("#ff5500")
+            assert.eq(btn._private.bg_hover, "#ff5500")
+            -- No immediate set_bg call expected (the value is only applied
+            -- on mouse::enter)
+            assert.eq(btn.bg_set, nil)
+        end
+    )
 end)
 
 runner.describe("hover_button:set_fg_hover", function()

@@ -16,15 +16,29 @@ package.loaded["awful"] = {
 
 -- gears: only the timer factory is referenced at load time.
 package.loaded["gears"] = {
-    timer = function() return { start = function() end } end,
+    timer = function()
+        return { start = function() end }
+    end,
 }
 
 -- gears.object / gears.table
 package.loaded["gears.object"] = {
-    extend = function(self, other) for k, v in pairs(other) do self[k] = v end end,
+    extend = function(self, other)
+        for k, v in pairs(other) do
+            self[k] = v
+        end
+    end,
     -- production uses gobject({}) which is gears.object()
     __call = function(_, t)
-        return setmetatable(t or {}, { __index = { connect_signal = function() end, emit_signal = function() end } })
+        return setmetatable(
+            t or {},
+            {
+                __index = {
+                    connect_signal = function() end,
+                    emit_signal = function() end,
+                },
+            }
+        )
     end,
 }
 -- Simpler mock: gobject returns a plain table with signals.
@@ -34,7 +48,11 @@ local function fake_gobject(t)
     function obj:emit_signal() end
     return obj
 end
-package.loaded["gears.object"] = setmetatable({}, { __call = function(_, t) return fake_gobject(t) end })
+package.loaded["gears.object"] = setmetatable({}, {
+    __call = function(_, t)
+        return fake_gobject(t)
+    end,
+})
 
 package.loaded["gears.table"] = {
     crush = function(t, m, _)
@@ -62,17 +80,14 @@ local function load_helpers()
     )
     -- Inject `local M = {}` after the last require.
     source = source:gsub(
-        "(local gtable = require%(%s*\"gears%.table\"%s*%))",
+        '(local gtable = require%(%s*"gears%.table"%s*%))',
         "%1\nlocal M = {}"
     )
     -- After the parse_kv function's `end`, insert a return to short-circuit
     -- the rest (which uses awful.spawn and timers we don't want to fire).
     -- parse_kv's unique ending pattern is `return k, v\nend\n`.
-    local replaced, n = source:gsub(
-        "(    return k, v\nend)\n.-$",
-        "%1\nreturn M\n",
-        1
-    )
+    local replaced, n =
+        source:gsub("(    return k, v\nend)\n.-$", "%1\nreturn M\n", 1)
     if n == 0 then
         error("could not find parse_kv end marker")
     end

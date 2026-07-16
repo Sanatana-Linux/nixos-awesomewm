@@ -1,11 +1,18 @@
 ---@diagnostic disable: undefined-global
+--- Window titlebar.
+-- Builds a small themed titlebar with close / maximize / minimize buttons
+-- for every managed client. Connects to `client.connect_signal("request::titlebars", ...)`.
+-- The visual treatment uses the `beautiful.titlebar_*` theme variables plus a
+-- 3 SVG icons (close, maximize, minus) recolored on instantiation.
+-- @module ui.titlebar
+
 local gfs = require("gears.filesystem")
 local gears = require("gears")
 local wibox = require("wibox")
 local beautiful = require("beautiful")
 local dpi = beautiful.xresources.apply_dpi
 local awful = require("awful")
-local shapes = require("modules.shapes")
+local shapes = require("modules.style.shapes")
 
 local client = client
 
@@ -14,6 +21,13 @@ local close_icon = icons_dir .. "close.svg"
 local maximize_icon = icons_dir .. "maximize.svg"
 local minimize_icon = icons_dir .. "minus.svg"
 
+--- Build a titlebar button with hover effects.
+-- Returns a factory function that takes a client and returns a styled button
+-- widget with the given icon. Close buttons get a special red-gradient hover.
+-- @tparam string icon_path Path to the SVG icon
+-- @tparam function onclick Callback receiving the client on click
+-- @treturn function Factory: `(client) -> wibox.widget`
+-- @local
 local function make_button(icon_path, onclick)
     return function(c)
         local icon_widget = wibox.widget.imagebox()
@@ -184,7 +198,8 @@ client.connect_signal("request::titlebars", function(c)
     -- Set the titlebar's layout
     titlebar:setup(titlebar_widget)
 
-    -- Function to update the background based on focus state
+    --- Update the titlebar background based on client focus state.
+    -- @local
     local function update_background()
         if c.focused then
             titlebar.widget.bg = beautiful.bg .. "22"

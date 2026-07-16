@@ -1,3 +1,10 @@
+--- Right-click menu singleton.
+-- Two menus: a desktop context menu (awesome config / restart / power) and
+-- a per-client menu (minimize / maximize / close / …). Both are constructed
+-- on demand and dismissed via `hide()`. Backs the right-click on desktop
+-- and the right-click on a client (`mouse.lua`).
+-- @module ui.popups.menu
+
 local lgi = require("lgi")
 local Gio = lgi.Gio
 local awful = require("awful")
@@ -6,7 +13,7 @@ local gtable = require("gears.table")
 local gtimer = require("gears.timer")
 local gfs = require("gears.filesystem")
 local modules = require("modules")
-local is_supported = require("lib").is_supported
+local is_supported = require("lib.util").is_supported
 ---@diagnostic disable-next-line: undefined-global
 local capi = { awesome = awesome, screen = screen, client = client }
 local screenshot = require("service.screenshot").get_default()
@@ -15,6 +22,10 @@ local dpi = beautiful.xresources.apply_dpi
 
 local menu = {}
 
+--- Build the desktop context menu widget tree.
+-- Items: awesome config/restart/power, screenshot (full/delayed/select),
+-- terminal, files, web browser.
+-- @treturn table A modules.menu widget
 local function create_desktop_menu()
     return modules.menu({
         theme = {
@@ -112,6 +123,11 @@ local function create_desktop_menu()
     })
 end
 
+--- Build the per-client context menu widget tree.
+-- Items: move/toggle-on-tag, toggle titlebar, center, ontop/sticky/above/below,
+-- floating/fullscreen/maximized/minimized toggles, close.
+-- @tparam client c
+-- @treturn table A modules.menu widget
 local function create_client_menu(c)
     local move_to_tag_item = {}
     local toggle_on_tag_item = {}
@@ -230,6 +246,7 @@ local function create_client_menu(c)
     })
 end
 
+--- Hide the active menu (desktop or client) and clear the reference.
 function menu:hide()
     if self.menu_widget and self.menu_widget.visible then
         self.menu_widget:hide()
@@ -237,6 +254,7 @@ function menu:hide()
     end
 end
 
+--- Show the right-click desktop context menu (Awesome config / Restart / Power, …).
 function menu:show_desktop_menu()
     if self.menu_widget then
         if not self.menu_widget.visible then
@@ -249,6 +267,8 @@ function menu:show_desktop_menu()
     end
 end
 
+--- Show or hide the desktop context menu. Backs the right-click on desktop
+-- (`configuration/keybind/mouse.lua`).
 function menu:toggle_desktop_menu()
     if self.menu_widget then
         if self.menu_widget.visible then
@@ -264,6 +284,8 @@ function menu:toggle_desktop_menu()
     end
 end
 
+--- Show the per-client context menu (minimize, maximize, close, …).
+-- @tparam[opt] client c Defaults to the focused client
 function menu:show_client_menu(c)
     c = c or capi.client.focus
     if not c then
@@ -280,6 +302,8 @@ function menu:show_client_menu(c)
     end
 end
 
+--- Show or hide the per-client context menu. See `show_client_menu`.
+-- @tparam[opt] client c Defaults to the focused client
 function menu:toggle_client_menu(c)
     c = c or capi.client.focus
     if not c then
@@ -299,6 +323,8 @@ function menu:toggle_client_menu(c)
     end
 end
 
+--- Construct the menu singleton instance.
+-- @treturn table Menu instance with show/hide/toggle methods
 local function new()
     local ret = {}
     gtable.crush(ret, menu, true)
@@ -306,6 +332,8 @@ local function new()
 end
 
 local instance = nil
+--- Singleton accessor: returns (and lazily constructs) the right-click menu.
+-- @treturn table Cached menu instance
 local function get_default()
     if not instance then
         instance = new()

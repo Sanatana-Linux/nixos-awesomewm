@@ -1,3 +1,8 @@
+--- Master-stack with tabbed slaves layout.
+-- Shows a master column on the left and a tabbed stack of slave clients on
+-- the right. A tabbar (position configurable) lets the user select which
+-- slave is visible.
+-- @module modules.layouts.mstab
 local awful = require("awful")
 local gears = require("gears")
 local wibox = require("wibox")
@@ -38,6 +43,14 @@ tag.connect_signal("property::selected", function(t)
     end
 end)
 
+--- Update the tabbar widget: populate with client tabs and adjust size/position.
+-- @tparam table clients Array of slave clients
+-- @tparam tag t The current tag
+-- @tparam number top_idx Index of the active/visible slave
+-- @tparam table area Work area
+-- @tparam number master_area_width Width of master column
+-- @tparam number slave_area_width Width of slave area
+-- @local
 local function update_tabbar(
     clients,
     t,
@@ -131,6 +144,8 @@ local function update_tabbar(
     s.tabbar:setup({ layout = wibox.layout.flex.horizontal, clientlist })
 end
 
+--- Arrange clients in master-stack mode: master column + tabbed slaves.
+-- @tparam table p Layout parameters
 function mylayout.arrange(p)
     local area = p.workarea
     local t = p.tag or screen[p.screen].selected_tag

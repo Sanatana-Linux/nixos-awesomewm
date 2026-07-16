@@ -52,7 +52,7 @@ package.loaded["lgi"] = {
 
 -- Reset the module to pick up our mocks
 package.loaded["modules.icon-lookup"] = nil
-local icon_lookup = require("modules.icon-lookup")
+local icon_lookup = require("modules.icon_lookup")
 
 runner.describe("icon_lookup:fallback", function()
     runner.it("get_fallback_icon returns a non-empty absolute path", function()

@@ -340,7 +340,7 @@ package.loaded["modules"] = {
         return fake_wibox_widget()
     end,
 }
-package.loaded["modules.animations"] = {
+package.loaded["modules.infra.animations"] = {
     animate = function()
         return { stop = function() end }
     end,
@@ -350,7 +350,7 @@ package.loaded["modules.animations"] = {
         end,
     },
 }
-package.loaded["modules.shapes"] = {
+package.loaded["modules.style.shapes"] = {
     rrect = function()
         return function() end
     end,
@@ -373,8 +373,8 @@ package.loaded["modules.shapes"] = {
         return function() end
     end,
 }
-package.loaded["modules.shapes.init"] = package.loaded["modules.shapes"]
-package.loaded["modules.icon-lookup"] = {
+package.loaded["modules.style.shapes.init"] = package.loaded["modules.style.shapes"]
+package.loaded["modules.icon_lookup"] = {
     get_fallback_icon = function()
         return "/tmp/fallback.svg"
     end,
@@ -385,10 +385,10 @@ package.loaded["modules.icon-lookup"] = {
         return "/tmp/client.svg"
     end,
 }
-package.loaded["modules.crop_surface"] = function()
+package.loaded["modules.style.crop_surface"] = function()
     return {}
 end
-package.loaded["modules.click_to_hide"] = { popup = function() end }
+package.loaded["modules.infra.click_to_hide"] = { popup = function() end }
 
 -- ui.popups.powermenu — required at load time
 package.loaded["ui.popups.powermenu"] = {

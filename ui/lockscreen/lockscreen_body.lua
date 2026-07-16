@@ -1,7 +1,7 @@
 local beautiful = require("beautiful")
 local wibox = require("wibox")
 local dpi = beautiful.xresources.apply_dpi
-local shapes = require("modules.shapes")
+local shapes = require("modules.style.shapes")
 
 local wordclock = require("ui.lockscreen.wordclock")
 local lock_animation = require("ui.lockscreen.lock_animation")

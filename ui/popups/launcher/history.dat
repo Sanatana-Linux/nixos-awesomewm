@@ -1,0 +1,6 @@
+return {
+	["gimp.desktop"] = 2,
+	["google-chrome.desktop"] = 1,
+	["thunar.desktop"] = 1,
+	["upscayl.desktop"] = 1
+}

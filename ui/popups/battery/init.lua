@@ -1,8 +1,9 @@
 ---@diagnostic disable: undefined-global
---[[
-Battery popup with system information and arc charts.
-Shows detailed battery info, CPU load, RAM usage, swap usage, and disk space.
---]]
+--- Battery status popup.
+-- Detailed battery card with arc charts for battery level, CPU, RAM, swap, and
+-- disk usage. Backs the `Mod4+B` system keybinding (`system.lua`). Subscribes
+-- to `service.battery` and `service.system_info` for live updates.
+-- @module ui.popups.battery
 
 local awful = require("awful")
 local wibox = require("wibox")
@@ -10,18 +11,23 @@ local beautiful = require("beautiful")
 local gears = require("gears")
 local gtimer = require("gears.timer")
 local dpi = beautiful.xresources.apply_dpi
-local anim = require("modules.animations")
-local click_to_hide = require("modules.click_to_hide")
+local anim = require("modules.infra.animations")
+local click_to_hide = require("modules.infra.click_to_hide")
 
 local battery_service = require("service.battery")
 local system_info = require("service.system_info")
-local arc_chart = require("modules.arc_chart")
-local animations = require("modules.animations")
-local shapes = require("modules.shapes")
+local arc_chart = require("modules.widgets.arc_chart")
+local animations = require("modules.infra.animations")
+local shapes = require("modules.style.shapes")
 
 local battery_popup = {}
 local instance = nil
 
+--- Construct the battery popup (lazy singleton).
+-- Builds the full widget tree with arc charts for battery, CPU, RAM, swap,
+-- disk, and action chips for system tools. Subscribes to battery and
+-- system_info service signals for live updates.
+-- @treturn table Popup instance with show/hide methods (via gtable.crush)
 local function new()
     local ret = {}
     ret._private = {}
@@ -75,7 +81,9 @@ local function new()
         margins = dpi(24),
     })
 
-    -- Enhanced Battery Indicator Widget
+    --- Create the battery indicator widget (progress bar + percentage + charging icon).
+    -- @treturn table A wibox widget with battery bar, percentage, charging icon, and details
+    -- @local
     local function create_battery_indicator()
         local battery = battery_service.get_default()
 
@@ -183,7 +191,8 @@ local function new()
             time_remaining,
         })
 
-        -- Update function
+        --- Refresh all battery display elements from service state.
+        -- @local
         local function update_battery_display()
             local level = battery.level or 0
             local is_charging = battery.is_charging or false
@@ -506,6 +515,8 @@ local function new()
     ret._shown = false
     ret._animation = nil
 
+    --- Refresh all system charts (CPU, RAM, swap, disk, GPU) from sysinfo service.
+    -- Called on show and when any system_info signal fires while visible.
     function ret:_update_charts()
         -- Update arc charts with current values
         self.cpu_chart:set_value(sysinfo:get_cpu_usage())
@@ -523,6 +534,7 @@ local function new()
         self.gpu_chart:set_value(gpu_usage)
     end
 
+    --- Show the battery popup with slide-in animation.
     function ret:show()
         if wp.shown then
             return
@@ -565,6 +577,7 @@ local function new()
         end)
     end
 
+    --- Hide the battery popup with slide-out animation.
     function ret:hide()
         if not wp.shown then
             return
@@ -591,6 +604,7 @@ local function new()
         })
     end
 
+    --- Toggle the battery popup visibility.
     function ret:toggle()
         if not self.popup.visible then
             self:show()
@@ -638,6 +652,8 @@ local function new()
     return ret
 end
 
+--- Singleton accessor: returns (and lazily constructs) the battery popup.
+-- @treturn table Cached popup instance
 local function get_default()
     if not instance then
         instance = new()

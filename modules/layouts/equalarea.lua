@@ -1,19 +1,8 @@
--- EqualArea Layout - Recursive area division with equal client areas
---
--- This layout uses a recursive binary space partitioning algorithm to divide
--- the screen into roughly equal areas for each client. The algorithm:
---
--- 1. Recursively divides the available space into smaller and larger sections
--- 2. Distributes master and slave clients across these sections
--- 3. Uses a 1.3 aspect ratio threshold to decide horizontal vs vertical splits
--- 4. Optimizes for various client counts with special handling for divisible numbers
---
--- Mathematical approach:
--- - For n clients, finds optimal subdivision ratios
--- - Prefers divisions by 5, 3, or 2 in that order for balanced layouts
--- - Uses master-slave distribution with configurable master count
---
--- Configuration:
+--- Equal-area BSP layout.
+-- Recursively divides the screen into equal-area rectangles using binary
+-- space partitioning. Each client gets approximately equal space regardless
+-- of count, with configurable master window count.
+-- @module modules.layouts.equalarea
 local config = {
     aspect_ratio_threshold = 1.3, -- Width/height ratio threshold for split direction
     max_masters = 1, -- Default number of master windows
@@ -27,13 +16,20 @@ local math = math
 local equalarea = {}
 equalarea.name = "equalarea"
 
--- Helper function to validate geometry bounds
+--- Validate that a geometry has minimum size.
+-- @tparam table g Geometry with `.width` and `.height`
+-- @treturn boolean
+-- @local
 local function validate_geometry(g)
     return g and g.width >= config.min_size and g.height >= config.min_size
 end
 
--- Calculate optimal division ratio for a given number of clients
--- Returns the smaller division size, optimizing for visual balance
+--- Calculate the optimal division ratio for a given number of clients.
+-- Prefers balanced divisions (by 5, then 3, then 2) for visually pleasing
+-- layouts rather than 1/N splits.
+-- @tparam number num_clients Total clients in the range
+-- @treturn number Size of the smaller division
+-- @local
 local function calculate_division_ratio(num_clients)
     if num_clients <= 1 then
         return num_clients
@@ -50,14 +46,17 @@ local function calculate_division_ratio(num_clients)
     end
 end
 
--- Recursive function to divide screen area among clients using binary space partitioning
--- @param p: Layout parameters from AwesomeWM
--- @param g: Current geometry area to divide
--- @param low: Starting index in client array
--- @param high: Ending index in client array
--- @param cls: Array of client objects
--- @param mwfact: Master width factor (unused in current implementation)
--- @param mcount: Number of master windows
+--- Recursively divide screen area among clients using BSP.
+-- Base case: single client fills the area. Recursive case: split wide
+-- areas vertically and tall areas horizontally.
+-- @tparam table p Layout parameters object
+-- @tparam table g Current geometry to subdivide
+-- @tparam number low Start index in the client array
+-- @tparam number high End index in the client array
+-- @tparam table cls Array of client objects
+-- @tparam number mwfact Master width factor (unused, for API compat)
+-- @tparam number mcount Master count for client distribution
+-- @local
 local function divide_area_recursive(p, g, low, high, cls, mwfact, mcount)
     -- Input validation
     if not g or not validate_geometry(g) then
@@ -144,7 +143,8 @@ local function divide_area_recursive(p, g, low, high, cls, mwfact, mcount)
     end
 end
 
--- Main arrangement function for the equalarea layout
+--- Arrange clients using the equal-area BSP layout.
+-- @tparam table p Layout parameters
 function equalarea.arrange(p)
     -- Validate input parameters
     if not p or not p.clients or #p.clients == 0 then

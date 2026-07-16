@@ -1,6 +1,7 @@
--- ui/control_panel/brightness_slider/init.lua
--- This module provides a slider widget for controlling screen brightness.
--- It interfaces with the brightness service to get and set brightness values.
+--- Brightness slider widget for the control panel.
+-- Provides a slider + icon + percentage label, debounced to avoid glitching
+-- on rapid changes. Syncs with the brightness service bidirectionally.
+-- @module ui.popups.control_panel.brightness_slider
 
 local awful = require("awful")
 local wibox = require("wibox")
@@ -8,11 +9,14 @@ local beautiful = require("beautiful")
 local text_icons = beautiful.text_icons
 local dpi = beautiful.xresources.apply_dpi
 local brightness_service = require("service.brightness").get_default()
-local shapes = require("modules.shapes.init")
+local shapes = require("modules.style.shapes.init")
 local gtimer = require("gears.timer")
 
--- Creates a new brightness slider widget.
--- @return widget The brightness slider widget.
+--- Construct a new brightness slider widget.
+-- Creates a slider with icon and percentage label, wires debounced set calls,
+-- and listens for external brightness changes from the service.
+-- @treturn wibox.widget The brightness slider composite widget
+-- @local
 local function new()
     local slider = wibox.widget({
         id = "brightness_slider",
@@ -46,11 +50,10 @@ local function new()
         align = "center",
     })
 
-    -- Debounced brightness updating to prevent glitching
-    local brightness_timer = nil
-    local last_brightness_value = 50
-
-    -- Set brightness when slider value changes
+    -- Debounced brightness setter to avoid glitching on rapid slider moves.
+    -- Uses a 100ms timer to debounce.
+    -- @tparam number value 0..100
+    -- @local
     local function set_brightness_debounced(value)
         last_brightness_value = value
 

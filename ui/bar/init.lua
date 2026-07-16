@@ -1,6 +1,7 @@
 -- ui/bar/init.lua
--- This module defines and assembles the main status bar (wibar) for AwesomeWM.
--- Hover-reveal bar that slides in from bottom on mouse hover.
+-- Hover-reveal status bar (wibar) for AwesomeWM.
+-- Slides in from the bottom on mouse hover.
+-- @module ui.bar
 
 local awful = require("awful")
 local wibox = require("wibox")
@@ -21,7 +22,12 @@ local battery_widget = require("ui.bar.modules.battery")
 
 local bar = {}
 
--- Define button configurations once to be reused
+--- Taglist and tasklist mouse-button bindings shared by both
+-- primary and secondary bars.
+-- Taglist: left-click views, Mod4+left moves client, right-click
+-- toggles view, Mod4+right toggles client tag.
+-- Tasklist: left-click jumps to, right-click opens client menu.
+-- @treturn table A joined set of awful.button bindings
 local taglist_buttons = gtable.join(
     awful.button({}, 1, function(t)
         t:view_only()
@@ -39,7 +45,9 @@ local taglist_buttons = gtable.join(
     end)
 )
 
--- Define the correct behavior for tasklist (client icon) clicks
+--- Tasklist button bindings.
+-- Left-click: jump to client. Right-click: open client menu.
+-- @treturn table A joined set of awful.button bindings
 local tasklist_buttons = gtable.join(
     awful.button({}, 1, function(c)
         awful.client.jumpto(c)
@@ -49,7 +57,12 @@ local tasklist_buttons = gtable.join(
     end)
 )
 
--- Creates the wibar for the primary screen.
+--- Build the primary (main) screen wibar.
+-- Primary bar is 30dp tall, with launcher button (left),
+-- taglist + tasklist (center), and tray/layoutbox/battery/
+-- time/control_panel buttons (right).
+-- @tparam screen s The screen to attach the bar to
+-- @treturn table The hover_bar instance
 function bar.create_primary(s)
     local bar_widget = {
         layout = wibox.layout.align.horizontal,
@@ -113,7 +126,11 @@ function bar.create_primary(s)
     return hb
 end
 
--- Wibar for secondary screens.
+--- Build the secondary-screen wibar.
+-- Secondary bar is 40dp tall, showing only the taglist +
+-- tasklist widget centered. Intended for external monitors.
+-- @tparam screen s The screen to attach the bar to
+-- @treturn table The hover_bar instance
 function bar.create_secondary(s)
     local tags_widget = new_tags_widget.new({
         screen = s,

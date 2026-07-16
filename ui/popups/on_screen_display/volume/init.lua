@@ -1,13 +1,21 @@
+--- Volume OSD popup.
+-- Shows a short-lived progress bar overlay at the bottom of the
+-- screen with an audio icon + percentage label and mute indicator.
+-- Auto-hides after 4 seconds.
+-- @module ui.popups.on_screen_display.volume
+
 local awful = require("awful")
 local wibox = require("wibox")
 local beautiful = require("beautiful")
 local gtable = require("gears.table")
 local gtimer = require("gears.timer")
-local animation = require("modules.animations")
+local animation = require("modules.infra.animations")
 local dpi = beautiful.xresources.apply_dpi
 
 local osd = {}
 
+--- Construct and return a new volume OSD popup (singleton).
+-- @treturn table OSD instance with show/hide/get_default methods
 local function new()
     local ret = awful.popup({
         visible = false,
@@ -70,6 +78,11 @@ local function new()
     return ret
 end
 
+--- Show the volume OSD with animated progress bar.
+-- Selects the icon glyph based on value and mute state.
+-- Resets the auto-hide timer on every call.
+-- @tparam integer value Volume percentage (0–100)
+-- @tparam[opt] boolean is_muted If true, shows the mute icon
 function osd:show(value, is_muted)
     local wp = self._private
     local icon_widget = self.widget:get_children_by_id("icon")[1]
@@ -108,6 +121,7 @@ function osd:show(value, is_muted)
     end
 end
 
+--- Hide the volume OSD immediately.
 function osd:hide()
     self.visible = false
     local wp = self._private
@@ -115,6 +129,8 @@ function osd:hide()
 end
 
 local instance = nil
+--- Singleton accessor: returns (and lazily constructs) the volume OSD.
+-- @treturn table Cached OSD instance
 function osd.get_default()
     if not instance then
         instance = new()

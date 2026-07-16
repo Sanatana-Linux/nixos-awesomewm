@@ -1,13 +1,21 @@
+--- Brightness OSD popup.
+-- Shows a short-lived progress bar overlay at the bottom of the
+-- screen with a brightness icon + percentage label. Auto-hides
+-- after 4 seconds.
+-- @module ui.popups.on_screen_display.brightness
+
 local awful = require("awful")
 local wibox = require("wibox")
 local beautiful = require("beautiful")
 local gtable = require("gears.table")
 local gtimer = require("gears.timer")
-local animation = require("modules.animations")
+local animation = require("modules.infra.animations")
 local dpi = beautiful.xresources.apply_dpi
 
 local osd = {}
 
+--- Construct and return a new brightness OSD popup (singleton).
+-- @treturn table OSD instance with show/hide/get_default methods
 local function new()
     local ret = awful.popup({
         visible = false,
@@ -70,6 +78,10 @@ local function new()
     return ret
 end
 
+--- Show the brightness OSD with animated progress bar.
+-- Selects the icon glyph based on the value range.
+-- Resets the auto-hide timer on every call.
+-- @tparam integer value Brightness percentage (0–100)
 function osd:show(value)
     local wp = self._private
     local icon_widget = self.widget:get_children_by_id("icon")[1]
@@ -106,6 +118,7 @@ function osd:show(value)
     end
 end
 
+--- Hide the brightness OSD immediately.
 function osd:hide()
     self.visible = false
     local wp = self._private
@@ -113,6 +126,8 @@ function osd:hide()
 end
 
 local instance = nil
+--- Singleton accessor: returns (and lazily constructs) the brightness OSD.
+-- @treturn table Cached OSD instance
 function osd.get_default()
     if not instance then
         instance = new()

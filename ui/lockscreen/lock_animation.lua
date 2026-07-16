@@ -1,3 +1,9 @@
+--- Lock screen animation widget.
+-- Animated lock icon with rotating coloured arc that responds to key presses.
+-- Shows a rainbow arc segment on each key press, cycling through directions
+-- and colours, and resets on auth failure or empty input.
+-- @module ui.lockscreen.lock_animation
+
 local beautiful = require("beautiful")
 local gshape = require("gears.shape")
 local wibox = require("wibox")
@@ -66,7 +72,7 @@ local lock_animation = wibox.widget({
     layout = wibox.layout.stack,
 })
 
--- Lock helper functions
+--- Reset the animation to idle state (grey lock icon, transparent arc, north).
 function lock_animation.reset()
     icon.image =
         gcolor.recolor_image(LOCK_ICON_PATH, beautiful.light_black or "#888888")
@@ -76,6 +82,7 @@ function lock_animation.reset()
     characters_entered = 0
 end
 
+--- Show authentication failure (red lock icon, reset arc and character count).
 function lock_animation.fail()
     icon.image =
         gcolor.recolor_image(LOCK_ICON_PATH, beautiful.red or "#fc618d")
@@ -85,7 +92,11 @@ function lock_animation.fail()
     characters_entered = 0
 end
 
--- Function that "animates" every key press
+--- Animate one key press: advance or recede the rainbow arc on the lock icon.
+-- On `"insert"`: increments counter, cycles arc colour, turns icon to key.
+-- On `"remove"`: decrements counter, resets arc to grey.
+-- Resets entirely when the counter reaches zero.
+-- @tparam string operation `"insert"` or `"remove"`
 function lock_animation.key_animation(operation)
     local arc_color
 

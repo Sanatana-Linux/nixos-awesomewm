@@ -7,7 +7,7 @@ Creates a toggle button for the control panel that allows users to:
 --]]
 
 local gfs = require("gears.filesystem")
-local applet_button = require("modules.applet_button")
+local applet_button = require("modules.widgets.applet_button")
 local adapter = require("service.bluetooth").get_default()
 
 ------------------------------------------------------------------------

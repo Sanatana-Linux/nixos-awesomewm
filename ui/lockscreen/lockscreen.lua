@@ -1,3 +1,12 @@
+--- Lockscreen wibox + activation glue.
+-- Constructs a per-screen `splash`-type wibox that hosts the body and word
+-- clock. Subscribes to:
+--   * `awesome::lockscreen::visible` (boolean) — set true to lock the screen,
+--     false to unlock. Drives `naughty.suspended` and per-screen visibility.
+--   * `screen::request::wallpaper` — re-maximizes the wibox when the wallpaper
+--     (and therefore the screen workarea) changes.
+-- @module ui.lockscreen.lockscreen
+
 local awful = require("awful")
 local beautiful = require("beautiful")
 local gtimer = require("gears.timer")
@@ -12,6 +21,9 @@ local last_hour
 local last_minute
 local active_color
 
+--- Update the lockscreen time display.
+-- Only updates when the actual time (hour/minute) has changed.
+-- @local
 local function update_time()
     local hour, min = os.date("%H:%M"):match("(%d+):(%d+)")
     local hour = tonumber(hour)

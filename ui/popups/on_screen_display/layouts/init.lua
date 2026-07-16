@@ -1,12 +1,18 @@
+--- Layout-switch OSD popup.
+-- Shows a grid of layout icons centered on screen when the layout
+-- changes (triggered by `layout::changed:next`/`:prev` signals).
+-- Includes a cooldown lock to prevent rapid cycling. Also patches
+-- `gears.table.iterate_value` for cyclic table iteration.
+-- @module ui.popups.on_screen_display.layouts
+
 local wibox = require("wibox")
 local awful = require("awful")
 local beautiful = require("beautiful")
 local dpi = beautiful.xresources.apply_dpi
 local gears = require("gears")
 local mouse = mouse
-local shapes = require("modules.shapes.init")
+local shapes = require("modules.style.shapes.init")
 
--- Create the base layout
 local base_layout = wibox.widget({
     spacing = dpi(72),
     forced_num_cols = 4,
@@ -87,6 +93,10 @@ local unlock_timer = gears.timer({
     end,
 })
 
+--- Change layout by delta and show the OSD.
+-- Applies a cooldown lock to prevent rapid cycling.
+-- Fires `awful.layout.inc(dir)` then shows the popup.
+-- @tparam integer dir 1 for next, -1 for previous
 local function change_layout(dir)
     if layout_lock then
         return
@@ -107,6 +117,17 @@ awesome.connect_signal("layout::changed:prev", function()
 end)
 
 -- Optimized table iteration function
+--- Cyclic table iteration: find `value` in `t`, then return the element
+-- `step_size` positions forward (wrapping around at the end).
+-- Used to make layout cycling work in both directions.
+-- Overrides `gears.table.iterate_value`.
+-- @tparam table t The table to search
+-- @param value The value to find
+-- @tparam[opt] integer step_size Steps forward (default 1)
+-- @tparam[opt] function filter Optional filter function applied to candidate
+-- @tparam[opt] integer start_at Index to start searching from
+-- @return The found element, or nil
+-- @treturn[1] integer|nil The key of the found element
 function gears.table.iterate_value(t, value, step_size, filter, start_at)
     local k = table.hasitem(t, value, true, start_at)
     if not k then
@@ -128,16 +149,21 @@ end
 
 local osd = {}
 
+--- Show the layout-switch OSD.
+-- The popup reappears with the auto-hide timer reset.
 function osd.show()
     layout_popup.visible = true
     layout_popup.timer:again()
 end
 
+--- Hide the layout-switch OSD immediately.
 function osd.hide()
     layout_popup.visible = false
     layout_popup.timer:stop()
 end
 
+--- Singleton accessor: returns the (already-initialised) OSD.
+-- @treturn table OSD module with show/hide methods
 function osd.get_default()
     return osd
 end

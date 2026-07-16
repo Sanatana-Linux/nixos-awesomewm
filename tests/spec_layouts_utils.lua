@@ -84,13 +84,16 @@ runner.describe("utils.match_grabber", function()
         assert.falsy(match_grabber({ { "Mod4" }, "F2" }, { "Mod4" }, "F3"))
     end)
 
-    runner.it("strips 'Unknown' and 'Mod2' noise modifiers from the event", function()
-        local event_mods = { "Unknown", "Mod4" }
-        assert.truthy(match_grabber({ { "Mod4" }, "F2" }, event_mods, "F2"))
-        -- After the call, the 'Unknown' noise modifier should be removed
-        assert.eq(#event_mods, 1)
-        assert.eq(event_mods[1], "Mod4")
-    end)
+    runner.it(
+        "strips 'Unknown' and 'Mod2' noise modifiers from the event",
+        function()
+            local event_mods = { "Unknown", "Mod4" }
+            assert.truthy(match_grabber({ { "Mod4" }, "F2" }, event_mods, "F2"))
+            -- After the call, the 'Unknown' noise modifier should be removed
+            assert.eq(#event_mods, 1)
+            assert.eq(event_mods[1], "Mod4")
+        end
+    )
 
     runner.it("matches multi-modifier bindings", function()
         assert.truthy(
@@ -104,11 +107,7 @@ runner.describe("utils.match_grabber", function()
 
     runner.it("rejects when event has extra modifiers", function()
         assert.falsy(
-            match_grabber(
-                { { "Mod4" }, "F2" },
-                { "Mod4", "Shift" },
-                "F2"
-            )
+            match_grabber({ { "Mod4" }, "F2" }, { "Mod4", "Shift" }, "F2")
         )
     end)
 end)
@@ -183,7 +182,11 @@ runner.describe("utils.cairo_set_font", function()
         }
         -- Mirror the production helper
         local function cairo_set_font(cr, style)
-            cr:select_font_face(style.font or "Sans", style.slant or 0, style.face or 1)
+            cr:select_font_face(
+                style.font or "Sans",
+                style.slant or 0,
+                style.face or 1
+            )
             cr:set_font_size(style.size or 22)
         end
         cairo_set_font(cr, {})
@@ -207,7 +210,11 @@ runner.describe("utils.cairo_set_font", function()
             end,
         }
         local function cairo_set_font(cr, style)
-            cr:select_font_face(style.font or "Sans", style.slant or 0, style.face or 1)
+            cr:select_font_face(
+                style.font or "Sans",
+                style.slant or 0,
+                style.face or 1
+            )
             cr:set_font_size(style.size or 22)
         end
         cairo_set_font(cr, { font = "Mono", slant = 1, face = 2, size = 32 })

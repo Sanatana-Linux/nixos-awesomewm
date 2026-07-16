@@ -3,7 +3,7 @@ local naughty = require("naughty")
 local gtable = require("gears.table")
 local ipairs = ipairs
 local alayout = awful.layout
-local utils = require("modules.utils")
+local utils = require("modules.layouts.widgets.utils")
 local common = { handler = {}, last = {}, tips = {}, keys = {}, mouse = {} }
 common.wfactstep = 0.05
 
@@ -267,10 +267,16 @@ end
 --------------------------------------------------------------------------------
 common.updates = {}
 
+--- Build the tip table for layouts that only use base+swap keys.
+-- @treturn table Joined key entries for the hotkeys popup
+-- @local
 local function build_base_tip()
     return gtable.join(common.keys.swap, common.keys.base, common.keys._fake)
 end
 
+--- Build the tip table for master/slave tiled layouts.
+-- @treturn table Joined key entries (tile + swap + base + _fake)
+-- @local
 local function build_tile_tip()
     return gtable.join(
         common.keys.swap,
@@ -280,6 +286,9 @@ local function build_tile_tip()
     )
 end
 
+--- Build the tip table for corner layouts.
+-- @treturn table Joined key entries (corner + swap + base + _fake)
+-- @local
 local function build_corner_tip()
     return gtable.join(
         common.keys.swap,
@@ -289,6 +298,9 @@ local function build_corner_tip()
     )
 end
 
+--- Build the tip table for the magnifier layout.
+-- @treturn table Joined key entries (magnifier + base + _fake)
+-- @local
 local function build_magnifier_tip()
     return gtable.join(
         common.keys.magnifier,
@@ -297,6 +309,8 @@ local function build_magnifier_tip()
     )
 end
 
+--- Assign the corner tip to all four corner layout variants.
+-- @local
 local function set_corner_tip()
     common.tips[alayout.suit.corner.nw] = build_corner_tip()
     common.tips[alayout.suit.corner.ne] = build_corner_tip()
@@ -304,6 +318,8 @@ local function set_corner_tip()
     common.tips[alayout.suit.corner.se] = build_corner_tip()
 end
 
+--- Assign the tile tip to all five tile layout variants.
+-- @local
 local function set_tile_tip()
     common.tips[alayout.suit.tile] = build_tile_tip()
     common.tips[alayout.suit.tile.right] = build_tile_tip()
@@ -312,6 +328,7 @@ local function set_tile_tip()
     common.tips[alayout.suit.tile.bottom] = build_tile_tip()
 end
 
+--- Update tips for layouts that only use swap keys.
 common.updates.swap = function()
     common.tips[alayout.suit.fair] = build_base_tip()
     common.tips[alayout.suit.spiral] = build_base_tip()
@@ -320,6 +337,7 @@ common.updates.swap = function()
     set_corner_tip()
 end
 
+--- Update tips for base-key layouts (fair, spiral, magnifier).
 common.updates.base = function()
     common.tips[alayout.suit.fair] = build_base_tip()
     common.tips[alayout.suit.spiral] = build_base_tip()
@@ -329,14 +347,17 @@ common.updates.base = function()
     set_corner_tip()
 end
 
+--- Update tips for the magnifier layout.
 common.updates.magnifier = function()
     common.tips[alayout.suit.magnifier] = build_magnifier_tip()
 end
 
+--- Update tips for tile layouts.
 common.updates.tile = function()
     set_tile_tip()
 end
 
+--- Update tips for corner layouts.
 common.updates.corner = function()
     set_corner_tip()
 end
@@ -361,6 +382,10 @@ common.grabbers = {}
 
 -- Base grabbers
 --------------------------------------------------------------------------------
+-- Base grabber — handles kill, focus by number, swap by double-press.
+--- @tparam table mod Key modifier table
+-- @tparam string key Key name
+-- @treturn boolean True if the key was consumed
 common.grabbers.base = function(mod, key)
     for _, k in ipairs(common.keys.base) do
         if utils.match_grabber(k, mod, key) then
@@ -399,6 +424,10 @@ common.grabbers.base = function(mod, key)
     end
 end
 
+--- Swap grabber — handles master-slave swap key bindings.
+-- @tparam table mod
+-- @tparam string key
+-- @treturn boolean
 common.grabbers.swap = function(mod, key)
     for _, k in ipairs(common.keys.swap) do
         if utils.match_grabber(k, mod, key) then
@@ -408,6 +437,10 @@ common.grabbers.swap = function(mod, key)
     end
 end
 
+--- Tile grabber — handles mwfact, nmaster, ncol key bindings.
+-- @tparam table mod
+-- @tparam string key
+-- @treturn boolean
 common.grabbers.tile = function(mod, key)
     for _, k in ipairs(common.keys.tile) do
         if utils.match_grabber(k, mod, key) then
@@ -417,6 +450,10 @@ common.grabbers.tile = function(mod, key)
     end
 end
 
+--- Corner grabber — handles mwfact, nmaster for corner layouts.
+-- @tparam table mod
+-- @tparam string key
+-- @treturn boolean
 common.grabbers.corner = function(mod, key)
     for _, k in ipairs(common.keys.corner) do
         if utils.match_grabber(k, mod, key) then
@@ -426,6 +463,10 @@ common.grabbers.corner = function(mod, key)
     end
 end
 
+--- Magnifier grabber — handles mwfact for the magnifier layout.
+-- @tparam table mod
+-- @tparam string key
+-- @treturn boolean
 common.grabbers.magnifier = function(mod, key)
     for _, k in ipairs(common.keys.magnifier) do
         if utils.match_grabber(k, mod, key) then
@@ -437,6 +478,12 @@ end
 
 -- Grabbers for awful layouts
 --------------------------------------------------------------------------------
+--- Fair/spiral keyboard handler — swap + base keys only.
+-- @tparam table mod
+-- @tparam string key
+-- @tparam string event `"press"` or `"release"`
+-- @treturn boolean True if handled
+-- @local
 local function fair_handler(mod, key, event)
     if event == "release" then
         return
@@ -449,6 +496,8 @@ local function fair_handler(mod, key, event)
     end
 end
 
+--- Magnifier keyboard handler — magnifier + base keys.
+-- @local
 local function magnifier_handler(mod, key, event)
     if event == "release" then
         return
@@ -461,6 +510,8 @@ local function magnifier_handler(mod, key, event)
     end
 end
 
+--- Tile keyboard handler — tile + swap + base keys.
+-- @local
 local function tile_handler(mod, key, event)
     if event == "release" then
         return
@@ -476,6 +527,8 @@ local function tile_handler(mod, key, event)
     end
 end
 
+--- Corner keyboard handler — corner + swap + base keys.
+-- @local
 local function corner_handler(mod, key, event)
     if event == "release" then
         return

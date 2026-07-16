@@ -36,7 +36,9 @@ end
 
 -- Discover and run all spec files
 local function discover_specs(dir)
-    local handle = io.popen('ls -1 "' .. dir .. '" 2>/dev/null | grep "^spec_" | grep "\\.lua$"')
+    local handle = io.popen(
+        'ls -1 "' .. dir .. '" 2>/dev/null | grep "^spec_" | grep "\\.lua$"'
+    )
     if not handle then
         return {}
     end
@@ -70,7 +72,13 @@ local spec_dir = project_root() .. "tests"
 local root = project_root()
 
 -- Make `require("tests.assert")` and `require("modules.foo")` resolvable
-package.path = spec_dir .. "/?.lua;" .. root .. "?.lua;" .. root .. "?/init.lua;" .. package.path
+package.path = spec_dir
+    .. "/?.lua;"
+    .. root
+    .. "?.lua;"
+    .. root
+    .. "?/init.lua;"
+    .. package.path
 
 local specs = discover_specs(spec_dir)
 print(string.format("(scanning %d spec files in %s)", #specs, spec_dir))
@@ -80,17 +88,24 @@ for _, spec in ipairs(specs) do
     if fn then
         local ok, run_err = pcall(fn, runner)
         if not ok then
-            print("\27[31mload error in " .. spec .. ":\27[0m " .. tostring(run_err))
+            print(
+                "\27[31mload error in "
+                    .. spec
+                    .. ":\27[0m "
+                    .. tostring(run_err)
+            )
         end
     else
         print("\27[31mcannot load " .. spec .. ":\27[0m " .. tostring(err))
     end
 end
 
-print(string.format(
-    "\n== %d passed, %d failed, %d total ==\n",
-    results.passed,
-    results.failed,
-    results.total
-))
+print(
+    string.format(
+        "\n== %d passed, %d failed, %d total ==\n",
+        results.passed,
+        results.failed,
+        results.total
+    )
+)
 os.exit(results.failed > 0 and 1 or 0)

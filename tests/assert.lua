@@ -14,7 +14,14 @@ end
 -- @tparam[opt] string msg
 function M.eq(actual, expected, msg)
     if actual ~= expected then
-        fail((msg or "eq") .. ": expected " .. tostring(expected) .. ", got " .. tostring(actual), 2)
+        fail(
+            (msg or "eq")
+                .. ": expected "
+                .. tostring(expected)
+                .. ", got "
+                .. tostring(actual),
+            2
+        )
     end
 end
 
@@ -46,7 +53,15 @@ function M.errors(fn, pattern, msg)
         fail((msg or "errors") .. ": expected error, got success", 2)
     end
     if pattern and not tostring(err):find(pattern) then
-        fail((msg or "errors") .. ": error '" .. tostring(err) .. "' does not match pattern '" .. pattern .. "'", 2)
+        fail(
+            (msg or "errors")
+                .. ": error '"
+                .. tostring(err)
+                .. "' does not match pattern '"
+                .. pattern
+                .. "'",
+            2
+        )
     end
 end
 
@@ -56,7 +71,14 @@ end
 -- @tparam[opt] string msg
 function M.type(value, expected_type, msg)
     if type(value) ~= expected_type then
-        fail((msg or "type") .. ": expected " .. expected_type .. ", got " .. type(value), 2)
+        fail(
+            (msg or "type")
+                .. ": expected "
+                .. expected_type
+                .. ", got "
+                .. type(value),
+            2
+        )
     end
 end
 
@@ -66,7 +88,10 @@ end
 -- @tparam[opt] string msg
 function M.has(t, k, msg)
     if type(t) ~= "table" then
-        fail((msg or "has") .. ": first argument is not a table: " .. type(t), 2)
+        fail(
+            (msg or "has") .. ": first argument is not a table: " .. type(t),
+            2
+        )
     end
     if t[k] == nil then
         fail((msg or "has") .. ": key '" .. tostring(k) .. "' is missing", 2)

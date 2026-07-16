@@ -6,7 +6,7 @@ local wibox = require("wibox")
 local beautiful = require("beautiful")
 local gfs = require("gears.filesystem")
 local dpi = beautiful.xresources.apply_dpi
-local shapes = require("modules.shapes.init")
+local shapes = require("modules.style.shapes.init")
 
 local icons_dir = gfs.get_configuration_dir()
     .. "ui/bar/modules/tray_widget/icons/"

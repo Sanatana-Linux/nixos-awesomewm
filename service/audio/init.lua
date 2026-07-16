@@ -16,8 +16,9 @@ local gdebug = require("gears.debug")
 
 local audio = {}
 
--- Build a single shell command that emits `field=value` lines for the requested
--- properties of the given pactl target. Empty output for missing fields.
+--- Build a single shell command that emits `field=value` lines for the requested
+-- properties of the given pactl target.
+-- Empty output for missing / failed fields.
 -- @tparam string target `@DEFAULT_SINK@` or `@DEFAULT_SOURCE@`
 -- @tparam table fields List of property names to read (e.g. `{"volume", "mute"}`)
 -- @treturn string Shell command
@@ -37,8 +38,8 @@ local function build_poll_cmd(target, fields)
     return table.concat(pieces, "\n")
 end
 
--- Parse `key=value` output of the built poll command.
--- @tparam string stdout
+--- Parse `key=value` output of the built poll command.
+-- @tparam string stdout Raw shell output
 -- @treturn table Decoded values keyed by field name
 local function parse_kv(stdout)
     local values = {}
@@ -51,7 +52,7 @@ local function parse_kv(stdout)
     return values
 end
 
--- Decode pactl's percentage output ("/ 78%") to an integer.
+--- Decode pactl's percentage output (`"/ 78%"`) to an integer.
 -- @tparam string raw pactl volume output
 -- @treturn number|nil Volume as 0..100, or nil if no match
 local function parse_volume_pct(raw)
@@ -61,7 +62,7 @@ local function parse_volume_pct(raw)
     return tonumber(raw:match("/%s+(%d+)%%"))
 end
 
--- Decode pactl mute output ("yes" / "no") to a boolean.
+--- Decode pactl mute output (`"yes"` / `"no"`) to a boolean.
 -- pactl prints both `Mute: yes` and just `yes` depending on caller; this parser
 -- accepts either form.
 -- @tparam string raw pactl mute output

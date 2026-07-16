@@ -1,13 +1,10 @@
---[[
-Networking Applet Button Widget
-
-Creates a toggle button for the control panel that allows users to:
-- Enable/disable WiFi with a single click
-- Reveal the full network management page via the arrow button
---]]
+--- Networking applet toggle button widget.
+-- A toggle button for the control panel that enables/disables WiFi with
+-- a single click, with an arrow to reveal the full network management page.
+-- @module ui.popups.control_panel.networking_applet.button
 
 local gfs = require("gears.filesystem")
-local applet_button = require("modules.applet_button")
+local applet_button = require("modules.widgets.applet_button")
 local nm_client = require("service.network").get_default()
 
 local ICONS_DIR = gfs.get_configuration_dir()
@@ -15,6 +12,11 @@ local ICONS_DIR = gfs.get_configuration_dir()
 local WIFI_ICON = ICONS_DIR .. "wifi.svg"
 local ARROW_ICON = ICONS_DIR .. "arrow-right.svg"
 
+--- Construct a new network applet toggle button.
+-- Wraps `modules.applet_button` with WiFi-specific state (wireless-enabled
+-- property from the network service).
+-- @treturn widget The applet toggle button
+-- @local
 local function new()
     return applet_button({
         icon = WIFI_ICON,

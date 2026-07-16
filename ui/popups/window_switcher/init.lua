@@ -16,9 +16,9 @@ local wibox = require("wibox")
 local beautiful = require("beautiful")
 local gears = require("gears")
 local gtable = require("gears.table")
-local shapes = require("modules.shapes")
-local icon_lookup = require("modules.icon-lookup")
-local styled_button = require("modules.styled_button")
+local shapes = require("modules.style.shapes")
+local icon_lookup = require("modules.icon_lookup")
+local styled_button = require("modules.widgets.styled_button")
 local dpi = beautiful.xresources.apply_dpi
 local capi = { client = client, awesome = awesome }
 
@@ -28,6 +28,10 @@ local window_switcher = { _private = {} }
 -- Create a client icon button with selectable state
 -- Uses styled_button.create() (not create_icon_button) for set_selected support
 -- --------------------------------------------------------------------------
+--- Build a client icon button for the switcher row.
+-- The focused client gets a highlighted border via `styled_button`.
+-- @tparam client c The client to render
+-- @treturn table A styled_button widget
 local function make_client_button(c)
     local icon_path = icon_lookup.get_client_icon(c)
     local icon_size = dpi(32)
@@ -66,6 +70,9 @@ end
 -- --------------------------------------------------------------------------
 -- Build the popup widget
 -- --------------------------------------------------------------------------
+--- Build the switcher widget tree from the focused tag's clients.
+-- Returns an empty base widget when no tag or clients exist.
+-- @treturn table A themed wibox widget
 local function build_popup()
     local tag = awful.screen.focused().selected_tag
     if not tag then
@@ -110,6 +117,9 @@ end
 -- --------------------------------------------------------------------------
 -- Rebuild the icon list (called after focus cycles)
 -- --------------------------------------------------------------------------
+--- Rebuild the client icon row in-place.
+-- No-op when the popup is hidden.
+-- @tparam table wp `self._private` state table
 local function rebuild(wp)
     if not wp.popup or not wp.popup.visible then
         return
@@ -235,12 +245,17 @@ end)
 -- --------------------------------------------------------------------------
 local instance
 
+--- Construct a new window_switcher instance (singleton).
+-- Copies `window_switcher` methods onto a fresh object.
+-- @treturn table Switcher instance with show/hide methods
 local function new()
     local ret = {}
     gtable.crush(ret, window_switcher, true)
     return ret
 end
 
+--- Singleton accessor: returns (and lazily constructs) the window switcher.
+-- @treturn table Cached switcher instance
 local function get_default()
     if not instance then
         instance = new()

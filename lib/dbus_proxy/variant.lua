@@ -53,6 +53,11 @@ v3 = GVariant("aai", {{1, 2, 3}, {4, 1, 2, 3}})
 stripped3 = variant.strip(v3)
 -- {{1, 2, 3}, {4, 1, 2, 3}, n=2}
 ]]
+--- Strip an `lgi.GLib.Variant` / `lgi.GLib.VariantType` of its GLib wrappers,
+-- returning plain Lua data (numbers, booleans, strings, tables).
+-- Handles nested variants, dictionaries (`a{sv}`), tuples, and arrays recursively.
+-- @tparam lgi.GLib.Variant v The variant to strip
+-- @treturn table|string|number|boolean Stripped plain Lua value
 function variant.strip(v)
     if not tostring(v):find("GLib%.Variant$") then
         if type(v) == "table" and #v > 0 then

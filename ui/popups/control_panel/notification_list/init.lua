@@ -1,3 +1,10 @@
+--- Notification list widget for the control panel.
+-- Renders naughty notifications in a scrollable list. Supports do-not-disturb
+-- mode, per-notification removal, and a "clear all" confirmation dialog.
+-- Delegates widget rendering to `widget.lua` and confirmation dialog to
+-- `dialog.lua`.
+-- @module ui.popups.control_panel.notification_list
+
 local awful = require("awful")
 local wibox = require("wibox")
 local naughty = require("naughty")
@@ -6,11 +13,16 @@ local gtable = require("gears.table")
 local gfs = require("gears.filesystem")
 local gcolor = require("gears.color")
 local modules = require("modules")
-local ncr = naughty.notification_closed_reason
-local dpi = beautiful.xresources.apply_dpi
-local create_markup = require("lib").create_markup
-local shapes = require("modules.shapes")
+local shapes = require("modules.style.shapes")
 local notifications_service = require("ui.notification").get_default()
+
+local widget_module =
+    require("ui.popups.control_panel.notification_list.widget")
+local dialog_module =
+    require("ui.popups.control_panel.notification_list.dialog")
+
+local overflow = require("wibox.layout.overflow")
+local dpi = beautiful.xresources.apply_dpi
 
 local icons_dir = gfs.get_configuration_dir()
     .. "ui/popups/control_panel/notification_list/icons/"
@@ -18,14 +30,16 @@ local bell_on_icon = icons_dir .. "bell-on.svg"
 local bell_off_icon = icons_dir .. "bell-off.svg"
 local trash_icon = icons_dir .. "trash.svg"
 local close_icon = icons_dir .. "close.svg"
-local exit_icon = icons_dir .. "close.svg"
 
 -- Safe font name with fallback (font_name can be nil if theme not fully loaded)
 local FONT_NAME = beautiful.font_name or "Sans "
 
 local notification_list = {}
 
--- Move remove_notification function to top so it's available when referenced
+--- Remove a notification widget by its ID from the layout.
+-- @tparam table self The notification list widget
+-- @tparam number|string notification_id The notification to remove
+-- @local
 local function remove_notification_by_id(self, notification_id)
     local success, err = pcall(function()
         local notifs_layout = self:get_children_by_id("notifications-layout")[1]
@@ -82,206 +96,12 @@ local function remove_notification_by_id(self, notification_id)
     end
 end
 
-local function create_actions_widget(n)
-    if not n.actions or #n.actions == 0 then
-        return nil
-    end
-
-    local actions_widget = wibox.widget({
-        widget = wibox.container.margin,
-        margins = { top = dpi(5) },
-        {
-            id = "main-layout",
-            layout = wibox.layout.flex.horizontal,
-            spacing = dpi(5),
-        },
-    })
-
-    local main_layout = actions_widget:get_children_by_id("main-layout")[1]
-    for _, action in ipairs(n.actions) do
-        main_layout:add(wibox.widget({
-            widget = wibox.container.constraint,
-            strategy = "max",
-            height = dpi(40),
-            {
-                widget = modules.hover_button({
-                    label = action.name,
-                    font = beautiful.font_h0,
-                    margins = {
-                        left = dpi(10),
-                        right = dpi(10),
-                        top = dpi(8),
-                        bottom = dpi(8),
-                    },
-                    shape = shapes.rrect(8),
-                    buttons = {
-                        awful.button({}, 1, function()
-                            action:invoke()
-                        end),
-                    },
-                }),
-            },
-        }))
-    end
-
-    return actions_widget
-end
-
-local function create_notification_widget(
-    n,
-    notification_list_widget,
-    notification_id
-)
-    local widget = wibox.widget({
-        is_notification = true,
-        notification_id = notification_id, -- Store ID for removal
-        widget = wibox.container.constraint,
-        strategy = "max",
-        height = 260,
-        {
-            widget = wibox.container.background,
-            bg = beautiful.bg_alt,
-            shape = shapes.rrect(10),
-            {
-                widget = wibox.container.margin,
-                margins = dpi(15),
-                {
-                    layout = wibox.layout.fixed.vertical,
-                    spacing = dpi(5),
-                    {
-                        layout = wibox.layout.align.horizontal,
-                        {
-                            widget = wibox.container.constraint,
-                            strategy = "max",
-                            width = dpi(150),
-                            height = dpi(25),
-                            {
-                                widget = wibox.widget.textbox,
-                                markup = create_markup(n.app_name, {
-                                    fg = n.urgency == "critical"
-                                            and beautiful.red
-                                        or beautiful.fg,
-                                }),
-                            },
-                        },
-                        nil,
-                        {
-                            layout = wibox.layout.fixed.horizontal,
-                            spacing = dpi(10),
-                            {
-                                widget = wibox.widget.textbox,
-                                markup = create_markup(
-                                    n.timestamp
-                                            and os.date("%H:%M", n.timestamp)
-                                        or os.date("%H:%M"),
-                                    { fg = beautiful.fg_alt }
-                                ),
-                            },
-                            {
-                                id = "close",
-                                widget = wibox.container.background,
-                                bg = "transparent",
-                                buttons = {
-                                    awful.button({}, 1, function()
-                                        -- Remove this specific notification from the center and cache safely
-                                        local success, err = pcall(function()
-                                            if notification_id then
-                                                local cache = require(
-                                                    "ui.notification.cache"
-                                                )
-                                                cache.remove(notification_id)
-                                            end
-                                            remove_notification_by_id(
-                                                notification_list_widget,
-                                                notification_id
-                                            )
-                                        end)
-                                        if not success then
-                                            print(
-                                                "ERROR: Error removing notification:",
-                                                err
-                                            )
-                                        end
-                                    end),
-                                },
-                                {
-                                    widget = wibox.container.margin,
-                                    margins = dpi(4),
-                                    {
-                                        widget = wibox.widget.imagebox,
-                                        image = gcolor.recolor_image(
-                                            close_icon,
-                                            beautiful.red
-                                        ),
-                                        resize = true,
-                                        forced_width = dpi(16),
-                                        forced_height = dpi(16),
-                                    },
-                                },
-                            },
-                        },
-                    },
-                    {
-                        widget = wibox.container.background,
-                        forced_width = 1,
-                        forced_height = beautiful.separator_thickness,
-                        {
-                            widget = wibox.widget.separator,
-                            orientation = "horizontal",
-                        },
-                    },
-                    {
-                        layout = wibox.layout.fixed.horizontal,
-                        -- Remove the buttons from here to avoid duplicate handlers
-                        fill_space = true,
-                        spacing = dpi(10),
-                        {
-                            widget = wibox.container.constraint,
-                            strategy = "max",
-                            width = dpi(70),
-                            height = dpi(70),
-                            {
-                                widget = wibox.widget.imagebox,
-                                resize = true,
-                                halign = "center",
-                                valign = "top",
-                                clip_shape = shapes.rrect(dpi(5)),
-                                image = n.icon,
-                            },
-                        },
-                        {
-                            layout = wibox.layout.fixed.vertical,
-                            spacing = dpi(5),
-                            {
-                                widget = wibox.container.constraint,
-                                strategy = "max",
-                                height = dpi(25),
-                                {
-                                    widget = wibox.widget.textbox,
-                                    markup = n.title,
-                                },
-                            },
-                            {
-                                widget = wibox.container.constraint,
-                                strategy = "max",
-                                height = dpi(80),
-                                {
-                                    widget = wibox.widget.textbox,
-                                    font = FONT_NAME .. dpi(9),
-                                    markup = n.text or n.massage,
-                                },
-                            },
-                        },
-                    },
-                    create_actions_widget(n),
-                },
-            },
-        },
-    })
-
-    return widget
-end
-
+--- Add a notification to the list widget.
+-- Inserts at index 1 (newest first). Removes "No notifications" placeholder
+-- if it exists.
+-- @tparam table self The notification list widget
+-- @tparam table n Naughty notification object
+-- @local
 local function add_notification(self, n)
     if not n then
         return
@@ -292,8 +112,12 @@ local function add_notification(self, n)
     local notification_id = n.id
         or tostring(os.time() .. math.random(1000, 9999))
 
-    local new_notification_widget =
-        create_notification_widget(n, self, notification_id)
+    local new_notification_widget = widget_module.create_notification_widget(
+        n,
+        self,
+        notification_id,
+        remove_notification_by_id
+    )
     if
         #notifs_layout.children == 1
         and not notifs_layout.children[1].is_notification
@@ -301,229 +125,15 @@ local function add_notification(self, n)
         notifs_layout:reset()
     end
     notifs_layout:insert(1, new_notification_widget)
-    -- NOTE: Removed the destroyed signal connection here so notifications
-    -- persist in the notification center after disappearing from screen
     self:update_count()
 end
 
--- Create confirmation dialog for clearing notifications
-local function create_confirmation_dialog(callback)
-    local screen = awful.screen.focused()
-
-    local backdrop = wibox({
-        visible = false,
-        ontop = false,
-        type = "desktop",
-        bg = "#00000033",
-        x = screen.geometry.x,
-        y = screen.geometry.y,
-        width = screen.geometry.width,
-        height = screen.geometry.height,
-    })
-
-    -- Define dialog functions first
-    local dialog_functions = {}
-
-    local function hide_dialog()
-        backdrop.visible = false
-        if dialog_functions.dialog then
-            dialog_functions.dialog.visible = false
-        end
-    end
-
-    local function handle_cancel()
-        hide_dialog()
-    end
-
-    local function handle_clear_all()
-        hide_dialog()
-        if callback then
-            callback()
-        else
-            print("ERROR: No callback function provided")
-        end
-    end
-
-    -- Create confirm button (left side)
-    local confirm_icon = gcolor.recolor_image(trash_icon, beautiful.red)
-    local confirm_icon_hover = gcolor.recolor_image(trash_icon, "#000000")
-    local confirm_button = wibox.widget({
-        widget = wibox.container.background,
-        bg = "transparent",
-        border_width = dpi(1),
-        border_color = beautiful.red,
-        shape = shapes.rrect(8),
-        buttons = {
-            awful.button({}, 1, handle_clear_all),
-        },
-        {
-            widget = wibox.container.margin,
-            margins = {
-                left = dpi(28),
-                right = dpi(8),
-                top = dpi(12),
-                bottom = dpi(12),
-            },
-            {
-                layout = wibox.layout.fixed.horizontal,
-                spacing = dpi(3),
-                {
-                    id = "confirm-icon",
-                    widget = wibox.widget.imagebox,
-                    image = confirm_icon,
-                    resize = true,
-                    forced_width = dpi(24),
-                    forced_height = dpi(24),
-                },
-                {
-                    id = "confirm-label",
-                    widget = wibox.widget.textbox,
-                    align = "center",
-                    markup = create_markup("Confirm", { fg = beautiful.red }),
-                    font = FONT_NAME .. " " .. dpi(12),
-                },
-            },
-        },
-    })
-    confirm_button:connect_signal("mouse::enter", function(w)
-        w.bg = "linear:0,0:0,32:0,#fc618dcc:1,#b61442cc"
-        w.border_color = "transparent"
-        local icon = w:get_children_by_id("confirm-icon")[1]
-        if icon then
-            icon.image = confirm_icon_hover
-        end
-        local label = w:get_children_by_id("confirm-label")[1]
-        if label then
-            label:set_markup(create_markup("Confirm", { fg = "#000000" }))
-        end
-    end)
-    confirm_button:connect_signal("mouse::leave", function(w)
-        w.bg = "transparent"
-        w.border_color = beautiful.red
-        local icon = w:get_children_by_id("confirm-icon")[1]
-        if icon then
-            icon.image = confirm_icon
-        end
-        local label = w:get_children_by_id("confirm-label")[1]
-        if label then
-            label:set_markup(create_markup("Confirm", { fg = beautiful.red }))
-        end
-    end)
-
-    -- Create cancel button (right side)
-    local cancel_icon = gcolor.recolor_image(exit_icon, beautiful.fg)
-    local cancel_button = wibox.widget({
-        widget = wibox.container.background,
-        bg = beautiful.bg_alt,
-        border_width = dpi(2),
-        border_color = beautiful.fg .. "66",
-        shape = shapes.rrect(8),
-        buttons = {
-            awful.button({}, 1, handle_cancel),
-        },
-        {
-            widget = wibox.container.margin,
-            margins = {
-                left = dpi(36),
-                right = dpi(16),
-                top = dpi(12),
-                bottom = dpi(12),
-            },
-            {
-                layout = wibox.layout.fixed.horizontal,
-                spacing = dpi(3),
-                {
-                    widget = wibox.widget.imagebox,
-                    image = cancel_icon,
-                    resize = true,
-                    forced_width = dpi(24),
-                    forced_height = dpi(24),
-                },
-                {
-                    widget = wibox.widget.textbox,
-                    align = "center",
-                    markup = "Cancel",
-                    font = FONT_NAME .. " " .. dpi(12),
-                },
-            },
-        },
-    })
-    cancel_button:connect_signal("mouse::enter", function(w)
-        w.bg = beautiful.bg_urg
-    end)
-    cancel_button:connect_signal("mouse::leave", function(w)
-        w.bg = beautiful.bg_alt
-    end)
-
-    -- Don't add button functionality separately since it's already in the widget definition
-
-    local dialog = awful.popup({
-        visible = false,
-        ontop = true,
-        type = "dialog",
-        screen = screen,
-        bg = "#00000000",
-        placement = awful.placement.centered,
-
-        widget = {
-            widget = wibox.container.background,
-            bg = beautiful.bg .. "33",
-            border_width = dpi(2),
-            border_color = beautiful.fg_alt,
-            shape = shapes.rrect(15),
-            {
-                widget = wibox.container.margin,
-                margins = dpi(10),
-                {
-                    layout = wibox.layout.fixed.vertical,
-                    spacing = dpi(32),
-                    -- Title
-                    {
-                        widget = wibox.widget.textbox,
-                        align = "center",
-                        markup = create_markup("Clear All Notifications"),
-                        font = FONT_NAME .. " 16",
-                    },
-                    -- Message
-                    {
-                        widget = wibox.widget.textbox,
-                        align = "center",
-                        markup = create_markup(
-                            "This will permanently delete all notification history.\nAre you sure you want to continue?"
-                        ),
-                        font = FONT_NAME .. " 10",
-                    },
-                    -- Buttons
-                    {
-                        layout = wibox.layout.flex.horizontal,
-                        spacing = dpi(12),
-                        confirm_button,
-                        cancel_button,
-                    },
-                },
-            },
-        },
-    })
-
-    dialog_functions.dialog = dialog
-
-    -- Hide dialog when clicking backdrop
-    backdrop.buttons = {
-        awful.button({}, 1, hide_dialog),
-    }
-
-    return {
-        show = function()
-            backdrop.visible = true
-            dialog.visible = true
-        end,
-        hide = hide_dialog,
-    }
-end
-
+--- Clear all notifications after user confirmation.
+-- Removes all notification widgets from the layout, resets the count,
+-- and clears the on-disk cache file.
 function notification_list:clear_notifications()
     -- Create confirmation dialog
-    local dialog = create_confirmation_dialog(function()
+    local dialog = dialog_module.create_confirmation_dialog(function()
         -- Clear the visual notifications first
         local notifs_layout = self:get_children_by_id("notifications-layout")[1]
         local notification_widgets = {}
@@ -581,6 +191,8 @@ function notification_list:clear_notifications()
     dialog.show()
 end
 
+--- Update the notification count badge.
+-- Reads the number of notification children and updates the title label.
 function notification_list:update_count()
     local notifs_layout = self:get_children_by_id("notifications-layout")[1]
     local notifs_title = self:get_children_by_id("notifications-title")[1]
@@ -596,6 +208,8 @@ function notification_list:update_count()
     end
 end
 
+--- Toggle Do Not Disturb mode.
+-- Suspends or resumes naughty notifications and updates the DND icon.
 function notification_list:toggle_dnd()
     local wp = self._private
     wp.dnd_mode = not wp.dnd_mode
@@ -606,6 +220,11 @@ function notification_list:toggle_dnd()
     end
 end
 
+--- Construct a new notification list widget.
+-- Creates the scrollable layout, wires DND and clear buttons, loads cached
+-- notifications from disk, and connects to naughty's `added` signal.
+-- @treturn wibox.widget The notification list widget
+-- @local
 local function new()
     local ret = wibox.widget({
         widget = wibox.container.background,
@@ -645,7 +264,10 @@ local function new()
                             id = "dnd-button",
                             widget = modules.hover_button({
                                 bg_normal = beautiful.bg,
-                                margins = { right = dpi(11), left = dpi(11) },
+                                margins = {
+                                    right = dpi(11),
+                                    left = dpi(11),
+                                },
                                 shape = shapes.rrect(10),
                                 forced_height = dpi(36),
                                 forced_width = dpi(42),
@@ -673,7 +295,10 @@ local function new()
                                 fg_normal = beautiful.red,
                                 bg_normal = beautiful.bg,
                                 bg_hover = beautiful.red,
-                                margins = { right = dpi(11), left = dpi(11) },
+                                margins = {
+                                    right = dpi(11),
+                                    left = dpi(11),
+                                },
                                 shape = shapes.rrect(10),
                                 forced_height = dpi(36),
                                 forced_width = dpi(42),
@@ -702,7 +327,7 @@ local function new()
             },
             {
                 id = "notifications-layout",
-                layout = wibox.layout.overflow.vertical,
+                layout = overflow.vertical,
                 scrollbar_enabled = false,
                 step = 80,
                 spacing = dpi(6),
@@ -762,10 +387,11 @@ local function new()
             -- Add cached notifications (newest first since cache is already in that order)
             for _, cached_notif in ipairs(cached_notifications) do
                 -- Create notification widget from cached data
-                local cached_widget = create_notification_widget(
+                local cached_widget = widget_module.create_notification_widget(
                     cached_notif,
                     ret,
-                    cached_notif.id
+                    cached_notif.id,
+                    remove_notification_by_id
                 )
                 notifs_layout:add(cached_widget)
             end

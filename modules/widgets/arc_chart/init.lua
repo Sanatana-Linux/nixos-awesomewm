@@ -1,0 +1,152 @@
+---@diagnostic disable: undefined-global
+--- Arc chart widget.
+-- Circular progress indicator wrapping `wibox.container.arcchart`,
+-- with a centered percentage text and label, and an optional
+-- tweening animation when the value changes.
+-- @module modules.arc_chart
+
+local wibox = require("wibox")
+local beautiful = require("beautiful")
+local animations = require("modules.infra.animations")
+
+local arc_chart = {}
+
+--- Construct a new arc chart instance.
+-- @tparam[opt] table args Configuration:
+--   * `value` (number, 0..max_value): current value
+--   * `min_value` (number): minimum value (default 0)
+--   * `max_value` (number): maximum value (default 100)
+--   * `thickness` (number): arc thickness in pixels (default dpi(8))
+--   * `color` (string): arc color (default beautiful.accent_color)
+--   * `bg_color` (string): track color (default beautiful.bg_3)
+--   * `rounded_edge` (boolean): round arc ends (default true)
+--   * `start_angle` (number): start angle in radians (default -π/2 = top)
+--   * `label` (string): label text shown below the percentage
+--   * `animate_duration` (number): tween duration in seconds (default 0.3)
+--   * `animate_easing` (function): easing function from modules.animations
+-- @treturn table An arc-chart widget with set_value, set_label, set_color, get_value
+function arc_chart.new(args)
+    args = args or {}
+
+    local ret = wibox.widget({
+        widget = wibox.container.arcchart,
+        values = { args.value or 0 },
+        max_value = args.max_value or 100,
+        min_value = args.min_value or 0,
+        thickness = args.thickness or beautiful.xresources.apply_dpi(8),
+        rounded_edge = args.rounded_edge ~= false,
+        start_angle = args.start_angle or math.pi * 1.5, -- Start at top
+        colors = { args.color or beautiful.accent_color or "#7aa2f7" },
+        bg = args.bg_color or beautiful.bg_3 or "#3c3836",
+        border_width = 0,
+        {
+            widget = wibox.container.margin,
+            margins = args.margins or beautiful.xresources.apply_dpi(10),
+            {
+                layout = wibox.layout.align.vertical,
+                expand = "none",
+                nil,
+                {
+                    layout = wibox.layout.align.horizontal,
+                    expand = "none",
+                    nil,
+                    {
+                        layout = wibox.layout.fixed.vertical,
+                        spacing = beautiful.xresources.apply_dpi(2),
+                        {
+                            widget = wibox.widget.textbox,
+                            id = "percentage_text",
+                            text = tostring(args.value or 0) .. "%",
+                            font = args.font
+                                or beautiful.font_name .. " Bold 22",
+                            align = "center",
+                            valign = "center",
+                        },
+                        {
+                            widget = wibox.widget.textbox,
+                            id = "label_text",
+                            text = args.label or "",
+                            font = args.label_font
+                                or beautiful.font_name .. " 16",
+                            align = "center",
+                            valign = "center",
+                            opacity = 0.7,
+                        },
+                    },
+                    nil,
+                },
+                nil,
+            },
+        },
+    })
+
+    -- Store references for easy access
+    ret._percentage_text = ret:get_children_by_id("percentage_text")[1]
+    ret._label_text = ret:get_children_by_id("label_text")[1]
+    ret._current_value = args.value or 0
+    ret._animation = nil
+
+    ret._animate_duration = args.animate_duration or 0.3
+    ret._animate_easing = args.animate_easing or animations.easing.quadratic
+
+    --- Set the current value (with optional tween animation).
+    -- Clamped to [min_value, max_value].
+    -- @tparam number value
+    -- @tparam[opt] boolean animate Pass `false` to skip animation
+    function ret:set_value(value, animate)
+        value = math.max(self.min_value, math.min(self.max_value, value or 0))
+
+        if animate ~= false and self._animate_duration > 0 then
+            -- Stop existing animation
+            if self._animation then
+                self._animation:stop()
+            end
+
+            local start_value = self._current_value
+            self._animation = animations.animate({
+                start = start_value,
+                target = value,
+                duration = self._animate_duration,
+                easing = self._animate_easing,
+                update = function(val)
+                    local rounded_val = math.floor(val + 0.5)
+                    self.values = { val }
+                    self._percentage_text:set_text(tostring(rounded_val) .. "%")
+                    self._current_value = val
+                end,
+                complete = function()
+                    self._animation = nil
+                end,
+            })
+        else
+            -- Immediate update
+            self.values = { value }
+            self._percentage_text:set_text(
+                tostring(math.floor(value + 0.5)) .. "%"
+            )
+            self._current_value = value
+        end
+    end
+
+    --- Set the label text below the percentage.
+    -- @tparam string text
+    function ret:set_label(text)
+        self._label_text:set_text(text or "")
+    end
+
+    --- Set the arc colour.
+    -- @tparam string color CSS colour string
+    function ret:set_color(color)
+        self.colors = { color }
+    end
+
+    --- Get the current (clamped) value.
+    -- @treturn number
+    function ret:get_value()
+        return self._current_value
+    end
+
+    return ret
+end
+
+return arc_chart

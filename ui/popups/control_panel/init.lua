@@ -1,12 +1,17 @@
+--- Control panel popup.
+-- Multi-page overlay: home, audio sliders, brightness, network, bluetooth,
+-- notifications. Backs the `Mod4+P` (and `Mod4+E`) keybindings.
+-- @module ui.popups.control_panel
+
 local awful = require("awful")
 local wibox = require("wibox")
 local beautiful = require("beautiful")
 local gtable = require("gears.table")
 local gtimer = require("gears.timer")
 local dpi = beautiful.xresources.apply_dpi
-local anim = require("modules.animations")
+local anim = require("modules.infra.animations")
 local capi = { screen = screen }
-local shapes = require("modules.shapes")
+local shapes = require("modules.style.shapes")
 local notification_list = require("ui.popups.control_panel.notification_list")
 local audio_sliders = require("ui.popups.control_panel.audio_sliders")
 local brightness_slider = require("ui.popups.control_panel.brightness_slider")
@@ -17,9 +22,11 @@ local bluetooth_button =
     require("ui.popups.control_panel.bluetooth_applet.button")
 local bluetooth_page = require("ui.popups.control_panel.bluetooth_applet.page")
 local audio = require("service.audio").get_default()
-local click_to_hide = require("modules.click_to_hide")
+local click_to_hide = require("modules.infra.click_to_hide")
 
--- Tooltip helper
+--- Tooltip helper — attaches a themed tooltip to a widget.
+-- @tparam table widget The widget to attach to
+-- @tparam string text Tooltip text
 local function add_tooltip(widget, text)
     awful.tooltip({
         objects = { widget },
@@ -32,6 +39,7 @@ end
 
 local control_panel = {}
 
+--- Switch to the network settings page inside the panel.
 function control_panel:setup_network_page()
     local wp = self._private
     local main_layout = self.widget:get_children_by_id("main-layout")[1]
@@ -39,6 +47,7 @@ function control_panel:setup_network_page()
     main_layout:add(wp.network_page)
 end
 
+--- Switch to the bluetooth settings page inside the panel.
 function control_panel:setup_bluetooth_page()
     local wp = self._private
     local main_layout = self.widget:get_children_by_id("main-layout")[1]
@@ -46,6 +55,8 @@ function control_panel:setup_bluetooth_page()
     main_layout:add(wp.bluetooth_page)
 end
 
+--- Reset to the main (home) page with notification list, audio, brightness,
+-- and applet buttons.
 function control_panel:setup_main_page()
     local wp = self._private
     local main_layout = self.widget:get_children_by_id("main-layout")[1]
@@ -72,6 +83,8 @@ function control_panel:setup_main_page()
     )
 end
 
+--- Show the control panel. Idempotent. Refreshes the audio sink/source state
+-- on show, and resets to the main page.
 function control_panel:show()
     local wp = self._private
     if wp.shown then
@@ -117,6 +130,7 @@ function control_panel:show()
     end)
 end
 
+--- Hide the control panel. Idempotent. Animates a slide-down + fade-out.
 function control_panel:hide()
     local wp = self._private
     if not wp.shown then
@@ -146,6 +160,7 @@ function control_panel:hide()
     })
 end
 
+--- Toggle visibility. Backs `Mod4+P` and `Mod4+E`.
 function control_panel:toggle()
     if not self.visible then
         self:show()
@@ -154,6 +169,8 @@ function control_panel:toggle()
     end
 end
 
+--- Show the network settings page, switching to it immediately.
+-- Shows the panel first if it's hidden.
 function control_panel:show_network()
     local wp = self._private
     if not wp.shown then
@@ -163,6 +180,8 @@ function control_panel:show_network()
     wp.network_page:refresh()
 end
 
+--- Show the bluetooth settings page, switching to it immediately.
+-- Shows the panel first if it's hidden.
 function control_panel:show_bluetooth()
     local wp = self._private
     if not wp.shown then
@@ -171,6 +190,10 @@ function control_panel:show_bluetooth()
     self:setup_bluetooth_page()
 end
 
+--- Construct the control panel popup (lazy singleton).
+-- Builds the full widget tree with all sub-pages, applet buttons, and
+-- click-to-hide wiring. Subscribes to the audio service for live slider updates.
+-- @treturn table Popup instance with show/hide/toggle/show_network/show_bluetooth
 local function new()
     local ret = awful.popup({
         visible = false,
@@ -276,6 +299,8 @@ local function new()
 end
 
 local instance = nil
+--- Singleton accessor: returns (and lazily constructs) the control panel.
+-- @treturn table Cached popup instance
 local function get_default()
     if not instance then
         instance = new()

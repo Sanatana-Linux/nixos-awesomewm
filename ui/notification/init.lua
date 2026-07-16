@@ -1,3 +1,11 @@
+--- Unified notification system.
+-- Replaces the default naughty notification display with a themed popup.
+-- Subscribes to the `naughty` request signals to intercept error display,
+-- notification display, and notification rules. Maintains a small cache of
+-- recent notifications (`ui.notification.cache`) so duplicate notifications
+-- don't pile up. Backs the `Mod4+;` toggle keybinding (`system.lua`).
+-- @module ui.notification
+
 local awful = require("awful")
 local naughty = require("naughty")
 local wibox = require("wibox")
@@ -8,12 +16,12 @@ local gcolor = require("gears.color")
 local gfs = require("gears.filesystem")
 local modules = require("modules")
 local beautiful = require("beautiful")
-local shapes = require("modules.shapes")
+local shapes = require("modules.style.shapes")
 local ncr = naughty.notification_closed_reason
 local capi = { awesome = awesome }
 local dpi = beautiful.xresources.apply_dpi
-local create_markup = require("lib").create_markup
-local remove_nonindex = require("lib").remove_nonindex
+local create_markup = require("lib.util").create_markup
+local remove_nonindex = require("lib.util").remove_nonindex
 local notification_cache = require("ui.notification.cache")
 
 local close_icon = gfs.get_configuration_dir() .. "ui/titlebar/icons/close.svg"
@@ -26,6 +34,9 @@ require("ui.notification.battery")
 
 local notifications = {}
 
+--- Reposition all of a screen's notification popups (stacked, top-right).
+-- Called after add/remove/expire to keep the column flush.
+-- @tparam screen screen The screen whose notifications to re-layout
 local function update_positions(screen)
     if #screen.notifications > 0 then
         for i = 1, #screen.notifications do
@@ -42,6 +53,9 @@ local function update_positions(screen)
     end
 end
 
+--- Add a popup to the top of a screen's notification stack.
+-- @tparam popup popup The notification popup widget
+-- @tparam screen screen The screen to display on
 local function add_popup(popup, screen)
     if not popup then
         return
@@ -51,6 +65,9 @@ local function add_popup(popup, screen)
     update_positions(screen)
 end
 
+--- Remove a popup from a screen's notification stack.
+-- @tparam popup popup The notification popup widget
+-- @tparam screen screen The screen to remove from
 local function remove_popup(popup, screen)
     if not popup then
         return
@@ -61,6 +78,11 @@ local function remove_popup(popup, screen)
     update_positions(screen)
 end
 
+--- Build the per-notification action button row.
+-- Returns nil when `n` has no actions. Each action becomes a
+-- `hover_button` with click-handler that invokes the action.
+-- @tparam naughty.notification n
+-- @treturn table|nil A wibox widget for the action row, or nil
 local function create_actions_widget(n)
     if #n.actions == 0 then
         return nil
@@ -105,6 +127,12 @@ local function create_actions_widget(n)
     })
 end
 
+--- Build the popup widget for a single notification.
+-- Includes the app name + timestamp header, a close button, an
+-- icon, title, body, and the actions row. The widget is hidden
+-- initially and added to the screen's stack by `display()`.
+-- @tparam naughty.notification n
+-- @treturn table A wibox widget
 local function create_notification_popup(n)
     local popup_widget = awful.popup({
         type = "notification",
@@ -271,6 +299,9 @@ local function create_notification_popup(n)
     return popup_widget
 end
 
+--- Display a naughty notification `n` as a themed popup. Caches it so the
+-- notification center can show history. Idempotent for `n == nil`.
+-- @tparam naughty.notification n
 function notifications.display(n)
     if not n then
         return
@@ -308,18 +339,25 @@ function notifications.display(n)
 end
 
 -- Expose cache functions for use by other modules
+--- @treturn table All cached notifications
 function notifications.get_cached_notifications()
     return notification_cache.get_all()
 end
 
+--- Clear the notification cache.
 function notifications.clear_cache()
     return notification_cache.clear()
 end
 
+--- @treturn integer Number of notifications currently cached
 function notifications.get_cache_count()
     return notification_cache.count()
 end
 
+--- Construct the notification service instance.
+-- Initialises per-screen `notifications` arrays via
+-- `awful.screen.connect_for_each_screen`.
+-- @treturn table Service instance with display/cache methods
 local function new()
     local ret = {}
     gtable.crush(ret, notifications, true)
@@ -332,6 +370,8 @@ local function new()
 end
 
 local instance = nil
+--- Singleton accessor: returns (and lazily constructs) the notification service.
+-- @treturn table Cached service instance (same object on every call)
 local function get_default()
     if not instance then
         instance = new()

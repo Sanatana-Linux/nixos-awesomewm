@@ -1,7 +1,8 @@
--- modules/layouts/navigator.lua
--- Adapted from redshell/lib.service.navigator.
--- Draws overlay markers on tiled clients for keyboard navigation.
--- Uses local equivalents for all dependencies.
+--- Tiled-client keyboard navigator.
+-- Draws overlay markers (resize/dimensions) on tiled clients and enables
+-- keyboard-driven focus/swap/move operations triggered via Mod4+F2.
+-- Adapted from `redshell/lib.service.navigator`.
+-- @module modules.layouts.widgets.navigator
 
 local math = math
 local awful = require("awful")
@@ -10,12 +11,15 @@ local color = require("gears.color")
 local gtable = require("gears.table")
 local beautiful = require("beautiful")
 local timer = require("gears.timer")
-local utils = require("modules.utils")
+local utils = require("modules.layouts.widgets.utils")
 local layouts = require("modules.layouts")
 local common = require("modules.layouts.widgets.common")
 local naughty = require("naughty")
 local capi = { keygrabber = keygrabber }
 
+--- Show a quick notification message.
+-- @tparam string txt The message text
+-- @local
 function notify_show(txt)
     naughty.notify({ text = txt, timeout = 2 })
 end
@@ -23,6 +27,9 @@ end
 local navigator = { action = {}, data = {}, active = false }
 navigator.ignored = { "dock", "splash", "desktop" }
 
+--- Build the default style table, merging theme overrides from `beautiful.service.navigator`.
+-- @treturn table Style table with border, mark, font, color keys
+-- @local
 local function default_style()
     local style = {
         border_width = 2,
@@ -70,6 +77,11 @@ local function default_style()
     )
 end
 
+--- Test whether two rectangles intersect.
+-- @tparam table a `{x, y, width, height}`
+-- @tparam table b `{x, y, width, height}`
+-- @treturn boolean True if the rectangles overlap
+-- @local
 local function is_intersect(a, b)
     return (
         b.x < a.x + a.width
@@ -79,6 +91,12 @@ local function is_intersect(a, b)
     )
 end
 
+--- Create a painted overlay widget for a single client.
+-- Draws the gradient background, rounded-rect marker, client number,
+-- and dimension label via Cairo. Exposes `set_client()` and
+-- `set_alert()` methods for runtime updates.
+-- @tparam client c The client to associate with
+-- @treturn table A wibox widget with `fit` and `draw` methods
 function navigator.make_paint(c)
     local style = navigator.style
     local widg = wibox.widget.base.make_widget()
@@ -86,6 +104,8 @@ function navigator.make_paint(c)
         client = c,
         alert = false,
     }
+    --- Update the client associated with this painted widget.
+    -- @tparam client client_
     function widg:set_client(client_)
         if widg._data.client ~= client_ then
             widg._data.client = client_
@@ -93,15 +113,26 @@ function navigator.make_paint(c)
         end
     end
 
+    --- Toggle the alert (highlight) state of this overlay.
+    -- @tparam boolean value
     function widg:set_alert(value)
         if widg._data.alert ~= value then
             widg._data.alert = value
             self:emit_signal("widget::redraw_needed")
         end
     end
+    --- Always fill available space.
+    -- @tparam number width
+    -- @tparam number height
+    -- @treturn number width
+    -- @treturn number height
     function widg:fit(_, width, height)
         return width, height
     end
+    --- Cairo draw handler — renders gradient, marker, label, and dimensions.
+    -- @tparam gears.cairo.Context cr
+    -- @tparam number width
+    -- @tparam number height
     function widg:draw(_, cr, width, height)
         if not widg._data.client then
             return
@@ -166,6 +197,11 @@ function navigator.make_paint(c)
     return widg
 end
 
+--- Create a decoration (wibox + paint widget) for a client.
+-- Sets up signal handlers for focus, unfocus, geometry changes,
+-- and unmanage events.
+-- @tparam client c
+-- @treturn table Decoration object with `wibox`, `client`, `set_client()`, `clear()`
 function navigator.make_decor(c)
     local object = {}
     local style = navigator.style
@@ -190,6 +226,9 @@ function navigator.make_decor(c)
             utils.fullgeometry(object.wibox, utils.fullgeometry(object.client))
         end,
     }
+    --- Re-assign this decoration to a different client.
+    -- Disconnects old signal handlers and connects new ones.
+    -- @tparam client client_
     function object:set_client(client_)
         object.client = client_
         object.widget:set_client(client_)
@@ -203,6 +242,8 @@ function navigator.make_decor(c)
         )
         object.client:connect_signal("unmanage", object.update.close)
     end
+    --- Clear signal handlers and optionally hide the decoration wibox.
+    -- @tparam[opt] boolean no_hide If true, keep the wibox visible
     function object:clear(no_hide)
         object.client:disconnect_signal("focus", object.update.focus)
         object.client:disconnect_signal("unfocus", object.update.focus)
@@ -220,6 +261,7 @@ function navigator.make_decor(c)
     return object
 end
 
+--- Initialise the navigator: load style, set up hilight timer, register tag/client signals.
 function navigator:init()
     self.style = default_style()
     self.hilight = {}
@@ -229,6 +271,8 @@ function navigator:init()
         self.hilight.hide()
     end)
     -- show/hide
+    --- Show hilight overlay on clients intersecting the given geometry.
+    -- @tparam table g `{x, y, width, height}` geometry to test
     function self.hilight.show(g)
         for i, c in ipairs(self.cls) do
             self.data[i].widget:set_alert(is_intersect(g, c:geometry()))
@@ -236,6 +280,7 @@ function navigator:init()
         self.hilight.hidetimer:again()
     end
 
+    --- Hide all hilight overlays.
     function self.hilight.hide()
         for i, _ in ipairs(self.cls) do
             self.data[i].widget:set_alert(false)
@@ -264,6 +309,9 @@ function navigator:init()
     end)
 end
 
+--- Start the navigator: identify tiled clients, create decorations,
+-- run a keygrabber with the active layout's `key_handler`, and show
+-- client-size labels against each tiled client.
 function navigator:run()
     if not self.style then
         self:init()
@@ -304,6 +352,11 @@ function navigator:run()
     end
     -- run key handler — use capi.keygrabber directly so we can return
     -- false for unhandled keys, allowing them to pass through to normal bindings
+    --- Keygrabber callback: returns `true` for handled keys, `false` to replay.
+    -- @tparam table mod
+    -- @tparam string key
+    -- @tparam string event
+    -- @treturn boolean
     local function grabber(mod, key, event)
         if handler(mod, key, event) then
             return true -- key handled, consume it
@@ -322,6 +375,8 @@ function navigator:run()
     navigator.active = true
 end
 
+--- Close the navigator: hide all decorations, stop the keygrabber,
+-- run the layout's `cleanup()` hook if available.
 function navigator:close()
     for i, _ in ipairs(self.cls) do
         self.data[i]:clear()
@@ -335,6 +390,9 @@ function navigator:close()
     navigator.active = false
 end
 
+--- Restart the navigator after a client change (manage/minimise).
+-- Updates client list and re-assigns decorations without stopping
+-- the keygrabber.
 function navigator:restart()
     -- update decoration
     for i, _ in ipairs(self.cls) do

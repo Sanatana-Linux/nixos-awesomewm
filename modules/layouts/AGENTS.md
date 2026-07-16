@@ -25,6 +25,7 @@ for these layouts live in `widgets/common.lua`.
 | `thrizen.lua`                       | 3-column balanced grid                                |
 | `widgets/common.lua`                | Shared key grabbing, tips, mouse handling             |
 | `widgets/navigator.lua`             | Overlay markers for keyboard navigation (Mod4+F2)    |
+| `widgets/utils.lua`                  | Pure helper functions (match_grabber, geometry, cairo, table helpers) |
 
 ## Layout Authoring Conventions
 

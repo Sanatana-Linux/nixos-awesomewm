@@ -1,12 +1,14 @@
---- Application launcher.
--- Search-driven popup with keyboard navigation. Reads the user desktop apps at
--- show time and caches them for fast subsequent filtering. Apps designated as
--- `Terminal=true` in their `.desktop` file get spawned inside `kitty`.
--- Backs `Mod4+Shift+Return` (`launcher.lua` keybinding).
+--- Application launcher popup.
+-- Search-driven popup with keyboard navigation. Reads the user's desktop
+-- apps at show time and caches them for fast subsequent filtering. Apps
+-- designated as Terminal=true in their .desktop file get spawned inside
+-- kitty. Backs Mod4+Shift+Return (launcher.lua keybinding).
+--
+-- App discovery and filtering live in apps.lua; launch history tracking
+-- lives in history.lua. The powermenu dependency is decoupled via the
+-- "launcher::power-clicked" signal — wire it from ui/init.lua.
 -- @module ui.popups.launcher
 
-local lgi = require("lgi")
-local Gio = lgi.Gio
 local awful = require("awful")
 local wibox = require("wibox")
 local beautiful = require("beautiful")
@@ -15,21 +17,21 @@ local gtimer = require("gears.timer")
 local gtable = require("gears.table")
 local gfs = require("gears.filesystem")
 local gsurface = require("gears.surface")
-local modules = require("modules")
-local anim = require("modules.animations")
-local text_icons = beautiful.text_icons
-local dpi = beautiful.xresources.apply_dpi
 local gcolor = require("gears.color")
-local lua_escape = require("lib").lua_escape
-local is_supported = require("lib").is_supported
-local table_to_file = require("lib").table_to_file
+local color_alpha = require("lib.util").color_alpha
+local lua_escape = require("lib.util").lua_escape
+local modules = require("modules")
+local anim = require("modules.infra.animations")
+local dpi = beautiful.xresources.apply_dpi
 local capi = { screen = screen }
-local powermenu = require("ui.popups.powermenu").get_default()
-local icon_lookup = require("modules.icon-lookup") -- Centralized icon resolution
-local crop_surface = require("modules.crop_surface")
-local click_to_hide = require("modules.click_to_hide")
+local apps = require("ui.popups.launcher.apps")
+local history = require("ui.popups.launcher.history")
+local icon_lookup = require("modules.icon_lookup")
+local crop_surface = require("modules.style.crop_surface")
+local click_to_hide = require("modules.infra.click_to_hide")
+local shapes = require("modules.style.shapes.init")
+
 local launcher = {}
-local shapes = require("modules.shapes.init")
 
 local lock_icon_path = gfs.get_configuration_dir()
     .. "ui/popups/launcher/icons/lock-line.svg"
@@ -38,106 +40,8 @@ local power_icon_path = gfs.get_configuration_dir()
 local power_icon_black_path = gfs.get_configuration_dir()
     .. "ui/popups/launcher/icons/shut-down-line-black.svg"
 
---- Spawn the app's executable, honouring its `Terminal=true` flag.
--- Apps marked `Terminal=true` are wrapped in the user's default
--- terminal emulator (resolved via `Gio.AppInfo.get_default_for_uri_scheme`).
--- @tparam table app A `Gio.DesktopAppInfo`-like object
-local function launch_app(app)
-    if not app then
-        return
-    end
-
-    -- Safely get desktop app info to check terminal requirement
-    local term_needed = false
-    if Gio.DesktopAppInfo then
-        local status, desktop_app_info = pcall(function()
-            return Gio.DesktopAppInfo.new(app:get_id())
-        end)
-
-        if status and desktop_app_info then
-            local term_status, terminal_string = pcall(function()
-                return desktop_app_info:get_string("Terminal")
-            end)
-            if term_status and terminal_string == "true" then
-                term_needed = true
-            end
-        end
-    end
-
-    local term_status, term = pcall(function()
-        return Gio.AppInfo.get_default_for_uri_scheme("terminal")
-    end)
-    if not term_status then
-        term = nil
-    end
-
-    awful.spawn(
-        term_needed
-                and term
-                and string.format(
-                    "%s -e %s",
-                    term:get_executable(),
-                    app:get_executable()
-                )
-            or string.match(app:get_executable(), "^env") and string.gsub(
-                app:get_commandline(),
-                "%%%a",
-                ""
-            )
-            or app:get_executable()
-    )
-end
-
---- Filter the unfiltered app list by the current search query.
--- Two-tier sort: prefix matches first (sorted alphabetically), then
--- substring matches (also sorted). Hidden apps (`should_show() ==
--- false`) are skipped. The query is `lua_escape`'d to neutralise
--- pattern metacharacters.
--- @tparam table apps Array of `Gio.DesktopAppInfo`-like objects
--- @tparam string query User-typed search string
--- @treturn table Filtered and sorted app list
-local function filter_apps(apps, query)
-    query = lua_escape(query)
-    local filtered = {}
-    local filtered_any = {}
-
-    for _, app in ipairs(apps) do
-        if app:should_show() then
-            local name_match = string.lower(
-                string.sub(app:get_name(), 1, string.len(query))
-            ) == string.lower(query)
-            local name_match_any =
-                string.match(string.lower(app:get_name()), string.lower(query))
-            local exec_match_any = string.match(
-                string.lower(app:get_executable()),
-                string.lower(query)
-            )
-
-            if name_match then
-                table.insert(filtered, app)
-            elseif name_match_any or exec_match_any then
-                table.insert(filtered_any, app)
-            end
-        end
-    end
-
-    table.sort(filtered, function(a, b)
-        return string.lower(a:get_name()) < string.lower(b:get_name())
-    end)
-
-    table.sort(filtered_any, function(a, b)
-        return string.lower(a:get_name()) < string.lower(b:get_name())
-    end)
-
-    for i = 1, #filtered_any do
-        filtered[#filtered + 1] = filtered_any[i]
-    end
-
-    return filtered
-end
-
 --- Move selection to the next entry. Wraps to the top and resets the
--- scroll offset when pressing `Down` at the last entry.
+-- scroll offset when pressing Down at the last entry.
 function launcher:next()
     local wp = self._private
     if #wp.filtered > 1 and wp.select_index ~= #wp.filtered then
@@ -169,7 +73,7 @@ function launcher:back()
     end
 end
 
---- Rebuild the entries container widget from the current `wp.filtered`
+--- Rebuild the entries container widget from the current wp.filtered
 -- list. Called after any change to the filtered set (text input, scroll,
 -- selection).
 function launcher:update_entries()
@@ -210,7 +114,7 @@ function launcher:update_entries()
                                     widget = wibox.container.place,
                                     valign = "center",
                                     halign = "center",
-                                    icon_widget, -- Use the icon widget we can update
+                                    icon_widget,
                                 },
                                 {
                                     layout = wibox.layout.fixed.vertical,
@@ -254,12 +158,13 @@ function launcher:update_entries()
                     entry_widget.bg = beautiful.blue .. "55"
                 end
 
-                -- Add click handler
+                -- Add click handler with history recording
                 entry_widget:connect_signal(
                     "button::press",
                     function(_, _, _, button)
                         if button == 1 then
-                            launch_app(app)
+                            history.record_launch(app:get_id())
+                            apps.launch(app)
                             self:hide()
                         end
                     end
@@ -303,7 +208,7 @@ function launcher:show()
     wp.shown = true
 
     -- Reset to show all apps (lightweight filtering)
-    wp.filtered = filter_apps(wp.unfiltered, "")
+    wp.filtered = apps.filter(wp.unfiltered, "", history.make_sort_fn())
     wp.start_index, wp.select_index = 1, 1
 
     -- Reset text input (lightweight)
@@ -324,7 +229,7 @@ function launcher:show()
         end
 
         gtimer.delayed_call(function()
-            self:emit_signal("widget::layout_changed") -- Force layout update to get geometry
+            self:emit_signal("widget::layout_changed")
 
             -- Focus text input immediately after becoming visible
             text_input:focus()
@@ -343,7 +248,6 @@ function launcher:show()
                     self.y = start_y + (final_y - start_y) * progress
                 end,
                 complete = function()
-                    -- Animation complete
                     self:emit_signal("property::shown", wp.shown)
                 end,
             })
@@ -382,7 +286,7 @@ function launcher:hide()
     })
 end
 
---- Toggle launcher visibility. Backs the `Mod4+Shift+Return` keybinding.
+--- Toggle launcher visibility. Backs the Mod4+Shift+Return keybinding.
 function launcher:toggle()
     if not self.visible then
         self:show()
@@ -391,7 +295,7 @@ function launcher:toggle()
     end
 end
 
---- Construct the launcher popup (used internally by `get_default`).
+--- Construct the launcher popup (used internally by get_default).
 -- Builds the full widget tree: sidebar with lock + powermenu buttons,
 -- search field, entries container, and signal wiring for
 -- keypress / text-input / scroll / click-outside.
@@ -517,7 +421,6 @@ local function new()
                                 layout = wibox.layout.stack,
                                 border_width = beautiful.border_width,
                                 border_color = beautiful.border_color_normal,
-
                                 {
                                     layout = wibox.layout.stack,
                                     {
@@ -603,24 +506,23 @@ local function new()
     wp.rows = 6
 
     -- Pre-load apps at initialization to avoid heavy operations during show
-    local status, apps = pcall(function()
-        return Gio.AppInfo.get_all()
-    end)
-    wp.unfiltered = (status and apps) or {}
+    wp.unfiltered = apps.get_all()
     wp.filtered = {}
     wp.start_index, wp.select_index = 1, 1
 
+    -- Powermenu button: emit a custom signal instead of requiring powermenu
+    -- directly. Wire this from ui/init.lua.
     local powermenu_button =
         ret.widget:get_children_by_id("powermenu-button")[1]
     local power_icon_widget = ret.widget:get_children_by_id("power-icon")[1]
     powermenu_button:buttons({
         awful.button({}, 1, function()
-            powermenu:show()
+            ret:emit_signal("launcher::power-clicked")
         end),
     })
     powermenu_button:connect_signal("mouse::enter", function(w)
         w.bg = beautiful.red
-        w.border_color = beautiful.fg .. "66"
+        w.border_color = color_alpha(beautiful.fg, "66")
         if power_icon_widget then
             power_icon_widget.image = power_icon_black_path
         end
@@ -641,7 +543,7 @@ local function new()
     })
     lock_button:connect_signal("mouse::enter", function(w)
         w.bg = beautiful.bg_gradient_button_alt
-        w.border_color = beautiful.fg .. "66"
+        w.border_color = color_alpha(beautiful.fg, "66")
     end)
     lock_button:connect_signal("mouse::leave", function(w)
         w.bg = beautiful.bg_gradient_button
@@ -675,7 +577,7 @@ local function new()
     end)
 
     text_input:on_input_changed(function(_, input)
-        wp.filtered = filter_apps(wp.unfiltered, input)
+        wp.filtered = apps.filter(wp.unfiltered, input, history.make_sort_fn())
         wp.start_index, wp.select_index = 1, 1
         ret:update_entries()
     end)
@@ -683,7 +585,8 @@ local function new()
     text_input:on_executed(function()
         local app = wp.filtered[wp.select_index]
         if app then
-            launch_app(app)
+            history.record_launch(app:get_id())
+            apps.launch(app)
         end
     end)
 

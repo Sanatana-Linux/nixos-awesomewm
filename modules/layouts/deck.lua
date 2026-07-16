@@ -1,17 +1,15 @@
--- NOTE: also courtesy of bling
---
--- NOTE: this layout shows the upper right corner of
--- clients out of focus like a poker hand or deck of
--- playing cards
--- ------------------------------------------------- --
+--- Deck / cards layout.
+-- Shows clients as a cascading deck of cards, each offset slightly from the
+-- previous, so the upper-right corner of each underlying client is visible.
+-- @module modules.layouts.deck
 
--- Create a table for the custom layout
 local deck = {}
 
 -- Set the name of the custom layout to 'deck'
 deck.name = "deck"
 
--- Function to arrange clients in the 'deck' layout
+--- Deck arrange: offset each client diagonally so earlier ones peek out.
+-- @tparam table p Layout parameters
 function deck.arrange(p)
     local area = p.workarea
     local t = p.tag or screen[p.screen].selected_tag

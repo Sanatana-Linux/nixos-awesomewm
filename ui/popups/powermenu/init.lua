@@ -14,8 +14,8 @@ local gcolor = require("gears.color")
 local text_icons = beautiful.text_icons
 local dpi = beautiful.xresources.apply_dpi
 local capi = { awesome = awesome, screen = screen }
-local shapes = require("modules.shapes")
-local click_to_hide = require("modules.click_to_hide")
+local shapes = require("modules.style.shapes")
+local click_to_hide = require("modules.infra.click_to_hide")
 
 local icons_dir = gfs.get_configuration_dir() .. "ui/popups/powermenu/icons/"
 
@@ -29,6 +29,9 @@ local keys = {
     exec = { "Return" },
 }
 
+--- Run the keygrabber for keyboard navigation (Up/Down/Left/Right/Return).
+-- The keygrabber is active only while the popup is visible.
+-- @tparam table self The popup instance
 local function run_keygrabber(self)
     local wp = self._private
     wp.keygrabber = awful.keygrabber.run(function(_, key, event)
@@ -202,6 +205,11 @@ function powermenu:toggle()
     end
 end
 
+--- Construct the power menu popup (lazy singleton).
+-- Builds 4 action tiles: lock, poweroff, reboot, logout (quit).
+-- Each tile has keyboard and mouse interaction. The popup is centered
+-- and uses click-to-hide (outside click only).
+-- @treturn table Popup instance with show/hide/toggle/next/back methods
 local function new()
     local ret = awful.popup({
         visible = false,
@@ -235,9 +243,7 @@ local function new()
     wp.elements = {
         {
             exec = function()
-                awful.spawn(
-                    os.getenv("HOME") .. "/.config/awesome/bin/glitchlock.sh"
-                )
+                awesome.emit_signal("lockscreen::visible", true)
                 ret:hide()
             end,
             icon = icons_dir .. "lock.svg",
@@ -275,6 +281,8 @@ local function new()
 end
 
 local instance = nil
+--- Singleton accessor: returns (and lazily constructs) the power menu.
+-- @treturn table Cached popup instance
 local function get_default()
     if not instance then
         instance = new()

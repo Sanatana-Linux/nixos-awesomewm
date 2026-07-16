@@ -80,7 +80,7 @@ function brightness_service:get(callback)
     return self._private.current_brightness
 end
 
--- Sets the brightness to a specified percentage.
+--- Sets the brightness to a specified percentage.
 -- @tparam number value 0..100 (clamped and floored)
 function brightness_service:set(value)
     local clamped = math.max(0, math.min(100, math.floor(value)))
@@ -91,8 +91,9 @@ function brightness_service:set(value)
     self:emit_signal("brightness::updated", clamped)
 end
 
--- Increases the brightness by `brightnessctl`'s default step (5%).
--- @tparam[opt] function callback Invoked after the re-read settles
+--- Increases brightness by `brightnessctl`'s default step (5%).
+-- Re-reads the actual brightness after the shell command settles.
+-- @tparam[opt] function callback Invoked after the re-read
 function brightness_service:increase(callback)
     awful.spawn.with_shell("brightnessctl s 5%+")
     gtimer.delayed_call(function()
@@ -100,8 +101,9 @@ function brightness_service:increase(callback)
     end)
 end
 
--- Decreases the brightness by `brightnessctl`'s default step (5%).
--- @tparam[opt] function callback
+--- Decreases brightness by `brightnessctl`'s default step (5%).
+-- Re-reads the actual brightness after the shell command settles.
+-- @tparam[opt] function callback Invoked after the re-read
 function brightness_service:decrease(callback)
     awful.spawn.with_shell("brightnessctl s 5%-")
     gtimer.delayed_call(function()

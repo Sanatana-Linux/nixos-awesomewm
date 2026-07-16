@@ -1,3 +1,10 @@
+--- Tab bar for the `mstab` (master-stack with tabbed slaves) layout.
+-- Rendered as a second titlebar on the top of the screen with one entry per
+-- master client plus its tabbed slaves. Uses
+-- `awful.titlebar.widget.iconwidget` / `titlewidget` to render the icon and
+-- title from the underlying client.
+-- @module ui.tabbar
+
 -- NOTE: Thanks again bling
 local beautiful = require("beautiful")
 local dpi = beautiful.xresources.apply_dpi
@@ -10,8 +17,15 @@ local position = "top" -- Set the position to default to "top" if not s
 
 --|switching or loginspecified
 
--- Create the tabbar widget for a given client
--- NOTE: the tabbar is essentially just a second titlebar and thus is arranged the same way ultimately.
+--- Build a single tab widget for a client.
+-- Combines the client's icon (left) and title (right) into a
+-- compact horizontal layout. The background swaps to the focused
+-- gradient when the client has focus. Adds a tooltip with the
+-- full window title.
+-- @tparam client c The client to render a tab for
+-- @tparam boolean focused_bool Whether `c` is the focused client
+-- @tparam table buttons awful.button bindings for the tab
+-- @treturn table A wibox widget
 local function create(c, focused_bool, buttons)
     local bg_normal = beautiful.bg_gradient_titlebar
     local bg_focus = beautiful.bg_gradient_titlebar_alt
@@ -62,12 +76,15 @@ local function create(c, focused_bool, buttons)
     return wid_temp -- Return the created tabbar widget
 end
 
--- Return the configuration table
+--- @table _ M Tab bar configuration table consumed by `awful.titlebar.widget`.
+-- Keys: `layout` (the wibox layout), `create` (per-client tab builder),
+-- `position` ("top"/"bottom"/"left"/"right"), `size` (height in px),
+-- `bg_normal`/`bg_focus` (theme colors).
 return {
-    layout = wibox.layout.flex.horizontal, -- Set the layout to flex horizontal
-    create = create, -- Set the create function
-    position = position, -- Set the position
-    size = size, -- Set the size
-    bg_normal = beautiful.bg_gradient_titlebar, -- Set the normal background color
-    bg_focus = beautiful.bg_gradient_titlebar_alt, -- Set the focused background color
+    layout = wibox.layout.flex.horizontal,
+    create = create,
+    position = position,
+    size = size,
+    bg_normal = beautiful.bg_gradient_titlebar,
+    bg_focus = beautiful.bg_gradient_titlebar_alt,
 }

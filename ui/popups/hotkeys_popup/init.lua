@@ -16,8 +16,8 @@ local gears = require("gears")
 local gtable = require("gears.table")
 local gstring = require("gears.string")
 local dpi = beautiful.xresources.apply_dpi
-local shapes = require("modules.shapes")
-local click_to_hide = require("modules.click_to_hide")
+local shapes = require("modules.style.shapes")
+local click_to_hide = require("modules.infra.click_to_hide")
 
 local capi = { screen = screen, client = client, awesome = awesome }
 local matcher = require("gears.matcher")()
@@ -152,6 +152,12 @@ function widget.new(args)
         end
     end
 
+    --- Register one hotkey binding into an internal table.
+    -- Deduplicates by group+description, optionally merging duplicate keys.
+    -- @tparam table key The raw key code
+    -- @tparam table data `{mod={...}, description=..., group=...}`
+    -- @tparam table target The accumulation table to add into
+    -- @local
     function instance:_add_hotkey(key, data, target)
         if self.hide_without_description and not data.description then
             return
@@ -195,6 +201,9 @@ function widget.new(args)
         end
     end
 
+    --- Sort hotkey entries by mod+key for predictable display order.
+    -- @tparam table target The accumulation table to sort
+    -- @local
     function instance:_sort_hotkeys(target)
         for group, _ in pairs(self._group_list) do
             if target[group] then
@@ -211,6 +220,9 @@ function widget.new(args)
         end
     end
 
+    --- Import key bindings registered via `awful.key` into the local cache.
+    -- Only runs once per instance; subsequent calls are no-ops.
+    -- @local
     function instance:_import_awful_keys()
         if next(self._cached_awful_keys) then
             return
@@ -223,6 +235,12 @@ function widget.new(args)
         self:_sort_hotkeys(self._cached_awful_keys)
     end
 
+    --- Build a single page widget for a group of key bindings.
+    -- Renders a header (group icon + name) followed by rows of mod+key+description.
+    -- @tparam string group The group name
+    -- @tparam table keys Array of `{mod=..., key=..., description=...}` entries
+    -- @treturn table A wibox widget
+    -- @local
     function instance:_build_page(group, keys)
         local color = group_colors[group]
             or beautiful.fg_alt
@@ -305,6 +323,11 @@ function widget.new(args)
         })
     end
 
+    --- Show the popup on the given client/screen.
+    -- Collects groups, builds pages, wires keyboard navigation, and shows.
+    -- @tparam[opt] client c Client to filter groups for
+    -- @tparam[opt] screen s Screen to place the popup on
+    -- @tparam[opt] table show_args `{show_awesome_keys = boolean}`
     function instance:show_help(c, s, show_args)
         show_args = show_args or {}
         local show_awesome_keys = show_args.show_awesome_keys ~= false
@@ -370,6 +393,8 @@ function widget.new(args)
         local page_indicator
         local popup_widget
 
+        --- Switch the visible page and update the border/page indicator.
+        -- @local
         local function update_page()
             local page = pages[current_page]
             local color = group_colors[page.group]
@@ -456,6 +481,7 @@ function widget.new(args)
 
         local instance_obj = { popup = popup, current_page = current_page }
 
+        --- Show the popup and start the keyboard grabber for page navigation.
         function instance_obj:show()
             if self._shown then
                 return
@@ -490,6 +516,7 @@ function widget.new(args)
             end)
         end
 
+        --- Hide the popup and stop the keyboard grabber.
         function instance_obj:hide()
             if not self._shown then
                 return
@@ -503,6 +530,7 @@ function widget.new(args)
             popup:emit_signal("property::shown", false)
         end
 
+        --- Toggle the popup visibility.
         function instance_obj:toggle()
             if self._shown then
                 self:hide()
@@ -530,6 +558,8 @@ function widget.new(args)
         return instance_obj
     end
 
+    --- Register additional hotkey descriptors into this instance.
+    -- @tparam table hotkeys Table of `{group_name = {{modifiers={...}, keys={...}}, ...}}`
     function instance:add_hotkeys(hotkeys)
         for group, bindings in pairs(hotkeys) do
             for _, binding in ipairs(bindings) do
@@ -547,6 +577,9 @@ function widget.new(args)
         self:_sort_hotkeys(self._additional_hotkeys)
     end
 
+    --- Register per-group visibility/ordering rules for this instance.
+    -- @tparam string group The group name
+    -- @tparam table data `{rule=..., rule_any=..., except=..., except_any=...}`
     function instance:add_group_rules(group, data)
         self.group_rules[group] = data
     end

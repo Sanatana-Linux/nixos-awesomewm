@@ -36,26 +36,32 @@ runner.describe("json.encode", function()
     runner.it("encodes a string with special characters", function()
         -- Control characters, quotes, backslashes should be escaped
         local out = json.encode('hello "world"\n')
-        assert.truthy(out:find("\\\"world\\\"", 1, true))
+        assert.truthy(out:find('\\"world\\"', 1, true))
         assert.truthy(out:find("\\n", 1, true))
     end)
 
-    runner.it("encodes empty table as empty array (no way to disambiguate)", function()
-        -- Lua's empty table is ambiguous: this library defaults to array.
-        assert.eq(json.encode({}), "[]")
-    end)
+    runner.it(
+        "encodes empty table as empty array (no way to disambiguate)",
+        function()
+            -- Lua's empty table is ambiguous: this library defaults to array.
+            assert.eq(json.encode({}), "[]")
+        end
+    )
 
     runner.it("encodes a sequential table as array", function()
         assert.eq(json.encode({ 1, 2, 3 }), "[1,2,3]")
     end)
 
-    runner.it("encodes a map table as object (key order is not stable)", function()
-        local out = json.encode({ a = 1, b = 2 })
-        -- Lua table iteration order is not guaranteed; parse back to verify
-        local decoded = json.decode(out)
-        assert.eq(decoded.a, 1)
-        assert.eq(decoded.b, 2)
-    end)
+    runner.it(
+        "encodes a map table as object (key order is not stable)",
+        function()
+            local out = json.encode({ a = 1, b = 2 })
+            -- Lua table iteration order is not guaranteed; parse back to verify
+            local decoded = json.decode(out)
+            assert.eq(decoded.a, 1)
+            assert.eq(decoded.b, 2)
+        end
+    )
 end)
 
 runner.describe("json.decode", function()

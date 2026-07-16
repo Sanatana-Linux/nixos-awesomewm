@@ -1,3 +1,9 @@
+--- Lock screen password grabber.
+-- Launches an `awful.prompt` that captures keyboard input, animates the
+-- lock icon on each keystroke, and authenticates via PAM when the user
+-- presses Enter. Re-prompts on failure.
+-- @module ui.lockscreen.grab_password
+
 local awful = require("awful")
 local gears = require("gears")
 local wibox = require("wibox")
@@ -8,7 +14,13 @@ local pam = require("liblua_pam")
 
 local lock_animation = require("ui.lockscreen.lock_animation")
 
+--- Start grabbing password input: show prompt with Escape/Ctrl+Del reset hooks.
+-- On Enter, passes input to PAM auth. On success, emits `lockscreen::visible = false`.
+-- On failure, shows fail animation and re-grabs.
+-- @local
 local function grab_password()
+    --- Reset and re-grab on Escape / Ctrl+Delete.
+    -- @local
     local function reset_input()
         lock_animation.reset()
         grab_password()

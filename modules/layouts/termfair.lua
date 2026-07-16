@@ -1,3 +1,9 @@
+--- Terminal-friendly fair layout.
+-- Fixed number of vertical columns (from nmaster) with left-aligned rows.
+-- Three variants: `termfair` (west/growing upward), `centerfair` (centered
+-- until full, then stacks slaves in columns), `stablefair` (growing downward).
+-- @module modules.layouts.termfair
+
 local math = math
 local screen = screen
 local tonumber = tonumber
@@ -6,6 +12,12 @@ local termfair = { name = "termfair" }
 termfair.center = { name = "centerfair" }
 termfair.stable = { name = "stablefair" }
 
+--- Arrange clients in a fair grid with fixed columns.
+-- Orientation determines growth direction: `"west"` = upward-stacking,
+-- `"stable"` = downward-stacking, `"center"` = centered master + columnar slaves.
+-- @tparam table p Layout parameters
+-- @tparam string orientation `"west"`, `"stable"`, or `"center"`
+-- @local
 local function do_fair(p, orientation)
     local t = p.tag or screen[p.screen].selected_tag
     local wa = p.workarea
@@ -287,14 +299,20 @@ local function do_fair(p, orientation)
     end
 end
 
+--- Center-fair variant. Centers windows until full, then stacks slaves.
+-- @tparam table p Layout parameters
 function termfair.center.arrange(p)
     return do_fair(p, "center")
 end
 
+--- Stable-fair variant. Rows grow downward.
+-- @tparam table p Layout parameters
 function termfair.stable.arrange(p)
     return do_fair(p, "stable")
 end
 
+--- West-fair variant. Rows grow upward from bottom.
+-- @tparam table p Layout parameters
 function termfair.arrange(p)
     return do_fair(p, "west")
 end

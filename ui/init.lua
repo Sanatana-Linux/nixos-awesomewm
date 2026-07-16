@@ -1,9 +1,15 @@
 ---@diagnostic disable: undefined-global
+--- UI orchestrator — loaded once at startup by `configuration/init.lua`.
+-- Creates per-screen bars via `awful.screen.connect_for_each_screen`,
+-- instantiates all popup singletons, wires mutual-exclusion signals
+-- (only one popup visible at a time), and registers the root-click
+-- hideaway binding.
+-- @module ui
 local awful = require("awful")
 local naughty = require("naughty")
 local gtimer = require("gears.timer")
 local beautiful = require("beautiful")
-local has_common = require("lib").has_common
+local has_common = require("lib.util").has_common
 local capi = { screen = screen, client = client }
 
 local wallpaper = require("ui.wallpaper")
@@ -11,6 +17,10 @@ local bar = require("ui/bar")
 local menu = require("ui.popups.menu").get_default()
 local notification = require("ui.notification").get_default()
 local launcher = require("ui.popups.launcher").get_default()
+-- Wire the launcher's power button to the powermenu via a decoupled signal
+launcher:connect_signal("launcher::power-clicked", function()
+    powermenu:show()
+end)
 local powermenu = require("ui.popups.powermenu").get_default()
 local control_panel = require("ui.popups.control_panel").get_default()
 local screenshot_popup = require("ui.popups.screenshot_popup").get_default()
@@ -136,6 +146,8 @@ screenshot_popup:connect_signal("property::shown", function(_, shown)
     end
 end)
 
+--- Hide all popups on root-click.
+-- Called on mouse button 1 on the desktop or on client press.
 local function click_hideaway()
     menu:hide()
     launcher:hide()

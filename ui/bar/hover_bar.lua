@@ -1,10 +1,12 @@
--- ui/bar/hover_bar.lua
--- Hover-reveal wibar that slides in from bottom when mouse approaches screen edge.
+--- Hover-reveal wibar module.
+-- Creates a wibox that slides up from the bottom of the screen when the
+-- mouse approaches the bottom edge, and auto-hides after a configurable delay.
+-- @module ui.bar.hover_bar
 
 local wibox = require("wibox")
 local beautiful = require("beautiful")
 local dpi = beautiful.xresources.apply_dpi
-local anim = require("modules.animations")
+local anim = require("modules.infra.animations")
 local gtimer = require("gears.timer")
 
 local hover_bar = {}
@@ -18,6 +20,14 @@ local ANIMATION_DURATION = 0.25
 local BAR_HEIGHT_PRIMARY = dpi(30)
 local BAR_HEIGHT_SECONDARY = dpi(40)
 
+--- Create a hover-reveal wibar for a screen.
+-- Sets up the trigger zone, the bar wibox, animations, and mouse-in/mouse-out
+-- timers. Returns a controller object with show/hide/toggle/destroy methods.
+-- @tparam table args
+--   @tparam screen args.screen Target screen
+--   @tparam[opt] number args.height Bar height in dp (default: 30)
+--   @tparam widget args.widget Content widget for the bar
+-- @treturn table Controller: `{ bar, trigger_zone, show, hide, toggle_keyboard, destroy }`
 function hover_bar.create(args)
     local screen = args.screen
     local bar_height = args.height or BAR_HEIGHT_PRIMARY
@@ -75,7 +85,8 @@ function hover_bar.create(args)
     -- Forward declare hide_bar (needed for timer callback closure)
     local hide_bar
 
-    -- Helper: cancel show timer
+    --- Cancel the show timer if it's running.
+    -- @local
     local function cancel_show_timer()
         if state.show_timer then
             state.show_timer:stop()
@@ -83,7 +94,8 @@ function hover_bar.create(args)
         end
     end
 
-    -- Helper: cancel hide timer
+    --- Cancel the hide timer if it's running.
+    -- @local
     local function cancel_hide_timer()
         if state.hide_timer then
             state.hide_timer:stop()
@@ -91,8 +103,9 @@ function hover_bar.create(args)
         end
     end
 
-    -- Helper: start hide timer
-    -- Uses KEYBOARD_HIDE_DELAY when keyboard_triggered, HIDE_DELAY_SECONDS otherwise
+    --- Start the auto-hide timer.
+    -- Uses `KEYBOARD_HIDE_DELAY` when `keyboard_triggered`, `HIDE_DELAY_SECONDS` otherwise.
+    -- @local
     local function start_hide_timer()
         cancel_hide_timer()
         local delay = state.keyboard_triggered and KEYBOARD_HIDE_DELAY
@@ -104,7 +117,11 @@ function hover_bar.create(args)
         end)
     end
 
-    -- Helper: animate to position
+    --- Animate the bar's y position to a target value.
+    -- Cancels any running animation first.
+    -- @tparam number target_y Target pixel y-coordinate
+    -- @tparam[opt] function callback Called on animation completion
+    -- @local
     local function animate_to(target_y, callback)
         if animation_controller then
             animation_controller.stop()
@@ -127,7 +144,8 @@ function hover_bar.create(args)
         })
     end
 
-    -- Define hide_bar AFTER animate_to since it uses animate_to
+    --- Hide the bar (cancels hide timer, jumps to final position).
+    -- @local
     function hide_bar()
         cancel_hide_timer()
 

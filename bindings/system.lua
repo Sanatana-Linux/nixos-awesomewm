@@ -1,0 +1,142 @@
+---@diagnostic disable: undefined-global
+--- System-level keybindings.
+-- Group: "System".
+--
+-- Mod4+F1                      show hotkeys help
+-- Mod4+r                       reload awesome
+-- Mod4+Shift+q                 quit awesome
+-- Mod4+d                       toggle day info panel (calendar)
+-- Mod4+e                       toggle control panel
+-- Mod4+Ctrl+Shift+b            show bluetooth settings
+-- Mod4+Ctrl+Shift+n            show network settings
+-- Mod4+x                       show power menu
+-- Mod4+b                       toggle battery popup
+-- Mod4+;                       toggle wibar (30s keyboard lock)
+-- Mod4+Tab                     client selection menu
+-- Plus an Alt+Tab keygrabber for the legacy-style window switcher.
+
+local awful = require("awful")
+local capi = { awesome = awesome, client = client }
+local hotkeys_popup = require("ui.popups.hotkeys_popup")
+local beautiful = require("beautiful")
+local dpi = beautiful.xresources.apply_dpi
+local day_info_panel = require("ui.popups.day_info_panel").get_default()
+local control_panel = require("ui.popups.control_panel").get_default()
+local battery_popup = require("ui.popups.battery").get_default()
+local powermenu = require("ui.popups.powermenu").get_default()
+local window_switcher = require("ui.popups.window_switcher").get_default()
+local modkey = "Mod4"
+
+awful.keyboard.append_global_keybindings({
+    awful.key(
+        { modkey },
+        "F1",
+        hotkeys_popup.show_help,
+        { description = "show keybindings table", group = "System" }
+    ),
+
+    awful.key(
+        { modkey },
+        "r",
+        capi.awesome.restart,
+        { description = "reload awesome", group = "System" }
+    ),
+
+    awful.key(
+        { modkey, "Shift" },
+        "q",
+        capi.awesome.quit,
+        { description = "quit awesome", group = "System" }
+    ),
+
+    awful.key({ modkey }, "d", function()
+        day_info_panel:toggle()
+    end, { description = "toggle day info panel", group = "System" }),
+
+    awful.key({ modkey }, "e", function()
+        control_panel:toggle()
+    end, { description = "toggle control panel", group = "System" }),
+
+    awful.key({ modkey, "Control", "Shift" }, "b", function()
+        control_panel:show_bluetooth()
+    end, { description = "show bluetooth settings", group = "System" }),
+
+    awful.key({ modkey, "Control", "Shift" }, "n", function()
+        control_panel:show_network()
+    end, { description = "show network settings", group = "System" }),
+
+    awful.key({ modkey }, "x", function()
+        powermenu:show()
+    end, { description = "show power menu", group = "System" }),
+
+    awful.key({ modkey }, "b", function()
+        battery_popup:toggle()
+    end, { description = "toggle battery popup", group = "System" }),
+
+    awful.key({ modkey }, "semicolon", function()
+        local s = awful.screen.focused()
+        if s and s.bar and s.bar.toggle_keyboard then
+            s.bar:toggle_keyboard()
+        end
+    end, { description = "toggle wibar", group = "System" }),
+
+    awful.key({ modkey }, "Tab", function()
+        awful.menu.menu_keys.down = { "Down", "Alt_L" }
+        awful.menu.menu_keys.up = { "Up", "Alt_R" }
+        local clients = {}
+        for _, c in ipairs(client.get()) do
+            table.insert(clients, {
+                c.name or "Unnamed",
+                function()
+                    client.focus = c
+                    c:raise()
+                end,
+                c.icon,
+            })
+        end
+        awful
+            .menu({
+                items = clients,
+                theme = {
+                    width = dpi(450),
+                    bg = beautiful.bg_gradient,
+                    border_color = beautiful.fg .. "99",
+                    border_width = dpi(1),
+                },
+            })
+            :show({ keygrabber = true })
+    end, { description = "Client Selection Menu", group = "System" }),
+})
+
+-- Alt+Tab Keygrabber
+awful.keygrabber({
+    keybindings = {
+        awful.key({
+            modifiers = { "Mod1" },
+            key = "Tab",
+            on_press = function()
+                awful.client.focus.byidx(1)
+            end,
+        }),
+        awful.key({
+            modifiers = { "Mod1", "Shift" },
+            key = "Tab",
+            on_press = function()
+                awful.client.focus.byidx(-1)
+            end,
+        }),
+    },
+    root_keybindings = {},
+    stop_key = "Mod1",
+    stop_event = "release",
+    start_callback = function()
+        awesome.emit_signal("window_switcher::turn_on")
+    end,
+    stop_callback = function()
+        awesome.emit_signal("window_switcher::turn_off")
+        if client.focus then
+            client.focus:raise()
+        end
+    end,
+    export_keybindings = true,
+})

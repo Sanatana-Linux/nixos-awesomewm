@@ -176,7 +176,7 @@ package.loaded["beautiful"] = {
 -- assignments to a local `M` table, and append `return M` right after
 -- the `is_excluded_key` function's closing `end`.
 local function load_helpers()
-    local f = assert(io.open("modules/text_input/init.lua", "r"))
+    local f = assert(io.open("modules/widgets/text_input/init.lua", "r"))
     local source = f:read("*a")
     f:close()
 
@@ -208,7 +208,7 @@ local function load_helpers()
     end
     source = out
 
-    local chunk, err = load(source, "modules/text_input/init.lua", "t")
+    local chunk, err = load(source, "modules/widgets/text_input/init.lua", "t")
     if not chunk then
         error("compile failed: " .. tostring(err))
     end

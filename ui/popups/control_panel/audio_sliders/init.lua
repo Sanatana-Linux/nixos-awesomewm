@@ -1,17 +1,24 @@
--- ui/control_panel/audio_sliders/init.lua
--- This module provides sliders for controlling system volume and microphone input.
--- The brightness slider has been moved to its own module.
+--- Audio sliders widget for the control panel.
+-- Dual sliders for speaker (default sink) and microphone (default source)
+-- volume, with debounced updates, icon state per level, and mute toggles.
+-- @module ui.popups.control_panel.audio_sliders
 
 local awful = require("awful")
 local wibox = require("wibox")
 local beautiful = require("beautiful")
 local modules = require("modules")
-local shapes = require("modules.shapes.init")
+local shapes = require("modules.style.shapes.init")
 local text_icons = beautiful.text_icons
 local dpi = beautiful.xresources.apply_dpi
 local audio_service = require("service.audio").get_default()
 local gtimer = require("gears.timer")
 
+--- Construct a new audio sliders widget.
+-- Creates speaker and microphone sliders with icon + percentage labels,
+-- wires audio service signals for bidirectional sync, and adds debounced
+-- set calls. Starts with an initial data fetch from the audio service.
+-- @treturn wibox.widget The audio sliders composite widget
+-- @local
 local function new()
     local ret = wibox.widget({
         widget = wibox.container.background,

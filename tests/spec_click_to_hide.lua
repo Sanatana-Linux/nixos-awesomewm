@@ -71,7 +71,7 @@ local function reset_state()
     set_keygrabber_active(false)
     last_keygrabber_callback = nil
     -- Force re-load of the module so the singleton state is fresh
-    package.loaded["modules.click_to_hide"] = nil
+    package.loaded["modules.infra.click_to_hide"] = nil
 end
 
 -- ------------------------------------------------------------------
@@ -81,7 +81,7 @@ end
 runner.describe("click_to_hide:popup registration", function()
     runner.it("registers a popup and assigns default name", function()
         reset_state()
-        local click_to_hide = require("modules.click_to_hide")
+        local click_to_hide = require("modules.infra.click_to_hide")
         local w = make_widget("test")
         click_to_hide.popup(w, function() end)
         assert.eq(w.name, "awesome-popup")
@@ -89,7 +89,7 @@ runner.describe("click_to_hide:popup registration", function()
 
     runner.it("respects custom popup_name option", function()
         reset_state()
-        local click_to_hide = require("modules.click_to_hide")
+        local click_to_hide = require("modules.infra.click_to_hide")
         local w = make_widget("test")
         click_to_hide.popup(w, function() end, { popup_name = "my-popup" })
         assert.eq(w.name, "my-popup")
@@ -97,7 +97,7 @@ runner.describe("click_to_hide:popup registration", function()
 
     runner.it("connects to property::visible and widget::destroyed", function()
         reset_state()
-        local click_to_hide = require("modules.click_to_hide")
+        local click_to_hide = require("modules.infra.click_to_hide")
         local w = make_widget("test")
         click_to_hide.popup(w, function() end)
         assert.truthy(signal_handlers["property::visible"])
@@ -106,12 +106,16 @@ runner.describe("click_to_hide:popup registration", function()
 
     runner.it("exclusive defaults to true", function()
         reset_state()
-        local click_to_hide = require("modules.click_to_hide")
+        local click_to_hide = require("modules.infra.click_to_hide")
         local w1 = make_widget("a")
         local w2 = make_widget("b")
         local w1_hidden, w2_hidden = false, false
-        click_to_hide.popup(w1, function() w1_hidden = true end)
-        click_to_hide.popup(w2, function() w2_hidden = true end, { exclusive = true })
+        click_to_hide.popup(w1, function()
+            w1_hidden = true
+        end)
+        click_to_hide.popup(w2, function()
+            w2_hidden = true
+        end, { exclusive = true })
         -- First, make w1 visible (this activates it)
         w1.visible = true
         w1:emit("property::visible", w1)
@@ -125,11 +129,13 @@ runner.describe("click_to_hide:popup registration", function()
 
     runner.it("exclusive=false does not hide other popups", function()
         reset_state()
-        local click_to_hide = require("modules.click_to_hide")
+        local click_to_hide = require("modules.infra.click_to_hide")
         local w1 = make_widget("a")
         local w2 = make_widget("b")
         local w1_hidden = false
-        click_to_hide.popup(w1, function() w1_hidden = true end)
+        click_to_hide.popup(w1, function()
+            w1_hidden = true
+        end)
         click_to_hide.popup(w2, function() end, { exclusive = false })
         w2.visible = true
         w2:emit("property::visible", w2)
@@ -140,10 +146,12 @@ end)
 runner.describe("click_to_hide:state transitions", function()
     runner.it("hide is a no-op when widget is not visible", function()
         reset_state()
-        local click_to_hide = require("modules.click_to_hide")
+        local click_to_hide = require("modules.infra.click_to_hide")
         local w = make_widget("test")
         local hidden = false
-        click_to_hide.popup(w, function() hidden = true end)
+        click_to_hide.popup(w, function()
+            hidden = true
+        end)
         -- Force w.visible = false and emit (production should skip)
         w:emit("property::visible", w)
         assert.falsy(hidden)
@@ -154,10 +162,12 @@ runner.describe("click_to_hide:state transitions", function()
         -- and requests mutual exclusion. A popup hiding itself just
         -- deactivates the active-popup state, no callback fires.
         reset_state()
-        local click_to_hide = require("modules.click_to_hide")
+        local click_to_hide = require("modules.infra.click_to_hide")
         local w = make_widget("test")
         local hidden = false
-        click_to_hide.popup(w, function() hidden = true end)
+        click_to_hide.popup(w, function()
+            hidden = true
+        end)
         w.visible = true
         w:emit("property::visible", w)
         assert.falsy(hidden)
@@ -166,39 +176,48 @@ runner.describe("click_to_hide:state transitions", function()
         assert.falsy(hidden) -- still false; self-hide does not call callback
     end)
 
-    runner.it("starts escape keygrabber when popup is shown with enable_escape=true", function()
-        reset_state()
-        local click_to_hide = require("modules.click_to_hide")
-        local w = make_widget("test")
-        click_to_hide.popup(w, function() end) -- enable_escape defaults to true
-        w.visible = true
-        w:emit("property::visible", w)
-        assert.truthy(get_keygrabber_active())
-    end)
+    runner.it(
+        "starts escape keygrabber when popup is shown with enable_escape=true",
+        function()
+            reset_state()
+            local click_to_hide = require("modules.infra.click_to_hide")
+            local w = make_widget("test")
+            click_to_hide.popup(w, function() end) -- enable_escape defaults to true
+            w.visible = true
+            w:emit("property::visible", w)
+            assert.truthy(get_keygrabber_active())
+        end
+    )
 
-    runner.it("does NOT start escape keygrabber when enable_escape=false", function()
-        reset_state()
-        local click_to_hide = require("modules.click_to_hide")
-        local w = make_widget("test")
-        click_to_hide.popup(w, function() end, { enable_escape = false })
-        w.visible = true
-        w:emit("property::visible", w)
-        assert.falsy(get_keygrabber_active())
-    end)
+    runner.it(
+        "does NOT start escape keygrabber when enable_escape=false",
+        function()
+            reset_state()
+            local click_to_hide = require("modules.infra.click_to_hide")
+            local w = make_widget("test")
+            click_to_hide.popup(w, function() end, { enable_escape = false })
+            w.visible = true
+            w:emit("property::visible", w)
+            assert.falsy(get_keygrabber_active())
+        end
+    )
 
-    runner.it("is_any_visible returns true when any registered popup is visible", function()
-        reset_state()
-        local click_to_hide = require("modules.click_to_hide")
-        local w = make_widget("test")
-        click_to_hide.popup(w, function() end)
-        assert.falsy(click_to_hide.is_any_visible())
-        w.visible = true
-        assert.truthy(click_to_hide.is_any_visible())
-    end)
+    runner.it(
+        "is_any_visible returns true when any registered popup is visible",
+        function()
+            reset_state()
+            local click_to_hide = require("modules.infra.click_to_hide")
+            local w = make_widget("test")
+            click_to_hide.popup(w, function() end)
+            assert.falsy(click_to_hide.is_any_visible())
+            w.visible = true
+            assert.truthy(click_to_hide.is_any_visible())
+        end
+    )
 
     runner.it("unregister removes a popup", function()
         reset_state()
-        local click_to_hide = require("modules.click_to_hide")
+        local click_to_hide = require("modules.infra.click_to_hide")
         local w = make_widget("test")
         click_to_hide.popup(w, function() end)
         click_to_hide.unregister(w)
@@ -207,11 +226,15 @@ runner.describe("click_to_hide:state transitions", function()
 
     runner.it("hide_all hides every registered popup", function()
         reset_state()
-        local click_to_hide = require("modules.click_to_hide")
+        local click_to_hide = require("modules.infra.click_to_hide")
         local w1, w2 = make_widget("a"), make_widget("b")
         local h1, h2 = false, false
-        click_to_hide.popup(w1, function() h1 = true end)
-        click_to_hide.popup(w2, function() h2 = true end)
+        click_to_hide.popup(w1, function()
+            h1 = true
+        end)
+        click_to_hide.popup(w2, function()
+            h2 = true
+        end)
         click_to_hide.hide_all()
         assert.truthy(h1)
         assert.truthy(h2)

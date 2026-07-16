@@ -26,6 +26,11 @@ local Proxy = require("lib.dbus_proxy.proxy")
 
 local monitored = {}
 
+--- Build a "disconnected" proxy that raises an error on any access.
+-- Used before the D-Bus name appears so callers get clear errors instead
+-- of cryptic nil-index crashes.
+-- @tparam string name The D-Bus bus name being watched
+-- @treturn table A metatable-guarded stub
 local function make_disconnected(name)
     local o = { name = name }
 
@@ -41,6 +46,14 @@ local function make_disconnected(name)
     return o
 end
 
+--- Create `name_appeared` and `name_vanished` callback closures.
+-- When the name appears: constructs a real Proxy from opts, sets it as
+-- the metatable __index on `managed`, and calls `cb(managed, true)`.
+-- When it vanishes: swaps the stub proxy back and calls `cb(managed, false)`.
+-- @tparam table managed The monitored proxy object
+-- @tparam[opt] function cb User-provided callback
+-- @treturn function name_appeared_callback
+-- @treturn function name_vanished_callback
 local function make_callbacks(managed, cb)
     local function name_appeared_callback()
         -- (bus, name, name_owner) passed as params, but we don't use them
@@ -67,6 +80,9 @@ local function make_callbacks(managed, cb)
     return name_appeared_callback, name_vanished_callback
 end
 
+--- Validate required D-Bus options (`bus`, `interface`, `name`, `path`).
+-- Raises an error listing any missing keys.
+-- @tparam[opt] table params The options table to validate
 local function validate_opts(params)
     local opts = params or {}
 

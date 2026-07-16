@@ -18,16 +18,24 @@ local mock_screen_obj = {
     workarea = { x = 0, y = 0, width = 1920, height = 1080 },
 }
 setmetatable(mock_screen_obj, {
-    __call = function() return mock_screen_obj end,
-    __index = function(t, k) return rawget(t, k) end,
+    __call = function()
+        return mock_screen_obj
+    end,
+    __index = function(t, k)
+        return rawget(t, k)
+    end,
 })
 _G.screen = mock_screen_obj
 -- For the screen[c.screen] indexing used in the production code:
 -- c.screen is the screen index. The production reads `screen[c.screen]`.
 -- In our mock we make screen[any_key] return the same screen.
 setmetatable(_G.screen, {
-    __call = function() return _G.screen end,
-    __index = function() return _G.screen end,
+    __call = function()
+        return _G.screen
+    end,
+    __index = function()
+        return _G.screen
+    end,
 })
 
 -- Mock awful.placement with the methods snap_edge uses.
@@ -47,7 +55,8 @@ local function make_client(opts)
         floating = opts.floating or false,
         maximized = opts.maximized or false,
         struts_value = { left = 0, right = 0, top = 0, bottom = 0 },
-        geometry_value = opts.geometry or { x = 0, y = 0, width = 100, height = 100 },
+        geometry_value = opts.geometry
+            or { x = 0, y = 0, width = 100, height = 100 },
     }
     function c:struts(s)
         if s then
@@ -65,7 +74,7 @@ local function make_client(opts)
 end
 
 -- Load the production snap_edge after the mocks are in place.
-local snap_edge = require("modules.snap_edge")
+local snap_edge = require("modules.infra.snap_edge")
 
 runner.describe("snap_edge:right", function()
     runner.it("resizes to right half and positions at right edge", function()
@@ -188,15 +197,18 @@ runner.describe("snap_edge:center", function()
 end)
 
 runner.describe("snap_edge:nil (reset)", function()
-    runner.it("restores the original struts and geometry when called with nil", function()
-        local c = make_client({ border_width = 0 })
-        local original_geom = c.geometry_value
-        -- First snap
-        snap_edge(c, "right")
-        assert.eq(c.geometry_value.width, 960) -- was changed
-        -- Then reset with nil
-        snap_edge(c, nil)
-        -- c.geometry_value is restored to what was passed in originally
-        assert.eq(c.geometry_value, original_geom)
-    end)
+    runner.it(
+        "restores the original struts and geometry when called with nil",
+        function()
+            local c = make_client({ border_width = 0 })
+            local original_geom = c.geometry_value
+            -- First snap
+            snap_edge(c, "right")
+            assert.eq(c.geometry_value.width, 960) -- was changed
+            -- Then reset with nil
+            snap_edge(c, nil)
+            -- c.geometry_value is restored to what was passed in originally
+            assert.eq(c.geometry_value, original_geom)
+        end
+    )
 end)

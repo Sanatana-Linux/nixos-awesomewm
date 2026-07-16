@@ -1,20 +1,29 @@
--- ui/bar/modules/taglist_and_tasklist_buttons.lua
--- A robust, manually-controlled taglist and tasklist implementation
--- that uses comprehensive signal handling to ensure client icons are always updated.
+--- Taglist widget with per-tag client icon display.
+-- Creates a horizontal row of tag buttons, each showing the tag icon plus
+-- icons for all clients on that tag. Includes hover effects, click-to-switch
+-- tag, and client-specific icon context menus.
+-- @module ui.bar.modules.taglist_and_tasklist_buttons
 
 local awful = require("awful")
 local wibox = require("wibox")
 local beautiful = require("beautiful")
 local gtable = require("gears.table")
 local dpi = beautiful.xresources.apply_dpi
+local color_alpha = require("lib.util").color_alpha
 local menu = require("ui.popups.menu").get_default()
 local gears = require("gears") -- Required for filesystem checks
 local naughty = require("naughty") -- Required for notifications
-local icon_lookup = require("modules.icon-lookup") -- Centralized icon resolution
+local icon_lookup = require("modules.icon_lookup") -- Centralized icon resolution
 local fancy_taglist = {}
-local shapes = require("modules.shapes")
+local shapes = require("modules.style.shapes")
 
--- Creates a single, fully-functional tag widget.
+--- Create a single tag widget with tag icon and client icons.
+-- Each tag shows its own icon (from theme) plus icons for every client
+-- currently on that tag. Supports hover/selected styling and click-to-view.
+-- @tparam tag tag The tag object
+-- @tparam screen s Screen for geometry context
+-- @treturn wibox.widget The tag container widget
+-- @local
 local function create_single_tag(tag, s)
     -- This layout will hold the icons of the clients on the tag.
     local clients_layout = wibox.layout.fixed.horizontal()
@@ -24,7 +33,10 @@ local function create_single_tag(tag, s)
     local content_layout = wibox.layout.fixed.horizontal()
     content_layout.spacing = dpi(8)
 
-    -- This function clears and repopulates the client icon list for this tag.
+    --- Refresh the client icon list for this tag.
+    -- Clears and repopulates clients_layout with current client icons.
+    -- Connected to manage, unmanage, property, tagged, and untagged signals.
+    -- @local
     local function update_clients()
         clients_layout:reset()
 
@@ -158,14 +170,15 @@ local function create_single_tag(tag, s)
         bg = beautiful.bg_gradient_button,
     })
 
-    -- This function updates the tag's appearance based on its state.
+    --- Update the tag widget's appearance based on selected/urgent state.
+    -- @local
     local function update_tag_status()
         if tag.selected then
             inner_container.bg = beautiful.bg_gradient_button_alt
             inner_container.border_color = beautiful.border_color_active
                 or beautiful.fg_alt
             container.bg = beautiful.bg_gradient_button_alt
-            container.border_color = beautiful.fg .. "66"
+            container.border_color = color_alpha(beautiful.fg, "66")
         else
             inner_container.bg = beautiful.bg_gradient_button
             inner_container.border_color = beautiful.border_color_normal
@@ -204,7 +217,7 @@ local function create_single_tag(tag, s)
     container:connect_signal("mouse::enter", function()
         inner_container.bg = beautiful.bg_gradient_recessed
         container.bg = beautiful.bg_gradient_recessed
-        container.border_color = beautiful.fg .. "66"
+        container.border_color = color_alpha(beautiful.fg, "66")
     end)
     container:connect_signal("mouse::leave", function()
         update_tag_status() -- Revert to selected/unselected state
@@ -221,7 +234,10 @@ local function create_single_tag(tag, s)
     return container
 end
 
--- The main exported function that creates the entire taglist widget.
+--- Create the full taglist widget for a screen.
+-- Builds a horizontal layout of tag widgets for every tag on the screen.
+-- @tparam[opt] table cfg Configuration with optional `.screen` key
+-- @treturn wibox.widget The taglist bar container
 function fancy_taglist.new(cfg)
     cfg = cfg or {}
     local s = cfg.screen or awful.screen.focused()

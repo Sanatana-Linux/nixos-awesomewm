@@ -1,5 +1,8 @@
--- Notification cache module
--- Handles caching notifications to ~/.cache/awesome/notifications.json
+--- Notification history cache.
+-- Persists a small history of recent notifications to
+-- `~/.cache/awesome/notifications.json` so the notification center can
+-- show past events even after they're dismissed. Capped at 100 entries.
+-- @module ui.notification.cache
 
 local gfs = require("gears.filesystem")
 local json_lib = require("lib.json")
@@ -7,10 +10,11 @@ local json_lib = require("lib.json")
 local notification_cache = {}
 
 -- Cache file path
-local cache_dir = os.getenv("HOME") .. "/.cache/awesome"
+local cache_dir = (os.getenv("HOME") or "") .. "/.cache/awesome"
 local cache_file = cache_dir .. "/notifications.json"
 
--- Ensure cache directory exists
+--- Ensure the cache directory exists (~/.cache/awesome).
+-- @treturn boolean true if directory exists (or was created), false on failure
 local function ensure_cache_dir()
     local success, err = gfs.make_directories(cache_dir)
     if not success then
@@ -24,7 +28,9 @@ local function ensure_cache_dir()
     return true
 end
 
--- Load cached notifications from file
+--- Load cached notifications from disk JSON file.
+-- Returns empty table on any failure (missing file, parse error).
+-- @treturn table Array of cached notification entries
 local function load_cache()
     if not gfs.file_readable(cache_file) then
         return {}
@@ -53,7 +59,9 @@ local function load_cache()
     end
 end
 
--- Save notifications to cache file
+--- Save notifications array to the JSON cache file.
+-- @tparam table notifications Array of notification entries
+-- @treturn boolean true on success, false on failure
 local function save_cache(notifications)
     if not ensure_cache_dir() then
         return false
@@ -82,7 +90,10 @@ local function save_cache(notifications)
     return true
 end
 
--- Add notification to cache
+--- Add a notification to the cache.
+-- New entry goes to position 1 (newest first). Older entries beyond 100 are
+-- dropped silently.
+-- @tparam naughty.notification notification
 function notification_cache.add(notification)
     local cached_notifications = load_cache()
 
@@ -110,12 +121,12 @@ function notification_cache.add(notification)
     save_cache(cached_notifications)
 end
 
--- Get all cached notifications
+--- @treturn table All cached notifications (most recent first)
 function notification_cache.get_all()
     return load_cache()
 end
 
--- Clear all cached notifications
+--- @treturn boolean `false` on IO error, otherwise `save_cache({})`'s result
 function notification_cache.clear()
     if not ensure_cache_dir() then
         return false
@@ -125,7 +136,9 @@ function notification_cache.clear()
     return save_cache({})
 end
 
--- Remove specific notification from cache by ID
+--- Remove a specific notification from the cache by ID.
+-- @tparam string notification_id
+-- @treturn boolean true if removed, false if not found
 function notification_cache.remove(notification_id)
     local cached_notifications = load_cache()
 
@@ -140,7 +153,7 @@ function notification_cache.remove(notification_id)
     return false
 end
 
--- Get number of cached notifications
+--- @treturn integer Number of notifications currently cached
 function notification_cache.count()
     local cached = load_cache()
     return #cached

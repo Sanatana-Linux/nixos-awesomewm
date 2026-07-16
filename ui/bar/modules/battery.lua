@@ -1,3 +1,9 @@
+--- Battery bar widget for the wibar.
+-- Shows a small progress bar with percentage label and charging icon.
+-- Clicks open the detailed battery popup. Falls back to a CPU arc chart
+-- when no battery is detected.
+-- @module ui.bar.modules.battery
+
 local wibox = require("wibox")
 local beautiful = require("beautiful")
 local awful = require("awful")
@@ -6,8 +12,11 @@ local gfs = require("gears.filesystem")
 local dpi = beautiful.xresources.apply_dpi
 local modules = require("modules")
 local text_icons = beautiful.text_icons
-local shapes = require("modules.shapes.init")
+local shapes = require("modules.style.shapes.init")
 
+--- Check if a battery is present on the system.
+-- @treturn boolean true if /sys/class/power_supply/BAT0/capacity exists
+-- @local
 local function has_battery()
     local handle = io.open("/sys/class/power_supply/BAT0/capacity", "r")
     if handle then
@@ -17,6 +26,11 @@ local function has_battery()
     return false
 end
 
+--- Create the battery bar widget.
+-- Shows a progress bar, percentage, and charging icon. Left-click opens
+-- the battery popup. Subscribes to battery service signals for live updates.
+-- @treturn function Factory that returns the widget when called
+-- @local
 local function create_battery_widget()
     local battery_service = require("service.battery").get_default()
     local battery_popup = require("ui.popups.battery").get_default()
@@ -130,6 +144,8 @@ local function create_battery_widget()
         end
     end)
 
+    --- Refresh all battery display elements from service state.
+    -- @local
     local function update_all()
         local level = battery_service.level or 0
         local is_charging = battery_service.is_charging or false
@@ -162,10 +178,14 @@ local function create_battery_widget()
     return widget
 end
 
+--- Create the CPU arc chart fallback widget for systems without battery.
+-- Shows a small arc chart with CPU usage. Left-click opens the battery popup.
+-- @treturn function Factory that returns the widget when called
+-- @local
 local function create_cpu_widget()
     local system_info = require("service.system_info").get_default()
     local battery_popup = require("ui.popups.battery").get_default()
-    local arc_chart = require("modules.arc_chart")
+    local arc_chart = require("modules.widgets.arc_chart")
 
     local cpu_chart = arc_chart.new({
         value = 0,
@@ -210,6 +230,8 @@ local function create_cpu_widget()
         end
     end)
 
+    --- Refresh the CPU chart from system info service.
+    -- @local
     local function update_chart()
         local cpu = system_info:get_cpu_usage()
         cpu_chart:set_value(cpu, false)

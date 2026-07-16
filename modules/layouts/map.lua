@@ -14,7 +14,7 @@ local unpack = unpack or table.unpack
 local awful = require("awful")
 local timer = require("gears.timer")
 local gtable = require("gears.table")
-local utils = require("modules.utils")
+local utils = require("modules.layouts.widgets.utils")
 local common = require("modules.layouts.widgets.common")
 local naughty = require("naughty")
 

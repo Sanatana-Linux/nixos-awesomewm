@@ -12,11 +12,21 @@ end
 
 runner.describe("caps:parse_caps_state", function()
     runner.it("returns true when 'Caps Lock on' is present", function()
-        assert.eq(parse_caps_state("Current default flags:  NumLock off\nCaps Lock on"), true)
+        assert.eq(
+            parse_caps_state(
+                "Current default flags:  NumLock off\nCaps Lock on"
+            ),
+            true
+        )
     end)
 
     runner.it("returns false when caps is off", function()
-        assert.eq(parse_caps_state("Current default flags:  NumLock on\nCaps Lock off"), false)
+        assert.eq(
+            parse_caps_state(
+                "Current default flags:  NumLock on\nCaps Lock off"
+            ),
+            false
+        )
     end)
 
     runner.it("returns false for empty input", function()

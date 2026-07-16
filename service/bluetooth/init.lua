@@ -125,6 +125,8 @@ function adapter:get_discovering()
     return self._private.adapter_proxy.Discovering
 end
 
+--- Get the current powered state of the adapter.
+-- @treturn boolean Whether the adapter radio is currently powered
 function adapter:get_powered()
     return self._private.adapter_proxy.Powered
 end
@@ -157,28 +159,28 @@ function adapter:get_device(path)
     return self.devices[path]
 end
 
--- Establish a connection to the device. No-op if already connected.
+--- Establish a connection to the device. No-op if already connected.
 function device:connect()
     if self._private.device_proxy.Connected ~= true then
         self._private.device_proxy:ConnectAsync(nil, {})
     end
 end
 
--- Drop an active connection. No-op if not connected.
+--- Drop an active connection. No-op if not connected.
 function device:disconnect()
     if self._private.device_proxy.Connected == true then
         self._private.device_proxy:DisconnectAsync(nil, {})
     end
 end
 
--- Initiate pairing. No-op if already paired.
+--- Initiate pairing. No-op if already paired.
 function device:pair()
     if self._private.device_proxy.Paired ~= true then
         self._private.device_proxy:PairAsync(nil, {})
     end
 end
 
--- Cancel an in-progress pairing attempt. No-op if not paired.
+--- Cancel an in-progress pairing attempt. No-op if not paired.
 function device:cancel_pairing()
     if self._private.device_proxy.Paired == true then
         self._private.device_proxy:CancelPairingAsync(nil, {})

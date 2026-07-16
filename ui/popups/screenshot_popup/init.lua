@@ -11,9 +11,9 @@ local gobject = require("gears.object")
 local gtable = require("gears.table")
 local gfs = require("gears.filesystem")
 local dpi = beautiful.xresources.apply_dpi
-local shapes = require("modules.shapes")
+local shapes = require("modules.style.shapes")
 local modules = require("modules")
-local click_to_hide = require("modules.click_to_hide")
+local click_to_hide = require("modules.infra.click_to_hide")
 local screenshot_service = require("service.screenshot").get_default()
 
 local icons_dir = gfs.get_configuration_dir()
@@ -21,6 +21,12 @@ local icons_dir = gfs.get_configuration_dir()
 local titlebar_close_icon = gfs.get_configuration_dir()
     .. "ui/titlebar/icons/close.svg"
 
+--- Build a screenshot action button (icon + tooltip).
+-- Applies the themed rounded-rect button with hover effect.
+-- @tparam string icon_path Absolute path to the SVG icon
+-- @tparam string name Human-readable label for the tooltip
+-- @tparam function fn Callback invoked on left-click
+-- @treturn table A themed wibox widget
 local function createButton(icon_path, name, fn)
     local button = wibox.widget({
         widget = wibox.container.background,
@@ -71,6 +77,10 @@ end
 
 local screenshot_popup = {}
 
+--- Construct a screenshot popup instance.
+-- Builds the full widget tree with three action buttons and a close
+-- button, wired to `service.screenshot` callbacks.
+-- @treturn table Popup instance with show/hide/toggle methods
 function screenshot_popup:new()
     local ret = gobject({})
     gtable.crush(ret, screenshot_popup, true)
@@ -194,17 +204,22 @@ function screenshot_popup:new()
         widget = wibox.container.margin,
     })
 
+    --- Show the screenshot popup centered on screen.
+    -- Emits `property::shown` for mutual-exclusion wiring.
     function ret:show()
         self.widget.visible = true
         awful.placement.centered(self.widget)
         self:emit_signal("property::shown", true)
     end
 
+    --- Hide the screenshot popup.
+    -- Emits `property::shown` for mutual-exclusion wiring.
     function ret:hide()
         self.widget.visible = false
         self:emit_signal("property::shown", false)
     end
 
+    --- Toggle the screenshot popup visibility.
     function ret:toggle()
         if self.widget.visible then
             self:hide()
@@ -212,10 +227,6 @@ function screenshot_popup:new()
             self:show()
         end
     end
-
--- Build the popup widget tree.
--- @treturn table Popup instance with show/hide/toggle methods
-function screenshot_popup:new()
 
     -- Setup click-to-hide behavior
     click_to_hide.popup(ret.widget, function()

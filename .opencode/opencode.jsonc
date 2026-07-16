@@ -14,6 +14,9 @@
       "wibox/**": "allow",
       "awful/**": "allow",
       "bin/**": "allow",
+      "tests/**": "allow",
+      ".github/**": "allow",
+      "CONTRIBUTING.md": "allow",
       "rc.lua": "allow",
       "rc.lua.test": "allow",
       ".opencode/**": "allow"

@@ -10,7 +10,9 @@ local runner = ...
 -- the test can control the elapsed time.
 local function make_timed(threshold_ms, fn, clock)
     threshold_ms = threshold_ms or 16
-    clock = clock or function() return os.clock() * 1000 end
+    clock = clock or function()
+        return os.clock() * 1000
+    end
     local last_ms = 0
     return setmetatable({}, {
         __call = function(_, ...)
@@ -31,9 +33,10 @@ local function make_timed(threshold_ms, fn, clock)
             end
             return unpack(r)
         end,
-    }), function()
-        return last_ms
-    end
+    }),
+        function()
+            return last_ms
+        end
 end
 
 runner.describe("awful.util.timed", function()
@@ -50,18 +53,21 @@ runner.describe("awful.util.timed", function()
         assert.eq(wrapped(21), 42)
     end)
 
-    runner.it("returns the first return value only (single-value, by Lua design)", function()
-        -- Note: the production impl uses `unpack(r)` which returns all
-        -- values in a multi-return context. Here we document the same
-        -- multi-value behavior.
-        local wrapped = make_timed(1000, function()
-            return 1, 2, 3
-        end)
-        local a, b, c = wrapped()
-        assert.eq(a, 1)
-        assert.eq(b, 2)
-        assert.eq(c, 3)
-    end)
+    runner.it(
+        "returns the first return value only (single-value, by Lua design)",
+        function()
+            -- Note: the production impl uses `unpack(r)` which returns all
+            -- values in a multi-return context. Here we document the same
+            -- multi-value behavior.
+            local wrapped = make_timed(1000, function()
+                return 1, 2, 3
+            end)
+            local a, b, c = wrapped()
+            assert.eq(a, 1)
+            assert.eq(b, 2)
+            assert.eq(c, 3)
+        end
+    )
 
     runner.it("tracks last elapsed time", function()
         local wrapped, get_ms = make_timed(10, function() end, function()
