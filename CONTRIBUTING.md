@@ -1,6 +1,6 @@
 # Contributing
 
-This is a Lua-only AwesomeWM 4.3 configuration. The config loads at awesome startup
+This is a Lua-only AwesomeWM 4.3+ configuration. The config loads at awesome startup
 — there is no build step. Code is read straight from `rc.lua` → `configuration/init.lua`
 + `ui/init.lua`.
 
