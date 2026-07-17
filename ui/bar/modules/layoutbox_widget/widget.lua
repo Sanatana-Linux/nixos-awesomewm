@@ -81,7 +81,7 @@ return function(s)
 
         w.imagebox = imagebox
         w.textbox = textbox
-        w._layoutbox_tooltip = tooltip { objects = { w }, delay_show = 1 }
+        w._layoutbox_tooltip = tooltip({ objects = { w }, delay_show = 1 })
 
         update(w, screen)
         boxes[screen] = w

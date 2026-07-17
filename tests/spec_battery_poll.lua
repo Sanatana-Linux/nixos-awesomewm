@@ -30,15 +30,12 @@ package.loaded["gears.object"] = {
     end,
     -- production uses gobject({}) which is gears.object()
     __call = function(_, t)
-        return setmetatable(
-            t or {},
-            {
-                __index = {
-                    connect_signal = function() end,
-                    emit_signal = function() end,
-                },
-            }
-        )
+        return setmetatable(t or {}, {
+            __index = {
+                connect_signal = function() end,
+                emit_signal = function() end,
+            },
+        })
     end,
 }
 -- Simpler mock: gobject returns a plain table with signals.

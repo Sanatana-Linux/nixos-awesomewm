@@ -1,10 +1,10 @@
 return {
-	["com.github.alex11br.themechanger.desktop"] = 2,
-	["gimp.desktop"] = 2,
-	["google-chrome.desktop"] = 1,
-	["nl.hjdskes.gcolor3.desktop"] = 1,
-	["org.pulseaudio.pavucontrol.desktop"] = 1,
-	["thunar.desktop"] = 3,
-	["thunderbird.desktop"] = 1,
-	["upscayl.desktop"] = 1
+    ["com.github.alex11br.themechanger.desktop"] = 2,
+    ["gimp.desktop"] = 2,
+    ["google-chrome.desktop"] = 1,
+    ["nl.hjdskes.gcolor3.desktop"] = 1,
+    ["org.pulseaudio.pavucontrol.desktop"] = 1,
+    ["thunar.desktop"] = 3,
+    ["thunderbird.desktop"] = 1,
+    ["upscayl.desktop"] = 1,
 }

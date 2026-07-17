@@ -373,7 +373,8 @@ package.loaded["modules.style.shapes"] = {
         return function() end
     end,
 }
-package.loaded["modules.style.shapes.init"] = package.loaded["modules.style.shapes"]
+package.loaded["modules.style.shapes.init"] =
+    package.loaded["modules.style.shapes"]
 package.loaded["modules.icon_lookup"] = {
     get_fallback_icon = function()
         return "/tmp/fallback.svg"
