@@ -4,3 +4,4 @@ line_endings = "Unix"
 indent_type = "Spaces"
 indent_width = 4
 quote_style = "AutoPreferDouble"
+syntax = "Lua52"
