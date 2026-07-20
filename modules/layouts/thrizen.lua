@@ -96,7 +96,7 @@ function thrizen.arrange(p)
     for i, c in pairs(clients) do
         -- Skip invalid clients
         if not c or c.minimized or not c.valid then
-            goto continue
+            return
         end
 
         -- Calculate grid position (0-based for math, then adjust)
