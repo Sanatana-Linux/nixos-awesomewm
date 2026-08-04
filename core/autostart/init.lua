@@ -45,7 +45,8 @@ local autostart_commands = {
     "pkill picom && sleep 1 && picom --daemon", -- Compositor for blur, shadows, and animations
     -- "xrandr --output eDP-1-1 --mode 2560x1600 --rate 144",
     "xrandr --output eDP-1-1 --mode 2560x1600 --rate 60",
-    "clipse --listen &",
+    --      "clipse --listen &",
+    "clipster -d &",
 }
 
 --- Checks if AwesomeWM was restarted in this session.
