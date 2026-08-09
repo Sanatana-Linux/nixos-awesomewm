@@ -146,6 +146,31 @@ screenshot_popup:connect_signal("property::shown", function(_, shown)
     end
 end)
 
+--- Hide every popup when the lockscreen activates. This wires mutual
+-- exclusion between the lockscreen and the popup set — previously only
+-- between popups — and prevents a stacked-keygrabber leak: a popup's
+-- escape keygrabber (registered via `modules.infra.click_to_hide`)
+-- would otherwise stay in `awful.keygrabber`'s internal stack when
+-- xautolock fires `lockscreen::visible = true`, and since
+-- `awful.keygrabber.stop` only releases the native X keyboard grab
+-- when the stack empties, the keyboard stayed dead after the
+-- lockscreen dismissed. Hiding the popups first drains the stack so
+-- the native grab is released on unlock.
+-- The reverse direction (popup activates → dismiss lockscreen) is
+-- unnecessary because the lockscreen is `ontop = true` and grabs the
+-- keyboard, so no popup can be opened while it's visible.
+awesome.connect_signal("lockscreen::visible", function(visible)
+    if visible then
+        menu:hide()
+        launcher:hide()
+        powermenu:hide()
+        control_panel:hide()
+        screenshot_popup:hide()
+        day_info_panel:hide()
+        battery:hide()
+    end
+end)
+
 --- Hide all popups on root-click.
 -- Called on mouse button 1 on the desktop or on client press.
 local function click_hideaway()

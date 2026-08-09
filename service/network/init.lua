@@ -422,7 +422,7 @@ local instance = nil
 -- @treturn table The cached network service instance
 local function get_default()
     if not instance then
-        if not _NM_status or not NM then
+        if not NM then
             instance = create_fallback()
         else
             local ok, result = pcall(new)

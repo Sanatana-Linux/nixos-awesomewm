@@ -101,7 +101,11 @@ local function slider_container(content)
     })
 end
 
---- Tagbar action button (full-width, for Connect/Pair/Trust actions)
+--- Tagbar action button (full-width, for Connect/Pair/Trust actions).
+-- Shows an optional icon (recolored white) beside the label text.
+-- @tparam table args Configuration:
+--   * `text` (string): label text
+--   * `icon` (string|nil): path to an SVG icon, recolored to `WHITE`
 ----------------------------------------------------------------------
 local function create_tagbar_action(args)
     local btn = wibox.widget({
@@ -115,7 +119,23 @@ local function create_tagbar_action(args)
             margins = dpi(8),
             {
                 layout = wibox.layout.fixed.horizontal,
-                spacing = dpi(4),
+                spacing = dpi(6),
+                {
+                    widget = wibox.container.place,
+                    halign = "center",
+                    valign = "center",
+                    {
+                        id = "action-icon",
+                        widget = wibox.widget.imagebox,
+                        image = args.icon
+                                and gcolor.recolor_image(args.icon, WHITE)
+                            or nil,
+                        forced_height = dpi(16),
+                        forced_width = dpi(16),
+                        resize = true,
+                        visible = args.icon ~= nil,
+                    },
+                },
                 {
                     id = "label-role",
                     widget = wibox.widget.textbox,
@@ -149,12 +169,15 @@ local function create_dev_widget(path)
     -- Action buttons with tagbar style
     local connect_btn = create_tagbar_action({
         text = dev:get_connected() and "Disconnect" or "Connect",
+        icon = ICONS_PATH .. "connect.svg",
     })
     local pair_btn = create_tagbar_action({
         text = dev:get_paired() and "Unpair" or "Pair",
+        icon = ICONS_PATH .. "pair.svg",
     })
     local trust_btn = create_tagbar_action({
         text = dev:get_trusted() and "Untrust" or "Trust",
+        icon = ICONS_PATH .. "trust.svg",
     })
 
     local inner = wibox.widget({

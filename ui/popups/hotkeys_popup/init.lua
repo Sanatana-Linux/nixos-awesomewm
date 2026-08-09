@@ -331,7 +331,6 @@ function widget.new(args)
     function instance:show_help(c, s, show_args)
         show_args = show_args or {}
         local show_awesome_keys = show_args.show_awesome_keys ~= false
-        self:_import_awful_keys()
 
         c = c or capi.client.focus
         s = s or (c and c.screen or awful.screen.focused())
@@ -583,6 +582,14 @@ function widget.new(args)
     function instance:add_group_rules(group, data)
         self.group_rules[group] = data
     end
+
+    -- Keybindings are static after `require("bindings")` completes at
+    -- startup, so import all `awful.key.hotkeys` entries eagerly at
+    -- construction rather than lazily on first `show_help()`. This keeps
+    -- `_cached_awful_keys` always populated and removes a load-order
+    -- footgun where a binding registered after the popup singleton is
+    -- built would never appear.
+    instance:_import_awful_keys()
 
     return instance
 end

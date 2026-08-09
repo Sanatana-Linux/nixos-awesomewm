@@ -5,8 +5,7 @@
 
 local beautiful = require("beautiful")
 
---- Opacity values keyed by client type (e.g., normal=0.95, dock=1.0).
--- @tfield number normal
+--- Opacity values keyed by client type (focus-independent types).
 -- @tfield number tooltip
 -- @tfield number dock
 -- @tfield number popup_menu
@@ -16,7 +15,16 @@ local type_opacity = {
     dock = 1.0,
     popup_menu = 0.95,
     dropdown_menu = 0.9,
-    normal = 0.95,
+}
+
+--- Opacity values for the focused client, keyed by type.
+local type_focused_opacity = {
+    normal = 1.0,
+}
+
+--- Opacity values for the unfocused client, keyed by type.
+local type_unfocused_opacity = {
+    normal = 0.75,
 }
 
 --- Opacity values keyed by client class (named apps).
@@ -37,8 +45,9 @@ local class_unfocused_opacity = {
 }
 
 --- Apply opacity to a client based on type/class/focus state.
--- Lookup chain: `type_opacity` → `class_opacity` →
--- `class_focused_opacity` → theme defaults.
+-- Lookup chain: `type_opacity` → `type_focused_opacity`/`type_unfocused_opacity`
+-- → `class_opacity` → `class_focused_opacity`/`class_unfocused_opacity`
+-- → theme defaults.
 -- @tparam client c
 local function apply_opacity(c)
     if c.type == "desktop" then
@@ -51,6 +60,13 @@ local function apply_opacity(c)
         if c.type == "dock" then
             c.shape = nil
         end
+        return
+    end
+
+    local type_focused_val = type_focused_opacity[c.type]
+    local type_unfocused_val = type_unfocused_opacity[c.type]
+    if type_focused_val or type_unfocused_val then
+        c.opacity = c.focused and type_focused_val or type_unfocused_val
         return
     end
 

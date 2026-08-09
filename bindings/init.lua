@@ -25,6 +25,7 @@ local function set_keybindings()
     require("bindings.launcher") -- App and terminal launching
     require("bindings.hardware") -- Hardware control keybindings (volume, brightness, etc.)
     require("bindings.window") -- Window/client management keybindings
+    require("bindings.scratchpad") -- Scratchpad park/toggle keybindings
     require("bindings.focus") -- Window focus navigation keybindings
     require("bindings.layout") -- Layout switching and management keybindings
     require("bindings.mouse") -- Mouse button and gesture bindings
