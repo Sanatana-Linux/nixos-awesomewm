@@ -1,5 +1,7 @@
 # Upstream Catalog: Every File in `/etc/nixos/external/awesome/upstream/`
 
+> **⚠️ STALE (2026-08-11):** The `upstream/` override directory was **removed** from this config. `rc.lua` now prepends only `lib/` to `package.path`, so system-installed AwesomeWM 4.3 libs are used. This catalog is retained for historical reference only — do not rely on it for current architecture. See `.opencode/context/frameworks/architecture.md` for the current layout.
+
 **Stock baseline:** `/nix/store/i471f23q1hfyzk47j7wylacvgi2m4jx2-awesome-git-2024-12-08/share/awesome/lib/`  
 **AwesomeWM version:** 4.3  
 

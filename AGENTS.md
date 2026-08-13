@@ -221,19 +221,19 @@ markup = beautiful.text_icons.search,
 ## Project Structure
 
 ### Directory Layout
-- `configuration/` - Core AwesomeWM functionality (autostart, client, keybind, tag, theme, screen, error, notification)
+- `core/` - Core AwesomeWM functionality (autostart, theme, tag, client, screen, gc)
+- `bindings/` - Global + client keybindings (focus, hardware, launcher, layout, mouse, scratchpad, system, tags, window)
 - `ui/` - User interface components (bar, popups, lockscreen, notification, titlebar, tabbar, wallpaper)
-- `modules/` - Reusable UI modules (animations, calendar, dropdown, hover_button, menu, shapes, text_input, snap_edge)
-- `service/` - System service integrations (audio, battery, bluetooth, brightness, network, screenshot, garbage_collection)
-- `lib/` - Utility libraries (dbus_proxy, json, inspect)
+- `modules/` - Reusable UI modules (infra: animations, click_to_hide, page_container, snap_edge; layouts; style: shapes, ui_constants; widgets: menu, text_input, calendar, dropdown, etc.)
+- `service/` - System service integrations (audio, battery, bluetooth, brightness, network, screenshot, system_info)
+- `lib/` - Utility libraries (dbus_proxy, json, inspect, util, remote_watch, wibox, liblua_pam.so)
 - `themes/` - Visual themes with icons and styling
-- `wibox/` - Custom wibox widgets and layouts
-- `awful/` - Overrides for AwesomeWM awful library
-- `bin/` - Scripts (awmtt-ng.sh, glitchlock.sh)
+- `bin/` - Scripts (awmtt-ng.sh, showcase.sh)
 
 ### Entry Points
-- `rc.lua` - Main configuration entry point (loads core and ui)
-- `configuration/init.lua` - Loads all core modules
+- `rc.lua` - Main configuration entry point (loads core, bindings, and ui)
+- `core/init.lua` - Loads all core modules
+- `bindings/init.lua` - Assembles global + client keybindings
 - `ui/init.lua` - Initializes UI components, bars, popups
 
 ### Module Organization
@@ -270,7 +270,7 @@ return setmetatable({ new = new }, { __call = function(_, ...) return new(...) e
 5. Test integration with UI components
 
 ### Adding Keybinding
-1. Identify appropriate file in `configuration/keybind/`
+1. Identify appropriate file in `bindings/`
 2. Use `awful.key()` or `awful.button()` 
 3. Use `Mod4` (Super) as primary modifier
 4. Test in nested session

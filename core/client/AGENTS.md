@@ -1,7 +1,7 @@
 <!-- Parent: ../AGENTS.md -->
 <!-- Generated: 2026-04-21 | Updated: 2026-04-26 -->
 
-# configuration/client
+# core/client
 
 ## Purpose
 Client (window) management — sets up window rules, placement policies, focus handling, shape/opacity management, and signals. Configures behavior for fullscreen, maximized, transient, and floating clients, plus custom per-app and notification rules.

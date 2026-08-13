@@ -2,15 +2,15 @@
 
 ## Project Architecture
 - This is a Lua-only AwesomeWM 4.3 config on NixOS
-- Entry point: `rc.lua` → `configuration/init.lua` + `ui/init.lua`
-- Uses "upstream override" pattern: modified AwesomeWM libs in `upstream/` prepended to `package.path`
+- Entry point: `rc.lua` → `require("core")` + `require("bindings")` + `require("ui")`
+- `lib/` is prepended to `package.path` (no `upstream/` override dir — system-installed AwesomeWM libs are used)
 - No build step — pure Lua configuration loaded at runtime
 
 ## Testing
 - Use `./bin/awmtt-ng.sh` for Xephyr-based nested session testing
 - Always validate syntax: `awesome -c rc.lua --check` or with test config
 - After changes: `./bin/awmtt-ng.sh restart` then check errors in log
-- No unit test framework (no busted) — manual reload testing
+- Unit tests: `lua tests/run.lua` — pure-Lua custom runner (no busted), `tests/spec_*.lua` + `tests/assert.lua`. CI runs `awesome --check + stylua --check + lua tests/run.lua` on every push/PR.
 
 ## Key Patterns
 - **Singleton**: Services/popups use `gobject({})` + `gtable.crush(ret, module, true)` + `get_default()` with cached `instance` closure
@@ -20,14 +20,14 @@
 - **Mutual exclusion**: Popups hide each other via `property::shown` signal wiring in `ui/init.lua` — when one popup shows, all others hide
 
 ## Directories
-- `configuration/` — Core WM: autostart, theme, tags, clients, keybinds, screen
+- `core/` — Core WM: autostart, theme, tags, clients, screen, gc
+- `bindings/` — Global + client keybindings (focus, hardware, launcher, layout, mouse, scratchpad, system, tags, window)
 - `ui/` — Visual components: bar, popups, lockscreen, titlebar, tabbar, wallpaper
-- `modules/` — Shared widgets: animations, calendar, dropdown, shapes, text_input, menu, applet_button, hover_button, snap_edge, page_container, layouts
-- `service/` — System backends: audio, battery, bluetooth, brightness, network, screenshot, caps, system_info, garbage_collection
-- `lib/` — Utilities: dbus_proxy, json.lua, inspect.lua
-- `upstream/` — Modified AwesomeWM builtins: awful, beautiful, gears, menubar, naughty, ruled, wibox
+- `modules/` — Shared widgets: infra (animations, click_to_hide, page_container, snap_edge), layouts (cascade, grid, map, mstab, termfair, thrizen), style (shapes, ui_constants, container_styles), widgets (menu, text_input, calendar, dropdown, applet_button, hover_button, styled_button, arc_chart)
+- `service/` — System backends: audio, battery, bluetooth, brightness, caps, network, screenshot, system_info
+- `lib/` — Utilities: dbus_proxy, json.lua, inspect.lua, util, remote_watch, wibox, liblua_pam.so
 - `themes/kailash/` — Active theme (Monokai Pro Spectrum palette)
-- `bin/` — Scripts: awmtt-ng.sh, glitchlock.sh
+- `bin/` — Scripts: awmtt-ng.sh, showcase.sh
 
 ## Common Operations
 - **Format**: `stylua .` (uses `.stylua.toml`)

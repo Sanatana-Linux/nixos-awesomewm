@@ -22,7 +22,7 @@ binding API, and dual-bind/keyd workaround pattern.
 
 ## File Organization
 
-All keybindings live under `configuration/keybind/`, split by category:
+All keybindings live under `bindings/`, split by category:
 
 | File | Purpose | Registered Via |
 |------|---------|----------------|
@@ -39,8 +39,8 @@ All keybindings live under `configuration/keybind/`, split by category:
 
 ### Adding a New Keybinding File
 
-1. Create `configuration/keybind/<category>.lua`
-2. Add `require("configuration.keybind.<category>")` to `configuration/keybind/init.lua`
+1. Create `bindings/<category>.lua`
+2. Add `require("bindings.<category>")` to `bindings/init.lua`
 3. Follow the binding format for global or client keys (see below)
 
 ---
@@ -264,7 +264,7 @@ Include only the globals the file actually uses.
 
 ## step-by-step: Adding a New Keybinding
 
-1. **Pick the category** — determine which file in `configuration/keybind/`
+1. **Pick the category** — determine which file in `bindings/`
    the binding belongs to. If none fit, create a new file.
 2. **Read the file** — check existing patterns and the modkey definition.
 3. **Add the binding** — use `awful.key()` inside the appropriate
@@ -273,7 +273,7 @@ Include only the globals the file actually uses.
 4. **Dual-bind if hardware** — for XF86Audio* keys, add both the keysym
    and keycode binding, and add a throttle if one doesn't exist.
 5. **Register new files** — if you created a new file, add a
-   `require("configuration.keybind.<name>")` line to `init.lua`.
+   `require("bindings.<name>")` line to `init.lua`.
 6. **Test** — run `awesome -c rc.lua --check` to validate syntax, then
    reload with Super+R and test the binding.
 
@@ -284,7 +284,7 @@ Include only the globals the file actually uses.
 ### ✅ Good: Adding a hardware brightness key
 
 ```lua
--- In configuration/keybind/hardware.lua, inside append_global_keybindings
+-- In bindings/hardware.lua, inside append_global_keybindings
 
 awful.key({}, "XF86MonBrightnessUp", function()
     if brightness_service and brightness_service.increase then
@@ -298,7 +298,7 @@ end, { description = "increase brightness", group = "Hardware" }),
 ### ✅ Good: Adding a client window key
 
 ```lua
--- In configuration/keybind/window.lua, inside append_client_keybindings
+-- In bindings/window.lua, inside append_client_keybindings
 
 awful.key({ modkey }, "w", function(c)
     c:kill()
@@ -308,7 +308,7 @@ end, { description = "close focused window", group = "Window" }),
 ### ✅ Good: Adding a system key
 
 ```lua
--- In configuration/keybind/system.lua, inside append_global_keybindings
+-- In bindings/system.lua, inside append_global_keybindings
 
 awful.key(
     { modkey },

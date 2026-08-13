@@ -1,7 +1,7 @@
 # ui/popups/menu
 
 ## Purpose
-Right-click menu singleton. Provides the desktop context menu (awesome config / restart / power) and the per-client context menu (minimize / maximize / close / …). Backs the right-click bindings in `configuration/keybind/mouse.lua`.
+Right-click menu singleton. Provides the desktop context menu (awesome config / restart / power) and the per-client context menu (minimize / maximize / close / …). Backs the right-click bindings in `bindings/mouse.lua`.
 
 ## API
 - `menu.get_default()` — singleton accessor.

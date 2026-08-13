@@ -1,7 +1,7 @@
 <!-- Parent: ../AGENTS.md -->
 <!-- Generated: 2026-04-21 | Updated: 2026-04-21 -->
 
-# configuration/theme
+# core/theme
 
 ## Purpose
 Theme initialization — loads the "kailash" theme via `beautiful.init()`. This is the single point where the active theme is selected.
@@ -16,5 +16,5 @@ Theme initialization — loads the "kailash" theme via `beautiful.init()`. This 
 
 ### Working In This Directory
 - Change `theme_name` to switch themes
-- Must be loaded before any UI module (it's first in `configuration/init.lua`)
+- Must be loaded before any UI module (it's first in `core/init.lua`)
 - All theme variables are defined in `themes/<theme_name>/theme.lua`

@@ -1,7 +1,7 @@
 <!-- Parent: ../AGENTS.md -->
 <!-- Generated: 2026-04-21 | Updated: 2026-04-21 -->
 
-# configuration/autostart
+# core/autostart
 
 ## Purpose
 Autostart module — launches system utilities (picom, xrandr, clipse) and starts the garbage collection service when AwesomeWM initializes.

@@ -1,10 +1,10 @@
 <!-- Parent: ../AGENTS.md -->
-<!-- Generated: 2026-04-21 | Updated: 2026-04-21 -->
+<!-- Generated: 2026-04-21 | Updated: 2026-08-11 -->
 
-# configuration
+# core
 
 ## Purpose
-Core AwesomeWM configuration entry point. Loads all modules required for basic WM functionality: autostart, theme, tags, client rules, keybindings, and screen management.
+Core AwesomeWM configuration entry point. Loads all modules required for basic WM functionality: autostart, theme, tags, client rules, screen management, and garbage collection.
 
 ## Key Files
 
@@ -18,7 +18,7 @@ Core AwesomeWM configuration entry point. Loads all modules required for basic W
 |-----------|---------|
 | `autostart/` | Applications and scripts to run on startup (see `autostart/AGENTS.md`) |
 | `client/` | Window (client) management rules and signals (see `client/AGENTS.md`) |
-| `keybind/` | Global and client keybindings (see `keybind/AGENTS.md`) |
+| `gc/` | Garbage collection service |
 | `screen/` | Screen management and primary screen override (see `screen/AGENTS.md`) |
 | `tag/` | Virtual desktop (tag) management and custom layouts (see `tag/AGENTS.md`) |
 | `theme/` | Theme loading and beautiful initialization (see `theme/AGENTS.md`) |
@@ -26,10 +26,11 @@ Core AwesomeWM configuration entry point. Loads all modules required for basic W
 ## For AI Agents
 
 ### Working In This Directory
-- Load order matters: theme → tag → client → keybind → screen
+- Load order matters: autostart → theme → tag → client → screen
+- Keybindings live in the top-level `bindings/` directory (not under `core/`)
 - Adding a new config module requires a `require()` in `init.lua`
 - New modules must be a directory with `init.lua` entry point
 
 ### Common Patterns
-- Each subdirectory is a self-contained module loaded via `require("configuration.<name>")`
+- Each subdirectory is a self-contained module loaded via `require("core.<name>")`
 - Modules primarily use `connect_signal` to wire into AwesomeWM lifecycle events

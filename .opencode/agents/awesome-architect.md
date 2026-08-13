@@ -15,22 +15,23 @@ disallowedTools: Write, Edit
 
     | Layer | Path | Files | Responsibility |
     |-------|------|-------|----------------|
-    | Core | `configuration/` | 21 | WM lifecycle: autostart, theme, tags, clients, keybinds, screen |
-    | UI | `ui/` | 42 | Visual: bar, 11 popups, lockscreen (PAM), titlebar, tabbar, wallpaper |
-    | Widgets | `modules/` | 37 | Reusable: shapes, animations, text_input, dropdown, calendar, menu, etc. |
-    | Services | `service/` | 9 | System backends: audio, battery, network, bluetooth, brightness, etc. |
-    | Lib | `lib/` | 8 | dbus_proxy, json, inspect, liblua_pam.so |
-    | Upstream | `upstream/` | 171 | Modified AwesomeWM builtins (awful, gears, wibox, beautiful, etc.) |
+    | Core | `core/` | 16 | WM lifecycle: autostart, theme, tags, clients, screen, gc |
+    | Bindings | `bindings/` | 11 | Global + client keybindings (focus, hardware, launcher, layout, mouse, scratchpad, system, tags, window) |
+    | UI | `ui/` | 49 | Visual: bar, popups, lockscreen (PAM), titlebar, tabbar, wallpaper |
+    | Widgets | `modules/` | 36 | Reusable: infra (animations, click_to_hide, page_container, snap_edge), layouts, style (shapes, ui_constants), widgets (menu, text_input, calendar, dropdown, etc.) |
+    | Services | `service/` | 13 | System backends: audio, battery, network, bluetooth, brightness, etc. |
+    | Lib | `lib/` | 11 | dbus_proxy, json, inspect, util, remote_watch, wibox, liblua_pam.so |
     | Theme | `themes/kailash/` | 1 | Monokai Pro Spectrum theme |
 
     ## Entry Point Chain
     ```
-    rc.lua (28 lines)
+    rc.lua (29 lines)
      ├─ pcall(require, "luarocks.loader")
-     ├─ package.path prepend: upstream/?.lua
+     ├─ package.path prepend: lib/?.lua
      ├─ package.cpath prepend: lib/?.so
-     ├─ require("configuration")  → autostart → theme → tag → client → keybind → screen
-     └─ require("ui")             → instantiate all popups → setup bars → wire signals
+     ├─ require("core")     → autostart → theme → tag → client → screen
+     ├─ require("bindings") → global + client keybindings
+     └─ require("ui")       → instantiate all popups → setup bars → wire signals
     ```
 
     ## Data Flow
@@ -39,7 +40,7 @@ disallowedTools: Write, Edit
 
     ## Key Architectural Patterns
     - **Singleton**: `gobject({})` + `gtable.crush(ret, module, true)` + `get_default()` — used by all services and popups
-    - **Upstream override**: Prepend `upstream/` to `package.path` in rc.lua to override AwesomeWM builtins
+    - **System-installed libs**: `lib/` prepended to `package.path`; no `upstream/` override dir — `require("awful")` loads the NixOS-installed version
     - **Mutual exclusion**: Popups connected via `property::shown` — only ONE visible at a time, wired in `ui/init.lua`
     - **click_to_hide**: Centralized module for click-away + Escape dismissal
     - **capi table**: `local capi = { screen = screen, client = client }` — avoids global lookups
@@ -48,11 +49,11 @@ disallowedTools: Write, Edit
     ## Hub Modules (most required)
     | Module | Requires | Path |
     |--------|----------|------|
-    | `modules.shapes` | 19 | `modules/shapes/init.lua` |
-    | `modules.animations` | 10 | `modules/animations/init.lua` |
+    | `modules.shapes` | 19 | `modules/style/shapes/init.lua` |
+    | `modules.animations` | 10 | `modules/infra/animations/init.lua` |
     | `modules` | 9 | `modules/init.lua` |
     | `lib` | 9 | `lib/init.lua` |
-    | `modules.click_to_hide` | 8 | `modules/click_to_hide/init.lua` |
+    | `modules.click_to_hide` | 8 | `modules/infra/click_to_hide/init.lua` |
   </Project_Context>
 
   <Architecture_Constraints>

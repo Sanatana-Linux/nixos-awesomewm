@@ -1,7 +1,7 @@
 <!-- Parent: ../AGENTS.md -->
 <!-- Generated: 2026-04-21 | Updated: 2026-04-21 -->
 
-# configuration/keybind
+# bindings
 
 ## Purpose
 Global and client keybindings — defines all keyboard shortcuts using Mod4 (Super) as primary modifier. Organized by category: AwesomeWM control, client manipulation, focus, tags, layout, hardware functions, and mouse bindings.

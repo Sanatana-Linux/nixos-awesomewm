@@ -1,3 +1,8 @@
+---
+name: awesome-layouts
+description: Work with custom tiling layouts in this AwesomeWM config. Use when adding a new layout, modifying an existing one, registering layouts, or debugging layout arrangement/keygrabber issues.
+---
+
 # awesome-layouts Skill
 
 > Window layouts and tiling patterns for AwesomeWM 4.3 custom layouts
@@ -51,7 +56,7 @@ Access via `awful.tag.incmwfact(delta)`, `awful.tag.incnmaster(delta)`, `awful.t
 
 ## Layout Registry
 
-Custom layouts are registered in `configuration/tag/init.lua` via:
+Custom layouts are registered in `core/tag/init.lua` via:
 
 ```lua
 capi.tag.connect_signal("request::default_layouts", function()
@@ -243,7 +248,7 @@ map.key_handler = function(mod, key, event)
 end
 ```
 
-### Hotkey registration (`configuration/keybind/layout_custom.lua`)
+### Hotkey registration (`bindings/layout_custom.lua`)
 
 Layout-specific keygrabber keys (grid move/resize, map layout/resize) are registered with the hotkeys popup via `build_hotkeys()` → `hotkeys_popup.add_hotkeys()`. This makes them visible in the F1 help even though they're not global keys.
 
@@ -382,9 +387,9 @@ local slavewid = wa.width - mainwid  -- remaining space, no floor needed
 | `modules/layouts/grid.lua` | Floating discrete geometry grid (own keygrabber + mouse handlers) |
 | `modules/layouts/map.lua` | User-defined geometry groups (own keygrabber + tree-based layout) |
 | `modules/layouts/navigator.lua` | Visual keyboard navigation overlay (not a layout) |
-| `configuration/tag/init.lua` | Layout registry — `awful.layout.append_default_layouts()` |
-| `configuration/keybind/layout.lua` | Global layout keybindings (mwfact, nmaster, ncol, swap, layout switch) |
-| `configuration/keybind/layout_custom.lua` | Layout-specific keybinding registration for grid/map hotkeys help |
+| `core/tag/init.lua` | Layout registry — `awful.layout.append_default_layouts()` |
+| `bindings/layout.lua` | Global layout keybindings (mwfact, nmaster, ncol, swap, layout switch) |
+| `bindings/layout_custom.lua` | Layout-specific keybinding registration for grid/map hotkeys help |
 | `ui/tabbar/` | Tabbar widget used by mstab layout |
 
 ## Common Failure Modes

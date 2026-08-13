@@ -36,15 +36,15 @@ Key modules in this codebase that use Cairo directly:
 
 | Module | File | Purpose |
 |--------|------|---------|
-| `modules/shapes` | `modules/shapes/init.lua` | Shape function factories (rrect, circle, squircle) |
-| `modules/crop_surface` | `modules/crop_surface/init.lua` | Aspect-ratio cropping of Cairo surfaces |
-| `upstream/beautiful/theme_assets` | `upstream/beautiful/theme_assets.lua` | Generating taglist squares, AwesomeWM name, layout icons |
-| `upstream/gears/surface` | `upstream/gears/surface.lua` | Surface loading, saving, scaling, compositing |
-| `upstream/gears/color` | `upstream/gears/color.lua` | Color parsing, gradient creation, icon recoloring |
-| `upstream/wibox/drawable` | `upstream/wibox/drawable.lua` | Main widget drawing pipeline (background, wallpaper, dirty regions) |
-| `upstream/wibox/hierarchy` | `upstream/wibox/hierarchy.lua` | Per-widget hierarchy drawing with groups and transforms |
-| `upstream/wibox/container/background` | `upstream/background.lua` | Background rendering with shape clipping, gradients, masks |
-| `modules/layouts/navigator` | `modules/layouts/navigator.lua` | Custom widget with `:draw()` method painting gradients + shapes |
+| `modules.shapes` | `modules/style/shapes/init.lua` | Shape function factories (rrect, circle, squircle) |
+| `modules.crop_surface` | `modules/style/crop_surface/init.lua` | Aspect-ratio cropping of Cairo surfaces |
+| `beautiful.theme_assets` | system `beautiful/theme_assets.lua` | Generating taglist squares, AwesomeWM name, layout icons |
+| `gears.surface` | system `gears/surface.lua` | Surface loading, saving, scaling, compositing |
+| `gears.color` | system `gears/color.lua` | Color parsing, gradient creation, icon recoloring |
+| `wibox.drawable` | system `wibox/drawable.lua` | Main widget drawing pipeline (background, wallpaper, dirty regions) |
+| `wibox.hierarchy` | system `wibox/hierarchy.lua` | Per-widget hierarchy drawing with groups and transforms |
+| `wibox.container.background` | system `wibox/container/background.lua` | Background rendering with shape clipping, gradients, masks |
+| `modules.layouts.widgets.navigator` | `modules/layouts/widgets/navigator.lua` | Custom widget with `:draw()` method painting gradients + shapes |
 
 ---
 
@@ -295,7 +295,7 @@ pattern:add_color_stop_rgba(0, r, g, b, a)
 pattern:add_color_stop_rgba(1, r2, g2, b2, a2)
 ```
 
-### String-based Gradient Parsing (from `upstream/gears/color.lua`)
+### String-based Gradient Parsing (from `gears/color.lua`)
 
 ```lua
 -- The pattern parser in gears.color handles:
@@ -416,7 +416,7 @@ cr:stroke()
 cr:set_operator(cairo.Operator.OVER)   -- restore normal blend
 ```
 
-### Mask Pattern (from `upstream/wibox/container/background.lua`)
+### Mask Pattern (from `wibox/container/background.lua`)
 
 ```lua
 -- Create an alpha mask from drawing operations:
@@ -522,7 +522,7 @@ Common shape functions from `modules/shapes`:
 
 ---
 
-## 8. Theme Asset Generation (from `upstream/beautiful/theme_assets.lua`)
+## 8. Theme Asset Generation (from `beautiful/theme_assets.lua`)
 
 ### Taglist Squares (solid fill / outline)
 

@@ -1,7 +1,7 @@
 <!-- Parent: ../AGENTS.md -->
 <!-- Generated: 2026-04-21 | Updated: 2026-04-21 -->
 
-# configuration/screen
+# core/screen
 
 ## Purpose
 Screen management — overrides primary screen selection to prefer internal displays over HDMI, and handles multi-monitor geometry.

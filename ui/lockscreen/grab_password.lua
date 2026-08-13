@@ -16,22 +16,47 @@ local lock_animation = require("ui.lockscreen.lock_animation")
 local click_to_hide = require("modules.infra.click_to_hide")
 local navigator = require("modules.layouts.widgets.navigator")
 
---- Drain popup escape-grabbers by hiding every registered popup.
--- `awful.prompt.run` does NOT return a grabber handle, so the prompt
--- grabber cannot be tracked and stopped individually. However, the
--- only *other* grabbers that can leak are escape-listeners started by
--- `modules.infra.click_to_hide` when a popup is visible. Hiding all
--- registered popups fires each popup's `property::visible = false`
--- handler, which calls `deactivate_popup` and stops the escape
--- keygrabber, draining it from `awful.keygrabber`'s internal stack.
--- When the stack empties, `capi.keygrabber.stop()` releases the
--- native X keyboard grab.
+--- Drain every keyboard grab before releasing the lockscreen.
+-- The lockscreen is fullscreen + `ontop = true` and owns *all* keyboard
+-- input, so any grabber still in `awful.keygrabber`'s internal stack when
+-- we unlock is, by definition, stale and must be flushed. There are three
+-- classes of grabber:
+--
+--   1. The password prompt's own grabber. `awful.prompt.run` does NOT
+--      return a handle, so it cannot be stopped individually. On the
+--      *normal* unlock path (correct password → Enter) `prompt.run` stops
+--      its own grabber inside `exec()` before `exe_callback` fires, so the
+--      stack is already empty. But on the *force-unlock* path
+--      (`lockscreen::visible = false` emitted directly — e.g. root-click in
+--      ui/init.lua), the prompt is still running and its grabber leaks.
+--      The only reliable way to drop it is to flush the whole stack.
+--
+--   2. Escape-listeners started by `modules.infra.click_to_hide` while a
+--      popup was visible. Hiding all registered popups fires each popup's
+--      `property::visible = false` handler, which calls `deactivate_popup`
+--      and stops the escape keygrabber.
+--
+--   3. The Mod4+F2 layout navigator's native grab (`capi.keygrabber`),
+--      which is NOT in the awful.keygrabber stack. Close it directly.
+--
+-- `awful.keygrabber.stop()` with no argument removes the *last* grabber
+-- from the stack (and only releases the native X grab when the stack
+-- empties), so we call it repeatedly to flush the entire stack. Calling it
+-- on an empty stack is a harmless no-op. Flushing is safe here: the
+-- lockscreen is exclusive, so nothing legitimately owns a grab while it is
+-- up.
 -- @local
 local function drain_popup_grabbers()
     pcall(click_to_hide.hide_all)
+    -- Flush the entire awful.keygrabber stack. This drops the password
+    -- prompt's own grabber on the force-unlock path, plus any leaked
+    -- popup escape-grabbers. stop() is idempotent on an empty stack.
+    for _ = 1, 20 do
+        pcall(awful.keygrabber.stop)
+    end
     -- The Mod4+F2 layout navigator grabs the keyboard via the low-level
     -- `capi.keygrabber` (not the awful.keygrabber stack), so it is NOT
-    -- drained by hiding popups. If it was active when the screen locked,
+    -- drained by the flush above. If it was active when the screen locked,
     -- its native X grab would persist after unlock, leaving the keyboard
     -- dead. Close it (guarded by its `active` flag) so the native grab
     -- is released. `close()` is a no-op when the navigator is inactive.
@@ -96,9 +121,10 @@ local function grab_password()
 end
 
 -- When the lockscreen is dismissed by any path (root-click in
--- ui/init.lua, force-unlock, etc.), drain popup escape-grabbers so
--- the native X keyboard grab is released. The prompt's own grabber
--- is already stopped by awful.prompt.run before exe_callback fires.
+-- ui/init.lua, force-unlock, etc.), drain all keygrabbers so the
+-- native X keyboard grab is released. On the force-unlock path the
+-- password prompt is still running, so its grabber must be flushed
+-- too — drain_popup_grabbers() handles this.
 awesome.connect_signal("lockscreen::visible", function(visible)
     if not visible then
         drain_popup_grabbers()

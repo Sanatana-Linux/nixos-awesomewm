@@ -20,12 +20,12 @@ pcall(require, "luarocks.loader")  -- OK if this fails
 ```
 
 ## Lua Module Paths
-The config uses an upstream override pattern:
+The config prepends `lib/` to `package.path` (no `upstream/` override dir):
 ```lua
--- rc.lua prepends upstream/ to package.path
-package.path = config_dir .. "/upstream/?.lua;" .. config_dir .. "/upstream/?/init.lua;" .. package.path
+-- rc.lua prepends lib/ to package.path
+package.path = config_dir .. "/lib/?.lua;" .. config_dir .. "/lib/?/init.lua;" .. package.path
 ```
-This means `require("awful")` loads from `upstream/awful/init.lua`, not the system-installed version.
+This means `require("awful")` loads the system-installed version (NixOS `awesome` package), while project modules under `lib/` are resolved first.
 
 ## Native Modules
 Lua C modules live in `lib/`:

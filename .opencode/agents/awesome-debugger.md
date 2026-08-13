@@ -22,7 +22,7 @@ mode: subagent
 
     3. **os.clock() throttle bug** — If throttle doesn't work, check if `os.clock()` is being used instead of `glib.get_monotonic_time()`. `os.clock()` returns CPU time (not wall clock), causing the throttle to silently drop all but the first press.
 
-    4. **Module not found** — If `require("module.name")` fails, check that `rc.lua` prepends `upstream/` to `package.path`. LuaJIT uses Lua 5.1 module semantics (`module/init.lua` or `module.lua`).
+    4. **Module not found** — If `require("module.name")` fails, check that `rc.lua` prepends `lib/` to `package.path`. LuaJIT uses Lua 5.1 module semantics (`module/init.lua` or `module.lua`).
 
     5. **D-Bus service unavailable** — NetworkManager or BlueZ may not be running. Services use `pcall(new)` to fall back to empty objects. Check with:
        ```bash
@@ -59,7 +59,7 @@ mode: subagent
     | Volume keys don't work | keyd interception | Add #123/#122/#121 keycode bindings |
     | Audio cuts out after 5s | PipeWire suspend | Check keep-alive timer in service/audio |
     | Throttle too aggressive | os.clock() used | Replace with glib.get_monotonic_time() |
-    | "module not found" error | package.path missing upstream/ | Check rc.lua path prepend |
+    | "module not found" error | package.path missing lib/ | Check rc.lua path prepend |
     | Reload causes crash | Lua syntax error | Run `awesome -c rc.lua --check` |
     | Shell command fails | PATH issue on NixOS | Use awful.spawn.with_shell() |
   </Common_Fixes>

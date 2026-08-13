@@ -16,4 +16,4 @@ Tab bar for tabbed clients — displays tabs in the titlebar area when using the
 
 ### Working In This Directory
 - Tab styling uses `beautiful.tab_bar_*` theme variables
-- Integrates with the mstab layout from `configuration/tag/layouts/`
+- Integrates with the mstab layout from `modules/layouts/`

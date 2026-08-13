@@ -27,13 +27,18 @@ local focus_timer = gears.timer({
 -- When a tag switches or a client is unmanaged, wait 300ms then
 -- activate whichever client is under the pointer (sloppy-focus style).
 local function start_focus_timer()
-    -- Buffer by 0.3s to avoid colliding with the autostart's 0.2s window
+    -- Buffer by 0.3s to avoid colliding with the autostart's 0.2s window.
+    -- Guard against re-starting an already-running timer: `focus_timer` is
+    -- created with `autostart = true`, so calling `:start()` on it again
+    -- raises "timer already started" and aborts the config reload.
     gears.timer({
         timeout = 0.3,
         single_shot = true,
         autostart = true,
         callback = function()
-            focus_timer:start()
+            if not focus_timer.started then
+                focus_timer:start()
+            end
         end,
     })
 end

@@ -28,7 +28,7 @@ encodes the exact testing workflow used in this codebase.
 
 ## When to Use
 
-- Making any change to `rc.lua`, `configuration/`, `ui/`, `service/`, `modules/`, or `upstream/`
+- Making any change to `rc.lua`, `core/`, `bindings/`, `ui/`, `service/`, `modules/`, or `lib/`
 - Debugging Lua errors or AwesomeWM warnings
 - Adding or modifying keybindings
 - Creating or modifying UI components (bars, popups, titlebars)
@@ -86,7 +86,7 @@ Alternatively, for rapid iteration during development:
 ```
 
 This enables **auto-reload via `entr`** — any file change under `rc.lua`,
-`configuration/`, `ui/`, `service/`, `modules/`, or `theme/` triggers an
+`core/`, `bindings/`, `ui/`, `service/`, `modules/`, or `lib/` triggers an
 automatic restart. Only start once with `-R`; no need to re-run `restart`.
 
 ### Step 5: Check for Errors
@@ -151,10 +151,10 @@ properly cleaned up):
 
 - If a `require()` fails with "module not found", the path may not be in
   `package.path`
-- Check `rc.lua` for the `upstream/` directory prepend to `package.path`:
+- Check `rc.lua` for the `lib/` directory prepend to `package.path`:
 
 ```lua
-package.path = path .. "/upstream/share/awesome/lib/?.lua;" .. package.path
+package.path = config_dir .. "/lib/?.lua;" .. config_dir .. "/lib/?/init.lua;" .. package.path
 ```
 
 - LuaJIT uses **Lua 5.1** semantics for module loading — tables returned from

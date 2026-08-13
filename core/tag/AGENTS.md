@@ -1,7 +1,7 @@
 <!-- Parent: ../AGENTS.md -->
 <!-- Generated: 2026-04-21 | Updated: 2026-04-21 -->
 
-# configuration/tag
+# core/tag
 
 ## Purpose
 Virtual desktop (tag) configuration — defines tag names, layouts, and keybindings. Includes custom layout implementations imported from the `layouts/` subdirectory.

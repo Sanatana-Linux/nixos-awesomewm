@@ -37,7 +37,7 @@ A new layout should:
 3. Optionally expose `startup()` and `cleanup()` if the layout needs prep/teardown when the navigator enters/exits.
 4. Optionally expose `tip` (a table of `awful.key` entries) for the hotkeys popup.
 5. Read all theme values through `beautiful` and theme-aware constants — never hardcode pixels.
-6. Use `awful.util.dpi()` (from `upstream/awful/util.lua`) for any DPI-scaled value.
+6. Use `awful.util.dpi()` (from `beautiful.xresources.apply_dpi`) for any DPI-scaled value.
 7. Call `awful.util.color_alpha(color, "88")` instead of `color .. "88"` for color alpha concatenation.
 
 ## Working In This Directory

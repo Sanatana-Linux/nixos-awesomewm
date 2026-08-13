@@ -4,15 +4,13 @@
   "default_agent": "hubs",
   "permission": {
     "edit": {
-      "configuration/**": "allow",
+      "core/**": "allow",
+      "bindings/**": "allow",
       "ui/**": "allow",
       "modules/**": "allow",
       "service/**": "allow",
       "lib/**": "allow",
       "themes/**": "allow",
-      "upstream/**": "allow",
-      "wibox/**": "allow",
-      "awful/**": "allow",
       "bin/**": "allow",
       "tests/**": "allow",
       ".github/**": "allow",
@@ -25,6 +23,16 @@
   "instructions": [
     "AGENTS.md",
     ".opencode/rules/*"
-  ]
+  ],
+  "references": {
+    "context": {
+      "path": "./.opencode/context",
+      "description": "Durable project knowledge base — decisions, patterns, research, frameworks, and theory."
+    },
+    "x3ric-usr": {
+      "repository": "x3ric/usr",
+      "description": "Feature-rich AwesomeWM 4.3 config with a large lib/ widget library — reference for widget/utility patterns and flat-file organization."
+    }
+  }
 }
 

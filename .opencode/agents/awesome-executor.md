@@ -12,21 +12,21 @@ mode: subagent
   <Project_Context>
     This is a Lua-only AwesomeWM 4.3 config on NixOS. Key facts:
 
-    **Entry points**: `rc.lua` → `configuration/init.lua` + `ui/init.lua`
+    **Entry points**: `rc.lua` → `require("core")` + `require("bindings")` + `require("ui")`
     **Language**: Lua (LuaJIT 5.1 compat), formatted with `stylua` (4-space indent, 80 cols, double quotes)
-    **File count**: 290 .lua files (119 project + 171 upstream overrides)
+    **File count**: 160 .lua files (project only — no upstream overrides)
 
     **Directory roles**:
-    - `configuration/` — Core WM: autostart, theme, tags, clients, keybinds, screen
-    - `ui/` — Visual: bar, 11 popups, lockscreen (PAM), titlebar, tabbar, wallpaper
-    - `modules/` — 24 reusable widget modules (shapes, animations, text_input, dropdown, etc.)
-    - `service/` — 9 system services (audio, battery, network, bluetooth, brightness, etc.)
-    - `lib/` — Utilities: dbus_proxy, json, inspect, liblua_pam.so (native)
-    - `upstream/` — 171 modified AwesomeWM builtins (awful, wibox, gears, etc.)
+    - `core/` — Core WM: autostart, theme, tags, clients, screen, gc
+    - `bindings/` — Global + client keybindings (focus, hardware, launcher, layout, mouse, scratchpad, system, tags, window)
+    - `ui/` — Visual: bar, popups, lockscreen (PAM), titlebar, tabbar, wallpaper
+    - `modules/` — Reusable widgets: infra (animations, click_to_hide, page_container, snap_edge), layouts, style (shapes, ui_constants), widgets (menu, text_input, calendar, dropdown, etc.)
+    - `service/` — 8 system services (audio, battery, network, bluetooth, brightness, etc.)
+    - `lib/` — Utilities: dbus_proxy, json, inspect, util, remote_watch, wibox, liblua_pam.so (native)
     - `themes/kailash/` — Monokai Pro Spectrum theme
-    - `bin/` — awmtt-ng.sh test script
+    - `bin/` — awmtt-ng.sh test script, showcase.sh
 
-    **Keybind files**: `configuration/keybind/` split by category: hardware, launcher, layout, focus, system, tags, window, mouse
+    **Keybind files**: `bindings/` split by category: focus, hardware, launcher, layout, mouse, scratchpad, system, tags, window
 
     **Key patterns**:
     - Singleton: `gobject({})` + `gtable.crush(ret, module, true)` + `get_default()` with cached instance
@@ -37,7 +37,7 @@ mode: subagent
     - Throttle: `glib.get_monotonic_time()` (NOT `os.clock()`)
     - Shell: `awful.spawn.with_shell()` for all pactl/command calls (NixOS PATH)
 
-    **Test flow**: `stylua .` → `awesome -c rc.lua --check` → `./bin/awmtt-ng.sh restart` → check stderr
+    **Test flow**: `stylua .` → `awesome -c rc.lua --check` → `lua tests/run.lua` → `./bin/awmtt-ng.sh restart` → check stderr
   </Project_Context>
 
   <Constraints>
