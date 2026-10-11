@@ -49,6 +49,20 @@ local function was_restarted()
     return detected
 end
 
+--- Auto-lock kill switch.
+-- Set to `false` to disable idle auto-locking entirely. When disabled the
+-- xautolock daemon is never spawned (and any running one is killed), so the
+-- internal lockscreen cannot be triggered automatically.
+--
+-- Why this exists: the config runs TWO independent lockers — this in-process
+-- lockscreen (triggered by xautolock after 10 min) and `xscreensaver`
+-- (enabled via home-manager, blanking after 9 min). Both grab the keyboard
+-- and whichever grabs second wins, leaving the other's password prompt deaf
+-- to keypresses. Disable auto-lock here while the competing lockers are
+-- reconciled; manual locking (Mod4+Ctrl+L) still works.
+-- @local
+local AUTO_LOCK_ENABLED = false
+
 --- Runs autostart commands if this is not a restart.
 -- Prevents duplicate processes on restart.
 local function run_autostart()
@@ -56,6 +70,11 @@ local function run_autostart()
         for _, cmd in ipairs(autostart_commands) do
             awful.spawn.with_shell(cmd)
         end
+    end
+    if not AUTO_LOCK_ENABLED then
+        -- Kill any surviving daemon so a config reload cannot re-lock.
+        awful.spawn.with_shell("pkill xautolock")
+        return
     end
     -- Auto-lock: xautolock daemon triggers lockscreen after 10 min idle.
     -- Outside the restart guard — respawns on every start AND restart
