@@ -80,15 +80,16 @@ end
 --- Turn the adapter radio on or off.
 -- @tparam boolean state `true` to power on, `false` to power off
 function adapter:set_powered(state)
-    if self._private.adapter_proxy.SetAsync then
-        self._private.adapter_proxy:SetAsync(
+    local proxy = self._private.adapter_proxy
+    if proxy and proxy.SetAsync then
+        proxy:SetAsync(
             nil,
             {},
-            self._private.adapter_proxy.interface,
+            proxy.interface,
             "Powered",
             lgi.GLib.Variant("b", state)
         )
-        self._private.adapter_proxy.Powered = {
+        proxy.Powered = {
             signature = "b",
             value = state,
         }
@@ -97,38 +98,41 @@ end
 
 --- @treturn boolean Whether the adapter radio is currently powered
 function adapter:get_powered()
-    return self._private.adapter_proxy.Powered
+    local proxy = self._private.adapter_proxy
+    return proxy ~= nil and proxy.Powered == true
+end
+
+--- @treturn boolean Whether a Bluetooth adapter is present on this machine
+function adapter:is_available()
+    return self._private.available == true
 end
 
 --- Begin scanning for nearby Bluetooth devices. No-op if already discovering.
 function adapter:start_discovery()
-    if not self._private.adapter_proxy then
+    local proxy = self._private.adapter_proxy
+    if not proxy or not proxy.StartDiscoveryAsync then
         return
     end
-    if self._private.adapter_proxy.Discovering ~= true then
-        self._private.adapter_proxy:StartDiscoveryAsync(nil, {})
+    if proxy.Discovering ~= true then
+        proxy:StartDiscoveryAsync(nil, {})
     end
 end
 
 --- Stop an in-progress device scan. No-op if not currently discovering.
 function adapter:stop_discovery()
-    if not self._private.adapter_proxy then
+    local proxy = self._private.adapter_proxy
+    if not proxy or not proxy.StopDiscoveryAsync then
         return
     end
-    if self._private.adapter_proxy.Discovering == true then
-        self._private.adapter_proxy:StopDiscoveryAsync(nil, {})
+    if proxy.Discovering == true then
+        proxy:StopDiscoveryAsync(nil, {})
     end
 end
 
 --- @treturn boolean Whether a device scan is currently in progress
 function adapter:get_discovering()
-    return self._private.adapter_proxy.Discovering
-end
-
---- Get the current powered state of the adapter.
--- @treturn boolean Whether the adapter radio is currently powered
-function adapter:get_powered()
-    return self._private.adapter_proxy.Powered
+    local proxy = self._private.adapter_proxy
+    return proxy ~= nil and proxy.Discovering == true
 end
 
 --- @treturn boolean Whether the adapter is soft-blocked by rfkill
@@ -150,7 +154,7 @@ end
 
 --- @treturn table All known device objects keyed by D-Bus path
 function adapter:get_devices()
-    return self.devices
+    return self.devices or {}
 end
 
 --- @tparam string path D-Bus object path of the device
@@ -252,6 +256,8 @@ local function new()
     gtable.crush(ret, adapter, true)
     ret._private = {}
 
+    ret.devices = {}
+
     ret._private.object_manager_proxy = dbus_proxy.Proxy:new({
         bus = dbus_proxy.Bus.SYSTEM,
         name = "org.bluez",
@@ -266,7 +272,18 @@ local function new()
             interface = "org.bluez.Adapter1",
             path = "/org/bluez/hci0",
         })
+    end
 
+    -- An adapter is only considered present when the BlueZ service is running
+    -- and the hci0 object exposes the Adapter1 interface. On machines without
+    -- Bluetooth hardware the proxy may still be created, but introspection
+    -- yields no accessors (so `Powered` is absent).
+    ret._private.available = ret._private.adapter_proxy ~= nil
+        and ret._private.adapter_proxy.name_owner ~= nil
+        and ret._private.adapter_proxy.accessors ~= nil
+        and ret._private.adapter_proxy.accessors.Powered ~= nil
+
+    if ret._private.available then
         ret._private.properties_proxy = dbus_proxy.Proxy:new({
             bus = dbus_proxy.Bus.SYSTEM,
             name = "org.bluez",
@@ -286,7 +303,6 @@ local function new()
             end
         )
 
-        ret.devices = {}
         ret._private.object_manager_proxy:connect_signal(
             "InterfacesAdded",
             function(_, path)
@@ -318,7 +334,7 @@ local function new()
         if ret._private.object_manager_proxy.GetManagedObjects then
             local object_paths =
                 ret._private.object_manager_proxy:GetManagedObjects()
-            for path, _ in pairs(object_paths) do
+            for path, _ in pairs(object_paths or {}) do
                 if
                     path:match(
                         "^/org/bluez/hci0/dev_%w%w_%w%w_%w%w_%w%w_%w%w_%w%w$"
@@ -328,12 +344,13 @@ local function new()
                 end
             end
         end
-    end
 
-    awful.spawn.easy_async("rfkill list bluetooth", function(stdout)
-        ret._private.blocked = stdout:match("Soft blocked: yes") ~= nil
-        ret:emit_signal("property::blocked", ret._private.blocked)
-    end)
+        awful.spawn.easy_async("rfkill list bluetooth", function(stdout)
+            ret._private.blocked = stdout ~= nil
+                and stdout:match("Soft blocked: yes") ~= nil
+            ret:emit_signal("property::blocked", ret._private.blocked)
+        end)
+    end
 
     return ret
 end

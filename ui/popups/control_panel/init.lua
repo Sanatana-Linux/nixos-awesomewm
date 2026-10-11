@@ -48,8 +48,12 @@ function control_panel:setup_network_page()
 end
 
 --- Switch to the bluetooth settings page inside the panel.
+-- No-op when no Bluetooth adapter is present (the page is never built).
 function control_panel:setup_bluetooth_page()
     local wp = self._private
+    if not wp.bluetooth_page then
+        return
+    end
     local main_layout = self.widget:get_children_by_id("main-layout")[1]
     main_layout:reset()
     main_layout:add(wp.bluetooth_page)
@@ -61,6 +65,17 @@ function control_panel:setup_main_page()
     local wp = self._private
     local main_layout = self.widget:get_children_by_id("main-layout")[1]
     main_layout:reset()
+    -- Applet button row — the Bluetooth button is only added when an
+    -- adapter is present, so machines without Bluetooth simply omit it.
+    local button_row = wibox.widget({
+        layout = wibox.layout.fixed.horizontal,
+        spacing = dpi(6),
+    })
+    button_row:add(wp.network_button)
+    if wp.bluetooth_button then
+        button_row:add(wp.bluetooth_button)
+    end
+
     main_layout:add(
         wp.notification_list,
         wibox.widget({
@@ -74,12 +89,7 @@ function control_panel:setup_main_page()
         }),
         wp.audio_sliders,
         wp.brightness_slider,
-        wibox.widget({
-            layout = wibox.layout.fixed.horizontal,
-            spacing = dpi(6),
-            wp.network_button,
-            wp.bluetooth_button,
-        })
+        button_row
     )
 end
 
@@ -184,6 +194,9 @@ end
 -- Shows the panel first if it's hidden.
 function control_panel:show_bluetooth()
     local wp = self._private
+    if not wp.bluetooth_page then
+        return
+    end
     if not wp.shown then
         self:show()
     end
@@ -236,8 +249,12 @@ local function new()
     wp.brightness_slider = brightness_slider()
     wp.network_button = network_button()
     wp.network_page = network_page()
-    wp.bluetooth_button = bluetooth_button()
-    wp.bluetooth_page = bluetooth_page()
+
+    -- Only build the Bluetooth applet when an adapter is actually present.
+    if require("service.bluetooth").get_default():is_available() then
+        wp.bluetooth_button = bluetooth_button()
+        wp.bluetooth_page = bluetooth_page()
+    end
 
     -- Network button tooltips + reveal action
     local network_reveal =
@@ -268,27 +285,33 @@ local function new()
         })
     end
 
-    -- Bluetooth button tooltips + reveal action
-    local bt_reveal = wp.bluetooth_button:get_children_by_id("reveal-button")[1]
-    add_tooltip(bt_reveal, "Open Bluetooth settings")
-    bt_reveal:buttons({
-        awful.button({}, 1, function()
-            ret:setup_bluetooth_page()
-        end),
-    })
-
-    local bt_toggle = wp.bluetooth_button:get_children_by_id("toggle-button")[1]
-    if bt_toggle then
-        add_tooltip(bt_toggle, "Toggle Bluetooth on/off")
-    end
-
-    local bt_wp = wp.bluetooth_page._private
-    if bt_wp.close_btn then
-        bt_wp.close_btn:buttons({
+    -- Bluetooth button tooltips + reveal action — only when an adapter exists.
+    if wp.bluetooth_button then
+        local bt_reveal =
+            wp.bluetooth_button:get_children_by_id("reveal-button")[1]
+        add_tooltip(bt_reveal, "Open Bluetooth settings")
+        bt_reveal:buttons({
             awful.button({}, 1, function()
-                ret:setup_main_page()
+                ret:setup_bluetooth_page()
             end),
         })
+
+        local bt_toggle =
+            wp.bluetooth_button:get_children_by_id("toggle-button")[1]
+        if bt_toggle then
+            add_tooltip(bt_toggle, "Toggle Bluetooth on/off")
+        end
+    end
+
+    if wp.bluetooth_page then
+        local bt_wp = wp.bluetooth_page._private
+        if bt_wp.close_btn then
+            bt_wp.close_btn:buttons({
+                awful.button({}, 1, function()
+                    ret:setup_main_page()
+                end),
+            })
+        end
     end
 
     click_to_hide.popup(ret, function()
