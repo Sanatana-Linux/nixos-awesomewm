@@ -10,3 +10,6 @@
 .opencode/cache/
 # Evaluation/test state
 evals/**/state/
+
+# App launcher runtime history
+ui/popups/launcher/history.dat
