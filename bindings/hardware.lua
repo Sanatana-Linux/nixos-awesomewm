@@ -100,9 +100,10 @@ awful.keyboard.append_global_keybindings({
 
     -- -------------------------------------------------------------------------- --
     -- Lock Screen
-    awful.key({ modkey, "Control" }, "l", function()
-        awesome.emit_signal("lockscreen::visible", true)
-    end, { description = "lock screen", group = "Hardware" }),
+    -- Disabled: the lockscreen module is no longer loaded from ui/init.lua.
+    -- awful.key({ modkey, "Control" }, "l", function()
+    --     awesome.emit_signal("lockscreen::visible", true)
+    -- end, { description = "lock screen", group = "Hardware" }),
 
     -- -------------------------------------------------------------------------- --
     -- Screenshot

@@ -13,3 +13,9 @@ evals/**/state/
 
 # App launcher runtime history
 ui/popups/launcher/history.dat
+
+# Nix build output symlink (symlinkJoin buildOutput)
+/result
+
+# Compiled PAM helper — build artifact, not source
+lib/liblua_pam.so

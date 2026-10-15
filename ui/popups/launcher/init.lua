@@ -535,12 +535,9 @@ local function new()
         end
     end)
 
+    -- Lock button: left in the layout but no longer wired to anything, since
+    -- the lockscreen module is no longer loaded from ui/init.lua.
     local lock_button = ret.widget:get_children_by_id("lock-button")[1]
-    lock_button:buttons({
-        awful.button({}, 1, function()
-            awesome.emit_signal("lockscreen::visible", true)
-        end),
-    })
     lock_button:connect_signal("mouse::enter", function(w)
         w.bg = beautiful.bg_gradient_button_alt
         w.border_color = color_alpha(beautiful.fg, "66")

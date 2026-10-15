@@ -243,14 +243,6 @@ local function new()
     wp.elements = {
         {
             exec = function()
-                awesome.emit_signal("lockscreen::visible", true)
-                ret:hide()
-            end,
-            icon = icons_dir .. "lock.svg",
-            name = "lock",
-        },
-        {
-            exec = function()
                 awful.spawn("poweroff")
             end,
             icon = icons_dir .. "poweroff.svg",
