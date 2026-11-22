@@ -48,25 +48,26 @@ function hover_bar.create(args)
         keyboard_triggered = false, -- set when shown via keyboard toggle
     }
 
-    -- Create the trigger zone at bottom of screen
+    -- `screen` must be passed explicitly: without it a wibox is assumed to
+    -- belong to the primary screen, so on a secondary monitor the bar ends up
+    -- clamped into the primary screen ("flies into the middle").
+    -- Geometry is applied *after* construction because assigning `screen`
+    -- resets x/y to that screen's origin.
     local trigger_zone = wibox({
-        x = screen_geo.x,
-        y = screen_geo.y + screen_geo.height - TRIGGER_ZONE_HEIGHT,
-        width = screen_geo.width,
-        height = TRIGGER_ZONE_HEIGHT,
+        screen = screen,
         visible = true,
         ontop = true,
         type = "utility",
         bg = "transparent",
         input_pass_through = false,
     })
+    trigger_zone.x = screen_geo.x
+    trigger_zone.y = screen_geo.y + screen_geo.height - TRIGGER_ZONE_HEIGHT
+    trigger_zone.width = screen_geo.width
+    trigger_zone.height = TRIGGER_ZONE_HEIGHT
 
-    -- Create the bar wibox
     local bar = wibox({
-        x = screen_geo.x,
-        y = hidden_y,
-        width = screen_geo.width,
-        height = bar_height,
+        screen = screen,
         visible = true,
         ontop = true,
         type = "utility",
@@ -75,6 +76,10 @@ function hover_bar.create(args)
         border_color = beautiful.bg .. "66",
         widget = bar_widget,
     })
+    bar.x = screen_geo.x
+    bar.y = hidden_y
+    bar.width = screen_geo.width
+    bar.height = bar_height
 
     -- Clear any struts (ensure no geometry impact)
     bar:struts({ left = 0, right = 0, top = 0, bottom = 0 })
