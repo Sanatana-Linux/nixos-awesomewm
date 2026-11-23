@@ -34,8 +34,17 @@ function hover_bar.create(args)
     local bar_widget = args.widget
 
     local screen_geo = screen.geometry
-    local hidden_y = screen_geo.y + screen_geo.height
-    local visible_y = screen_geo.y + screen_geo.height - bar_height
+
+    --- The y position where the bar is fully visible, computed from the
+    -- screen's *current* geometry on every call. This must not be cached: on
+    -- startup a secondary screen can report a provisional geometry (e.g. y=0)
+    -- that RandR corrects moments later. A cached value left the bar
+    -- animating to a stale y, so it appeared in the middle of the screen.
+    -- @treturn number Absolute y coordinate for a fully shown bar
+    local function current_visible_y()
+        local geo = screen.geometry
+        return geo.y + geo.height - bar_height
+    end
 
     local screen_geo_handler = nil
 
@@ -77,7 +86,7 @@ function hover_bar.create(args)
         widget = bar_widget,
     })
     bar.x = screen_geo.x
-    bar.y = hidden_y
+    bar.y = screen_geo.y + screen_geo.height
     bar.width = screen_geo.width
     bar.height = bar_height
 
@@ -171,7 +180,7 @@ function hover_bar.create(args)
         if not state.is_visible then
             state.show_timer = gtimer.start_new(SHOW_DELAY_SECONDS, function()
                 state.is_visible = true
-                animate_to(visible_y)
+                animate_to(current_visible_y())
                 return false
             end)
         end
@@ -227,7 +236,7 @@ function hover_bar.create(args)
             if not state.is_visible then
                 state.is_visible = true
                 state.keyboard_triggered = is_keyboard or false
-                animate_to(visible_y)
+                animate_to(current_visible_y())
             end
         end,
         hide = function()
@@ -244,7 +253,7 @@ function hover_bar.create(args)
             -- Otherwise show with keyboard 30s lock
             state.is_visible = true
             state.keyboard_triggered = true
-            animate_to(visible_y)
+            animate_to(current_visible_y())
             -- Start 30s auto-hide timer
             cancel_hide_timer()
             state.hide_timer = gtimer.start_new(KEYBOARD_HIDE_DELAY, function()
