@@ -106,6 +106,30 @@ awful.screen.connect_for_each_screen(setup_screen_bar)
 -- Also handle screens added later (hot-plug)
 screen.connect_signal("added", setup_screen_bar)
 
+--- Destroy a screen's bar so it can be rebuilt with a different role.
+-- @tparam screen s The screen whose bar should be torn down
+-- @local
+local function destroy_screen_bar(s)
+    if s.bar then
+        pcall(function()
+            s.bar.destroy()
+        end)
+        s.bar = nil
+    end
+end
+
+-- `core.screen` may change the primary *after* startup (a RandR layout
+-- applied by autostart re-arranges the screens). Rebuild the bars so the
+-- primary bar (launcher/tray/etc.) lands on the newly chosen primary.
+awesome.connect_signal("screen::primary_override", function()
+    gtimer.delayed_call(function()
+        for s in capi.screen do
+            destroy_screen_bar(s)
+            setup_screen_bar(s)
+        end
+    end)
+end)
+
 capi.screen.connect_signal("request::wallpaper", function(s)
     s.wallpaper = wallpaper(s)
 

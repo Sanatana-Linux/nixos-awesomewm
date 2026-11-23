@@ -1,14 +1,16 @@
 --- Screen management.
--- Overrides the X11 primary-screen selection so an internal display
--- is preferred over an external HDMI monitor, and applies a small
--- `dpi(3)` padding to every screen's workarea. Re-runs both on
--- `screen::added` and `screen::removed` so hot-plug is handled.
+-- Makes the largest connected display the primary workspace, regardless of
+-- RandR output names (DP-4, HDMI-0, …) or Xinerama index assignment, and
+-- applies a small `dpi(3)` padding to every screen's workarea.
+--
+-- `screen.primary` is read-only in AwesomeWM — assigning it from Lua is
+-- silently ignored — so the primary is enforced at the X level with
+-- `xrandr --output <largest> --primary`. Everything is re-evaluated on
+-- `property::geometry`, `added` and `removed`, so a layout applied after
+-- startup settles on the same deterministic result.
 -- @module core.screen
 
--- Screen management module to override primary screen selection
--- This ensures the internal display is preferred over HDMI
-
-local capi = { screen = screen }
+local capi = { screen = screen, awesome = awesome }
 local awful = require("awful")
 local gtimer = require("gears.timer")
 local beautiful = require("beautiful")
@@ -16,65 +18,103 @@ local dpi = beautiful.xresources.apply_dpi
 
 local screen_module = {}
 
---- Find the internal (preferred) primary screen.
--- Heuristic: prefer a 1920×1080 screen, else the screen at `(0, 0)`,
--- else fall back to X11's primary.
--- @treturn screen
+--- Pick the preferred primary screen from AwesomeWM's screen list.
+-- The preferred primary is the connected screen with the largest area,
+-- independent of output names and index assignment. Ties resolve to the
+-- lowest index. Kept for callers that need the screen object; the actual
+-- primary is enforced via RandR (see `override_primary`).
+--
+-- NB: do not use `#screen` — it reports 0 even with multiple screens; use
+-- `screen.count()`.
+-- @treturn screen The preferred primary screen
 function screen_module.get_preferred_primary()
-    local screens = capi.screen
-    local preferred_screen = nil
+    local best, best_area = nil, -1
 
-    -- Try to find an internal display first
-    for s in screens do
-        -- If we have multiple screens, try to identify internal one
-        if #screens > 1 then
-            -- Internal displays often have different resolutions/positions
-            -- You might need to customize this logic for your specific setup
-            if s.geometry.width == 1920 and s.geometry.height == 1080 then
-                -- Example: prefer 1920x1080 over other resolutions
-                preferred_screen = s
-                break
-            elseif s.geometry.x == 0 and s.geometry.y == 0 then
-                -- Screen at position 0,0 is often the primary/internal
-                preferred_screen = s
-                break
-            end
-        else
-            -- Only one screen, use it
-            preferred_screen = s
-            break
+    for s in capi.screen do
+        local geo = s.geometry
+        local area = geo.width * geo.height
+
+        if area > best_area then
+            best, best_area = s, area
         end
     end
 
-    -- Fallback to X11's primary screen if no preference found
-    return preferred_screen or capi.screen.primary
+    return best or capi.screen.primary
 end
 
--- Override the primary screen
---- Override `screen.primary` to prefer the internal display.
--- Calls `get_preferred_primary()` and sets `screen.primary` if the
--- preferred screen differs from X11's default.
+--- Parse `xrandr --query` output.
+-- Returns the name of the connected output with the largest area and the
+-- name of the output currently flagged `primary` (which may be a
+-- disconnected output, in which case it is ignored).
+-- @tparam string stdout Raw `xrandr --query` output
+-- @treturn string|nil name of the largest connected output
+-- @treturn string|nil name of the current primary output
+-- @local
+local function parse_outputs(stdout)
+    local best_name, best_area = nil, -1
+    local current_primary = nil
+
+    for line in stdout:gmatch("[^\n]+") do
+        local name, rest = line:match("^(%S+) connected%s+(.*)$")
+
+        if name then
+            -- A `primary` flag may appear before the geometry; detect it
+            -- wherever it sits in the rest of the line.
+            if rest:find("%f[%w]primary%f[%W]") then
+                current_primary = name
+            end
+
+            local w, h = rest:match("(%d+)x(%d+)%+")
+            if not w then
+                w, h = rest:match("(%d+)x(%d+)")
+            end
+
+            if w and h then
+                local area = tonumber(w) * tonumber(h)
+                if area > best_area then
+                    best_name, best_area = name, area
+                end
+            end
+        end
+    end
+
+    return best_name, current_primary
+end
+
+--- Ensure the largest connected output is the RandR primary.
+-- `screen.primary` cannot be set from Lua, so this runs `xrandr --primary`
+-- when the current primary is not the largest connected output. Emits
+-- `screen::primary_override` after the change so the UI can rebuild bars.
 function screen_module.override_primary()
-    local preferred = screen_module.get_preferred_primary()
-    if preferred and preferred ~= capi.screen.primary then
-        -- Set our preferred screen as primary
-        capi.screen.primary = preferred
+    awful.spawn.easy_async_with_shell("xrandr --query", function(stdout)
+        local best, current = parse_outputs(stdout or "")
+
+        if not best or best == current then
+            return
+        end
+
         io.stderr:write(
             string.format(
-                "[SCREEN] Overriding primary screen to screen %d\n",
-                preferred.index
+                "[SCREEN] Setting primary output to %s (was %s)\n",
+                best,
+                tostring(current)
             )
         )
-    end
+
+        awful.spawn.easy_async_with_shell(
+            "xrandr --output " .. best .. " --primary",
+            function()
+                capi.awesome.emit_signal("screen::primary_override")
+            end
+        )
+    end)
 end
 
--- Set up screen padding for all screens
 --- Apply `dpi(3)` padding to every screen's workarea.
 -- Creates a consistent gap between windows and screen edges.
 function screen_module.setup_screen_padding()
-    local padding_size = dpi(3) -- Gap between windows and screen edges
+    local padding_size = dpi(3)
 
-    -- Apply padding to all current screens
     for s in capi.screen do
         s.padding = {
             left = padding_size,
@@ -85,32 +125,52 @@ function screen_module.setup_screen_padding()
     end
 end
 
--- Handle screen changes (hot-plug/unplug)
+--- Re-evaluate primary + padding, coalescing bursts of geometry events.
+-- RandR emits many `property::geometry` signals while a layout is applied;
+-- a delayed call plus the `pending` flag collapses them into one pass.
+-- @local
+local pending = false
+local function refresh()
+    if pending then
+        return
+    end
+    pending = true
+
+    gtimer.delayed_call(function()
+        pending = false
+        screen_module.override_primary()
+        screen_module.setup_screen_padding()
+    end)
+end
+
+--- Watch a screen's geometry so a layout applied after startup is caught.
+-- @tparam screen s The screen to watch
+-- @local
+local function watch_screen(s)
+    s:connect_signal("property::geometry", refresh)
+end
+
 --- Wire up screen change handling. Called automatically at module load.
 function screen_module.setup_screen_handling()
-    -- Override primary screen on startup
     screen_module.override_primary()
-
-    -- Set up screen padding for all screens
     screen_module.setup_screen_padding()
 
-    -- Also handle screens being added/removed
-    capi.screen.connect_signal("added", function()
+    for s in capi.screen do
+        watch_screen(s)
+    end
+
+    capi.screen.connect_signal("added", function(s)
         gtimer.delayed_call(function()
-            screen_module.override_primary()
-            screen_module.setup_screen_padding()
+            watch_screen(s)
+            refresh()
         end)
     end)
 
     capi.screen.connect_signal("removed", function()
-        gtimer.delayed_call(function()
-            screen_module.override_primary()
-            screen_module.setup_screen_padding()
-        end)
+        refresh()
     end)
 end
 
--- Initialize screen handling
 screen_module.setup_screen_handling()
 
 return screen_module

@@ -16,5 +16,5 @@ Screen management — overrides primary screen selection to prefer internal disp
 
 ### Working In This Directory
 - Uses `capi = { screen = screen }` to capture the global screen API
-- `get_preferred_primary()` selects internal displays over external
+- The largest connected display becomes primary, enforced via `xrandr --primary` (output/index agnostic); `get_preferred_primary()` returns that screen object
 - Screen geometry changes trigger `property::geometry` signal handlers
