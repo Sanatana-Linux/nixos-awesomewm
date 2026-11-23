@@ -208,6 +208,7 @@ function screenshot_popup:new()
     -- Emits `property::shown` for mutual-exclusion wiring.
     function ret:show()
         self.widget.visible = true
+        self.widget.screen = awful.screen.focused()
         awful.placement.centered(self.widget)
         self:emit_signal("property::shown", true)
     end

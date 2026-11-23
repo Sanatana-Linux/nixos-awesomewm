@@ -544,6 +544,8 @@ local function new()
         self:_update_charts()
 
         wp.shown = true
+        -- Always appear on the focused screen (deferred placement re-runs).
+        self.popup.screen = awful.screen.focused()
         self.popup.opacity = 0
         self.popup.visible = true
 

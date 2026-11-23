@@ -107,6 +107,9 @@ function control_panel:show()
     audio:get_default_source_data()
     self:setup_main_page()
 
+    -- Always appear on the focused screen.
+    self.screen = awful.screen.focused()
+
     self.opacity = 0
     self.visible = true
 

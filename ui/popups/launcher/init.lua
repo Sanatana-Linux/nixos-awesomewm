@@ -207,7 +207,8 @@ function launcher:show()
 
     wp.shown = true
 
-    -- Reset to show all apps (lightweight filtering)
+    -- Bind to the focused screen before the deferred placement runs.
+    self.screen = awful.screen.focused()
     wp.filtered = apps.filter(wp.unfiltered, "", history.make_sort_fn())
     wp.start_index, wp.select_index = 1, 1
 

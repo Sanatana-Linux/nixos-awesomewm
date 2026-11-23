@@ -10,7 +10,6 @@ local awful = require("awful")
 local beautiful = require("beautiful")
 local dpi = beautiful.xresources.apply_dpi
 local gears = require("gears")
-local mouse = mouse
 local shapes = require("modules.style.shapes.init")
 
 local base_layout = wibox.widget({
@@ -59,26 +58,29 @@ local layout_popup = awful.popup({
     widget = wibox.widget({
         ll,
         margins = dpi(32),
-        screen = mouse.screen,
         widget = wibox.container.margin,
     }),
     border_width = dpi(2.25),
     border_color = beautiful.bg_normal .. "44",
     bg = beautiful.bg .. "cc",
     shape = shapes.rrect(12),
-    screen = mouse.screen,
     placement = awful.placement.centered,
     ontop = true,
     visible = false,
 })
 
+--- Position the OSD on the focused screen.
+-- @local
+local function place()
+    layout_popup.screen = awful.screen.focused()
+    layout_popup.placement(layout_popup)
+end
+
 -- Timer for layout popup
 layout_popup.timer = gears.timer({ timeout = 1.5 })
 layout_popup.timer:connect_signal("timeout", function()
     layout_popup.visible = false
-    layout_popup.screen = mouse.screen
 end)
-layout_popup.screen = mouse.screen
 
 -- Cooldown lock to prevent rapid layout switching
 -- Gives clients time to rearrange before the next change
@@ -104,6 +106,7 @@ local function change_layout(dir)
     layout_lock = true
     unlock_timer:start()
     awful.layout.inc(dir)
+    place()
     layout_popup.visible = true
     layout_popup.timer:start()
 end
@@ -152,6 +155,7 @@ local osd = {}
 --- Show the layout-switch OSD.
 -- The popup reappears with the auto-hide timer reset.
 function osd.show()
+    place()
     layout_popup.visible = true
     layout_popup.timer:again()
 end

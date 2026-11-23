@@ -172,6 +172,11 @@ function powermenu:show()
         return
     end
     wp.shown = true
+    -- Always appear on the focused screen.
+    self.screen = awful.screen.focused()
+    if self.placement then
+        self.placement(self)
+    end
     self.visible = true
     self:emit_signal("property::shown", wp.shown)
     wp.select_index = 1

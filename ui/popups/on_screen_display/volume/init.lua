@@ -113,6 +113,12 @@ function osd:show(value, is_muted)
         end,
     })
 
+    -- Always appear on the focused screen.
+    self.screen = awful.screen.focused()
+    if self.placement then
+        self.placement(self)
+    end
+
     if not self.visible then
         self.visible = true
         wp.timer:start()

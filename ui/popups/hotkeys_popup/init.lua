@@ -486,6 +486,11 @@ function widget.new(args)
                 return
             end
             self._shown = true
+            -- Always appear on the focused screen, then center.
+            popup.screen = awful.screen.focused()
+            if popup.placement then
+                popup.placement(popup)
+            end
             popup.visible = true
             popup:emit_signal("property::shown", true)
             -- Start keygrabber AFTER visible so it sits on top

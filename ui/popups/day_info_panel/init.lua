@@ -31,6 +31,12 @@ function day_info:show()
         wp.calendar_widget:set_current_date()
     end
 
+    -- Always appear on the focused screen, then position before animating.
+    self.screen = awful.screen.focused()
+    if self.placement then
+        self.placement(self)
+    end
+
     self.opacity = 0
     self.visible = true
     self:emit_signal("widget::layout_changed")
