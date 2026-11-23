@@ -100,6 +100,23 @@ rclient.connect_signal("request::rules", function()
             disallow_autocenter = true,
         },
     })
+
+    -- Firefox Browser Toolbox (both "Browser Toolbox" and the multiprocess
+    -- "Multiprocess Browser Toolbox") should float and stay above the tiled
+    -- windows so it doesn't get buried while debugging. Rule strings are Lua
+    -- patterns matched against the client name, so the substring matches
+    -- both titles.
+    rclient.append_rule({
+        id = "firefox_browser_toolbox",
+        rule = { name = "Browser Toolbox" },
+        properties = {
+            floating = true,
+            ontop = true,
+            raise = true,
+            size_hints_honor = true,
+            placement = placement.center_and_keep_on_screen,
+        },
+    })
 end)
 
 rnotification.connect_signal("request::rules", function()
