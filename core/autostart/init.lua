@@ -33,8 +33,11 @@ gc_service.start()
 local autostart_commands = {
     -- "xrdb -merge ~/.Xresources", -- Merge X resources
     "pkill picom && sleep 1 && picom --daemon", -- Compositor for blur, shadows, and animations
-    "xrandr --output eDP-1-1 --mode 2560x1600 --rate 144",
-    --      "xrandr --output eDP-1-1 --mode 2560x1600 --rate 60",
+    -- Apply the saved RandR monitor layout (positions + modes + refresh).
+    -- Guarded so machines without the script (e.g. single-monitor) still
+    -- start cleanly. Bars re-position themselves via the screen
+    -- `property::geometry` handler when the layout changes.
+    "[ -x ~/.screenlayout/layout.sh ] && ~/.screenlayout/layout.sh",
     --      "clipse --listen &",
     "clipster -d &",
 }
