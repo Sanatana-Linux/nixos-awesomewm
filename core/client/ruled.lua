@@ -101,14 +101,14 @@ rclient.connect_signal("request::rules", function()
         },
     })
 
-    -- Firefox Browser Toolbox (both "Browser Toolbox" and the multiprocess
-    -- "Multiprocess Browser Toolbox") should float and stay above the tiled
-    -- windows so it doesn't get buried while debugging. Rule strings are Lua
-    -- patterns matched against the client name, so the substring matches
-    -- both titles.
+    -- Firefox Browser Toolbox. Its WM_CLASS is ("Devtools", "firefox"); match
+    -- on the instance because WM_NAME ("Browser Toolbox" / "Multiprocess
+    -- Browser Toolbox") is set *after* the client is managed, so a name-based
+    -- rule misses it on relaunch. Floating + ontop keeps the debugger above
+    -- the tiled windows.
     rclient.append_rule({
         id = "firefox_browser_toolbox",
-        rule = { name = "Browser Toolbox" },
+        rule = { instance = "Devtools", class = "firefox" },
         properties = {
             floating = true,
             ontop = true,
